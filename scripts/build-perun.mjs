@@ -9,10 +9,6 @@ import { build } from "esbuild";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 let repoRoot = resolve(scriptDir, "..");
-// Normalize case for macOS sandbox path matching
-if (repoRoot.startsWith("/Users/kenny/Work")) {
-	repoRoot = repoRoot.replace("/Users/kenny/Work", "/Users/kenny/work");
-}
 const onecAgentDir = join(repoRoot, "packages", "1c-agent");
 const outputFile = join(onecAgentDir, "bin", "perun.bundle.mjs");
 

@@ -23,6 +23,10 @@ export async function runPerun(args: string[] = process.argv.slice(2)): Promise<
 }
 
 // Direct CLI invocation
-if (import.meta.url === `file://${process.argv[1]}` || process.argv[1]?.endsWith("/perun") || process.argv[1]?.endsWith("cli.ts")) {
+if (
+	import.meta.url === `file://${process.argv[1]}` ||
+	process.argv[1]?.endsWith("/perun") ||
+	process.argv[1]?.endsWith("cli.ts")
+) {
 	runPerun();
 }

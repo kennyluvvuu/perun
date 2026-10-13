@@ -26,6 +26,10 @@
 - Do not preserve backward compatibility unless the user asks for it.
 - Never hardcode key checks (e.g. `matchesKey(keyData, "ctrl+x")`). Add defaults to `DEFAULT_EDITOR_KEYBINDINGS` or `DEFAULT_APP_KEYBINDINGS` so they stay configurable.
 - Never modify `packages/ai/src/models.generated.ts` directly; update `packages/ai/scripts/generate-models.ts` instead, then regenerate. Including the resulting `models.generated.ts` diff is always OK, even if regeneration includes unrelated upstream model metadata changes.
+- In 1C agent code and BSL regex matching: never use `\b` for Cyrillic identifiers. Use lookarounds `(?<![А-Яа-яA-Za-z0-9_])...(?![А-Яа-яA-Za-z0-9_])`.
+- In 1C extension lifecycle: never invoke action methods (`pi.getAllTools()`, `pi.setActiveTools()`) during extension loading or constructor; defer tool activation and UI updates to `session_start`.
+- 1C static analysis and LSP must rely exclusively on native Rust `bsl-analyzer` (no Java, no `bsl-language-server`).
+- 1C configuration format is 1C:EDT (`.mdo` metadata files, `.bsl` module files, `.project`).
 
 ## Commands
 
@@ -33,7 +37,12 @@
 - Never run `npm run build` or `npm test` unless requested by the user.
 - Never run the full vitest suite directly: it includes e2e tests that activate when endpoint/auth env vars are present. For all non-e2e tests, run `./test.sh` from the repo root. Otherwise run specific tests from the package root:
   - Vitest: `node "$(git rev-parse --show-toplevel)/node_modules/vitest/dist/cli.js" --run test/specific.test.ts`
+  - `packages/1c-agent`: `node "$(git rev-parse --show-toplevel)/node_modules/vitest/dist/cli.js" --run packages/1c-agent/test`
   - `packages/tui` (`node:test`): `node --test test/specific.test.ts`
+- PerUN binary build and run:
+  - Bun compile: `bun run build:perun:bun` or `node scripts/build-perun.mjs` (produces native binary `packages/1c-agent/bin/perun` and `bin/perun.bundle.mjs`).
+  - Run binary: `./packages/1c-agent/bin/perun` or `npm run perun`.
+  - Run ESM bundle: `node packages/1c-agent/bin/perun.bundle.mjs` or `npm run perun:bundle`.
 - If you create or modify a test file, run it and iterate on test or implementation until it passes.
 - For `packages/coding-agent/test/suite/`, use `test/suite/harness.ts` + the faux provider. No real provider APIs, keys, or paid tokens.
 - When regressions tests for fixing a github issue, add a comment with the github issue number next to the test.
@@ -59,7 +68,7 @@ Committing:
 - Stage explicit paths (`git add <path1> <path2>`); never `git add -A` / `git add .`.
 - Before committing, run `git status` and verify you are only staging your files.
 - `packages/ai/src/models.generated.ts` may always be included alongside your files.
-- Message format: `{feat,fix,docs}[(ai,tui,agent,coding-agent)]: <commit message> (optionally multiple lines)`. Message is informative and concise.
+- Message format: `{feat,fix,docs}[(ai,tui,agent,coding-agent,1c-agent)]: <commit message> (optionally multiple lines)`. Message is informative and concise.
 
 Never run (destroys other agents' work or bypasses checks):
 
@@ -83,7 +92,7 @@ When reviewing PRs:
 
 When creating issues:
 
-- Add `pkg:*` labels for affected packages (`pkg:agent`, `pkg:ai`, `pkg:coding-agent`, `pkg:tui`); use all that apply.
+- Add `pkg:*` labels for affected packages (`pkg:agent`, `pkg:ai`, `pkg:coding-agent`, `pkg:tui`, `pkg:1c-agent`); use all that apply.
 
 When posting issue/PR comments:
 
@@ -119,6 +128,32 @@ Attribution:
 ## Releasing
 
 For release preparation, publishing, verification, or recovery, load and follow [.pi/skills/release.md](.pi/skills/release.md).
+
+## PerUN (1C Agent) Architecture & Standards
+
+PerUN (ПерУН) is the 1C AI companion packaged in `packages/1c-agent` and built as a standalone binary in `packages/1c-agent/bin/perun`:
+
+- Architectural isolation: Pi core (`packages/agent`, `packages/ai`, `packages/coding-agent`, `packages/tui`) stays as clean as possible. All 1C-specific domain logic, AST tools, LSP integration, autofix rules, and subagent definitions live in `packages/1c-agent`.
+- Workflow Modes:
+  - `НАЙТИ` (find, read-only): file exploration, symbol search, references, call hierarchy. Mutating tools are fail-closed.
+  - `ОБЪЯСНИТЬ` (explain, read-only): code analysis, BSLDoc standards, impact diagrams.
+  - `НАПИСАТЬ` (write, full access): code authoring, metadata editing, automated fixes.
+  - `ПЛАНИРОВАТЬ` (plan, read-only): task decomposition, architecture planning, schema modeling.
+  - Toggle modes via `alt+m` or `/mode [find|explain|write|plan]`.
+- Inline LSP Feedback:
+  - Background daemon runs `bsl-analyzer lsp` over stdio on project detection (`Configuration.mdo`, `.project`, `bsl-analyzer.toml`, `.bsl`).
+  - Edits to `.bsl`/`.os` files send `textDocument/didChange` and immediately attach diagnostics to the originating `tool_result` event without extra turns.
+- Navigation & Impact Analysis:
+  - `1c_call_hierarchy`: incoming/outgoing call chains.
+  - `1c_impact_analysis`: structural impact on documents, registers, and posting routines.
+  - `1c_ast_symbols`: fast symbol extraction.
+- ITS Auto-Fixer:
+  - `bsl_fix_standards` parses static analysis rules (`QueryInLoop`, `EmptyExcept`, `UnusedVariable`, `MissingBSLDoc`, `ServerModalCall`) and applies unified diffs.
+- 1C Subagents:
+  - Roles: `1c-architect`, `1c-coder`, `1c-tester`, `1c-reviewer`.
+  - Tool: `1c_subagent` delegates specialized tasks in isolated sub-sessions.
+- Permission policies:
+  - Controlled via `/permission [strict|auto-approve|yolo]`.
 
 ## User Override
 

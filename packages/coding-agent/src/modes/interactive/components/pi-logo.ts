@@ -37,4 +37,3 @@ export function piWordmark(): string {
 	const mode = theme.getColorMode();
 	return `${foregroundAnsi(CORAL, mode)}Пер${foregroundAnsi(YELLOW, mode)}УН${RESET}`;
 }
-

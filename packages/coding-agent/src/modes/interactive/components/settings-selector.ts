@@ -561,13 +561,6 @@ export class SettingsSelectorComponent extends Container {
 				values: ["true", "header", "false"],
 			},
 			{
-				id: "install-telemetry",
-				label: "Install telemetry",
-				description: "Send an anonymous version/update ping after changelog-detected updates",
-				currentValue: config.enableInstallTelemetry ? "true" : "false",
-				values: ["true", "false"],
-			},
-			{
 				id: "default-project-trust",
 				label: "Default project trust",
 				description: "Fallback behavior when no extension or saved trust decision decides project trust",

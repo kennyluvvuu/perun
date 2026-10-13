@@ -100,16 +100,26 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			await lspClient.stop().catch(() => {});
 		});
 
-		// 6. Hook: before_agent_start - inject mode instructions
+		// 6. Hook: before_agent_start - inject mode instructions & 1C LSP environment
 		pi.on("before_agent_start", (event: BeforeAgentStartEvent): BeforeAgentStartEventResult | undefined => {
 			const promptInjection = modeManager.getSystemPromptInjection();
+			const envInjection =
+				"ВСТРОЕННОЕ ОКРУЖЕНИЕ И LSP 1С (ПЕРУН):\n" +
+				"- В ПерУН уже встроен и работает фоновый LSP-сервер bsl-analyzer. При каждом редактировании файлов .bsl и .os через write или edit диагностика синтаксиса и стандартов ИТС возвращается автоматически в результате инструмента.\n" +
+				"- НЕ трать шаги на поиск или установку bsl-analyzer через bash (which, find, whereis) — анализатор уже запущен и полностью функционален.\n" +
+				"- Используй инструменты: bsl_fix_standards (авто-патчи ИТС), 1c_call_hierarchy (граф вызовов), 1c_impact_analysis (связи регистров и документов), 1c_ast_symbols (структура модуля), 1c_subagent (делегирование).\n" +
+				"- Разработка ведется в формате проектов 1C:EDT (Configuration.mdo, файлы .mdo, модули .bsl, .project).";
+
+			if (event.systemPromptOptions?.sections) {
+				event.systemPromptOptions.sections.onec_environment = envInjection;
+			}
 			if (event.systemPromptOptions?.promptGuidelines) {
 				event.systemPromptOptions.promptGuidelines.push(promptInjection);
 				return undefined;
 			}
 			if (event.systemPrompt) {
 				return {
-					systemPrompt: `${event.systemPrompt}\n\n${promptInjection}`,
+					systemPrompt: `${event.systemPrompt}\n\n${envInjection}\n\n${promptInjection}`,
 				};
 			}
 			return undefined;

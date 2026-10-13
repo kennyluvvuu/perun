@@ -229,14 +229,20 @@ export class ModelRuntime implements Models {
 			if (provider.id === "radius") return provider;
 			// OpenRouter narrows the catalog to the models, limits and prices of the user's key.
 			if (provider.id === "openrouter") {
-				return withPersonalizedCatalog(
-					provider,
-					personalizeOpenRouterCatalog,
-					options.catalogBaseUrl,
-					builtinModelDataGeneratedAt,
-				);
+				if (options.catalogBaseUrl && options.catalogBaseUrl !== "https://pi.dev") {
+					return withPersonalizedCatalog(
+						provider,
+						personalizeOpenRouterCatalog,
+						options.catalogBaseUrl,
+						builtinModelDataGeneratedAt,
+					);
+				}
+				return provider;
 			}
-			return withRemoteCatalog(provider, options.catalogBaseUrl, builtinModelDataGeneratedAt);
+			if (options.catalogBaseUrl && options.catalogBaseUrl !== "https://pi.dev") {
+				return withRemoteCatalog(provider, options.catalogBaseUrl, builtinModelDataGeneratedAt);
+			}
+			return provider;
 		});
 		const runtime = new ModelRuntime(
 			credentials,

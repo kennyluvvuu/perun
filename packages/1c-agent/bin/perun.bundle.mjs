@@ -49,7 +49,7 @@ var require_windows = __commonJS({
   "node_modules/isexe/windows.js"(exports, module) {
     module.exports = isexe;
     isexe.sync = sync;
-    var fs23 = __require("fs");
+    var fs22 = __require("fs");
     function checkPathExt(path23, options) {
       var pathext = options.pathExt !== void 0 ? options.pathExt : process.env.PATHEXT;
       if (!pathext || (pathext = pathext.split(";"), pathext.indexOf("") !== -1))
@@ -65,12 +65,12 @@ var require_windows = __commonJS({
       return !stat6.isSymbolicLink() && !stat6.isFile() ? !1 : checkPathExt(path23, options);
     }
     function isexe(path23, options, cb) {
-      fs23.stat(path23, function(er, stat6) {
+      fs22.stat(path23, function(er, stat6) {
         cb(er, er ? !1 : checkStat(stat6, path23, options));
       });
     }
     function sync(path23, options) {
-      return checkStat(fs23.statSync(path23), path23, options);
+      return checkStat(fs22.statSync(path23), path23, options);
     }
   }
 });
@@ -80,14 +80,14 @@ var require_mode = __commonJS({
   "node_modules/isexe/mode.js"(exports, module) {
     module.exports = isexe;
     isexe.sync = sync;
-    var fs23 = __require("fs");
+    var fs22 = __require("fs");
     function isexe(path23, options, cb) {
-      fs23.stat(path23, function(er, stat6) {
+      fs22.stat(path23, function(er, stat6) {
         cb(er, er ? !1 : checkStat(stat6, options));
       });
     }
     function sync(path23, options) {
-      return checkStat(fs23.statSync(path23), options);
+      return checkStat(fs22.statSync(path23), options);
     }
     function checkStat(stat6, options) {
       return stat6.isFile() && checkMode(stat6, options);
@@ -102,7 +102,7 @@ var require_mode = __commonJS({
 // node_modules/isexe/index.js
 var require_isexe = __commonJS({
   "node_modules/isexe/index.js"(exports, module) {
-    var fs23 = __require("fs"), core;
+    var fs22 = __require("fs"), core;
     process.platform === "win32" || global.TESTING_WINDOWS ? core = require_windows() : core = require_mode();
     module.exports = isexe;
     isexe.sync = sync;
@@ -283,11 +283,11 @@ var require_shebang_command = __commonJS({
 var require_readShebang = __commonJS({
   "node_modules/cross-spawn/lib/util/readShebang.js"(exports, module) {
     "use strict";
-    var fs23 = __require("fs"), shebangCommand = require_shebang_command();
+    var fs22 = __require("fs"), shebangCommand = require_shebang_command();
     function readShebang(command) {
       let buffer = Buffer.alloc(150), fd;
       try {
-        fd = fs23.openSync(command, "r"), fs23.readSync(fd, buffer, 0, 150, 0), fs23.closeSync(fd);
+        fd = fs22.openSync(command, "r"), fs22.readSync(fd, buffer, 0, 150, 0), fs22.closeSync(fd);
       } catch {
       }
       return shebangCommand(buffer.toString());
@@ -752,15 +752,6 @@ function getExamplesPath() {
 }
 function getChangelogPath() {
   return resolve(join2(getPackageDir(), "CHANGELOG.md"));
-}
-function getInteractiveAssetsDir() {
-  if (isBunBinary)
-    return join2(getPackageDir(), "assets");
-  let packageDir = getPackageDir(), srcOrDist = existsSync(join2(packageDir, "src")) ? "src" : "dist";
-  return join2(packageDir, srcOrDist, "modes", "interactive", "assets");
-}
-function getBundledInteractiveAssetPath(name) {
-  return join2(getInteractiveAssetsDir(), name);
 }
 function getQuickJSWasmPath() {
   return quickJSWasmPath ??= createRequire(import.meta.url).resolve("quickjs-wasi/quickjs.wasm"), quickJSWasmPath;
@@ -28103,8 +28094,8 @@ function defaultProviderAuthContext() {
     },
     async fileExists(path23) {
       try {
-        let fs23 = await importNodeModule("node:fs/promises"), resolved = path23;
-        return resolved.startsWith("~") && (resolved = (await importNodeModule("node:os")).homedir() + resolved.slice(1)), await fs23.access(resolved), !0;
+        let fs22 = await importNodeModule("node:fs/promises"), resolved = path23;
+        return resolved.startsWith("~") && (resolved = (await importNodeModule("node:os")).homedir() + resolved.slice(1)), await fs22.access(resolved), !0;
       } catch {
         return !1;
       }
@@ -48387,20 +48378,20 @@ var require_polyfills = __commonJS({
     }, Object.setPrototypeOf && Object.setPrototypeOf(process.chdir, chdir));
     var chdir;
     module.exports = patch;
-    function patch(fs23) {
-      constants9.hasOwnProperty("O_SYMLINK") && process.version.match(/^v0\.6\.[0-2]|^v0\.5\./) && patchLchmod(fs23), fs23.lutimes || patchLutimes(fs23), fs23.chown = chownFix(fs23.chown), fs23.fchown = chownFix(fs23.fchown), fs23.lchown = chownFix(fs23.lchown), fs23.chmod = chmodFix(fs23.chmod), fs23.fchmod = chmodFix(fs23.fchmod), fs23.lchmod = chmodFix(fs23.lchmod), fs23.chownSync = chownFixSync(fs23.chownSync), fs23.fchownSync = chownFixSync(fs23.fchownSync), fs23.lchownSync = chownFixSync(fs23.lchownSync), fs23.chmodSync = chmodFixSync(fs23.chmodSync), fs23.fchmodSync = chmodFixSync(fs23.fchmodSync), fs23.lchmodSync = chmodFixSync(fs23.lchmodSync), fs23.stat = statFix(fs23.stat), fs23.fstat = statFix(fs23.fstat), fs23.lstat = statFix(fs23.lstat), fs23.statSync = statFixSync(fs23.statSync), fs23.fstatSync = statFixSync(fs23.fstatSync), fs23.lstatSync = statFixSync(fs23.lstatSync), fs23.chmod && !fs23.lchmod && (fs23.lchmod = function(path23, mode, cb) {
+    function patch(fs22) {
+      constants9.hasOwnProperty("O_SYMLINK") && process.version.match(/^v0\.6\.[0-2]|^v0\.5\./) && patchLchmod(fs22), fs22.lutimes || patchLutimes(fs22), fs22.chown = chownFix(fs22.chown), fs22.fchown = chownFix(fs22.fchown), fs22.lchown = chownFix(fs22.lchown), fs22.chmod = chmodFix(fs22.chmod), fs22.fchmod = chmodFix(fs22.fchmod), fs22.lchmod = chmodFix(fs22.lchmod), fs22.chownSync = chownFixSync(fs22.chownSync), fs22.fchownSync = chownFixSync(fs22.fchownSync), fs22.lchownSync = chownFixSync(fs22.lchownSync), fs22.chmodSync = chmodFixSync(fs22.chmodSync), fs22.fchmodSync = chmodFixSync(fs22.fchmodSync), fs22.lchmodSync = chmodFixSync(fs22.lchmodSync), fs22.stat = statFix(fs22.stat), fs22.fstat = statFix(fs22.fstat), fs22.lstat = statFix(fs22.lstat), fs22.statSync = statFixSync(fs22.statSync), fs22.fstatSync = statFixSync(fs22.fstatSync), fs22.lstatSync = statFixSync(fs22.lstatSync), fs22.chmod && !fs22.lchmod && (fs22.lchmod = function(path23, mode, cb) {
         cb && process.nextTick(cb);
-      }, fs23.lchmodSync = function() {
-      }), fs23.chown && !fs23.lchown && (fs23.lchown = function(path23, uid, gid, cb) {
+      }, fs22.lchmodSync = function() {
+      }), fs22.chown && !fs22.lchown && (fs22.lchown = function(path23, uid, gid, cb) {
         cb && process.nextTick(cb);
-      }, fs23.lchownSync = function() {
-      }), platform3 === "win32" && (fs23.rename = typeof fs23.rename != "function" ? fs23.rename : (function(fs$rename) {
+      }, fs22.lchownSync = function() {
+      }), platform3 === "win32" && (fs22.rename = typeof fs22.rename != "function" ? fs22.rename : (function(fs$rename) {
         function rename(from, to, cb) {
           var start = Date.now(), backoff3 = 0;
           fs$rename(from, to, function CB(er) {
             if (er && (er.code === "EACCES" || er.code === "EPERM" || er.code === "EBUSY") && Date.now() - start < 6e4) {
               setTimeout(function() {
-                fs23.stat(to, function(stater, st2) {
+                fs22.stat(to, function(stater, st2) {
                   stater && stater.code === "ENOENT" ? fs$rename(from, to, CB) : cb(er);
                 });
               }, backoff3), backoff3 < 100 && (backoff3 += 10);
@@ -48410,25 +48401,25 @@ var require_polyfills = __commonJS({
           });
         }
         return Object.setPrototypeOf && Object.setPrototypeOf(rename, fs$rename), rename;
-      })(fs23.rename)), fs23.read = typeof fs23.read != "function" ? fs23.read : (function(fs$read) {
+      })(fs22.rename)), fs22.read = typeof fs22.read != "function" ? fs22.read : (function(fs$read) {
         function read(fd, buffer, offset, length, position, callback_) {
           var callback;
           if (callback_ && typeof callback_ == "function") {
             var eagCounter = 0;
             callback = function(er, _2, __) {
               if (er && er.code === "EAGAIN" && eagCounter < 10)
-                return eagCounter++, fs$read.call(fs23, fd, buffer, offset, length, position, callback);
+                return eagCounter++, fs$read.call(fs22, fd, buffer, offset, length, position, callback);
               callback_.apply(this, arguments);
             };
           }
-          return fs$read.call(fs23, fd, buffer, offset, length, position, callback);
+          return fs$read.call(fs22, fd, buffer, offset, length, position, callback);
         }
         return Object.setPrototypeOf && Object.setPrototypeOf(read, fs$read), read;
-      })(fs23.read), fs23.readSync = typeof fs23.readSync != "function" ? fs23.readSync : /* @__PURE__ */ (function(fs$readSync) {
+      })(fs22.read), fs22.readSync = typeof fs22.readSync != "function" ? fs22.readSync : /* @__PURE__ */ (function(fs$readSync) {
         return function(fd, buffer, offset, length, position) {
           for (var eagCounter = 0; ; )
             try {
-              return fs$readSync.call(fs23, fd, buffer, offset, length, position);
+              return fs$readSync.call(fs22, fd, buffer, offset, length, position);
             } catch (er) {
               if (er.code === "EAGAIN" && eagCounter < 10) {
                 eagCounter++;
@@ -48437,10 +48428,10 @@ var require_polyfills = __commonJS({
               throw er;
             }
         };
-      })(fs23.readSync);
-      function patchLchmod(fs24) {
-        fs24.lchmod = function(path23, mode, callback) {
-          fs24.open(
+      })(fs22.readSync);
+      function patchLchmod(fs23) {
+        fs23.lchmod = function(path23, mode, callback) {
+          fs23.open(
             path23,
             constants9.O_WRONLY | constants9.O_SYMLINK,
             mode,
@@ -48449,64 +48440,64 @@ var require_polyfills = __commonJS({
                 callback && callback(err);
                 return;
               }
-              fs24.fchmod(fd, mode, function(err2) {
-                fs24.close(fd, function(err22) {
+              fs23.fchmod(fd, mode, function(err2) {
+                fs23.close(fd, function(err22) {
                   callback && callback(err2 || err22);
                 });
               });
             }
           );
-        }, fs24.lchmodSync = function(path23, mode) {
-          var fd = fs24.openSync(path23, constants9.O_WRONLY | constants9.O_SYMLINK, mode), threw = !0, ret;
+        }, fs23.lchmodSync = function(path23, mode) {
+          var fd = fs23.openSync(path23, constants9.O_WRONLY | constants9.O_SYMLINK, mode), threw = !0, ret;
           try {
-            ret = fs24.fchmodSync(fd, mode), threw = !1;
+            ret = fs23.fchmodSync(fd, mode), threw = !1;
           } finally {
             if (threw)
               try {
-                fs24.closeSync(fd);
+                fs23.closeSync(fd);
               } catch {
               }
             else
-              fs24.closeSync(fd);
+              fs23.closeSync(fd);
           }
           return ret;
         };
       }
-      function patchLutimes(fs24) {
-        constants9.hasOwnProperty("O_SYMLINK") && fs24.futimes ? (fs24.lutimes = function(path23, at2, mt, cb) {
-          fs24.open(path23, constants9.O_SYMLINK, function(er, fd) {
+      function patchLutimes(fs23) {
+        constants9.hasOwnProperty("O_SYMLINK") && fs23.futimes ? (fs23.lutimes = function(path23, at2, mt, cb) {
+          fs23.open(path23, constants9.O_SYMLINK, function(er, fd) {
             if (er) {
               cb && cb(er);
               return;
             }
-            fs24.futimes(fd, at2, mt, function(er2) {
-              fs24.close(fd, function(er22) {
+            fs23.futimes(fd, at2, mt, function(er2) {
+              fs23.close(fd, function(er22) {
                 cb && cb(er2 || er22);
               });
             });
           });
-        }, fs24.lutimesSync = function(path23, at2, mt) {
-          var fd = fs24.openSync(path23, constants9.O_SYMLINK), ret, threw = !0;
+        }, fs23.lutimesSync = function(path23, at2, mt) {
+          var fd = fs23.openSync(path23, constants9.O_SYMLINK), ret, threw = !0;
           try {
-            ret = fs24.futimesSync(fd, at2, mt), threw = !1;
+            ret = fs23.futimesSync(fd, at2, mt), threw = !1;
           } finally {
             if (threw)
               try {
-                fs24.closeSync(fd);
+                fs23.closeSync(fd);
               } catch {
               }
             else
-              fs24.closeSync(fd);
+              fs23.closeSync(fd);
           }
           return ret;
-        }) : fs24.futimes && (fs24.lutimes = function(_a8, _b, _c, cb) {
+        }) : fs23.futimes && (fs23.lutimes = function(_a8, _b, _c, cb) {
           cb && process.nextTick(cb);
-        }, fs24.lutimesSync = function() {
+        }, fs23.lutimesSync = function() {
         });
       }
       function chmodFix(orig) {
         return orig && function(target, mode, cb) {
-          return orig.call(fs23, target, mode, function(er) {
+          return orig.call(fs22, target, mode, function(er) {
             chownErOk(er) && (er = null), cb && cb.apply(this, arguments);
           });
         };
@@ -48514,7 +48505,7 @@ var require_polyfills = __commonJS({
       function chmodFixSync(orig) {
         return orig && function(target, mode) {
           try {
-            return orig.call(fs23, target, mode);
+            return orig.call(fs22, target, mode);
           } catch (er) {
             if (!chownErOk(er)) throw er;
           }
@@ -48522,7 +48513,7 @@ var require_polyfills = __commonJS({
       }
       function chownFix(orig) {
         return orig && function(target, uid, gid, cb) {
-          return orig.call(fs23, target, uid, gid, function(er) {
+          return orig.call(fs22, target, uid, gid, function(er) {
             chownErOk(er) && (er = null), cb && cb.apply(this, arguments);
           });
         };
@@ -48530,7 +48521,7 @@ var require_polyfills = __commonJS({
       function chownFixSync(orig) {
         return orig && function(target, uid, gid) {
           try {
-            return orig.call(fs23, target, uid, gid);
+            return orig.call(fs22, target, uid, gid);
           } catch (er) {
             if (!chownErOk(er)) throw er;
           }
@@ -48542,12 +48533,12 @@ var require_polyfills = __commonJS({
           function callback(er, stats) {
             stats && (stats.uid < 0 && (stats.uid += 4294967296), stats.gid < 0 && (stats.gid += 4294967296)), cb && cb.apply(this, arguments);
           }
-          return options ? orig.call(fs23, target, options, callback) : orig.call(fs23, target, callback);
+          return options ? orig.call(fs22, target, options, callback) : orig.call(fs22, target, callback);
         };
       }
       function statFixSync(orig) {
         return orig && function(target, options) {
-          var stats = options ? orig.call(fs23, target, options) : orig.call(fs23, target);
+          var stats = options ? orig.call(fs22, target, options) : orig.call(fs22, target);
           return stats && (stats.uid < 0 && (stats.uid += 4294967296), stats.gid < 0 && (stats.gid += 4294967296)), stats;
         };
       }
@@ -48566,7 +48557,7 @@ var require_legacy_streams = __commonJS({
   "node_modules/graceful-fs/legacy-streams.js"(exports, module) {
     var Stream6 = __require("stream").Stream;
     module.exports = legacy;
-    function legacy(fs23) {
+    function legacy(fs22) {
       return {
         ReadStream,
         WriteStream
@@ -48597,7 +48588,7 @@ var require_legacy_streams = __commonJS({
           });
           return;
         }
-        fs23.open(this.path, this.flags, this.mode, function(err, fd) {
+        fs22.open(this.path, this.flags, this.mode, function(err, fd) {
           if (err) {
             self2.emit("error", err), self2.readable = !1;
             return;
@@ -48619,7 +48610,7 @@ var require_legacy_streams = __commonJS({
             throw new Error("start must be >= zero");
           this.pos = this.start;
         }
-        this.busy = !1, this._queue = [], this.fd === null && (this._open = fs23.open, this._queue.push([this._open, this.path, this.flags, this.mode, void 0]), this.flush());
+        this.busy = !1, this._queue = [], this.fd === null && (this._open = fs22.open, this._queue.push([this._open, this.path, this.flags, this.mode, void 0]), this.flush());
       }
     }
   }
@@ -48650,7 +48641,7 @@ var require_clone = __commonJS({
 // node_modules/graceful-fs/graceful-fs.js
 var require_graceful_fs = __commonJS({
   "node_modules/graceful-fs/graceful-fs.js"(exports, module) {
-    var fs23 = __require("fs"), polyfills = require_polyfills(), legacy = require_legacy_streams(), clone2 = require_clone(), util2 = __require("util"), gracefulQueue, previousSymbol;
+    var fs22 = __require("fs"), polyfills = require_polyfills(), legacy = require_legacy_streams(), clone2 = require_clone(), util2 = __require("util"), gracefulQueue, previousSymbol;
     typeof Symbol == "function" && typeof Symbol.for == "function" ? (gracefulQueue = /* @__PURE__ */ Symbol.for("graceful-fs.queue"), previousSymbol = /* @__PURE__ */ Symbol.for("graceful-fs.previous")) : (gracefulQueue = "___graceful-fs.queue", previousSymbol = "___graceful-fs.previous");
     function noop4() {
     }
@@ -48667,33 +48658,33 @@ var require_graceful_fs = __commonJS({
       m3 = "GFS4: " + m3.split(/\n/).join(`
 GFS4: `), console.error(m3);
     });
-    fs23[gracefulQueue] || (queue = global[gracefulQueue] || [], publishQueue(fs23, queue), fs23.close = (function(fs$close) {
+    fs22[gracefulQueue] || (queue = global[gracefulQueue] || [], publishQueue(fs22, queue), fs22.close = (function(fs$close) {
       function close(fd, cb) {
-        return fs$close.call(fs23, fd, function(err) {
+        return fs$close.call(fs22, fd, function(err) {
           err || resetQueue(), typeof cb == "function" && cb.apply(this, arguments);
         });
       }
       return Object.defineProperty(close, previousSymbol, {
         value: fs$close
       }), close;
-    })(fs23.close), fs23.closeSync = (function(fs$closeSync) {
+    })(fs22.close), fs22.closeSync = (function(fs$closeSync) {
       function closeSync2(fd) {
-        fs$closeSync.apply(fs23, arguments), resetQueue();
+        fs$closeSync.apply(fs22, arguments), resetQueue();
       }
       return Object.defineProperty(closeSync2, previousSymbol, {
         value: fs$closeSync
       }), closeSync2;
-    })(fs23.closeSync), /\bgfs4\b/i.test(process.env.NODE_DEBUG || "") && process.on("exit", function() {
-      debug(fs23[gracefulQueue]), __require("assert").equal(fs23[gracefulQueue].length, 0);
+    })(fs22.closeSync), /\bgfs4\b/i.test(process.env.NODE_DEBUG || "") && process.on("exit", function() {
+      debug(fs22[gracefulQueue]), __require("assert").equal(fs22[gracefulQueue].length, 0);
     }));
     var queue;
-    global[gracefulQueue] || publishQueue(global, fs23[gracefulQueue]);
-    module.exports = patch(clone2(fs23));
-    process.env.TEST_GRACEFUL_FS_GLOBAL_PATCH && !fs23.__patched && (module.exports = patch(fs23), fs23.__patched = !0);
-    function patch(fs24) {
-      polyfills(fs24), fs24.gracefulify = patch, fs24.createReadStream = createReadStream4, fs24.createWriteStream = createWriteStream4;
-      var fs$readFile = fs24.readFile;
-      fs24.readFile = readFile7;
+    global[gracefulQueue] || publishQueue(global, fs22[gracefulQueue]);
+    module.exports = patch(clone2(fs22));
+    process.env.TEST_GRACEFUL_FS_GLOBAL_PATCH && !fs22.__patched && (module.exports = patch(fs22), fs22.__patched = !0);
+    function patch(fs23) {
+      polyfills(fs23), fs23.gracefulify = patch, fs23.createReadStream = createReadStream4, fs23.createWriteStream = createWriteStream4;
+      var fs$readFile = fs23.readFile;
+      fs23.readFile = readFile7;
       function readFile7(path23, options, cb) {
         return typeof options == "function" && (cb = options, options = null), go$readFile(path23, options, cb);
         function go$readFile(path24, options2, cb2, startTime) {
@@ -48702,8 +48693,8 @@ GFS4: `), console.error(m3);
           });
         }
       }
-      var fs$writeFile = fs24.writeFile;
-      fs24.writeFile = writeFile4;
+      var fs$writeFile = fs23.writeFile;
+      fs23.writeFile = writeFile4;
       function writeFile4(path23, data, options, cb) {
         return typeof options == "function" && (cb = options, options = null), go$writeFile(path23, data, options, cb);
         function go$writeFile(path24, data2, options2, cb2, startTime) {
@@ -48712,8 +48703,8 @@ GFS4: `), console.error(m3);
           });
         }
       }
-      var fs$appendFile = fs24.appendFile;
-      fs$appendFile && (fs24.appendFile = appendFile);
+      var fs$appendFile = fs23.appendFile;
+      fs$appendFile && (fs23.appendFile = appendFile);
       function appendFile(path23, data, options, cb) {
         return typeof options == "function" && (cb = options, options = null), go$appendFile(path23, data, options, cb);
         function go$appendFile(path24, data2, options2, cb2, startTime) {
@@ -48722,8 +48713,8 @@ GFS4: `), console.error(m3);
           });
         }
       }
-      var fs$copyFile = fs24.copyFile;
-      fs$copyFile && (fs24.copyFile = copyFile);
+      var fs$copyFile = fs23.copyFile;
+      fs$copyFile && (fs23.copyFile = copyFile);
       function copyFile(src, dest, flags, cb) {
         return typeof flags == "function" && (cb = flags, flags = 0), go$copyFile(src, dest, flags, cb);
         function go$copyFile(src2, dest2, flags2, cb2, startTime) {
@@ -48732,8 +48723,8 @@ GFS4: `), console.error(m3);
           });
         }
       }
-      var fs$readdir = fs24.readdir;
-      fs24.readdir = readdir3;
+      var fs$readdir = fs23.readdir;
+      fs23.readdir = readdir3;
       var noReaddirOptionVersions = /^v[0-5]\./;
       function readdir3(path23, options, cb) {
         typeof options == "function" && (cb = options, options = null);
@@ -48766,13 +48757,13 @@ GFS4: `), console.error(m3);
         }
       }
       if (process.version.substr(0, 4) === "v0.8") {
-        var legStreams = legacy(fs24);
+        var legStreams = legacy(fs23);
         ReadStream = legStreams.ReadStream, WriteStream = legStreams.WriteStream;
       }
-      var fs$ReadStream = fs24.ReadStream;
+      var fs$ReadStream = fs23.ReadStream;
       fs$ReadStream && (ReadStream.prototype = Object.create(fs$ReadStream.prototype), ReadStream.prototype.open = ReadStream$open);
-      var fs$WriteStream = fs24.WriteStream;
-      fs$WriteStream && (WriteStream.prototype = Object.create(fs$WriteStream.prototype), WriteStream.prototype.open = WriteStream$open), Object.defineProperty(fs24, "ReadStream", {
+      var fs$WriteStream = fs23.WriteStream;
+      fs$WriteStream && (WriteStream.prototype = Object.create(fs$WriteStream.prototype), WriteStream.prototype.open = WriteStream$open), Object.defineProperty(fs23, "ReadStream", {
         get: function() {
           return ReadStream;
         },
@@ -48781,7 +48772,7 @@ GFS4: `), console.error(m3);
         },
         enumerable: !0,
         configurable: !0
-      }), Object.defineProperty(fs24, "WriteStream", {
+      }), Object.defineProperty(fs23, "WriteStream", {
         get: function() {
           return WriteStream;
         },
@@ -48792,7 +48783,7 @@ GFS4: `), console.error(m3);
         configurable: !0
       });
       var FileReadStream = ReadStream;
-      Object.defineProperty(fs24, "FileReadStream", {
+      Object.defineProperty(fs23, "FileReadStream", {
         get: function() {
           return FileReadStream;
         },
@@ -48803,7 +48794,7 @@ GFS4: `), console.error(m3);
         configurable: !0
       });
       var FileWriteStream = WriteStream;
-      Object.defineProperty(fs24, "FileWriteStream", {
+      Object.defineProperty(fs23, "FileWriteStream", {
         get: function() {
           return FileWriteStream;
         },
@@ -48832,13 +48823,13 @@ GFS4: `), console.error(m3);
         });
       }
       function createReadStream4(path23, options) {
-        return new fs24.ReadStream(path23, options);
+        return new fs23.ReadStream(path23, options);
       }
       function createWriteStream4(path23, options) {
-        return new fs24.WriteStream(path23, options);
+        return new fs23.WriteStream(path23, options);
       }
-      var fs$open = fs24.open;
-      fs24.open = open4;
+      var fs$open = fs23.open;
+      fs23.open = open4;
       function open4(path23, flags, mode, cb) {
         return typeof mode == "function" && (cb = mode, mode = null), go$open(path23, flags, mode, cb);
         function go$open(path24, flags2, mode2, cb2, startTime) {
@@ -48847,20 +48838,20 @@ GFS4: `), console.error(m3);
           });
         }
       }
-      return fs24;
+      return fs23;
     }
     function enqueue(elem) {
-      debug("ENQUEUE", elem[0].name, elem[1]), fs23[gracefulQueue].push(elem), retry2();
+      debug("ENQUEUE", elem[0].name, elem[1]), fs22[gracefulQueue].push(elem), retry2();
     }
     var retryTimer;
     function resetQueue() {
-      for (var now = Date.now(), i2 = 0; i2 < fs23[gracefulQueue].length; ++i2)
-        fs23[gracefulQueue][i2].length > 2 && (fs23[gracefulQueue][i2][3] = now, fs23[gracefulQueue][i2][4] = now);
+      for (var now = Date.now(), i2 = 0; i2 < fs22[gracefulQueue].length; ++i2)
+        fs22[gracefulQueue][i2].length > 2 && (fs22[gracefulQueue][i2][3] = now, fs22[gracefulQueue][i2][4] = now);
       retry2();
     }
     function retry2() {
-      if (clearTimeout(retryTimer), retryTimer = void 0, fs23[gracefulQueue].length !== 0) {
-        var elem = fs23[gracefulQueue].shift(), fn = elem[0], args = elem[1], err = elem[2], startTime = elem[3], lastTime = elem[4];
+      if (clearTimeout(retryTimer), retryTimer = void 0, fs22[gracefulQueue].length !== 0) {
+        var elem = fs22[gracefulQueue].shift(), fn = elem[0], args = elem[1], err = elem[2], startTime = elem[3], lastTime = elem[4];
         if (startTime === void 0)
           debug("RETRY", fn.name, args), fn.apply(null, args);
         else if (Date.now() - startTime >= 6e4) {
@@ -48869,7 +48860,7 @@ GFS4: `), console.error(m3);
           typeof cb == "function" && cb.call(null, err);
         } else {
           var sinceAttempt = Date.now() - lastTime, sinceStart = Math.max(lastTime - startTime, 1), desiredDelay = Math.min(sinceStart * 1.2, 100);
-          sinceAttempt >= desiredDelay ? (debug("RETRY", fn.name, args), fn.apply(null, args.concat([startTime]))) : fs23[gracefulQueue].push(elem);
+          sinceAttempt >= desiredDelay ? (debug("RETRY", fn.name, args), fn.apply(null, args.concat([startTime]))) : fs22[gracefulQueue].push(elem);
         }
         retryTimer === void 0 && (retryTimer = setTimeout(retry2, 0));
       }
@@ -49105,23 +49096,23 @@ var require_mtime_precision = __commonJS({
   "node_modules/proper-lockfile/lib/mtime-precision.js"(exports, module) {
     "use strict";
     var cacheSymbol = /* @__PURE__ */ Symbol();
-    function probe(file, fs23, callback) {
-      let cachedPrecision = fs23[cacheSymbol];
+    function probe(file, fs22, callback) {
+      let cachedPrecision = fs22[cacheSymbol];
       if (cachedPrecision)
-        return fs23.stat(file, (err, stat6) => {
+        return fs22.stat(file, (err, stat6) => {
           if (err)
             return callback(err);
           callback(null, stat6.mtime, cachedPrecision);
         });
       let mtime = new Date(Math.ceil(Date.now() / 1e3) * 1e3 + 5);
-      fs23.utimes(file, mtime, mtime, (err) => {
+      fs22.utimes(file, mtime, mtime, (err) => {
         if (err)
           return callback(err);
-        fs23.stat(file, (err2, stat6) => {
+        fs22.stat(file, (err2, stat6) => {
           if (err2)
             return callback(err2);
           let precision = stat6.mtime.getTime() % 1e3 === 0 ? "s" : "ms";
-          Object.defineProperty(fs23, cacheSymbol, { value: precision }), callback(null, stat6.mtime, precision);
+          Object.defineProperty(fs22, cacheSymbol, { value: precision }), callback(null, stat6.mtime, precision);
         });
       });
     }
@@ -49138,7 +49129,7 @@ var require_mtime_precision = __commonJS({
 var require_lockfile = __commonJS({
   "node_modules/proper-lockfile/lib/lockfile.js"(exports, module) {
     "use strict";
-    var path23 = __require("path"), fs23 = require_graceful_fs(), retry2 = require_retry3(), onExit = require_signal_exit(), mtimePrecision = require_mtime_precision(), locks = {};
+    var path23 = __require("path"), fs22 = require_graceful_fs(), retry2 = require_retry3(), onExit = require_signal_exit(), mtimePrecision = require_mtime_precision(), locks = {};
     function getLockFile(file, options) {
       return options.lockfilePath || `${file}.lock`;
     }
@@ -49221,7 +49212,7 @@ var require_lockfile = __commonJS({
         update: null,
         realpath: !0,
         retries: 0,
-        fs: fs23,
+        fs: fs22,
         onCompromised: (err) => {
           throw err;
         },
@@ -49254,7 +49245,7 @@ var require_lockfile = __commonJS({
     }
     function unlock(file, options, callback) {
       options = {
-        fs: fs23,
+        fs: fs22,
         realpath: !0,
         ...options
       }, resolveCanonicalPath(file, options, (err, file2) => {
@@ -49270,7 +49261,7 @@ var require_lockfile = __commonJS({
       options = {
         stale: 1e4,
         realpath: !0,
-        fs: fs23,
+        fs: fs22,
         ...options
       }, options.stale = Math.max(options.stale || 0, 2e3), resolveCanonicalPath(file, options, (err, file2) => {
         if (err)
@@ -49301,14 +49292,14 @@ var require_lockfile = __commonJS({
 var require_adapter = __commonJS({
   "node_modules/proper-lockfile/lib/adapter.js"(exports, module) {
     "use strict";
-    var fs23 = require_graceful_fs();
-    function createSyncFs(fs24) {
-      let methods = ["mkdir", "realpath", "stat", "rmdir", "utimes"], newFs = { ...fs24 };
+    var fs22 = require_graceful_fs();
+    function createSyncFs(fs23) {
+      let methods = ["mkdir", "realpath", "stat", "rmdir", "utimes"], newFs = { ...fs23 };
       return methods.forEach((method) => {
         newFs[method] = (...args) => {
           let callback = args.pop(), ret;
           try {
-            ret = fs24[`${method}Sync`](...args);
+            ret = fs23[`${method}Sync`](...args);
           } catch (err) {
             return callback(err);
           }
@@ -49334,7 +49325,7 @@ var require_adapter = __commonJS({
       };
     }
     function toSyncOptions(options) {
-      if (options = { ...options }, options.fs = createSyncFs(options.fs || fs23), typeof options.retries == "number" && options.retries > 0 || options.retries && typeof options.retries.retries == "number" && options.retries.retries > 0)
+      if (options = { ...options }, options.fs = createSyncFs(options.fs || fs22), typeof options.retries == "number" && options.retries > 0 || options.retries && typeof options.retries.retries == "number" && options.retries.retries > 0)
         throw Object.assign(new Error("Cannot use retries with the sync api"), { code: "ESYNC" });
       return options;
     }
@@ -49413,7 +49404,7 @@ var SETTINGS_DEFAULTS, init_settings_defaults = __esm({
       quietStartup: !1,
       defaultProjectTrust: "ask",
       collapseChangelog: !1,
-      enableInstallTelemetry: !0,
+      enableInstallTelemetry: !1,
       enableAnalytics: !1,
       enableSkillCommands: !0,
       terminal: {
@@ -69396,7 +69387,7 @@ function getBunSandboxEnvValue(name) {
     if (procEnvCache === null) {
       procEnvCache = /* @__PURE__ */ new Map();
       try {
-        let { readFileSync: readFileSync25 } = __require("node:fs"), data = readFileSync25("/proc/self/environ", "utf-8");
+        let { readFileSync: readFileSync24 } = __require("node:fs"), data = readFileSync24("/proc/self/environ", "utf-8");
         for (let entry of data.split("\0")) {
           let idx = entry.indexOf("=");
           idx > 0 && procEnvCache.set(entry.slice(0, idx), entry.slice(idx + 1));
@@ -71460,9 +71451,9 @@ function redactSensitive(body) {
 async function checkCredentialsFileSafety(path23, onWarn = (m3) => console.warn(`anthropic-sdk: ${m3}`)) {
   if (typeof process > "u" || process.platform === "win32")
     return;
-  let { fs: fs23 } = await Promise.resolve().then(() => (init_node(), node_exports)), resolved = path23, st2;
+  let { fs: fs22 } = await Promise.resolve().then(() => (init_node(), node_exports)), resolved = path23, st2;
   try {
-    resolved = await fs23.promises.realpath(path23), st2 = await fs23.promises.stat(resolved);
+    resolved = await fs22.promises.realpath(path23), st2 = await fs22.promises.stat(resolved);
   } catch {
     return;
   }
@@ -71474,23 +71465,23 @@ async function checkCredentialsFileSafety(path23, onWarn = (m3) => console.warn(
   typeof process.getuid == "function" && st2.uid !== process.getuid() && onWarn(`credentials file at ${resolved} is owned by uid ${st2.uid} (current process uid ${process.getuid()}); verify this is intentional.`);
 }
 async function writeCredentialsFileAtomic(targetPath, data) {
-  let { fs: fs23, path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports)), dir = path23.dirname(targetPath);
-  await fs23.promises.mkdir(dir, { recursive: !0, mode: 448 });
+  let { fs: fs22, path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports)), dir = path23.dirname(targetPath);
+  await fs22.promises.mkdir(dir, { recursive: !0, mode: 448 });
   let tmpPath = `${targetPath}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
   try {
-    let fh = await fs23.promises.open(tmpPath, "w", 384);
+    let fh = await fs22.promises.open(tmpPath, "w", 384);
     try {
       await fh.writeFile(JSON.stringify(data, null, 2)), await fh.sync();
     } finally {
       await fh.close();
     }
-    await fs23.promises.rename(tmpPath, targetPath);
+    await fs22.promises.rename(tmpPath, targetPath);
   } catch (err) {
-    throw await fs23.promises.unlink(tmpPath).catch(() => {
+    throw await fs22.promises.unlink(tmpPath).catch(() => {
     }), err;
   }
   try {
-    let dirFh = await fs23.promises.open(dir, "r");
+    let dirFh = await fs22.promises.open(dir, "r");
     try {
       await dirFh.sync();
     } finally {
@@ -71774,9 +71765,9 @@ var CREDENTIALS_FILE_VERSION, PROFILE_NAME_PATTERN, loadConfigWithSource, getCre
       if (profileName === null)
         return null;
       validateProfileName(profileName);
-      let { fs: fs23, path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports)), configPath = path23.join(rootConfigPath, "configs", `${profileName}.json`), configRaw;
+      let { fs: fs22, path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports)), configPath = path23.join(rootConfigPath, "configs", `${profileName}.json`), configRaw;
       try {
-        configRaw = await fs23.promises.readFile(configPath, "utf-8");
+        configRaw = await fs22.promises.readFile(configPath, "utf-8");
       } catch (err) {
         if (err?.code !== "ENOENT")
           throw new Error(`failed to read config file ${configPath}: ${err}`);
@@ -71866,9 +71857,9 @@ var CREDENTIALS_FILE_VERSION, PROFILE_NAME_PATTERN, loadConfigWithSource, getCre
       let profileName = readEnv2("ANTHROPIC_PROFILE");
       if (profileName)
         return profileName;
-      let { fs: fs23, path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports)), filePath = path23.join(rootConfigPath, "active_config");
+      let { fs: fs22, path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports)), filePath = path23.join(rootConfigPath, "active_config");
       try {
-        return (await fs23.promises.readFile(filePath, "utf-8")).trim() || "default";
+        return (await fs22.promises.readFile(filePath, "utf-8")).trim() || "default";
       } catch (err) {
         if (err?.code !== "ENOENT")
           throw new Error(`failed to read ${filePath}: ${err}`);
@@ -71883,9 +71874,9 @@ function identityTokenFromFile(path23) {
   if (!path23)
     throw new AnthropicError("Identity token file path is empty");
   return async () => {
-    let { fs: fs23 } = await Promise.resolve().then(() => (init_node(), node_exports)), content;
+    let { fs: fs22 } = await Promise.resolve().then(() => (init_node(), node_exports)), content;
     try {
-      content = await fs23.promises.readFile(path23, "utf-8");
+      content = await fs22.promises.readFile(path23, "utf-8");
     } catch (err) {
       throw new AnthropicError(`Failed to read identity token file at ${path23}: ${err}`);
     }
@@ -71959,11 +71950,11 @@ var init_oidc_federation = __esm({
 // node_modules/@anthropic-ai/sdk/lib/credentials/user-oauth.mjs
 function userOAuthProvider(config) {
   return async (opts) => {
-    let { fs: fs23 } = await Promise.resolve().then(() => (init_node(), node_exports));
+    let { fs: fs22 } = await Promise.resolve().then(() => (init_node(), node_exports));
     await checkCredentialsFileSafety(config.credentialsPath, config.onSafetyWarning);
     let raw;
     try {
-      raw = await fs23.promises.readFile(config.credentialsPath, "utf-8");
+      raw = await fs22.promises.readFile(config.credentialsPath, "utf-8");
     } catch (err) {
       throw new WorkloadIdentityError(`Credentials file not found at ${config.credentialsPath}: ${err}`);
     }
@@ -72104,11 +72095,11 @@ function resolveIdentityTokenProvider(auth) {
 }
 function cachedExchangeProvider(exchange, credentialsPath, onCacheWriteError, onSafetyWarning) {
   return async (opts) => {
-    let { fs: fs23 } = await Promise.resolve().then(() => (init_node(), node_exports));
+    let { fs: fs22 } = await Promise.resolve().then(() => (init_node(), node_exports));
     await checkCredentialsFileSafety(credentialsPath, onSafetyWarning);
     let existing;
     try {
-      let raw = await fs23.promises.readFile(credentialsPath, "utf-8");
+      let raw = await fs22.promises.readFile(credentialsPath, "utf-8");
       existing = JSON.parse(raw);
       let token = existing?.access_token;
       if (token && !opts?.forceRefresh) {
@@ -94885,7 +94876,7 @@ var require_util8 = __commonJS({
     exports.removeUndefinedValuesInObject = removeUndefinedValuesInObject;
     exports.isValidFile = isValidFile;
     exports.getWellKnownCertificateConfigFileLocation = getWellKnownCertificateConfigFileLocation;
-    var fs23 = __require("fs"), os9 = __require("os"), path23 = __require("path"), WELL_KNOWN_CERTIFICATE_CONFIG_FILE = "certificate_config.json", CLOUDSDK_CONFIG_DIRECTORY = "gcloud";
+    var fs22 = __require("fs"), os9 = __require("os"), path23 = __require("path"), WELL_KNOWN_CERTIFICATE_CONFIG_FILE = "certificate_config.json", CLOUDSDK_CONFIG_DIRECTORY = "gcloud";
     function snakeToCamel(str2) {
       return str2.replace(/([_][^_])/g, (match3) => match3.slice(1).toUpperCase());
     }
@@ -94957,7 +94948,7 @@ var require_util8 = __commonJS({
     }
     async function isValidFile(filePath) {
       try {
-        return (await fs23.promises.lstat(filePath)).isFile();
+        return (await fs22.promises.lstat(filePath)).isFile();
       } catch {
         return !1;
       }
@@ -96413,7 +96404,7 @@ var require_getCredentials = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: !0 });
     exports.getCredentials = getCredentials;
-    var path23 = __require("path"), fs23 = __require("fs"), util_1 = __require("util"), errorWithCode_1 = require_errorWithCode(), readFile7 = fs23.readFile ? (0, util_1.promisify)(fs23.readFile) : async () => {
+    var path23 = __require("path"), fs22 = __require("fs"), util_1 = __require("util"), errorWithCode_1 = require_errorWithCode(), readFile7 = fs22.readFile ? (0, util_1.promisify)(fs22.readFile) : async () => {
       throw new errorWithCode_1.ErrorWithCode("use key rather than keyFile.", "MISSING_CREDENTIALS");
     }, ExtensionFiles;
     (function(ExtensionFiles2) {
@@ -97752,9 +97743,9 @@ var require_filesubjecttokensupplier = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: !0 });
     exports.FileSubjectTokenSupplier = void 0;
-    var util_1 = __require("util"), fs23 = __require("fs"), readFile7 = (0, util_1.promisify)(fs23.readFile ?? (() => {
-    })), realpath3 = (0, util_1.promisify)(fs23.realpath ?? (() => {
-    })), lstat = (0, util_1.promisify)(fs23.lstat ?? (() => {
+    var util_1 = __require("util"), fs22 = __require("fs"), readFile7 = (0, util_1.promisify)(fs22.readFile ?? (() => {
+    })), realpath3 = (0, util_1.promisify)(fs22.realpath ?? (() => {
+    })), lstat = (0, util_1.promisify)(fs22.lstat ?? (() => {
     })), FileSubjectTokenSupplier = class {
       filePath;
       formatType;
@@ -97842,7 +97833,7 @@ var require_certificatesubjecttokensupplier = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: !0 });
     exports.CertificateSubjectTokenSupplier = exports.InvalidConfigurationError = exports.CertificateSourceUnavailableError = exports.CERTIFICATE_CONFIGURATION_ENV_VARIABLE = void 0;
-    var util_1 = require_util8(), fs23 = __require("fs"), crypto_1 = __require("crypto"), https2 = __require("https");
+    var util_1 = require_util8(), fs22 = __require("fs"), crypto_1 = __require("crypto"), https2 = __require("https");
     exports.CERTIFICATE_CONFIGURATION_ENV_VARIABLE = "GOOGLE_API_CERTIFICATE_CONFIG";
     var CertificateSourceUnavailableError = class extends Error {
       constructor(message) {
@@ -97923,7 +97914,7 @@ var require_certificatesubjecttokensupplier = __commonJS({
       async #getCertAndKeyPaths() {
         let configPath = this.certificateConfigPath, fileContents;
         try {
-          fileContents = await fs23.promises.readFile(configPath, "utf8");
+          fileContents = await fs22.promises.readFile(configPath, "utf8");
         } catch {
           throw new CertificateSourceUnavailableError(`Failed to read certificate config file at: ${configPath}`);
         }
@@ -97943,13 +97934,13 @@ var require_certificatesubjecttokensupplier = __commonJS({
       async #getKeyAndCert(certPath, keyPath) {
         let cert, key;
         try {
-          cert = await fs23.promises.readFile(certPath), new crypto_1.X509Certificate(cert);
+          cert = await fs22.promises.readFile(certPath), new crypto_1.X509Certificate(cert);
         } catch (err) {
           let message = err instanceof Error ? err.message : String(err);
           throw new CertificateSourceUnavailableError(`Failed to read certificate file at ${certPath}: ${message}`);
         }
         try {
-          key = await fs23.promises.readFile(keyPath), (0, crypto_1.createPrivateKey)(key);
+          key = await fs22.promises.readFile(keyPath), (0, crypto_1.createPrivateKey)(key);
         } catch (err) {
           let message = err instanceof Error ? err.message : String(err);
           throw new CertificateSourceUnavailableError(`Failed to read private key file at ${keyPath}: ${message}`);
@@ -97966,7 +97957,7 @@ var require_certificatesubjecttokensupplier = __commonJS({
         if (!this.trustChainPath)
           return JSON.stringify([leafCert.raw.toString("base64")]);
         try {
-          let chainCerts = ((await fs23.promises.readFile(this.trustChainPath, "utf8")).match(/-----BEGIN CERTIFICATE-----[^-]+-----END CERTIFICATE-----/g) ?? []).map((pem, index3) => {
+          let chainCerts = ((await fs22.promises.readFile(this.trustChainPath, "utf8")).match(/-----BEGIN CERTIFICATE-----[^-]+-----END CERTIFICATE-----/g) ?? []).map((pem, index3) => {
             try {
               return new crypto_1.X509Certificate(pem);
             } catch (err) {
@@ -98533,7 +98524,7 @@ var require_pluggable_auth_handler = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: !0 });
     exports.PluggableAuthHandler = exports.ExecutableError = void 0;
-    var executable_response_1 = require_executable_response(), childProcess = __require("child_process"), fs23 = __require("fs"), ExecutableError = class extends Error {
+    var executable_response_1 = require_executable_response(), childProcess = __require("child_process"), fs22 = __require("fs"), ExecutableError = class extends Error {
       /**
        * The exit code returned by the executable.
        */
@@ -98598,13 +98589,13 @@ var require_pluggable_auth_handler = __commonJS({
           return;
         let filePath;
         try {
-          filePath = await fs23.promises.realpath(this.outputFile);
+          filePath = await fs22.promises.realpath(this.outputFile);
         } catch {
           return;
         }
-        if (!(await fs23.promises.lstat(filePath)).isFile())
+        if (!(await fs22.promises.lstat(filePath)).isFile())
           return;
-        let responseString = await fs23.promises.readFile(filePath, {
+        let responseString = await fs22.promises.readFile(filePath, {
           encoding: "utf8"
         });
         if (responseString !== "")
@@ -98909,7 +98900,7 @@ var require_googleauth = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: !0 });
     exports.GoogleAuth = exports.GoogleAuthExceptionMessages = void 0;
-    var child_process_1 = __require("child_process"), fs23 = __require("fs"), gaxios_1 = require_src2(), gcpMetadata = require_src4(), os9 = __require("os"), path23 = __require("path"), crypto_1 = require_crypto3(), computeclient_1 = require_computeclient(), idtokenclient_1 = require_idtokenclient(), envDetect_1 = require_envDetect(), jwtclient_1 = require_jwtclient(), refreshclient_1 = require_refreshclient(), impersonated_1 = require_impersonated(), externalclient_1 = require_externalclient(), baseexternalclient_1 = require_baseexternalclient(), authclient_1 = require_authclient(), externalAccountAuthorizedUserClient_1 = require_externalAccountAuthorizedUserClient(), util_1 = require_util8();
+    var child_process_1 = __require("child_process"), fs22 = __require("fs"), gaxios_1 = require_src2(), gcpMetadata = require_src4(), os9 = __require("os"), path23 = __require("path"), crypto_1 = require_crypto3(), computeclient_1 = require_computeclient(), idtokenclient_1 = require_idtokenclient(), envDetect_1 = require_envDetect(), jwtclient_1 = require_jwtclient(), refreshclient_1 = require_refreshclient(), impersonated_1 = require_impersonated(), externalclient_1 = require_externalclient(), baseexternalclient_1 = require_baseexternalclient(), authclient_1 = require_authclient(), externalAccountAuthorizedUserClient_1 = require_externalAccountAuthorizedUserClient(), util_1 = require_util8();
     exports.GoogleAuthExceptionMessages = {
       API_KEY_WITH_CREDENTIALS: "API Keys and Credentials are mutually exclusive authentication methods and cannot be used together.",
       NO_PROJECT_ID_FOUND: `Unable to detect a Project Id in the current environment. 
@@ -99125,7 +99116,7 @@ https://cloud.google.com/compute/docs/metadata/predefined-metadata-keys`
           let home = process.env.HOME;
           home && (location = path23.join(home, ".config"));
         }
-        return location && (location = path23.join(location, "gcloud", "application_default_credentials.json"), fs23.existsSync(location) || (location = null)), location ? await this._getApplicationCredentialsFromFilePath(location, options) : null;
+        return location && (location = path23.join(location, "gcloud", "application_default_credentials.json"), fs22.existsSync(location) || (location = null)), location ? await this._getApplicationCredentialsFromFilePath(location, options) : null;
       }
       /**
        * Attempts to load default credentials from a file at the given path..
@@ -99137,12 +99128,12 @@ https://cloud.google.com/compute/docs/metadata/predefined-metadata-keys`
         if (!filePath || filePath.length === 0)
           throw new Error("The file path is invalid.");
         try {
-          if (filePath = fs23.realpathSync(filePath), !fs23.lstatSync(filePath).isFile())
+          if (filePath = fs22.realpathSync(filePath), !fs22.lstatSync(filePath).isFile())
             throw new Error();
         } catch (err) {
           throw err instanceof Error && (err.message = `The file at ${filePath} does not exist, or it is not a file. ${err.message}`), err;
         }
-        let readStream = fs23.createReadStream(filePath);
+        let readStream = fs22.createReadStream(filePath);
         return this.fromStream(readStream, options);
       }
       /**
@@ -99394,7 +99385,7 @@ https://cloud.google.com/compute/docs/metadata/predefined-metadata-keys`
         if (this.jsonContent)
           return this._cacheClientFromJSON(this.jsonContent, this.clientOptions);
         if (this.keyFilename) {
-          let filePath = path23.resolve(this.keyFilename), stream12 = fs23.createReadStream(filePath);
+          let filePath = path23.resolve(this.keyFilename), stream12 = fs22.createReadStream(filePath);
           return await this.fromStreamAsync(stream12, this.clientOptions);
         } else if (this.apiKey) {
           let client = await this.fromAPIKey(this.apiKey, this.clientOptions);
@@ -123584,12 +123575,12 @@ var CredentialSynchronizationError, ModelRuntime, init_model_runtime = __esm({
         this.models = createModels({ credentials, modelsStore }), this.rebuildProviders();
       }
       static async create(options = {}) {
-        let credentials = new RuntimeCredentials(options.credentials ?? AuthStorage.create(options.authPath)), modelsPath = options.modelsPath === null ? void 0 : options.modelsPath ?? join13(getAgentDir(), "models.json"), config = await ModelConfig.load(modelsPath), modelsStore = options.modelsStore ?? (modelsPath ? new FileModelsStore(options.modelsStorePath ?? join13(dirname8(modelsPath), "models-store.json")) : new InMemoryCodingAgentModelsStore()), builtinModelDataGeneratedAt = getBuiltinModelDataGeneratedAt(), providers = builtinProviders().map((provider) => provider.id === "radius" ? provider : provider.id === "openrouter" ? withPersonalizedCatalog(
+        let credentials = new RuntimeCredentials(options.credentials ?? AuthStorage.create(options.authPath)), modelsPath = options.modelsPath === null ? void 0 : options.modelsPath ?? join13(getAgentDir(), "models.json"), config = await ModelConfig.load(modelsPath), modelsStore = options.modelsStore ?? (modelsPath ? new FileModelsStore(options.modelsStorePath ?? join13(dirname8(modelsPath), "models-store.json")) : new InMemoryCodingAgentModelsStore()), builtinModelDataGeneratedAt = getBuiltinModelDataGeneratedAt(), providers = builtinProviders().map((provider) => provider.id === "radius" ? provider : provider.id === "openrouter" ? options.catalogBaseUrl && options.catalogBaseUrl !== "https://pi.dev" ? withPersonalizedCatalog(
           provider,
           personalizeOpenRouterCatalog,
           options.catalogBaseUrl,
           builtinModelDataGeneratedAt
-        ) : withRemoteCatalog(provider, options.catalogBaseUrl, builtinModelDataGeneratedAt)), runtime = new _ModelRuntime(
+        ) : provider : options.catalogBaseUrl && options.catalogBaseUrl !== "https://pi.dev" ? withRemoteCatalog(provider, options.catalogBaseUrl, builtinModelDataGeneratedAt) : provider), runtime = new _ModelRuntime(
           credentials,
           config,
           modelsPath,
@@ -164423,7 +164414,7 @@ var ExtensionSelectorComponent, init_extension_selector = __esm({
 });
 
 // packages/coding-agent/src/modes/interactive/components/first-time-setup.ts
-var THEME_OPTIONS, ANALYTICS_OPTIONS, SETUP_LOGO_LINES, FirstTimeSetupComponent, init_first_time_setup = __esm({
+var THEME_OPTIONS, SETUP_LOGO_LINES, FirstTimeSetupComponent, init_first_time_setup = __esm({
   "packages/coding-agent/src/modes/interactive/components/first-time-setup.ts"() {
     "use strict";
     init_src2();
@@ -164435,13 +164426,8 @@ var THEME_OPTIONS, ANALYTICS_OPTIONS, SETUP_LOGO_LINES, FirstTimeSetupComponent,
       { value: SYSTEM_THEME_NAME, label: "\u0421\u0438\u0441\u0442\u0435\u043C\u043D\u0430\u044F (\u043F\u043E\u0434 \u0446\u0432\u0435\u0442\u0430 \u0442\u0435\u0440\u043C\u0438\u043D\u0430\u043B\u0430)" },
       { value: "dark", label: "\u0422\u0451\u043C\u043D\u0430\u044F" },
       { value: "light", label: "\u0421\u0432\u0435\u0442\u043B\u0430\u044F" }
-    ], ANALYTICS_OPTIONS = [
-      { value: !0, label: "\u041E\u0442\u043F\u0440\u0430\u0432\u043B\u044F\u0442\u044C \u0430\u043D\u043E\u043D\u0438\u043C\u043D\u0443\u044E \u0441\u0442\u0430\u0442\u0438\u0441\u0442\u0438\u043A\u0443" },
-      { value: !1, label: "\u041D\u0435 \u043E\u0442\u043F\u0440\u0430\u0432\u043B\u044F\u0442\u044C" }
     ], SETUP_LOGO_LINES = ["\u2588\u2588\u2588\u2588\u2588\u2588", "\u2588\u2588  \u2588\u2588", "\u2588\u2588\u2588\u2588  \u2588\u2588", "\u2588\u2588    \u2588\u2588"], FirstTimeSetupComponent = class extends Container {
-      step = "theme";
       themeIndex;
-      analyticsIndex = 0;
       options;
       constructor(options) {
         super(), this.options = options, this.themeIndex = 0, this.update();
@@ -164459,27 +164445,12 @@ var THEME_OPTIONS, ANALYTICS_OPTIONS, SETUP_LOGO_LINES, FirstTimeSetupComponent,
             1,
             0
           )
-        ), this.addChild(new Spacer(1)), this.step === "theme" ? (this.addChild(new Text(theme.fg("text", "Pick a theme."), 1, 0)), this.addChild(new Spacer(1)), this.addOptionList(
+        ), this.addChild(new Spacer(1)), this.addChild(new Text(theme.fg("text", "Pick a theme."), 1, 0)), this.addChild(new Spacer(1)), this.addOptionList(
           THEME_OPTIONS.map((option) => option.label),
           this.themeIndex
-        )) : (this.addChild(new Text(theme.fg("text", "Opt-in to anonymous usage data sharing?"), 1, 0)), this.addChild(
+        ), this.addChild(new Spacer(1)), this.addChild(
           new Text(
-            theme.fg(
-              "muted",
-              `Opting in stores a tracking identifier in settings.json and enables anonymous
-usage analytics. This helps us to better debug, reproduce, and resolve issues
-and bugs within \u041F\u0435\u0440\u0423\u041D. You can observe what is shared using /privacy and make
-changes anytime in settings.json.`
-            ),
-            1,
-            0
-          )
-        ), this.addChild(new Spacer(1)), this.addOptionList(
-          ANALYTICS_OPTIONS.map((option) => option.label),
-          this.analyticsIndex
-        )), this.addChild(new Spacer(1)), this.addChild(
-          new Text(
-            rawKeyHint("\u2191\u2193", "navigate") + "  " + keyHint("tui.select.confirm", this.step === "theme" ? "continue" : "finish") + "  " + keyHint("tui.select.cancel", "skip setup"),
+            rawKeyHint("\u2191\u2193", "navigate") + "  " + keyHint("tui.select.confirm", "finish") + "  " + keyHint("tui.select.cancel", "skip setup"),
             1,
             0
           )
@@ -164492,19 +164463,15 @@ changes anytime in settings.json.`
         }
       }
       moveSelection(delta) {
-        if (this.step === "theme") {
-          let next = Math.max(0, Math.min(THEME_OPTIONS.length - 1, this.themeIndex + delta));
-          next !== this.themeIndex && (this.themeIndex = next, this.options.onThemePreview(THEME_OPTIONS[this.themeIndex].value));
-        } else
-          this.analyticsIndex = Math.max(0, Math.min(ANALYTICS_OPTIONS.length - 1, this.analyticsIndex + delta));
-        this.update();
+        let next = Math.max(0, Math.min(THEME_OPTIONS.length - 1, this.themeIndex + delta));
+        next !== this.themeIndex && (this.themeIndex = next, this.options.onThemePreview(THEME_OPTIONS[this.themeIndex].value), this.update());
       }
       handleInput(keyData) {
         let kb = getKeybindings();
         kb.matches(keyData, "tui.select.up") || keyData === "k" ? this.moveSelection(-1) : kb.matches(keyData, "tui.select.down") || keyData === "j" ? this.moveSelection(1) : kb.matches(keyData, "tui.select.confirm") || keyData === `
-` ? this.step === "theme" ? (this.step = "analytics", this.update()) : this.options.onSubmit({
+` ? this.options.onSubmit({
           theme: THEME_OPTIONS[this.themeIndex].value,
-          shareAnalytics: ANALYTICS_OPTIONS[this.analyticsIndex].value
+          shareAnalytics: !1
         }) : kb.matches(keyData, "tui.select.cancel") && this.options.onCancel();
       }
     };
@@ -164735,7 +164702,7 @@ async function showFirstTimeSetup(settingsManager) {
   let ui = await createStartupTui(settingsManager);
   return new Promise((resolve22) => {
     let settled = !1, finish = async (result) => {
-      settled || (settled = !0, result && (settingsManager.setTheme(result.theme), settingsManager.setEnableAnalytics(result.shareAnalytics), await settingsManager.flush()), await clearStartupTui(ui), ui.stop(), resolve22());
+      settled || (settled = !0, result && (settingsManager.setTheme(result.theme), settingsManager.setEnableAnalytics(!1), await settingsManager.flush()), await clearStartupTui(ui), ui.stop(), resolve22());
     };
     ui.start();
     let previewTheme = SYSTEM_THEME_NAME;
@@ -170610,8 +170577,8 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              let fs23 = this.flowScalar(this.type);
-              atNextItem || it2.value ? (map.items.push({ start, key: fs23, sep: [] }), this.onKeyLine = !0) : it2.sep ? this.stack.push(fs23) : (Object.assign(it2, { key: fs23, sep: [] }), this.onKeyLine = !0);
+              let fs22 = this.flowScalar(this.type);
+              atNextItem || it2.value ? (map.items.push({ start, key: fs22, sep: [] }), this.onKeyLine = !0) : it2.sep ? this.stack.push(fs22) : (Object.assign(it2, { key: fs22, sep: [] }), this.onKeyLine = !0);
               return;
             }
             default: {
@@ -170709,8 +170676,8 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              let fs23 = this.flowScalar(this.type);
-              !it2 || it2.value ? fc.items.push({ start: [], key: fs23, sep: [] }) : it2.sep ? this.stack.push(fs23) : Object.assign(it2, { key: fs23, sep: [] });
+              let fs22 = this.flowScalar(this.type);
+              !it2 || it2.value ? fc.items.push({ start: [], key: fs22, sep: [] }) : it2.sep ? this.stack.push(fs22) : Object.assign(it2, { key: fs22, sep: [] });
               return;
             }
             case "flow-map-end":
@@ -171269,7 +171236,12 @@ function buildSystemPromptSections(input2) {
   if (customPrompt)
     promptSections.preamble = customPrompt;
   else if (APP_NAME === "perun") {
-    promptSections.preamble = "\u0422\u044B \u2014 \u041F\u0435\u0440\u0423\u041D (\u041F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u0423\u043C\u043D\u044B\u0439 \u041D\u0430\u043F\u0430\u0440\u043D\u0438\u043A \u0434\u043B\u044F 1\u0421), \u044D\u043A\u0441\u043F\u0435\u0440\u0442\u043D\u044B\u0439 AI-\u0430\u0441\u0441\u0438\u0441\u0442\u0435\u043D\u0442 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u0447\u0438\u043A\u0430 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (BSL, OneScript, 1C:EDT, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 .mdo). \u0422\u044B \u043F\u043E\u043C\u043E\u0433\u0430\u0435\u0448\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E \u0447\u0438\u0442\u0430\u0442\u044C \u0444\u0430\u0439\u043B\u044B, \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0442\u044C \u043A\u043E\u043C\u0430\u043D\u0434\u044B, \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043A\u043E\u0434 \u0438 \u043F\u0438\u0441\u0430\u0442\u044C \u043D\u043E\u0432\u044B\u0435 \u043C\u043E\u0434\u0443\u043B\u0438 1\u0421 \u0432 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0438 \u0441\u043E \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0430\u043C\u0438 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0418\u0422\u0421.";
+    promptSections.preamble = `\u0422\u044B \u2014 \u041F\u0435\u0440\u0423\u041D (\u041F\u0435\u0440\u0441\u043E\u043D\u0430\u043B\u044C\u043D\u044B\u0439 \u0423\u043C\u043D\u044B\u0439 \u041D\u0430\u043F\u0430\u0440\u043D\u0438\u043A \u0434\u043B\u044F 1\u0421), \u044D\u043A\u0441\u043F\u0435\u0440\u0442\u043D\u044B\u0439 AI-\u0430\u0441\u0441\u0438\u0441\u0442\u0435\u043D\u0442 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u0447\u0438\u043A\u0430 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (BSL, OneScript, 1C:EDT, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 .mdo). \u0422\u044B \u043F\u043E\u043C\u043E\u0433\u0430\u0435\u0448\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E \u0447\u0438\u0442\u0430\u0442\u044C \u0444\u0430\u0439\u043B\u044B, \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0442\u044C \u043A\u043E\u043C\u0430\u043D\u0434\u044B, \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043A\u043E\u0434 \u0438 \u043F\u0438\u0441\u0430\u0442\u044C \u043D\u043E\u0432\u044B\u0435 \u043C\u043E\u0434\u0443\u043B\u0438 1\u0421 \u0432 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0438 \u0441\u043E \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0430\u043C\u0438 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0418\u0422\u0421.
+
+\u0412\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0438 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0430 \u041F\u0435\u0440\u0423\u041D:
+- \u0424\u043E\u043D\u043E\u0432\u044B\u0439 LSP-\u0441\u0435\u0440\u0432\u0435\u0440 bsl-analyzer \u0443\u0436\u0435 \u0438\u043D\u0442\u0435\u0433\u0440\u0438\u0440\u043E\u0432\u0430\u043D \u0432 \u044F\u0434\u0440\u043E \u0430\u0433\u0435\u043D\u0442\u0430. \u041F\u0440\u0438 \u043A\u0430\u0436\u0434\u043E\u043C \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0438 \u0438\u043B\u0438 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0438 \u0444\u0430\u0439\u043B\u043E\u0432 .bsl \u0438 .os \u0447\u0435\u0440\u0435\u0437 write \u0438\u043B\u0438 edit \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u044B \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0439 \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441\u0430 \u0438 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u044E\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043F\u0440\u044F\u043C\u043E \u0432 \u043E\u0442\u0432\u0435\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430 (inline LSP feedback). \u041D\u0435 \u043F\u044B\u0442\u0430\u0439\u0441\u044F \u0438\u0441\u043A\u0430\u0442\u044C \u0438\u043B\u0438 \u0437\u0430\u043F\u0443\u0441\u043A\u0430\u0442\u044C bsl-analyzer \u0447\u0435\u0440\u0435\u0437 bash (which, find, whereis).
+- \u0421\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B 1\u0421: bsl_fix_standards (\u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u043D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u0439 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421), 1c_call_hierarchy (\u0430\u043D\u0430\u043B\u0438\u0437 \u0433\u0440\u0430\u0444\u0430 \u0432\u044B\u0437\u043E\u0432\u043E\u0432), 1c_impact_analysis (\u0430\u043D\u0430\u043B\u0438\u0437 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043D\u0430 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 \u0438 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B), 1c_ast_symbols (\u0438\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0435 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440, \u0444\u0443\u043D\u043A\u0446\u0438\u0439, \u0434\u0438\u0440\u0435\u043A\u0442\u0438\u0432 &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435/&\u041D\u0430\u041A\u043B\u0438\u0435\u043D\u0442\u0435), 1c_subagent (\u0434\u0435\u043B\u0435\u0433\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0437\u0430\u0434\u0430\u0447 \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u0430\u043C).
+- \u0424\u043E\u0440\u043C\u0430\u0442 \u043F\u0440\u043E\u0435\u043A\u0442\u0430: \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0435 \u043A\u043E\u0434\u044B 1C:EDT (Configuration.mdo, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 .mdo, \u043C\u043E\u0434\u0443\u043B\u0438 .bsl, \u0444\u0430\u0439\u043B .project). \u0420\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0430 \u0432\u0435\u0434\u0435\u0442\u0441\u044F \u043F\u0440\u044F\u043C\u043E \u0432 \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0445 \u043A\u043E\u0434\u0430\u0445 EDT \u0431\u0435\u0437 \u043D\u0435\u043E\u0431\u0445\u043E\u0434\u0438\u043C\u043E\u0441\u0442\u0438 \u0432\u043D\u0435\u0448\u043D\u0435\u0433\u043E GUI \u041A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0442\u043E\u0440\u0430.`;
     let visibleTools = declaredTools.filter((name) => !!toolSnippets[name]), tools = visibleTools.length > 0 ? visibleTools.map((name) => `- ${name}: ${toolSnippets[name]}`).join(`
 `) : "(none)";
     promptSections.tools = `${tools}
@@ -190306,71 +190278,6 @@ var SUPPORTED_IMAGE_MIME_TYPES, DEFAULT_LIST_TIMEOUT_MS, DEFAULT_POWERSHELL_TIME
   }
 });
 
-// packages/coding-agent/src/utils/version-check.ts
-function formatVersionCheckError(error) {
-  let rootMessage = error instanceof Error && error.message ? error.message : String(error), cause = error instanceof Error ? error.cause : void 0, causes = cause instanceof AggregateError ? cause.errors : cause === void 0 ? [] : [cause], codes = causes.map(
-    (value) => typeof value == "object" && value !== null && "code" in value && typeof value.code == "string" ? value.code : void 0
-  ).filter((code) => code !== void 0);
-  if (codes.length > 0) return `${rootMessage} (${[...new Set(codes)].join(", ")})`;
-  let causeMessage = causes.find(
-    (value) => value instanceof Error && !!value.message
-  )?.message;
-  return causeMessage ? `${rootMessage} (cause: ${causeMessage})` : rootMessage;
-}
-function comparePackageVersions(leftVersion, rightVersion) {
-  let left = (0, import_semver2.valid)(leftVersion.trim()), right = (0, import_semver2.valid)(rightVersion.trim());
-  if (!(!left || !right))
-    return (0, import_semver2.compare)(left, right);
-}
-function isNewerPackageVersion(candidateVersion, currentVersion) {
-  let comparison = comparePackageVersions(candidateVersion, currentVersion);
-  return comparison !== void 0 ? comparison > 0 : candidateVersion.trim() !== currentVersion.trim();
-}
-async function getLatestPiRelease(currentVersion, options = {}) {
-  if (process.env.PI_OFFLINE) return;
-  let response = await fetchWithRetry(
-    LATEST_VERSION_URL,
-    {
-      headers: {
-        "User-Agent": getPiUserAgent2(currentVersion),
-        accept: "application/json"
-      }
-    },
-    {
-      maxRetries: options.retry ? 2 : 0,
-      timeoutMs: options.timeoutMs ?? DEFAULT_VERSION_CHECK_TIMEOUT_MS
-    }
-  );
-  if (!response.ok) return;
-  let data = await response.json();
-  if (typeof data.version != "string" || !data.version.trim())
-    return;
-  let packageName = typeof data.packageName == "string" && data.packageName.trim() ? data.packageName.trim() : void 0, note = typeof data.note == "string" && data.note.trim() ? data.note.trim() : void 0;
-  return {
-    version: data.version.trim(),
-    packageName,
-    ...note ? { note } : {}
-  };
-}
-async function checkForNewPiVersion(currentVersion) {
-  if (!process.env.PI_SKIP_VERSION_CHECK)
-    try {
-      let latestRelease = await getLatestPiRelease(currentVersion);
-      return latestRelease && isNewerPackageVersion(latestRelease.version, currentVersion) ? latestRelease : void 0;
-    } catch {
-      return;
-    }
-}
-var import_semver2, LATEST_VERSION_URL, DEFAULT_VERSION_CHECK_TIMEOUT_MS, init_version_check = __esm({
-  "packages/coding-agent/src/utils/version-check.ts"() {
-    "use strict";
-    import_semver2 = __toESM(require_semver2(), 1);
-    init_management_http();
-    init_pi_user_agent2();
-    LATEST_VERSION_URL = "https://pi.dev/api/latest-version", DEFAULT_VERSION_CHECK_TIMEOUT_MS = 1e4;
-  }
-});
-
 // packages/coding-agent/src/core/bug-report-upload.ts
 async function uploadBugReport(bundle, options = {}) {
   let body = new FormData();
@@ -191826,44 +191733,6 @@ var CustomMessageComponent, init_custom_message = __esm({
             color: (text2) => theme.fg("customMessageText", text2)
           })
         );
-      }
-    };
-  }
-});
-
-// packages/coding-agent/src/modes/interactive/components/earendil-announcement.ts
-import * as fs12 from "node:fs";
-function loadImageBase64() {
-  if (attemptedImageLoad)
-    return cachedImageBase64;
-  attemptedImageLoad = !0;
-  try {
-    cachedImageBase64 = fs12.readFileSync(getBundledInteractiveAssetPath(IMAGE_FILENAME)).toString("base64");
-  } catch {
-    cachedImageBase64 = void 0;
-  }
-  return cachedImageBase64;
-}
-var BLOG_URL, IMAGE_FILENAME, cachedImageBase64, attemptedImageLoad, EarendilAnnouncementComponent, init_earendil_announcement = __esm({
-  "packages/coding-agent/src/modes/interactive/components/earendil-announcement.ts"() {
-    "use strict";
-    init_src2();
-    init_config();
-    init_theme();
-    init_dynamic_border();
-    BLOG_URL = "https://mariozechner.at/posts/2026-04-08-ive-sold-out/", IMAGE_FILENAME = "clankolas.png", attemptedImageLoad = !1;
-    EarendilAnnouncementComponent = class extends Container {
-      constructor() {
-        super(), this.addChild(new DynamicBorder((text) => theme.fg("accent", text))), this.addChild(new Text(theme.bold(theme.fg("accent", "pi has joined Earendil")), 1, 0)), this.addChild(new Spacer(1)), this.addChild(new Text(theme.fg("muted", "Read the blog post:"), 1, 0)), this.addChild(new Text(theme.fg("mdLink", BLOG_URL), 1, 0)), this.addChild(new Spacer(1));
-        let imageBase64 = loadImageBase64();
-        imageBase64 && (this.addChild(
-          new Image(
-            imageBase64,
-            "image/png",
-            { fallbackColor: (text) => theme.fg("muted", text) },
-            { maxWidthCells: 56, filename: IMAGE_FILENAME }
-          )
-        ), this.addChild(new Spacer(1))), this.addChild(new DynamicBorder((text) => theme.fg("accent", text)));
       }
     };
   }
@@ -196893,13 +196762,6 @@ var MODEL_PICKER_LAYOUT, THINKING_DESCRIPTIONS, DEFAULT_PROJECT_TRUST_LABELS, DE
             values: ["true", "header", "false"]
           },
           {
-            id: "install-telemetry",
-            label: "Install telemetry",
-            description: "Send an anonymous version/update ping after changelog-detected updates",
-            currentValue: config.enableInstallTelemetry ? "true" : "false",
-            values: ["true", "false"]
-          },
-          {
             id: "default-project-trust",
             label: "Default project trust",
             description: "Fallback behavior when no extension or saved trust decision decides project trust",
@@ -198804,7 +198666,7 @@ var init_tui_renderer = __esm({
 
 // packages/coding-agent/src/modes/interactive/interactive-mode.ts
 import * as crypto5 from "node:crypto";
-import * as fs13 from "node:fs";
+import * as fs12 from "node:fs";
 import * as os8 from "node:os";
 import * as path17 from "node:path";
 import { spawn as spawn13 } from "child_process";
@@ -198847,7 +198709,7 @@ function quoteIfNeeded(value) {
 function formatResumeCommand(sessionManager) {
   if (!process.stdout.isTTY || !sessionManager.isPersisted()) return;
   let sessionFile = sessionManager.getSessionFile();
-  if (!sessionFile || !fs13.existsSync(sessionFile)) return;
+  if (!sessionFile || !fs12.existsSync(sessionFile)) return;
   let args = [APP_NAME];
   return sessionManager.usesDefaultSessionDir() || args.push("--session-dir", quoteIfNeeded(sessionManager.getSessionDir())), args.push("--session", sessionManager.getSessionId()), args.join(" ");
 }
@@ -198906,12 +198768,10 @@ var ExpandableText, BuiltInHeader, DEAD_TERMINAL_ERROR_CODES, ANTHROPIC_SUBSCRIP
     init_messages5();
     init_model_resolver();
     init_model_runtime();
-    init_package_manager();
     init_radius3();
     init_session_cwd();
     init_session_manager();
     init_slash_commands();
-    init_telemetry();
     init_renderers();
     init_trust_manager();
     init_usage_totals();
@@ -198922,11 +198782,9 @@ var ExpandableText, BuiltInHeader, DEAD_TERMINAL_ERROR_CODES, ANTHROPIC_SUBSCRIP
     init_git();
     init_image_convert();
     init_paths();
-    init_pi_user_agent2();
     init_shell();
     init_syntax_highlight();
     init_tools_manager();
-    init_version_check();
     init_bug_report2();
     init_chat_viewport();
     init_armin();
@@ -198938,7 +198796,6 @@ var ExpandableText, BuiltInHeader, DEAD_TERMINAL_ERROR_CODES, ANTHROPIC_SUBSCRIP
     init_custom_entry();
     init_custom_message();
     init_dynamic_border();
-    init_earendil_announcement();
     init_easter_egg_3d_lazy();
     init_extension_editor();
     init_extension_input();
@@ -199401,18 +199258,7 @@ ${onboarding()}`,
        * Initializes the UI, shows warnings, processes initial messages, and starts the interactive loop.
        */
       async run() {
-        if (await this.init(), !process.env.PI_OFFLINE) {
-          let controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 15e3);
-          refreshModelCatalogs(this.session.modelRuntime, controller.signal).then(() => this.updateAvailableProviderCount()).catch(() => {
-          }).finally(() => clearTimeout(timeout));
-        }
-        checkForNewPiVersion(this.version).then((newRelease) => {
-          newRelease && this.showNewVersionNotification(newRelease);
-        }), this.checkForPackageUpdates().then((updates) => {
-          updates.length > 0 && this.showPackageUpdateNotification(updates);
-        }).finally(() => {
-          process.platform === "win32" && this.isInitialized && this.updateTerminalTitle();
-        }), this.checkTmuxKeyboardSetup().then((warning) => {
+        await this.init(), this.checkTmuxKeyboardSetup().then((warning) => {
           warning && this.showWarning(warning);
         });
         let {
@@ -199460,19 +199306,6 @@ ${onboarding()}`,
           }
         }
       }
-      async checkForPackageUpdates() {
-        if (process.env.PI_OFFLINE)
-          return [];
-        try {
-          return (await new DefaultPackageManager({
-            cwd: this.sessionManager.getCwd(),
-            agentDir: getAgentDir(),
-            settingsManager: this.settingsManager
-          }).checkForAvailableUpdates()).map((update) => update.displayName);
-        } catch {
-          return [];
-        }
-      }
       async checkTmuxKeyboardSetup() {
         if (!process.env.TMUX) return;
         let runTmuxShow = (option) => new Promise((resolve22) => {
@@ -199508,24 +199341,14 @@ ${onboarding()}`,
           return;
         let lastVersion = this.settingsManager.getLastChangelogVersion(), changelogPath = getChangelogPath(), entries = parseChangelog(changelogPath);
         if (!lastVersion) {
-          this.settingsManager.setLastChangelogVersion(VERSION), this.reportInstallTelemetry(VERSION);
+          this.settingsManager.setLastChangelogVersion(VERSION);
           return;
         }
         let newEntries = getNewEntries(entries, lastVersion);
         if (newEntries.length > 0)
-          return this.settingsManager.setLastChangelogVersion(VERSION), this.reportInstallTelemetry(VERSION), newEntries.map((e2) => normalizeChangelogLinks(e2.content, e2)).join(`
+          return this.settingsManager.setLastChangelogVersion(VERSION), newEntries.map((e2) => normalizeChangelogLinks(e2.content, e2)).join(`
 
 `);
-      }
-      reportInstallTelemetry(version2) {
-        process.env.PI_OFFLINE || isInstallTelemetryEnabled(this.settingsManager) && fetch(`https://pi.dev/api/report-install?version=${encodeURIComponent(version2)}`, {
-          headers: {
-            "User-Agent": getPiUserAgent2(version2)
-          },
-          signal: AbortSignal.timeout(5e3)
-        }).then(() => {
-        }).catch(() => {
-        });
       }
       getMarkdownThemeWithSettings() {
         return {
@@ -200477,7 +200300,7 @@ ${message}`, ["Yes", "No"], opts, {
           let image = await readClipboardImage();
           if (image) {
             let tmpDir = os8.tmpdir(), ext2 = extensionForImageMimeType(image.mimeType) ?? "png", fileName = `pi-clipboard-${crypto5.randomUUID()}.${ext2}`, filePath = path17.join(tmpDir, fileName);
-            fs13.writeFileSync(filePath, Buffer.from(image.bytes)), this.editor.insertTextAtCursor?.(filePath), this.ui.requestRender();
+            fs12.writeFileSync(filePath, Buffer.from(image.bytes)), this.editor.insertTextAtCursor?.(filePath), this.ui.requestRender();
             return;
           }
           let text = await readClipboardText();
@@ -201372,33 +201195,9 @@ ${this.crashReportInstructions()}`), process.exit(1);
       showWarning(warningMessage) {
         this.chatContainer.addChild(new Spacer(1)), this.chatContainer.addChild(new ThemedText(() => theme.fg("warning", `Warning: ${warningMessage}`), 1, 0)), this.ui.requestRender();
       }
-      showNewVersionNotification(release2) {
-        let updateInstruction = () => theme.fg("muted", `New version ${release2.version} is available. Run `) + theme.fg("accent", `${APP_NAME} update`), changelogUrl = "https://pi.dev/changelog", changelogLine = () => {
-          let changelogLink = getCapabilities().hyperlinks ? hyperlink(theme.fg("accent", changelogUrl), changelogUrl) : theme.fg("accent", changelogUrl);
-          return theme.fg("muted", "Changelog: ") + changelogLink;
-        }, note = release2.note?.trim();
-        this.chatContainer.addChild(new Spacer(1)), this.chatContainer.addChild(new DynamicBorder((text) => theme.fg("warning", text))), this.chatContainer.addChild(
-          new ThemedText(() => `${theme.bold(theme.fg("warning", "Update Available"))}
-${updateInstruction()}`, 1, 0)
-        ), note && (this.chatContainer.addChild(new Spacer(1)), this.chatContainer.addChild(
-          new Markdown(note, 1, 0, this.getMarkdownThemeWithSettings(), {
-            color: (text) => theme.fg("muted", text)
-          })
-        ), this.chatContainer.addChild(new Spacer(1))), this.chatContainer.addChild(new ThemedText(changelogLine, 1, 0)), this.chatContainer.addChild(new DynamicBorder((text) => theme.fg("warning", text))), this.ui.requestRender();
+      showNewVersionNotification(_release) {
       }
-      showPackageUpdateNotification(packages) {
-        let updateInstruction = () => theme.fg("muted", "Package updates are available. Run ") + theme.fg("accent", `${APP_NAME} update --extensions`), packageLines = packages.map((pkg2) => `- ${pkg2}`).join(`
-`);
-        this.chatContainer.addChild(new Spacer(1)), this.chatContainer.addChild(new DynamicBorder((text) => theme.fg("warning", text))), this.chatContainer.addChild(
-          new ThemedText(
-            () => `${theme.bold(theme.fg("warning", "Package Updates Available"))}
-${updateInstruction()}
-${theme.fg("muted", "Packages:")}
-${packageLines}`,
-            1,
-            0
-          )
-        ), this.chatContainer.addChild(new DynamicBorder((text) => theme.fg("warning", text))), this.ui.requestRender();
+      showPackageUpdateNotification(_packages) {
       }
       /**
        * Get all queued messages (read-only).
@@ -202794,7 +202593,7 @@ ${theme.fg("dim", "Cache Re-billed:")} ${detail}`;
           ""
         ].join(`
 `);
-        fs13.mkdirSync(path17.dirname(debugLogPath), { recursive: !0 }), fs13.writeFileSync(debugLogPath, debugData), this.chatContainer.addChild(new Spacer(1)), this.chatContainer.addChild(
+        fs12.mkdirSync(path17.dirname(debugLogPath), { recursive: !0 }), fs12.writeFileSync(debugLogPath, debugData), this.chatContainer.addChild(new Spacer(1)), this.chatContainer.addChild(
           new ThemedText(() => `${theme.fg("accent", "\u2713 Debug log written")}
 ${theme.fg("muted", debugLogPath)}`, 1, 1)
         ), this.ui.requestRender();
@@ -202803,7 +202602,6 @@ ${theme.fg("muted", debugLogPath)}`, 1, 1)
         playArmin3d(this.renderer) || (this.chatContainer.addChild(new Spacer(1)), this.chatContainer.addChild(new ArminComponent(this.ui)), this.ui.requestRender());
       }
       handleDementedDelves() {
-        this.chatContainer.addChild(new Spacer(1)), this.chatContainer.addChild(new EarendilAnnouncementComponent()), this.ui.requestRender();
       }
       async handleBashCommand(command, excludeFromContext = !1) {
         let extensionRunner = this.session.extensionRunner, eventResult;
@@ -204270,7 +204068,7 @@ var VIRTUAL_MODULES, init_virtual_modules = __esm({
 });
 
 // packages/coding-agent/src/core/extensions/loader.ts
-import * as fs14 from "node:fs";
+import * as fs13 from "node:fs";
 import { createRequire as createRequire6 } from "node:module";
 import * as path18 from "node:path";
 import { fileURLToPath as fileURLToPath5 } from "node:url";
@@ -204286,7 +204084,7 @@ function getAliases() {
   if (_aliases) return _aliases;
   let __dirname2 = path18.dirname(fileURLToPath5(import.meta.url)), packageIndex = path18.resolve(__dirname2, "../..", "index.js"), typeboxEntry = require3.resolve("typebox"), typeboxCompileEntry = require3.resolve("typebox/compile"), typeboxValueEntry = require3.resolve("typebox/value"), packagesRoot = path18.resolve(__dirname2, "../../../../"), resolveWorkspaceOrImport = (workspaceRelativePath, specifier) => {
     let workspacePath = path18.join(packagesRoot, workspaceRelativePath);
-    return fs14.existsSync(workspacePath) ? workspacePath : fileURLToPath5(import.meta.resolve(specifier));
+    return fs13.existsSync(workspacePath) ? workspacePath : fileURLToPath5(import.meta.resolve(specifier));
   }, piCodingAgentEntry = packageIndex, piAgentCoreEntry = resolveWorkspaceOrImport("agent/dist/index.js", "@earendil-works/pi-agent-core"), piTuiEntry = resolveWorkspaceOrImport("tui/dist/index.js", "@earendil-works/pi-tui"), piAiCompatEntry = resolveWorkspaceOrImport("ai/dist/compat.js", "@earendil-works/pi-ai/compat"), piAiOauthEntry = resolveWorkspaceOrImport("ai/dist/oauth.js", "@earendil-works/pi-ai/oauth"), piAiProvidersEntry = resolveWorkspaceOrImport(
     "ai/dist/providers/all.js",
     "@earendil-works/pi-ai/providers/all"
@@ -204665,27 +204463,27 @@ function isExtensionFile(name) {
 }
 function resolveExtensionEntries2(dir) {
   let packageJsonPath = path18.join(dir, "package.json");
-  if (fs14.existsSync(packageJsonPath)) {
+  if (fs13.existsSync(packageJsonPath)) {
     let manifest = readPiManifest(packageJsonPath);
     if (manifest?.extensions?.length) {
       let entries = [];
       for (let extPath of manifest.extensions) {
         let resolvedExtPath = path18.resolve(dir, extPath);
-        fs14.existsSync(resolvedExtPath) && entries.push(resolvedExtPath);
+        fs13.existsSync(resolvedExtPath) && entries.push(resolvedExtPath);
       }
       if (entries.length > 0)
         return entries;
     }
   }
   let indexTs = path18.join(dir, "index.ts"), indexJs = path18.join(dir, "index.js");
-  return fs14.existsSync(indexTs) ? [indexTs] : fs14.existsSync(indexJs) ? [indexJs] : null;
+  return fs13.existsSync(indexTs) ? [indexTs] : fs13.existsSync(indexJs) ? [indexJs] : null;
 }
 function discoverExtensionsInDir(dir) {
-  if (!fs14.existsSync(dir))
+  if (!fs13.existsSync(dir))
     return [];
   let discovered = [];
   try {
-    let entries = fs14.readdirSync(dir, { withFileTypes: !0 });
+    let entries = fs13.readdirSync(dir, { withFileTypes: !0 });
     for (let entry of entries) {
       let entryPath = path18.join(dir, entry.name);
       if ((entry.isFile() || entry.isSymbolicLink()) && isExtensionFile(entry.name)) {
@@ -204714,7 +204512,7 @@ async function discoverAndLoadExtensions(configuredPaths, cwd, agentDir = getAge
   addPaths(discoverExtensionsInDir(globalExtDir));
   for (let p of configuredPaths) {
     let resolved = resolvePath(p, resolvedCwd, { normalizeUnicodeSpaces: !0 });
-    if (fs14.existsSync(resolved) && fs14.statSync(resolved).isDirectory()) {
+    if (fs13.existsSync(resolved) && fs13.statSync(resolved).isDirectory()) {
       let entries = resolveExtensionEntries2(resolved);
       if (entries) {
         addPaths(entries);
@@ -204745,7 +204543,7 @@ var require3, isNodeSeaBinary, isTypeScriptSourceRuntime, usesEmbeddedModules, c
 });
 
 // packages/coding-agent/src/core/resource-loader.ts
-import { existsSync as existsSync23, readdirSync as readdirSync9, readFileSync as readFileSync22, statSync as statSync12 } from "node:fs";
+import { existsSync as existsSync23, readdirSync as readdirSync9, readFileSync as readFileSync21, statSync as statSync12 } from "node:fs";
 import { basename as basename15, dirname as dirname24, join as join41, resolve as resolve15, sep as sep10 } from "node:path";
 function collectExtensionPackageWarnings(extensionPaths, metadataByPath) {
   let warnings = [], packageRoots = new Set(
@@ -204754,7 +204552,7 @@ function collectExtensionPackageWarnings(extensionPaths, metadataByPath) {
   for (let packageRoot of packageRoots) {
     let packageJsonPath = join41(packageRoot, "package.json");
     if (!existsSync23(packageJsonPath)) continue;
-    let manifest = JSON.parse(stripBom(readFileSync22(packageJsonPath, "utf-8")));
+    let manifest = JSON.parse(stripBom(readFileSync21(packageJsonPath, "utf-8")));
     if (typeof manifest.dependencies != "object" || manifest.dependencies === null || Array.isArray(manifest.dependencies))
       continue;
     let hostDependencies = Object.keys(manifest.dependencies).filter((name) => HOST_PROVIDED_EXTENSION_PACKAGES.has(name)).sort();
@@ -204799,7 +204597,7 @@ function resolvePromptInput(input2, description) {
   if (input2) {
     if (existsSync23(input2))
       try {
-        return stripBom(readFileSync22(input2, "utf-8"));
+        return stripBom(readFileSync21(input2, "utf-8"));
       } catch (error) {
         return console.error(source_default.yellow(`Warning: Could not read ${description} file ${input2}: ${error}`)), input2;
       }
@@ -204816,7 +204614,7 @@ function loadContextFileFromDir(dir) {
           continue;
         return {
           path: filePath,
-          content: stripBom(readFileSync22(filePath, "utf-8"))
+          content: stripBom(readFileSync21(filePath, "utf-8"))
         };
       } catch (error) {
         console.error(source_default.yellow(`Warning: Could not read ${filePath}: ${error}`));
@@ -207608,7 +207406,7 @@ var loadMcpCommand, init_cli_lazy = __esm({
 });
 
 // packages/coding-agent/src/migrations.ts
-import { existsSync as existsSync26, mkdirSync as mkdirSync15, readdirSync as readdirSync10, readFileSync as readFileSync23, renameSync as renameSync3, rmSync as rmSync6, writeFileSync as writeFileSync14 } from "fs";
+import { existsSync as existsSync26, mkdirSync as mkdirSync15, readdirSync as readdirSync10, readFileSync as readFileSync22, renameSync as renameSync3, rmSync as rmSync6, writeFileSync as writeFileSync14 } from "fs";
 import { dirname as dirname25, join as join46 } from "path";
 function migrateAuthToAuthJson() {
   let agentDir = getAgentDir(), authPath = join46(agentDir, "auth.json"), oauthPath = join46(agentDir, "oauth.json"), settingsPath = join46(agentDir, "settings.json");
@@ -207616,7 +207414,7 @@ function migrateAuthToAuthJson() {
   let migrated = {}, providers = [];
   if (existsSync26(oauthPath))
     try {
-      let oauth = JSON.parse(stripBom(readFileSync23(oauthPath, "utf-8")));
+      let oauth = JSON.parse(stripBom(readFileSync22(oauthPath, "utf-8")));
       for (let [provider, cred] of Object.entries(oauth))
         migrated[provider] = { type: "oauth", ...cred }, providers.push(provider);
       renameSync3(oauthPath, `${oauthPath}.migrated`);
@@ -207624,7 +207422,7 @@ function migrateAuthToAuthJson() {
     }
   if (existsSync26(settingsPath))
     try {
-      let content = readFileSync23(settingsPath, "utf-8"), settings2 = JSON.parse(stripBom(content));
+      let content = readFileSync22(settingsPath, "utf-8"), settings2 = JSON.parse(stripBom(content));
       if (settings2.apiKeys && typeof settings2.apiKeys == "object") {
         for (let [provider, key] of Object.entries(settings2.apiKeys))
           !migrated[provider] && typeof key == "string" && (migrated[provider] = { type: "api_key", key }, providers.push(provider));
@@ -207644,7 +207442,7 @@ function migrateSessionsFromAgentRoot() {
   if (files.length !== 0)
     for (let file of files)
       try {
-        let firstLine3 = readFileSync23(file, "utf8").split(`
+        let firstLine3 = readFileSync22(file, "utf8").split(`
 `)[0];
         if (!firstLine3?.trim()) continue;
         let header = JSON.parse(firstLine3);
@@ -207675,7 +207473,7 @@ function migrateKeybindingsConfigFile() {
   let configPath = join46(getAgentDir(), "keybindings.json");
   if (existsSync26(configPath))
     try {
-      let parsed = JSON.parse(stripBom(readFileSync23(configPath, "utf-8")));
+      let parsed = JSON.parse(stripBom(readFileSync22(configPath, "utf-8")));
       if (typeof parsed != "object" || parsed === null || Array.isArray(parsed))
         return;
       let { config, migrated } = migrateKeybindingsConfig(parsed);
@@ -208367,6 +208165,62 @@ var init_config_selector2 = __esm({
   }
 });
 
+// packages/coding-agent/src/utils/version-check.ts
+function formatVersionCheckError(error) {
+  let rootMessage = error instanceof Error && error.message ? error.message : String(error), cause = error instanceof Error ? error.cause : void 0, causes = cause instanceof AggregateError ? cause.errors : cause === void 0 ? [] : [cause], codes = causes.map(
+    (value) => typeof value == "object" && value !== null && "code" in value && typeof value.code == "string" ? value.code : void 0
+  ).filter((code) => code !== void 0);
+  if (codes.length > 0) return `${rootMessage} (${[...new Set(codes)].join(", ")})`;
+  let causeMessage = causes.find(
+    (value) => value instanceof Error && !!value.message
+  )?.message;
+  return causeMessage ? `${rootMessage} (cause: ${causeMessage})` : rootMessage;
+}
+function comparePackageVersions(leftVersion, rightVersion) {
+  let left = (0, import_semver2.valid)(leftVersion.trim()), right = (0, import_semver2.valid)(rightVersion.trim());
+  if (!(!left || !right))
+    return (0, import_semver2.compare)(left, right);
+}
+function isNewerPackageVersion(candidateVersion, currentVersion) {
+  let comparison = comparePackageVersions(candidateVersion, currentVersion);
+  return comparison !== void 0 ? comparison > 0 : candidateVersion.trim() !== currentVersion.trim();
+}
+async function getLatestPiRelease(currentVersion, options = {}) {
+  if (process.env.PI_OFFLINE) return;
+  let response = await fetchWithRetry(
+    LATEST_VERSION_URL,
+    {
+      headers: {
+        "User-Agent": getPiUserAgent2(currentVersion),
+        accept: "application/json"
+      }
+    },
+    {
+      maxRetries: options.retry ? 2 : 0,
+      timeoutMs: options.timeoutMs ?? DEFAULT_VERSION_CHECK_TIMEOUT_MS
+    }
+  );
+  if (!response.ok) return;
+  let data = await response.json();
+  if (typeof data.version != "string" || !data.version.trim())
+    return;
+  let packageName = typeof data.packageName == "string" && data.packageName.trim() ? data.packageName.trim() : void 0, note = typeof data.note == "string" && data.note.trim() ? data.note.trim() : void 0;
+  return {
+    version: data.version.trim(),
+    packageName,
+    ...note ? { note } : {}
+  };
+}
+var import_semver2, LATEST_VERSION_URL, DEFAULT_VERSION_CHECK_TIMEOUT_MS, init_version_check = __esm({
+  "packages/coding-agent/src/utils/version-check.ts"() {
+    "use strict";
+    import_semver2 = __toESM(require_semver2(), 1);
+    init_management_http();
+    init_pi_user_agent2();
+    LATEST_VERSION_URL = "https://pi.dev/api/latest-version", DEFAULT_VERSION_CHECK_TIMEOUT_MS = 1e4;
+  }
+});
+
 // packages/coding-agent/src/utils/windows-self-update.ts
 import { randomUUID as randomUUID9 } from "node:crypto";
 import { copyFileSync as copyFileSync2, existsSync as existsSync27, mkdirSync as mkdirSync16, renameSync as renameSync4, rmSync as rmSync7 } from "node:fs";
@@ -208435,7 +208289,7 @@ import {
   mkdirSync as mkdirSync17,
   mkdtempSync as mkdtempSync3,
   readdirSync as readdirSync11,
-  readFileSync as readFileSync24,
+  readFileSync as readFileSync23,
   renameSync as renameSync5,
   rmSync as rmSync8,
   writeFileSync as writeFileSync15
@@ -208448,7 +208302,7 @@ function getActiveManagedInstallRoot() {
   if (getCwdRelativePath(canonicalizePath(getPackageDir()), releasesDir) === void 0) return;
   let markerPath = join49(managedRoot, MANAGED_INSTALL_MARKER);
   try {
-    let marker = JSON.parse(readFileSync24(markerPath, "utf8"));
+    let marker = JSON.parse(readFileSync23(markerPath, "utf8"));
     if (marker.kind !== "pi-managed-install" || marker.schemaVersion !== 1 || marker.layout !== "releases-v1")
       throw new Error();
   } catch {
@@ -209612,7 +209466,7 @@ function setupCli() {
 init_main();
 
 // packages/1c-agent/src/index.ts
-import * as fs22 from "node:fs";
+import * as fs21 from "node:fs";
 
 // packages/1c-agent/src/autofix/patcher.ts
 function generateUnifiedDiff(filePath, original, modified, contextLines = 3) {
@@ -209829,7 +209683,7 @@ function analyzeCodeForItsRules(filePath, sourceCode) {
 // packages/1c-agent/src/autofix/tools.ts
 init_build();
 import { exec } from "node:child_process";
-import * as fs15 from "node:fs";
+import * as fs14 from "node:fs";
 import { promisify as promisify2 } from "node:util";
 var execAsync = promisify2(exec);
 function registerAutofixTools(pi) {
@@ -209859,7 +209713,7 @@ function registerAutofixTools(pi) {
     execute: async (_toolCallId, params, _signal, _onUpdate, _ctx) => {
       let dryRun = params.dryRun ?? !1, targetPath = params.target, sourceCode = "";
       try {
-        sourceCode = await fs15.promises.readFile(targetPath, "utf8");
+        sourceCode = await fs14.promises.readFile(targetPath, "utf8");
       } catch (err) {
         let msg = err instanceof Error ? err.message : String(err);
         return {
@@ -209901,7 +209755,7 @@ function registerAutofixTools(pi) {
           }
         };
       let { fixedContent, appliedCount } = generatePatches(targetPath, sourceCode, violations), diff = generateUnifiedDiff(targetPath, sourceCode, fixedContent);
-      !dryRun && appliedCount > 0 && await fs15.promises.writeFile(targetPath, fixedContent, "utf8");
+      !dryRun && appliedCount > 0 && await fs14.promises.writeFile(targetPath, fixedContent, "utf8");
       let remainingViolations = violations.filter((v2) => !v2.canAutoFix), lines = [
         `[bsl_fix_standards: \u0410\u043D\u0430\u043B\u0438\u0437 \u0444\u0430\u0439\u043B\u0430 '${targetPath}']`,
         `\u0412\u0441\u0435\u0433\u043E \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u043E \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439: ${violations.length}`,
@@ -209935,7 +209789,7 @@ function registerAutofixTools(pi) {
 
 // packages/1c-agent/src/lsp/client.ts
 import { spawn as spawn15 } from "node:child_process";
-import * as fs16 from "node:fs";
+import * as fs15 from "node:fs";
 import * as path19 from "node:path";
 import { fileURLToPath as fileURLToPath6, pathToFileURL as pathToFileURL4 } from "node:url";
 var BslLspClient = class {
@@ -210013,7 +209867,7 @@ var BslLspClient = class {
     let uri = this.filePathToUri(filePath), text = content;
     if (text === void 0)
       try {
-        text = await fs16.promises.readFile(this.uriToFilePath(uri), "utf8");
+        text = await fs15.promises.readFile(this.uriToFilePath(uri), "utf8");
       } catch {
         return;
       }
@@ -210206,7 +210060,7 @@ var BslLspClient = class {
 };
 
 // packages/1c-agent/src/lsp/feedback.ts
-import * as fs17 from "node:fs";
+import * as fs16 from "node:fs";
 function formatSeverity(severity) {
   switch (severity) {
     case 1:
@@ -210256,7 +210110,7 @@ var InlineFeedbackHandler = class {
       return;
     let updatedContent = "";
     try {
-      updatedContent = await fs17.promises.readFile(rawPath, "utf8");
+      updatedContent = await fs16.promises.readFile(rawPath, "utf8");
     } catch {
       return;
     }
@@ -210277,7 +210131,7 @@ var MODE_PROMPTS = {
 \u0412\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u0440\u0435\u0436\u0438\u043C\u0435 \u0438\u0441\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u043D\u0438\u044F \u0438 \u043F\u043E\u0438\u0441\u043A\u0430 \u043F\u043E \u043A\u043E\u0434\u043E\u0432\u043E\u0439 \u0431\u0430\u0437\u0435 1\u0421.
 \u0412\u0430\u0448\u0430 \u0437\u0430\u0434\u0430\u0447\u0430:
 - \u0410\u043D\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0443 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 1C:EDT, \u043C\u043E\u0434\u0443\u043B\u0438 BSL, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 \u0438 \u0441\u0432\u044F\u0437\u0438 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432.
-- \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u043D\u0430\u0432\u0438\u0433\u0430\u0446\u0438\u0438 (1c_call_hierarchy, 1c_impact_analysis, 1c_ast_symbols, grep, find, read).
+- \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u043D\u0430\u0432\u0438\u0433\u0430\u0446\u0438\u0438: 1c_call_hierarchy (\u0433\u0440\u0430\u0444 \u0432\u044B\u0437\u043E\u0432\u043E\u0432), 1c_impact_analysis (\u0441\u0432\u044F\u0437\u0430\u043D\u043D\u043E\u0441\u0442\u044C \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445), 1c_ast_symbols (\u0441\u0438\u043C\u0432\u043E\u043B\u044B \u043C\u043E\u0434\u0443\u043B\u044F), \u0430 \u0442\u0430\u043A\u0436\u0435 grep, find, read.
 - \u041E\u0442\u0432\u0435\u0447\u0430\u0442\u044C \u043D\u0430 \u0432\u043E\u043F\u0440\u043E\u0441\u044B \u043E\u0431 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0435 \u0438 \u0440\u0430\u0441\u043F\u043E\u043B\u043E\u0436\u0435\u043D\u0438\u0438 \u043B\u043E\u0433\u0438\u043A\u0438.
 \u0412\u041D\u0418\u041C\u0410\u041D\u0418\u0415: \u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0444\u0430\u0439\u043B\u043E\u0432 (edit, write, bash \u0441 \u043C\u0443\u0442\u0430\u0446\u0438\u044F\u043C\u0438) \u0432 \u044D\u0442\u043E\u043C \u0440\u0435\u0436\u0438\u043C\u0435 \u0417\u0410\u0411\u041B\u041E\u041A\u0418\u0420\u041E\u0412\u0410\u041D\u041E. \u0414\u043B\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u043A\u043E\u0434\u0430 \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u0441\u044C \u0432 \u0440\u0435\u0436\u0438\u043C \u041D\u0410\u041F\u0418\u0421\u0410\u0422\u042C (alt+m \u0438\u043B\u0438 /mode write).`,
   explain: `[\u0420\u0415\u0416\u0418\u041C: \u041E\u0411\u042A\u042F\u0421\u041D\u0418\u0422\u042C (DOCUMENT & EXPLAIN)]
@@ -210291,15 +210145,16 @@ var MODE_PROMPTS = {
 \u0412\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u043F\u043E\u043B\u043D\u043E\u0444\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E\u043C \u0440\u0435\u0436\u0438\u043C\u0435 \u043D\u0430\u043F\u0438\u0441\u0430\u043D\u0438\u044F \u043A\u043E\u0434\u0430 1\u0421.
 \u0412\u0430\u0448\u0430 \u0437\u0430\u0434\u0430\u0447\u0430:
 - \u0420\u0435\u0430\u043B\u0438\u0437\u043E\u0432\u044B\u0432\u0430\u0442\u044C \u0438 \u043C\u043E\u0434\u0438\u0444\u0438\u0446\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043C\u043E\u0434\u0443\u043B\u0438 BSL (.bsl) \u0438 \u043E\u0431\u044A\u0435\u043A\u0442\u044B \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 EDT (.mdo).
+- \u0421\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u043D\u0430\u043B\u0438\u0437: bsl-analyzer \u0443\u0436\u0435 \u0437\u0430\u043F\u0443\u0449\u0435\u043D \u0438 \u0438\u043D\u0442\u0435\u0433\u0440\u0438\u0440\u043E\u0432\u0430\u043D \u0432 \u0430\u0433\u0435\u043D\u0442\u0430. \u0414\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0430 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441\u0430 \u0438 \u043E\u0448\u0438\u0431\u043E\u043A \u0418\u0422\u0421 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0432 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0435 \u043A\u0430\u0436\u0434\u043E\u0433\u043E \u0432\u044B\u0437\u043E\u0432\u0430 write/edit. \u041D\u0435 \u0438\u0449\u0438 bsl-analyzer \u0447\u0435\u0440\u0435\u0437 bash.
 - \u0421\u043E\u0431\u043B\u044E\u0434\u0430\u0442\u044C \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u044B \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 1\u0421:\u0418\u0422\u0421 (\u0447\u0438\u0441\u0442\u044B\u0435 \u043C\u043E\u0434\u0443\u043B\u0438, \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u043E\u043D\u043D\u043E\u0441\u0442\u044C, \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u0435 \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432 \u0432 \u0446\u0438\u043A\u043B\u0430\u0445).
 - \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 bsl_fix_standards \u0434\u043B\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439 \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E \u0430\u043D\u0430\u043B\u0438\u0437\u0430.
-- \u041F\u0440\u0438 \u043E\u0448\u0438\u0431\u043A\u0430\u0445 \u043B\u0438\u043D\u0442\u0435\u0440\u0430 \u043D\u0435\u043C\u0435\u0434\u043B\u0435\u043D\u043D\u043E \u0432\u043D\u043E\u0441\u0438\u0442\u044C \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F. \u0412\u0441\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0430\u043A\u0442\u0438\u0432\u043D\u044B.`,
+- \u041F\u0440\u0438 \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u0438 \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439 \u043B\u0438\u043D\u0442\u0435\u0440\u0430 \u0432 \u043E\u0442\u0432\u0435\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430 \u043D\u0435\u043C\u0435\u0434\u043B\u0435\u043D\u043D\u043E \u0443\u0441\u0442\u0440\u0430\u043D\u044F\u0439 \u0438\u0445. \u0412\u0441\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0430\u043A\u0442\u0438\u0432\u043D\u044B.`,
   plan: `[\u0420\u0415\u0416\u0418\u041C: \u041F\u041B\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u0422\u042C (ARCHITECT & PLAN)]
 \u0412\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u0440\u0435\u0436\u0438\u043C\u0435 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u043D\u043E\u0433\u043E \u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F.
 \u0412\u0430\u0448\u0430 \u0437\u0430\u0434\u0430\u0447\u0430:
 - \u0414\u0435\u043A\u043E\u043C\u043F\u043E\u0437\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0431\u0438\u0437\u043D\u0435\u0441-\u0442\u0440\u0435\u0431\u043E\u0432\u0430\u043D\u0438\u044F \u043D\u0430 \u0441\u043E\u0441\u0442\u0430\u0432 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 (\u0421\u043F\u0440\u0430\u0432\u043E\u0447\u043D\u0438\u043A\u0438, \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B, \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F/\u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439).
 - \u041F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0443 \u043F\u043E\u0434\u0441\u0438\u0441\u0442\u0435\u043C \u0438 \u043F\u043E\u0442\u043E\u043A\u043E\u0432 \u0434\u0430\u043D\u043D\u044B\u0445 \u0411\u0415\u0417 \u043D\u0435\u043F\u043E\u0441\u0440\u0435\u0434\u0441\u0442\u0432\u0435\u043D\u043D\u043E\u0433\u043E \u043D\u0430\u043F\u0438\u0441\u0430\u043D\u0438\u044F \u0440\u0435\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u0438.
-- \u0424\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043F\u043E\u0448\u0430\u0433\u043E\u0432\u044B\u0439 \u043F\u043B\u0430\u043D \u0432\u043D\u0435\u0434\u0440\u0435\u043D\u0438\u044F.
+- \u0424\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043F\u043E\u0448\u0430\u0433\u043E\u0432\u044B\u0439 \u043F\u043B\u0430\u043D \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 \u0432 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0435 1C:EDT.
 \u0412\u041D\u0418\u041C\u0410\u041D\u0418\u0415: \u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0444\u0430\u0439\u043B\u043E\u0432 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u043E \u0434\u043E \u043F\u0435\u0440\u0435\u0445\u043E\u0434\u0430 \u0432 \u0440\u0435\u0436\u0438\u043C \u041D\u0410\u041F\u0418\u0421\u0410\u0422\u042C.`
 };
 
@@ -210625,7 +210480,7 @@ ${nextLine}`, nextLine.includes(")") && (foundClosingParen = !0);
 }
 
 // packages/1c-agent/src/navigator/call-hierarchy.ts
-import * as fs18 from "node:fs";
+import * as fs17 from "node:fs";
 import * as path20 from "node:path";
 var CallHierarchyNavigator = class {
   lspClient;
@@ -210646,7 +210501,7 @@ var CallHierarchyNavigator = class {
     if (!this.lspClient) return null;
     let fileContent = "";
     try {
-      fileContent = await fs18.promises.readFile(filePath, "utf8");
+      fileContent = await fs17.promises.readFile(filePath, "utf8");
     } catch {
       return null;
     }
@@ -210676,7 +210531,7 @@ var CallHierarchyNavigator = class {
   async resolveCallHierarchyFromAst(filePath, symbolName, projectRoot) {
     let currentContent = "";
     try {
-      currentContent = await fs18.promises.readFile(filePath, "utf8");
+      currentContent = await fs17.promises.readFile(filePath, "utf8");
     } catch {
       return {
         symbol: symbolName,
@@ -210699,7 +210554,7 @@ var CallHierarchyNavigator = class {
     for (let otherFile of otherFiles)
       if (path20.resolve(otherFile) !== path20.resolve(filePath))
         try {
-          let content = await fs18.promises.readFile(otherFile, "utf8"), symbols = parseBslSymbols(content);
+          let content = await fs17.promises.readFile(otherFile, "utf8"), symbols = parseBslSymbols(content);
           if (otherFileSymbolsMap.set(otherFile, symbols), content.toLowerCase().includes(symbolName.toLowerCase())) {
             for (let sym of symbols)
               if (sym.calls.some((c2) => c2.toLowerCase() === symbolName.toLowerCase())) {
@@ -210746,7 +210601,7 @@ var CallHierarchyNavigator = class {
   async findBslFiles(directory) {
     let result = [];
     try {
-      let entries = await fs18.promises.readdir(directory, { withFileTypes: !0 });
+      let entries = await fs17.promises.readdir(directory, { withFileTypes: !0 });
       for (let entry of entries) {
         let full = path20.join(directory, entry.name);
         if (entry.isDirectory()) {
@@ -210763,7 +210618,7 @@ var CallHierarchyNavigator = class {
 };
 
 // packages/1c-agent/src/navigator/impact-analysis.ts
-import * as fs19 from "node:fs";
+import * as fs18 from "node:fs";
 import * as path21 from "node:path";
 var ImpactAnalyzer = class {
   projectRoot;
@@ -210775,7 +210630,7 @@ var ImpactAnalyzer = class {
     for (let file of files) {
       let content = "";
       try {
-        content = await fs19.promises.readFile(file, "utf8");
+        content = await fs18.promises.readFile(file, "utf8");
       } catch {
         continue;
       }
@@ -210833,7 +210688,7 @@ var ImpactAnalyzer = class {
   async collectFiles(directory) {
     let files = [];
     try {
-      let entries = await fs19.promises.readdir(directory, { withFileTypes: !0 });
+      let entries = await fs18.promises.readdir(directory, { withFileTypes: !0 });
       for (let entry of entries) {
         let full = path21.join(directory, entry.name);
         if (entry.isDirectory()) {
@@ -210851,7 +210706,7 @@ var ImpactAnalyzer = class {
 
 // packages/1c-agent/src/navigator/tools.ts
 init_build();
-import * as fs20 from "node:fs";
+import * as fs19 from "node:fs";
 function registerNavigatorTools(pi, lspClient, projectRoot) {
   let callHierarchyNavigator = new CallHierarchyNavigator(lspClient), impactAnalyzer = new ImpactAnalyzer(projectRoot);
   pi.registerTool({
@@ -210929,7 +210784,7 @@ function registerNavigatorTools(pi, lspClient, projectRoot) {
       let sourceCode = params.code || "";
       if (!sourceCode && params.filePath)
         try {
-          sourceCode = await fs20.promises.readFile(params.filePath, "utf8");
+          sourceCode = await fs19.promises.readFile(params.filePath, "utf8");
         } catch (err) {
           return {
             content: [{ type: "text", text: `\u041E\u0448\u0438\u0431\u043A\u0430 \u0447\u0442\u0435\u043D\u0438\u044F \u0444\u0430\u0439\u043B\u0430: ${err instanceof Error ? err.message : String(err)}` }],
@@ -211152,7 +211007,7 @@ var SUBAGENT_ROLES = {
 
 // packages/1c-agent/src/subagents/tools.ts
 init_build();
-import * as fs21 from "node:fs";
+import * as fs20 from "node:fs";
 function registerSubagentTools(pi) {
   pi.registerTool({
     name: "1c_subagent",
@@ -211188,7 +211043,7 @@ function registerSubagentTools(pi) {
       if (params.contextFiles && params.contextFiles.length > 0)
         for (let filePath of params.contextFiles)
           try {
-            let content = await fs21.promises.readFile(filePath, "utf8");
+            let content = await fs20.promises.readFile(filePath, "utf8");
             fileSnippets.push(`--- \u0424\u0430\u0439\u043B: ${filePath} ---
 ${content}
 `);
@@ -211289,14 +211144,20 @@ function createOnecAgentExtension(options = {}) {
       await lspClient.stop().catch(() => {
       });
     }), pi.on("before_agent_start", (event) => {
-      let promptInjection = modeManager.getSystemPromptInjection();
-      if (event.systemPromptOptions?.promptGuidelines) {
+      let promptInjection = modeManager.getSystemPromptInjection(), envInjection = `\u0412\u0421\u0422\u0420\u041E\u0415\u041D\u041D\u041E\u0415 \u041E\u041A\u0420\u0423\u0416\u0415\u041D\u0418\u0415 \u0418 LSP 1\u0421 (\u041F\u0415\u0420\u0423\u041D):
+- \u0412 \u041F\u0435\u0440\u0423\u041D \u0443\u0436\u0435 \u0432\u0441\u0442\u0440\u043E\u0435\u043D \u0438 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0444\u043E\u043D\u043E\u0432\u044B\u0439 LSP-\u0441\u0435\u0440\u0432\u0435\u0440 bsl-analyzer. \u041F\u0440\u0438 \u043A\u0430\u0436\u0434\u043E\u043C \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0438 \u0444\u0430\u0439\u043B\u043E\u0432 .bsl \u0438 .os \u0447\u0435\u0440\u0435\u0437 write \u0438\u043B\u0438 edit \u0434\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0430 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441\u0430 \u0438 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0432 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430.
+- \u041D\u0415 \u0442\u0440\u0430\u0442\u044C \u0448\u0430\u0433\u0438 \u043D\u0430 \u043F\u043E\u0438\u0441\u043A \u0438\u043B\u0438 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0443 bsl-analyzer \u0447\u0435\u0440\u0435\u0437 bash (which, find, whereis) \u2014 \u0430\u043D\u0430\u043B\u0438\u0437\u0430\u0442\u043E\u0440 \u0443\u0436\u0435 \u0437\u0430\u043F\u0443\u0449\u0435\u043D \u0438 \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E \u0444\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0430\u043B\u0435\u043D.
+- \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B: bsl_fix_standards (\u0430\u0432\u0442\u043E-\u043F\u0430\u0442\u0447\u0438 \u0418\u0422\u0421), 1c_call_hierarchy (\u0433\u0440\u0430\u0444 \u0432\u044B\u0437\u043E\u0432\u043E\u0432), 1c_impact_analysis (\u0441\u0432\u044F\u0437\u0438 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432), 1c_ast_symbols (\u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430 \u043C\u043E\u0434\u0443\u043B\u044F), 1c_subagent (\u0434\u0435\u043B\u0435\u0433\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435).
+- \u0420\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0430 \u0432\u0435\u0434\u0435\u0442\u0441\u044F \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 \u043F\u0440\u043E\u0435\u043A\u0442\u043E\u0432 1C:EDT (Configuration.mdo, \u0444\u0430\u0439\u043B\u044B .mdo, \u043C\u043E\u0434\u0443\u043B\u0438 .bsl, .project).`;
+      if (event.systemPromptOptions?.sections && (event.systemPromptOptions.sections.onec_environment = envInjection), event.systemPromptOptions?.promptGuidelines) {
         event.systemPromptOptions.promptGuidelines.push(promptInjection);
         return;
       }
       if (event.systemPrompt)
         return {
           systemPrompt: `${event.systemPrompt}
+
+${envInjection}
 
 ${promptInjection}`
         };
@@ -211329,7 +211190,7 @@ ${promptInjection}`
 }
 async function detect1cProject(directory) {
   try {
-    let items = await fs22.promises.readdir(directory);
+    let items = await fs21.promises.readdir(directory);
     for (let item of items) {
       let lower2 = item.toLowerCase();
       if (lower2.endsWith(".bsl") || lower2.endsWith(".os") || lower2 === "configuration.mdo" || lower2 === "bsl-analyzer.toml" || lower2 === ".project")
