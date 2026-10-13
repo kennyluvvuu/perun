@@ -1,5 +1,4 @@
 import { Container, getKeybindings, Spacer, Text } from "@earendil-works/pi-tui";
-import { APP_NAME } from "../../../config.ts";
 import { SYSTEM_THEME_NAME } from "../theme/system-theme.ts";
 import { theme } from "../theme/theme.ts";
 import { DynamicBorder } from "./dynamic-border.ts";
@@ -17,14 +16,14 @@ export interface FirstTimeSetupOptions {
 }
 
 const THEME_OPTIONS: Array<{ value: string; label: string }> = [
-	{ value: SYSTEM_THEME_NAME, label: "System (matches your terminal colors)" },
-	{ value: "dark", label: "Dark" },
-	{ value: "light", label: "Light" },
+	{ value: SYSTEM_THEME_NAME, label: "Системная (под цвета терминала)" },
+	{ value: "dark", label: "Тёмная" },
+	{ value: "light", label: "Светлая" },
 ];
 
 const ANALYTICS_OPTIONS: Array<{ value: boolean; label: string }> = [
-	{ value: true, label: "Share anonymous usage data" },
-	{ value: false, label: "Don't share" },
+	{ value: true, label: "Отправлять анонимную статистику" },
+	{ value: false, label: "Не отправлять" },
 ];
 
 const SETUP_LOGO_LINES = ["██████", "██  ██", "████  ██", "██    ██"];
@@ -57,7 +56,11 @@ export class FirstTimeSetupComponent extends Container {
 		this.addChild(new Text(theme.fg("accent", SETUP_LOGO_LINES.join("\n")), 1, 0));
 		this.addChild(new Spacer(1));
 		this.addChild(
-			new Text(theme.fg("accent", theme.bold(`Welcome to ${APP_NAME}, the minimal coding agent.`)), 1, 0),
+			new Text(
+				theme.fg("accent", theme.bold("Добро пожаловать в ПерУН — персональный умный напарник для 1С.")),
+				1,
+				0,
+			),
 		);
 		this.addChild(new Spacer(1));
 
@@ -74,7 +77,7 @@ export class FirstTimeSetupComponent extends Container {
 				new Text(
 					theme.fg(
 						"muted",
-						"Opting in stores a tracking identifier in settings.json and enables anonymous\nusage analytics. This helps us to better debug, reproduce, and resolve issues\nand bugs within Pi. You can observe what is shared using /privacy and make\nchanges anytime in settings.json.",
+						"Opting in stores a tracking identifier in settings.json and enables anonymous\nusage analytics. This helps us to better debug, reproduce, and resolve issues\nand bugs within ПерУН. You can observe what is shared using /privacy and make\nchanges anytime in settings.json.",
 					),
 					1,
 					0,

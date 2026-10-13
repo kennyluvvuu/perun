@@ -53,7 +53,7 @@ export class RetryStatusIndicator extends StatusIndicator {
 
 	constructor(ui: TUI, attempt: number, maxAttempts: number, delayMs: number) {
 		const retryMessage = (seconds: number) =>
-			`Retrying (${attempt}/${maxAttempts}) in ${seconds}s... (${keyText("app.interrupt")} to cancel)`;
+			`Повторная попытка (${attempt}/${maxAttempts}) через ${seconds}с... (${keyText("app.interrupt")} для отмены)`;
 		super(
 			"retry",
 			ui,

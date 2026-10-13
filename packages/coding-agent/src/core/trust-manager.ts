@@ -67,12 +67,12 @@ export function getProjectTrustParentPath(cwd: string): string | undefined {
 export function getProjectTrustOptions(cwd: string, options?: { includeSessionOnly?: boolean }): ProjectTrustOption[] {
 	const trustPath = normalizeCwd(cwd);
 	const trustOptions: ProjectTrustOption[] = [
-		{ label: "Trust", trusted: true, updates: [{ path: trustPath, decision: true }], savedPath: trustPath },
+		{ label: "Доверять", trusted: true, updates: [{ path: trustPath, decision: true }], savedPath: trustPath },
 	];
 	const parentPath = getProjectTrustParentPath(cwd);
 	if (parentPath !== undefined) {
 		trustOptions.push({
-			label: `Trust parent folder (${parentPath})`,
+			label: `Доверять родительской папке (${parentPath})`,
 			trusted: true,
 			updates: [
 				{ path: parentPath, decision: true },
@@ -82,16 +82,16 @@ export function getProjectTrustOptions(cwd: string, options?: { includeSessionOn
 		});
 	}
 	if (options?.includeSessionOnly) {
-		trustOptions.push({ label: "Trust (this session only)", trusted: true, updates: [] });
+		trustOptions.push({ label: "Доверять (только для этой сессии)", trusted: true, updates: [] });
 	}
 	trustOptions.push({
-		label: "Do not trust",
+		label: "Не доверять",
 		trusted: false,
 		updates: [{ path: trustPath, decision: false }],
 		savedPath: trustPath,
 	});
 	if (options?.includeSessionOnly) {
-		trustOptions.push({ label: "Do not trust (this session only)", trusted: false, updates: [] });
+		trustOptions.push({ label: "Не доверять (только для этой сессии)", trusted: false, updates: [] });
 	}
 	return trustOptions;
 }

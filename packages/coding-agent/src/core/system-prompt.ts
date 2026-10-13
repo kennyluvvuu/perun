@@ -3,7 +3,7 @@
  */
 
 import { getSystemMessageText } from "@earendil-works/pi-ai";
-import { getDocsPath, getExamplesPath, getReadmePath } from "../config.ts";
+import { APP_NAME, getDocsPath, getExamplesPath, getReadmePath } from "../config.ts";
 import { formatSkillsForPrompt, type Skill } from "./skills.ts";
 
 export interface BuildSystemPromptOptions {
@@ -151,6 +151,22 @@ export function buildSystemPromptSections(input: BuildSystemPromptOptions): Syst
 	const promptSections: Record<string, string> = {};
 	if (customPrompt) {
 		promptSections.preamble = customPrompt;
+	} else if (APP_NAME === "perun") {
+		promptSections.preamble =
+			"Ты — ПерУН (Персональный Умный Напарник для 1С), экспертный AI-ассистент разработчика 1С:Предприятие (BSL, OneScript, 1C:EDT, метаданные конфигурации .mdo). Ты помогаешь пользователю читать файлы, выполнять команды, редактировать код и писать новые модули 1С в соответствии со стандартами разработки ИТС.";
+		const visibleTools = declaredTools.filter((name) => !!toolSnippets[name]);
+		const tools =
+			visibleTools.length > 0 ? visibleTools.map((name) => `- ${name}: ${toolSnippets[name]}`).join("\n") : "(none)";
+		promptSections.tools = `${tools}\n\nIn addition to the tools above, you may have access to other custom tools depending on the project.`;
+		promptSections.rules = buildRules(declaredTools, toolGuidelines, promptGuidelines);
+		promptSections.docs = `Документация и стандарты разработки (обращаться при вопросах по архитектуре, стандартам ИТС и инструментам ПерУН):
+- Main documentation: ${getReadmePath()}
+- Additional docs: ${getDocsPath()}
+- Examples: ${getExamplesPath()} (extensions, custom tools, SDK)
+- When reading docs or examples, resolve docs/... under Additional docs and examples/... under Examples, not the current working directory
+- When asked about: extensions (docs/extensions.md, examples/extensions/), themes (docs/themes.md), skills (docs/skills.md), prompt templates (docs/prompt-templates.md), TUI components (docs/tui.md), keybindings (docs/keybindings.md), SDK integrations (docs/sdk.md), custom providers (docs/custom-provider.md), adding models (docs/models.md), packages (docs/packages.md), environment variables (docs/environment-variables.md), MCP servers (docs/mcp.md), codemode scripts and non-LLM models such as classifiers and image models (docs/codemode.md)
+- When working on ПерУН topics, read the docs and examples, and follow .md cross-references before implementing
+- Always read .md files completely and follow links to related docs (e.g., tui.md for TUI API details)`;
 	} else {
 		promptSections.preamble =
 			"You are an expert coding assistant operating inside pi, a coding agent harness. You help users by reading files, executing commands, editing code, and writing new files.";

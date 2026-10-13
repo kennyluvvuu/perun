@@ -1023,44 +1023,47 @@ export class InteractiveMode {
 
 			const expandedInstructions = () =>
 				[
-					hint("app.interrupt", "to interrupt"),
-					hint("app.clear", "to clear"),
-					rawKeyHint(`${keyText("app.clear")} twice`, "to exit"),
-					hint("app.exit", "to exit (empty)"),
-					hint("app.suspend", "to suspend"),
-					keyHint("tui.editor.deleteToLineEnd", "to delete to end"),
-					hint("app.thinking.cycle", "to cycle thinking level"),
+					hint("app.interrupt", "прервать"),
+					hint("app.clear", "очистить"),
+					rawKeyHint(`${keyText("app.clear")} дважды`, "выйти"),
+					hint("app.exit", "выйти (пустой)"),
+					hint("app.suspend", "приостановить"),
+					keyHint("tui.editor.deleteToLineEnd", "удалить до конца строки"),
+					hint("app.thinking.cycle", "уровень рассуждений"),
 					rawKeyHint(
 						`${keyText("app.model.cycleForward")}/${keyText("app.model.cycleBackward")}`,
-						"to cycle models",
+						"переключить модель",
 					),
-					hint("app.model.select", "to select model"),
-					hint("app.tools.expand", "to expand tools"),
-					hint("app.thinking.toggle", "to expand thinking"),
-					hint("app.editor.external", "for external editor"),
-					rawKeyHint("/", "for commands"),
-					rawKeyHint("!", "to run bash"),
-					rawKeyHint("!!", "to run bash (no context)"),
-					hint("app.message.followUp", "to queue follow-up"),
-					hint("app.message.dequeue", "to edit all queued messages"),
-					hint("app.clipboard.pasteImage", "to paste files on macOS, images, or text"),
-					rawKeyHint("drop files", "to attach"),
+					hint("app.model.select", "выбрать модель"),
+					hint("app.tools.expand", "развернуть инструменты"),
+					hint("app.thinking.toggle", "развернуть рассуждения"),
+					hint("app.editor.external", "внешний редактор"),
+					rawKeyHint("/", "команды"),
+					rawKeyHint("!", "выполнить команду shell"),
+					rawKeyHint("!!", "выполнить команду shell (без контекста)"),
+					hint("app.message.followUp", "в очередь"),
+					hint("app.message.dequeue", "редактировать сообщения в очереди"),
+					hint("app.clipboard.pasteImage", "вставить файлы, изображения или текст"),
+					rawKeyHint("перетащите файлы", "для прикрепления"),
 				].join("\n");
 			const compactInstructions = () =>
 				[
-					hint("app.interrupt", "interrupt"),
-					rawKeyHint(`${keyText("app.clear")}/${keyText("app.exit")}`, "clear/exit"),
-					rawKeyHint("/", "commands"),
-					rawKeyHint("!", "bash"),
-					hint("app.tools.expand", "more"),
+					hint("app.interrupt", "прервать"),
+					rawKeyHint(`${keyText("app.clear")}/${keyText("app.exit")}`, "очистить/выйти"),
+					rawKeyHint("/", "команды"),
+					rawKeyHint("!", "выполнить команду shell"),
+					hint("app.tools.expand", "развернуть инструменты"),
 				].join(theme.fg("muted", " · "));
 			const compactOnboarding = () =>
 				theme.fg(
 					"dim",
-					`Press ${keyText("app.tools.expand")} to show full startup help${showDetails ? " and loaded resources" : ""}.`,
+					`Нажмите ${keyText("app.tools.expand")} для показа полной справки${showDetails ? " и загруженных ресурсов" : ""}.`,
 				);
 			const onboarding = () =>
-				theme.fg("dim", `Pi can explain its own features and look up its docs. Ask it how to use or extend Pi.`);
+				theme.fg(
+					"dim",
+					"ПерУН готов помочь с разработкой на 1С:Предприятие. Задайте вопрос по конфигурации или коду BSL.",
+				);
 			const header = new BuiltInHeader(
 				() => `${withLogo(compactInstructions())}\n${compactOnboarding()}\n\n${onboarding()}`,
 				() => `${withLogo(expandedInstructions())}\n\n${onboarding()}`,

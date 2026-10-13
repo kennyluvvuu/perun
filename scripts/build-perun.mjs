@@ -1,0 +1,98 @@
+#!/usr/bin/env node
+
+import { spawnSync } from "node:child_process";
+import { chmodSync, copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
+
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+let repoRoot = resolve(scriptDir, "..");
+// Normalize case for macOS sandbox path matching
+if (repoRoot.startsWith("/Users/kenny/Work")) {
+	repoRoot = repoRoot.replace("/Users/kenny/Work", "/Users/kenny/work");
+}
+const onecAgentDir = join(repoRoot, "packages", "1c-agent");
+const outputFile = join(onecAgentDir, "bin", "perun.bundle.mjs");
+
+const banner = {
+	js: 'import { createRequire as __piCreateRequire } from "node:module"; const require = __piCreateRequire(import.meta.url);',
+};
+
+console.log("🔨 Building PerUN (ПерУН — Персональный Умный Напарник для 1С)...");
+
+try {
+	const result = await build({
+		absWorkingDir: repoRoot,
+		entryPoints: [join(onecAgentDir, "src", "cli.ts")],
+		write: false,
+		bundle: true,
+		format: "esm",
+		platform: "node",
+		target: "node22.19",
+		banner,
+		define: {
+			PI_BUNDLED_NODE: "true",
+			"process.env.APP_NAME": '"perun"',
+		},
+		external: [
+			"@silvia-odwyer/photon-node",
+			"jiti",
+			"bufferutil",
+			"utf-8-validate",
+			"kerberos",
+			"supports-color",
+		],
+		minifySyntax: true,
+		minifyWhitespace: false,
+		sourcemap: false,
+		logLevel: "warning",
+	});
+
+	if (result.outputFiles && result.outputFiles.length > 0) {
+		writeFileSync(outputFile, result.outputFiles[0].contents);
+		try {
+			chmodSync(outputFile, 0o755);
+		} catch {}
+		console.log(`✅ PerUN ESM бандл готов: ${outputFile} (${(result.outputFiles[0].contents.byteLength / 1024 / 1024).toFixed(2)} MB)`);
+
+		// Copy runtime assets next to the binary
+		const binDir = join(onecAgentDir, "bin");
+		const themeSrcDir = join(repoRoot, "packages", "coding-agent", "src", "modes", "interactive", "theme");
+		const themeDestDir = join(binDir, "theme");
+		mkdirSync(themeDestDir, { recursive: true });
+		for (const file of readdirSync(themeSrcDir)) {
+			if (file.endsWith(".json")) {
+				copyFileSync(join(themeSrcDir, file), join(themeDestDir, file));
+			}
+		}
+
+		const exportHtmlSrcDir = join(repoRoot, "packages", "coding-agent", "src", "core", "export-html");
+		const exportHtmlDestDir = join(binDir, "export-html");
+		cpSync(exportHtmlSrcDir, exportHtmlDestDir, { recursive: true });
+
+		const assetsSrcDir = join(repoRoot, "packages", "coding-agent", "src", "modes", "interactive", "assets");
+		const assetsDestDir = join(binDir, "assets");
+		cpSync(assetsSrcDir, assetsDestDir, { recursive: true });
+
+		// Bun native binary compilation
+		const bunCandidate = process.env.BUN_PATH || (existsSync(join(homedir(), ".bun", "bin", "bun")) ? join(homedir(), ".bun", "bin", "bun") : "bun");
+		const bunBinaryOutput = join(onecAgentDir, "bin", "perun");
+		console.log("🚀 Компиляция в нативный бинарник с помощью Bun...");
+		const bunProc = spawnSync(bunCandidate, ["build", "--compile", "--outfile", bunBinaryOutput, outputFile], {
+			stdio: "inherit",
+		});
+		if (bunProc.status === 0) {
+			try {
+				chmodSync(bunBinaryOutput, 0o755);
+			} catch {}
+			console.log(`✅ Нативный бинарник PerUN успешно создан: ${bunBinaryOutput}`);
+		} else {
+			console.warn("⚠️ Bun компиляция завершилась с ошибкой, доступен ESM бандл perun.bundle.mjs");
+		}
+	}
+} catch (error) {
+	console.error("❌ Ошибка сборки PerUN:", error);
+	process.exit(1);
+}
