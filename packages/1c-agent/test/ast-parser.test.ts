@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
 	extractCalls,
+	extractQueries,
 	extractTablesFromQuery,
 	parseBslParameters,
 	parseBslSymbols,
@@ -160,5 +161,22 @@ describe("BSL AST Parser", () => {
 		expect(tables).toContain("Документ.ЗаказКлиента");
 		expect(tables).toContain("РегистрНакопления.ОстаткиТоваров");
 		expect(tables).toContain("ИмяТаблицыЦен");
+	});
+
+	it("detects queries starting directly with Cyrillic ВЫБРАТЬ without Запрос.Текст", () => {
+		const code = `
+Процедура ЗапуститьВыборку()
+	Текст = "ВЫБРАТЬ Ссылка ИЗ Справочник.Склады";
+КонецПроцедуры
+`;
+		const queries = extractQueries(code);
+		expect(queries).toHaveLength(1);
+		expect(queries[0].tables).toContain("Справочник.Склады");
+	});
+
+	it("does not false-match words ending in Cyrillic из like Анализ as table source", () => {
+		const text = "Анализ Справочник.Склады";
+		const tables = extractTablesFromQuery(text);
+		expect(tables).toHaveLength(0);
 	});
 });

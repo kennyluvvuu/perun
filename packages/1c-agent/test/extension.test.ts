@@ -1,7 +1,10 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
 import type {
 	BeforeAgentStartEvent,
 	ExtensionAPI,
 	ExtensionContext,
+	ResourcesDiscoverEvent,
 	SessionStartEvent,
 	ToolCallEvent,
 } from "@earendil-works/pi-coding-agent";
@@ -73,7 +76,7 @@ function setupExtensionTest() {
 
 describe("1C Agent Extension Integration", () => {
 	it("registers all required tools, commands, shortcuts, and lifecycle handlers", () => {
-		const { registeredTools, registeredCommands, registeredShortcuts, eventHandlers } = setupExtensionTest();
+		const { registeredTools, registeredCommands, registeredShortcuts, eventHandlers, ctx } = setupExtensionTest();
 
 		// Check tools
 		expect(registeredTools.has("1c_call_hierarchy")).toBe(true);
@@ -81,10 +84,12 @@ describe("1C Agent Extension Integration", () => {
 		expect(registeredTools.has("1c_ast_symbols")).toBe(true);
 		expect(registeredTools.has("bsl_fix_standards")).toBe(true);
 		expect(registeredTools.has("1c_subagent")).toBe(true);
+		expect(registeredTools.has("1c_vanessa")).toBe(true);
 
 		// Check commands and shortcut
 		expect(registeredCommands.has("mode")).toBe(true);
 		expect(registeredCommands.has("permission")).toBe(true);
+		expect(registeredCommands.has("doctor")).toBe(true);
 		expect(registeredShortcuts.has("alt+m")).toBe(true);
 
 		// Check event subscriptions
@@ -93,6 +98,27 @@ describe("1C Agent Extension Integration", () => {
 		expect(eventHandlers.has("before_agent_start")).toBe(true);
 		expect(eventHandlers.has("tool_call")).toBe(true);
 		expect(eventHandlers.has("tool_result")).toBe(true);
+		expect(eventHandlers.has("resources_discover")).toBe(true);
+
+		// Check resources_discover provides skills
+		const resourcesDiscoverHandler = eventHandlers.get("resources_discover")?.[0];
+		expect(resourcesDiscoverHandler).toBeDefined();
+		const discoverEvent: ResourcesDiscoverEvent = {
+			type: "resources_discover",
+			cwd: process.cwd(),
+			reason: "startup",
+		};
+		const discoverResult = resourcesDiscoverHandler!(discoverEvent, ctx);
+		expect(discoverResult?.skillPaths?.length).toBeGreaterThan(0);
+
+		// Verify skills directory contains 81 valid 1C skills with SKILL.md
+		const skillsDir = discoverResult!.skillPaths![0];
+		expect(fs.existsSync(skillsDir)).toBe(true);
+		const skillDirs = fs.readdirSync(skillsDir).filter((name) => {
+			const skillMd = path.join(skillsDir, name, "SKILL.md");
+			return fs.existsSync(skillMd);
+		});
+		expect(skillDirs.length).toBe(81);
 	});
 
 	it("integrates mode switching with tool_call blocking", async () => {

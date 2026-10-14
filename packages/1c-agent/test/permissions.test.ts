@@ -62,6 +62,10 @@ describe("1C Permission System", () => {
 		const bashCheck = policy.checkToolCall("bash", { command: "git status" });
 		expect(bashCheck.allowed).toBe(false);
 		expect(bashCheck.requiresUserConfirmation).toBe(true);
+
+		// Vanessa and Subagent tools are allowed in auto-approve
+		expect(policy.checkToolCall("1c_vanessa", { action: "init-dev" }).allowed).toBe(true);
+		expect(policy.checkToolCall("1c_subagent", { role: "1c-coder" }).allowed).toBe(true);
 	});
 
 	it("requires confirmation for all mutating operations in STRICT mode", () => {

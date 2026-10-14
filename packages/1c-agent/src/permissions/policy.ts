@@ -74,8 +74,8 @@ export class PermissionPolicy {
 				};
 			}
 
-			// Subagents in auto-approve are allowed
-			if (toolName === "1c_subagent") {
+			// Subagents and 1c_vanessa in auto-approve are allowed
+			if (toolName === "1c_subagent" || toolName === "1c_vanessa") {
 				return { allowed: true, requiresUserConfirmation: false };
 			}
 

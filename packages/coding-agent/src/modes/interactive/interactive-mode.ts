@@ -139,7 +139,7 @@ import { CustomEditor } from "./components/custom-editor.ts";
 import { CustomEntryComponent } from "./components/custom-entry.ts";
 import { CustomMessageComponent } from "./components/custom-message.ts";
 import { DynamicBorder } from "./components/dynamic-border.ts";
-import { playArmin3d, playPiLogo3d } from "./components/easter-egg-3d.lazy.ts";
+import { playArmin3d, playPerunLogo3d } from "./components/easter-egg-3d.lazy.ts";
 import { ExtensionEditorComponent } from "./components/extension-editor.ts";
 import { ExtensionInputComponent } from "./components/extension-input.ts";
 import { ExtensionSelectorComponent } from "./components/extension-selector.ts";
@@ -1065,7 +1065,7 @@ export class InteractiveMode {
 				1,
 				0,
 			);
-			if (showLogo) header.onLogoClick = (column, row) => playPiLogo3d(this.renderer, column, row);
+			if (showLogo) header.onLogoClick = (column, row) => playPerunLogo3d(this.renderer, column, row);
 			this.builtInHeader = header;
 
 			// Setup UI layout

@@ -133,6 +133,22 @@ describe("ITS Standards Auto-Fixer", () => {
 		expect(parsed[0].canAutoFix).toBe(true);
 	});
 
+	it("detects Cyrillic ServerModalCall in server context", () => {
+		const code = `
+&НаСервере
+Процедура ОбработатьДанныеСервер()
+	Предупреждение("Операция не может быть выполнена!");
+	Вопрос("Продолжить выполнение?", РежимДиалогаВопрос.ДаНет);
+КонецПроцедуры
+`;
+		const violations = analyzeCodeForItsRules("Module.bsl", code);
+		const modalCalls = violations.filter((v) => v.ruleId === "ServerModalCall");
+
+		expect(modalCalls).toHaveLength(2);
+		expect(modalCalls[0].message).toContain("Предупреждение");
+		expect(modalCalls[1].message).toContain("Вопрос");
+	});
+
 	it("executes bsl_fix_standards tool with dryRun and auto-apply", async () => {
 		const initialCode = `
 Процедура Тест()
@@ -144,7 +160,7 @@ describe("ITS Standards Auto-Fixer", () => {
 `;
 		await fs.promises.writeFile(testFile, initialCode, "utf8");
 
-		let registeredTool: any;
+		let registeredTool: Parameters<ExtensionAPI["registerTool"]>[0] | undefined;
 		const mockPi = {
 			registerTool: vi.fn((tool) => {
 				registeredTool = tool;
@@ -153,6 +169,7 @@ describe("ITS Standards Auto-Fixer", () => {
 
 		registerAutofixTools(mockPi);
 		expect(registeredTool).toBeDefined();
+		if (!registeredTool) throw new Error("tool not registered");
 
 		// 1. Dry-run
 		const dryResult = await registeredTool.execute(
@@ -163,8 +180,11 @@ describe("ITS Standards Auto-Fixer", () => {
 			{} as ExtensionToolContext,
 		);
 
-		expect(dryResult.details.appliedFixes).toBe(1);
-		expect(dryResult.content[0].text).toContain("сгенерировано исправлений (dry-run)");
+		const dryDetails = dryResult.details as { appliedFixes?: number };
+		expect(dryDetails.appliedFixes).toBe(1);
+		const dryText = dryResult.content[0];
+		if (dryText.type !== "text") throw new Error("expected text content");
+		expect(dryText.text).toContain("сгенерировано исправлений (dry-run)");
 		// File should not be modified
 		const contentAfterDry = await fs.promises.readFile(testFile, "utf8");
 		expect(contentAfterDry).toBe(initialCode);
@@ -178,7 +198,8 @@ describe("ITS Standards Auto-Fixer", () => {
 			{} as ExtensionToolContext,
 		);
 
-		expect(applyResult.details.appliedFixes).toBe(1);
+		const applyDetails = applyResult.details as { appliedFixes?: number };
+		expect(applyDetails.appliedFixes).toBe(1);
 		const contentAfterApply = await fs.promises.readFile(testFile, "utf8");
 		expect(contentAfterApply).toContain("ЗаписьЖурналаРегистрации");
 	});

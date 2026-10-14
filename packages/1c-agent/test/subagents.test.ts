@@ -33,20 +33,33 @@ describe("1C Subagents", () => {
 		expect(architect.title).toContain("Архитектор");
 		expect(architect.systemPrompt).toContain("1C:EDT");
 		expect(architect.allowedTools).toContain("1c_impact_analysis");
+		expect(architect.allowedTools).toContain("1c_call_hierarchy");
+		expect(architect.systemPrompt).toContain("1c_vanessa");
+		expect(architect.systemPrompt).toContain("TOOLCHAIN-RESOLVER");
+		expect(architect.systemPrompt).toContain("CC-1C-SKILLS");
 
 		const coder = SUBAGENT_ROLES["1c-coder"];
 		expect(coder.title).toContain("Разработчик BSL");
 		expect(coder.systemPrompt).toContain("QueryInLoop");
 		expect(coder.allowedTools).toContain("bsl_fix_standards");
+		expect(coder.systemPrompt).toContain("1c_vanessa");
+		expect(coder.systemPrompt).toContain("TOOLCHAIN-RESOLVER");
+		expect(coder.systemPrompt).toContain("CC-1C-SKILLS");
 
 		const tester = SUBAGENT_ROLES["1c-tester"];
 		expect(tester.title).toContain("Инженер тестирования");
 		expect(tester.systemPrompt).toContain("YAXUnit");
 		expect(tester.systemPrompt).toContain(".ВТранзакции()");
+		expect(tester.allowedTools).toContain("1c_vanessa");
+		expect(tester.systemPrompt).toContain("1c_vanessa");
+		expect(tester.systemPrompt).toContain("dbUser");
+		expect(tester.systemPrompt).toContain("dbPassword");
 
 		const reviewer = SUBAGENT_ROLES["1c-reviewer"];
 		expect(reviewer.title).toContain("Ревьюер");
 		expect(reviewer.systemPrompt).toContain("стандартам разработки 1С:ИТС");
+		expect(reviewer.systemPrompt).toContain("1c_vanessa");
+		expect(reviewer.systemPrompt).toContain("meta-validate");
 	});
 
 	it("delegates task to subagent and returns structured output", async () => {

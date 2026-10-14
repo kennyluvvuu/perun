@@ -2,9 +2,16 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { setupCli } from "../../coding-agent/src/cli/setup.ts";
 import { main } from "../../coding-agent/src/main.ts";
+import { handleDoctorCli, type RunDoctorCliOptions } from "./doctor/index.ts";
 import { createOnecAgentExtension } from "./index.ts";
 
-export async function runPerun(args: string[] = process.argv.slice(2)): Promise<void> {
+export type RunPerunOptions = RunDoctorCliOptions;
+
+export async function runPerun(args: string[] = process.argv.slice(2), options?: RunPerunOptions): Promise<void> {
+	if (await handleDoctorCli(args, options)) {
+		return;
+	}
+
 	const env = process.env;
 	env.APP_NAME = "perun";
 	setupCli();

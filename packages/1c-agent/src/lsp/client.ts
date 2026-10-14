@@ -2,6 +2,7 @@ import { type ChildProcess, spawn } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolveBslAnalyzerPath } from "../toolchain/resolver.ts";
 import type { IncomingCallItem, LspCallHierarchyItem, LspDiagnostic, LspPosition, OutgoingCallItem } from "../types.ts";
 import type {
 	CallHierarchyIncomingCallsParams,
@@ -21,7 +22,7 @@ export interface BslLspClientOptions {
 }
 
 export class BslLspClient {
-	private readonly executablePath: string;
+	private readonly executablePath?: string;
 	private projectPath: string;
 	private readonly defaultTimeoutMs: number;
 	private process: ChildProcess | null = null;
@@ -41,7 +42,7 @@ export class BslLspClient {
 	private isInitialized = false;
 
 	constructor(options: BslLspClientOptions = {}) {
-		this.executablePath = options.executablePath || process.env.BSL_ANALYZER_PATH || "bsl-analyzer";
+		this.executablePath = resolveBslAnalyzerPath(options.executablePath);
 		this.projectPath = options.projectPath || process.cwd();
 		this.defaultTimeoutMs = options.timeoutMs ?? 10000;
 	}
@@ -57,6 +58,10 @@ export class BslLspClient {
 	public async start(projectPath?: string): Promise<boolean> {
 		if (this.isRunning()) {
 			return true;
+		}
+
+		if (!this.executablePath) {
+			return false;
 		}
 
 		if (projectPath) {

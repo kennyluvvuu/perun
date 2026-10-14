@@ -102,7 +102,7 @@ export function extractTablesFromQuery(queryText: string): readonly string[] {
 	const tables = new Set<string>();
 	const cleanText = queryText.replace(/(^|\n)\s*\|\s*/g, "$1 ");
 	const regex =
-		/(?:ИЗ|FROM|СОЕДИНЕНИЕ|JOIN)\s+(?:["']\s*\+\s*([А-Яа-яA-Za-z0-9_]+)|([А-Яа-яA-Za-z0-9_]+(?:\.[А-Яа-яA-Za-z0-9_]+)*))/gi;
+		/(?<![А-Яа-яA-Za-z0-9_])(?:ИЗ|FROM|СОЕДИНЕНИЕ|JOIN)\s+(?:["']\s*\+\s*([А-Яа-яA-Za-z0-9_]+)|([А-Яа-яA-Za-z0-9_]+(?:\.[А-Яа-яA-Za-z0-9_]+)*))/gi;
 
 	let match: RegExpExecArray | null = regex.exec(cleanText);
 	while (match !== null) {
@@ -137,11 +137,20 @@ export function extractQueries(code: string): readonly BslQueryInfo[] {
 			if (
 				trimmed.toLowerCase().includes("запрос.текст") ||
 				trimmed.toLowerCase().includes("текстзапроса") ||
-				/^\s*["|]?\s*(?:выбрать|select)\b/i.test(trimmed)
+				/(?:^|[=(,])\s*["|]?\s*(?:выбрать|select)(?![А-Яа-яA-Za-z0-9_])/i.test(trimmed)
 			) {
-				inQuery = true;
-				startLine = i + 1;
-				queryLines = [trimmed];
+				if (trimmed.endsWith('";')) {
+					queries.push({
+						queryText: trimmed,
+						startLine: i + 1,
+						endLine: i + 1,
+						tables: extractTablesFromQuery(trimmed),
+					});
+				} else {
+					inQuery = true;
+					startLine = i + 1;
+					queryLines = [trimmed];
+				}
 			}
 		} else {
 			if (trimmed.startsWith("|") || trimmed.startsWith('"') || trimmed.startsWith("+") || trimmed.endsWith('";')) {

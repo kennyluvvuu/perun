@@ -156,11 +156,14 @@ export function analyzeCodeForItsRules(filePath: string, sourceCode: string): re
 		// 4. Deprecated modal calls in server context (Сообщить is valid on server; modal dialogs are forbidden)
 		if (
 			currentDirective?.includes("насервере") &&
-			/\b(предупреждение|вопрос|ввестичисло|ввестистроку|ввестидату|ввестизначение)\s*\(/i.test(trimmed)
-		) {
-			const funcMatch = /\b(предупреждение|вопрос|ввестичисло|ввестистроку|ввестидату|ввестизначение)\b/i.exec(
+			/(?<![А-Яа-яA-Za-z0-9_])(предупреждение|вопрос|ввестичисло|ввестистроку|ввестидату|ввестизначение)\s*\(/i.test(
 				trimmed,
-			);
+			)
+		) {
+			const funcMatch =
+				/(?<![А-Яа-яA-Za-z0-9_])(предупреждение|вопрос|ввестичисло|ввестистроку|ввестидату|ввестизначение)(?![А-Яа-яA-Za-z0-9_])/i.exec(
+					trimmed,
+				);
 			violations.push({
 				ruleId: "ServerModalCall",
 				ruleName: "Модальный вызов на сервере",

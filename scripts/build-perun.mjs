@@ -16,7 +16,7 @@ const banner = {
 	js: 'import { createRequire as __piCreateRequire } from "node:module"; const require = __piCreateRequire(import.meta.url);',
 };
 
-console.log("🔨 Building PerUN (ПерУН — Персональный Умный Напарник для 1С)...");
+console.log("Building PerUN (ПерУН — Персональный Умный Напарник для 1С)...");
 
 try {
 	const result = await build({
@@ -51,7 +51,7 @@ try {
 		try {
 			chmodSync(outputFile, 0o755);
 		} catch {}
-		console.log(`✅ PerUN ESM бандл готов: ${outputFile} (${(result.outputFiles[0].contents.byteLength / 1024 / 1024).toFixed(2)} MB)`);
+		console.log(`PerUN ESM бандл готов: ${outputFile} (${(result.outputFiles[0].contents.byteLength / 1024 / 1024).toFixed(2)} MB)`);
 
 		// Copy runtime assets next to the binary
 		const binDir = join(onecAgentDir, "bin");
@@ -72,10 +72,29 @@ try {
 		const assetsDestDir = join(binDir, "assets");
 		cpSync(assetsSrcDir, assetsDestDir, { recursive: true });
 
+		// Copy tools and skills directories into bin
+		const toolsSrcDir = join(onecAgentDir, "tools");
+		const toolsDestDir = join(binDir, "tools");
+		if (existsSync(toolsSrcDir)) {
+			cpSync(toolsSrcDir, toolsDestDir, { recursive: true });
+			const bslBinary = join(toolsDestDir, "bsl-analyzer");
+			if (existsSync(bslBinary)) {
+				try {
+					chmodSync(bslBinary, 0o755);
+				} catch {}
+			}
+		}
+
+		const skillsSrcDir = join(onecAgentDir, "skills");
+		const skillsDestDir = join(binDir, "skills");
+		if (existsSync(skillsSrcDir)) {
+			cpSync(skillsSrcDir, skillsDestDir, { recursive: true });
+		}
+
 		// Bun native binary compilation
 		const bunCandidate = process.env.BUN_PATH || (existsSync(join(homedir(), ".bun", "bin", "bun")) ? join(homedir(), ".bun", "bin", "bun") : "bun");
 		const bunBinaryOutput = join(onecAgentDir, "bin", "perun");
-		console.log("🚀 Компиляция в нативный бинарник с помощью Bun...");
+		console.log("Компиляция в нативный бинарник с помощью Bun...");
 		const bunProc = spawnSync(bunCandidate, ["build", "--compile", "--outfile", bunBinaryOutput, outputFile], {
 			stdio: "inherit",
 		});
@@ -83,12 +102,12 @@ try {
 			try {
 				chmodSync(bunBinaryOutput, 0o755);
 			} catch {}
-			console.log(`✅ Нативный бинарник PerUN успешно создан: ${bunBinaryOutput}`);
+			console.log(`Нативный бинарник PerUN успешно создан: ${bunBinaryOutput}`);
 		} else {
-			console.warn("⚠️ Bun компиляция завершилась с ошибкой, доступен ESM бандл perun.bundle.mjs");
+			console.warn("Bun компиляция завершилась с ошибкой, доступен ESM бандл perun.bundle.mjs");
 		}
 	}
 } catch (error) {
-	console.error("❌ Ошибка сборки PerUN:", error);
+	console.error("Ошибка сборки PerUN:", error);
 	process.exit(1);
 }

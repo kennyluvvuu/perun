@@ -170,3 +170,17 @@ export interface PermissionCheckResult {
 	readonly requiresUserConfirmation: boolean;
 	readonly reason?: string;
 }
+
+export type {
+	DoctorItem,
+	DoctorReport,
+	DoctorRunResult,
+	DoctorStatus,
+} from "./doctor/types.ts";
+export type { ToolchainPaths } from "./toolchain/resolver.ts";
+export type {
+	VanessaAction,
+	VanessaCommandExecutor,
+	VanessaToolOptions,
+	VanessaToolResult,
+} from "./vanessa/types.ts";

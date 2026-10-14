@@ -12,20 +12,26 @@ import type {
 	ToolResultEventResult,
 } from "@earendil-works/pi-coding-agent";
 import { registerAutofixTools } from "./autofix/index.ts";
+import { runDoctor } from "./doctor/index.ts";
 import { BslLspClient, InlineFeedbackHandler } from "./lsp/index.ts";
 import { ModeManager } from "./modes/index.ts";
 import { registerNavigatorTools } from "./navigator/index.ts";
 import { PermissionManager } from "./permissions/index.ts";
 import { registerSubagentTools } from "./subagents/index.ts";
+import { resolveSkillsDir } from "./toolchain/index.ts";
 import type { AgentMode } from "./types.ts";
+import { registerVanessaTools } from "./vanessa/index.ts";
 
 export * from "./autofix/index.ts";
+export * from "./doctor/index.ts";
 export * from "./lsp/index.ts";
 export * from "./modes/index.ts";
 export * from "./navigator/index.ts";
 export * from "./permissions/index.ts";
 export * from "./subagents/index.ts";
+export * from "./toolchain/index.ts";
 export * from "./types.ts";
+export * from "./vanessa/index.ts";
 
 export interface OnecAgentExtensionOptions {
 	initialMode?: AgentMode;
@@ -53,9 +59,19 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 		registerNavigatorTools(pi, lspClient, projectRoot);
 		registerAutofixTools(pi);
 		registerSubagentTools(pi);
+		registerVanessaTools(pi, projectRoot);
 		permissionManager.register(pi);
 
-		// 2. Register /mode command
+		// 2. Discover built-in 1C skills
+		pi.on("resources_discover", () => {
+			const skillsDir = resolveSkillsDir();
+			if (fs.existsSync(skillsDir)) {
+				return { skillPaths: [skillsDir] };
+			}
+			return undefined;
+		});
+
+		// 3. Register /mode command
 		pi.registerCommand("mode", {
 			description: "Управление режимом агента 1С: /mode [find | explain | write | plan]",
 			handler: async (args: string, ctx: ExtensionCommandContext) => {
@@ -70,7 +86,16 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			},
 		});
 
-		// 3. Register alt+m shortcut for mode cycling
+		// 4. Register /doctor command
+		pi.registerCommand("doctor", {
+			description: "Диагностика тулчейна 1С и проверка наличия необходимых инструментов",
+			handler: async (_args: string, ctx: ExtensionCommandContext) => {
+				const result = await runDoctor();
+				ctx.ui.notify(result.output, result.exitCode === 0 ? "info" : "warning");
+			},
+		});
+
+		// 5. Register alt+m shortcut for mode cycling
 		try {
 			pi.registerShortcut("alt+m", {
 				description: "Циклическое переключение режимов 1С (НАЙТИ -> ОБЪЯСНИТЬ -> НАПИСАТЬ -> ПЛАНИРОВАТЬ)",
@@ -82,7 +107,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			// Shortcut may already be registered or unsupported in current environment
 		}
 
-		// 4. Lifecycle event: session_start
+		// 6. Lifecycle event: session_start
 		pi.on("session_start", async (_event: SessionStartEvent, ctx: ExtensionContext) => {
 			modeManager.initializeTools();
 			modeManager.updateUI(ctx);
@@ -95,20 +120,33 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			}
 		});
 
-		// 5. Lifecycle event: session_shutdown
+		// 7. Lifecycle event: session_shutdown
 		pi.on("session_shutdown", async () => {
 			await lspClient.stop().catch(() => {});
 		});
 
-		// 6. Hook: before_agent_start - inject mode instructions & 1C LSP environment
+		// 8. Hook: before_agent_start - inject mode instructions & 1C environment matrix
 		pi.on("before_agent_start", (event: BeforeAgentStartEvent): BeforeAgentStartEventResult | undefined => {
 			const promptInjection = modeManager.getSystemPromptInjection();
 			const envInjection =
-				"ВСТРОЕННОЕ ОКРУЖЕНИЕ И LSP 1С (ПЕРУН):\n" +
-				"- В ПерУН уже встроен и работает фоновый LSP-сервер bsl-analyzer. При каждом редактировании файлов .bsl и .os через write или edit диагностика синтаксиса и стандартов ИТС возвращается автоматически в результате инструмента.\n" +
-				"- НЕ трать шаги на поиск или установку bsl-analyzer через bash (which, find, whereis) — анализатор уже запущен и полностью функционален.\n" +
-				"- Используй инструменты: bsl_fix_standards (авто-патчи ИТС), 1c_call_hierarchy (граф вызовов), 1c_impact_analysis (связи регистров и документов), 1c_ast_symbols (структура модуля), 1c_subagent (делегирование).\n" +
-				"- Разработка ведется в формате проектов 1C:EDT (Configuration.mdo, файлы .mdo, модули .bsl, .project).";
+				"ВСТРОЕННОЕ ОКРУЖЕНИЕ, ИНСТРУМЕНТЫ И СУБАГЕНТЫ 1С (ПЕРУН):\n" +
+				"- ACTION BIAS (OPENCODE MENTALITY):\n" +
+				"  * СТРОГИЙ ЗАПРЕТ НА ЧЕРНОВИКИ В COT: Категорически запрещено генерировать простыни BSL-кода, XML метаданных или diff в мыслях (<think>). Формулируй гипотезу в 1-2 строки и немедленно вызывай инструменты (read, edit, write, grep, find).\n" +
+				"  * Не имитируй исполнение в CoT: фоновый bsl-analyzer уже запущен и возвращает inline LSP диагностику прямо в результате edit/write. Ошибки линтера исправляй сразу на следующем шаге.\n" +
+				"  * ТУЛЧЕЙН 1С (TOOLCHAIN-RESOLVER): утилиты bsl-analyzer и vanessa-automation.epf поставляются встроенными; vrunner и oscript резолвятся из $PATH или переменных VRUNNER_PATH/OSCRIPT_PATH. Если утилита отсутствует в системе, инструмент вернет понятную ошибку установки. НЕ трать шаги на ручной поиск утилит через bash (which, find, whereis).\n" +
+				"  * НАВЫКИ 1С (CC-1C-SKILLS): 82 встроенных специализированных навыка (управляемые формы, 23 типа метаданных, СКД, MXL, роли, EPF/ERF, CFE) доступны агенту.\n" +
+				"- СТАНДАРТЫ 1C:EDT И РАЗРАБОТКИ:\n" +
+				"  * Формат: проекты 1C:EDT (Configuration.mdo, метаданные .mdo, модули .bsl, .project).\n" +
+				"  * ЗАПРЕТ СЛОЖНЫХ XML-ФОРМ: Категорически запрещено вручную создавать сложные файлы форм (Form.form, *.xml, xcf/logform). Платформа 1С:Предприятие 8.3 генерирует автоформы автоматически. Разрабатывай headless-логику в BSL-модулях и тесты YAXUnit.\n" +
+				"  * Транзакции и блокировки: БлокировкаДанных перед чтением остатков; в ОбработкаПроведения транзакция открыта (Отказ = Истина;); параметры виртуальных таблиц регистров (запрет фильтрации через ГДЕ); запрет запросов в цикле (QueryInLoop).\n" +
+				"- Матрица специализированных инструментов ПерУН:\n" +
+				"  * 1c_vanessa: единый инструмент для работы с Vanessa Tools / vrunner (infobase init, cf load, cf decompile, infobase update, test vanessa). Все операции создания базы, загрузки/выгрузки исходников, обновления БД и BDD-тестирования выполняй через 1c_vanessa.\n" +
+				"  * bsl_fix_standards: автоматическое исправление нарушений стандартов ИТС в модулях BSL.\n" +
+				"  * 1c_call_hierarchy: анализ графа входящих и исходящих вызовов процедур и функций.\n" +
+				"  * 1c_impact_analysis: анализ влияния изменений на регистры и проведение документов.\n" +
+				"  * 1c_ast_symbols: быстрое извлечение AST-структуры модуля BSL (процедуры, функции, параметры, директивы компиляции &НаСервере/&НаКлиенте).\n" +
+				"- Субагенты (1c_subagent):\n" +
+				"  * Агент МОЖЕТ и ДОЛЖЕН вызывать субагентов через 1c_subagent для декомпозиции и параллельного/изолированного выполнения задач. Доступные роли: 1c-architect (архитектура метаданных), 1c-coder (написание BSL кода), 1c-tester (BDD-тесты Vanessa и YAXUnit), 1c-reviewer (аудит качества и стандартов ИТС).";
 
 			if (event.systemPromptOptions?.sections) {
 				event.systemPromptOptions.sections.onec_environment = envInjection;

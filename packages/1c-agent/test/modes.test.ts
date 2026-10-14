@@ -66,6 +66,7 @@ describe("1C Agent Modes", () => {
 		expect(manager.isToolAllowed("edit")).toBe(false);
 		expect(manager.isToolAllowed("write")).toBe(false);
 		expect(manager.isToolAllowed("bsl_fix_standards")).toBe(false);
+		expect(manager.isToolAllowed("1c_vanessa")).toBe(false);
 
 		const blockCheck = manager.checkToolCall("edit");
 		expect(blockCheck.block).toBe(true);
@@ -88,6 +89,7 @@ describe("1C Agent Modes", () => {
 		expect(manager.isToolAllowed("edit")).toBe(true);
 		expect(manager.isToolAllowed("write")).toBe(true);
 		expect(manager.isToolAllowed("bsl_fix_standards")).toBe(true);
+		expect(manager.isToolAllowed("1c_vanessa")).toBe(true);
 		expect(manager.checkToolCall("write").block).toBe(false);
 	});
 
@@ -133,5 +135,23 @@ describe("1C Agent Modes", () => {
 
 		manager.setMode("plan");
 		expect(manager.getSystemPromptInjection()).toContain("[РЕЖИМ: ПЛАНИРОВАТЬ (ARCHITECT & PLAN)]");
+	});
+
+	it("all mode system prompts specify toolchain-resolver, cc-1c-skills, and 1c_vanessa actions", () => {
+		const api = createMockExtensionAPI();
+		const manager = new ModeManager(api, "find");
+
+		for (const mode of ["find", "explain", "write", "plan"] as const) {
+			manager.setMode(mode);
+			const prompt = manager.getSystemPromptInjection();
+			expect(prompt).toContain("TOOLCHAIN-RESOLVER");
+			expect(prompt).toContain("CC-1C-SKILLS");
+			expect(prompt).toContain("1c_vanessa");
+			expect(prompt).toContain("init-dev");
+			expect(prompt).toContain("load");
+			expect(prompt).toContain("dump");
+			expect(prompt).toContain("updatedb");
+			expect(prompt).toContain("test");
+		}
 	});
 });

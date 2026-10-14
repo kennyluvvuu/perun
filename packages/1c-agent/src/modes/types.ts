@@ -9,16 +9,26 @@ export const READ_ONLY_TOOLS = [
 	"1c_call_hierarchy",
 	"1c_impact_analysis",
 	"1c_ast_symbols",
+	"1c_subagent",
 ] as const;
 
-export const MUTATING_TOOLS = ["edit", "write", "bsl_fix_standards"] as const;
+export const MUTATING_TOOLS = ["edit", "write", "bsl_fix_standards", "1c_vanessa"] as const;
 
 export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 	find: {
 		name: "find",
 		title: "НАЙТИ",
 		description: "Навигация, поиск определений, анализ вызовов и связей подсистем (read-only)",
-		allowedTools: ["read", "find", "grep", "ls", "1c_call_hierarchy", "1c_impact_analysis", "1c_ast_symbols"],
+		allowedTools: [
+			"read",
+			"find",
+			"grep",
+			"ls",
+			"1c_call_hierarchy",
+			"1c_impact_analysis",
+			"1c_ast_symbols",
+			"1c_subagent",
+		],
 		isReadOnly: true,
 		systemPromptSuffix: MODE_PROMPTS.find,
 	},
@@ -26,7 +36,16 @@ export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 		name: "explain",
 		title: "ОБЪЯСНИТЬ",
 		description: "Объяснение бизнес-логики BSL, стандарты BSLDoc/ИТС, диаграммы Mermaid (read-only)",
-		allowedTools: ["read", "find", "grep", "ls", "1c_impact_analysis", "1c_ast_symbols"],
+		allowedTools: [
+			"read",
+			"find",
+			"grep",
+			"ls",
+			"1c_call_hierarchy",
+			"1c_impact_analysis",
+			"1c_ast_symbols",
+			"1c_subagent",
+		],
 		isReadOnly: true,
 		systemPromptSuffix: MODE_PROMPTS.explain,
 	},
@@ -42,6 +61,7 @@ export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 			"edit",
 			"write",
 			"bsl_fix_standards",
+			"1c_vanessa",
 			"1c_call_hierarchy",
 			"1c_impact_analysis",
 			"1c_ast_symbols",
@@ -54,7 +74,16 @@ export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 		name: "plan",
 		title: "ПЛАНИРОВАТЬ",
 		description: "Декомпозиция задач, проектирование архитектуры метаданных (read-only)",
-		allowedTools: ["read", "find", "grep", "ls", "1c_impact_analysis", "1c_subagent"],
+		allowedTools: [
+			"read",
+			"find",
+			"grep",
+			"ls",
+			"1c_call_hierarchy",
+			"1c_impact_analysis",
+			"1c_ast_symbols",
+			"1c_subagent",
+		],
 		isReadOnly: true,
 		systemPromptSuffix: MODE_PROMPTS.plan,
 	},
