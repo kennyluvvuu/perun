@@ -9,10 +9,19 @@ export const READ_ONLY_TOOLS = [
 	"1c_call_hierarchy",
 	"1c_impact_analysis",
 	"1c_ast_symbols",
+	"1c_git_blame_context",
 	"1c_subagent",
 ] as const;
 
-export const MUTATING_TOOLS = ["edit", "write", "bash", "bsl_fix_standards", "1c_vanessa", "1c_skill_execute"] as const;
+export const MUTATING_TOOLS = [
+	"edit",
+	"write",
+	"bash",
+	"bsl_fix_standards",
+	"1c_vanessa",
+	"1c_skill_execute",
+	"1c_git_docgen",
+] as const;
 
 export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 	find: {
@@ -27,6 +36,7 @@ export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 			"1c_call_hierarchy",
 			"1c_impact_analysis",
 			"1c_ast_symbols",
+			"1c_git_blame_context",
 			"1c_subagent",
 		],
 		isReadOnly: true,
@@ -44,6 +54,7 @@ export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 			"1c_call_hierarchy",
 			"1c_impact_analysis",
 			"1c_ast_symbols",
+			"1c_git_blame_context",
 			"1c_subagent",
 		],
 		isReadOnly: true,
@@ -67,6 +78,8 @@ export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 			"1c_call_hierarchy",
 			"1c_impact_analysis",
 			"1c_ast_symbols",
+			"1c_git_blame_context",
+			"1c_git_docgen",
 			"1c_subagent",
 		],
 		isReadOnly: false,
@@ -84,6 +97,7 @@ export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 			"1c_call_hierarchy",
 			"1c_impact_analysis",
 			"1c_ast_symbols",
+			"1c_git_blame_context",
 			"1c_subagent",
 		],
 		isReadOnly: true,

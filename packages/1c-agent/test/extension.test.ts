@@ -89,11 +89,14 @@ describe("1C Agent Extension Integration", () => {
 		expect(registeredTools.has("1c_subagent")).toBe(true);
 		expect(registeredTools.has("1c_vanessa")).toBe(true);
 		expect(registeredTools.has("1c_skill_execute")).toBe(true);
+		expect(registeredTools.has("1c_git_blame_context")).toBe(true);
+		expect(registeredTools.has("1c_git_docgen")).toBe(true);
 
 		// Check commands and shortcut
 		expect(registeredCommands.has("mode")).toBe(true);
 		expect(registeredCommands.has("permission")).toBe(true);
 		expect(registeredCommands.has("doctor")).toBe(true);
+		expect(registeredCommands.has("docgen")).toBe(true);
 		expect(registeredShortcuts.has("alt+m")).toBe(true);
 
 		// Check event subscriptions
