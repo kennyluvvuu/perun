@@ -46,4 +46,9 @@ plans/
 collect.sh
 packages/agent/docs/extensions/pi-server-artifact/index.md
 packages/1c-agent/tools/
-packages/1c-agent/bin/tools/
+packages/1c-agent/bin/
+
+# Agent scratch and diagnostic artifacts
+*_report.md
+diag*.md
+HANDOFF*.md
