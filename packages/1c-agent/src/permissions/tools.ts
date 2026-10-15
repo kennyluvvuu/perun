@@ -1,12 +1,20 @@
 import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import type { PermissionCheckResult, PermissionLevel } from "../types.ts";
-import { PermissionPolicy } from "./policy.ts";
+import { PermissionPolicy, type RemoteConfirmFn } from "./policy.ts";
 
 export class PermissionManager {
 	private readonly policy: PermissionPolicy;
 
 	constructor(initialLevel: PermissionLevel = "auto-approve", projectRoot?: string) {
 		this.policy = new PermissionPolicy(initialLevel, projectRoot);
+	}
+
+	public setRemoteConfirm(fn?: RemoteConfirmFn): void {
+		this.policy.setRemoteConfirm(fn);
+	}
+
+	public getRemoteConfirm(): RemoteConfirmFn | undefined {
+		return this.policy.getRemoteConfirm();
 	}
 
 	public getLevel(): PermissionLevel {

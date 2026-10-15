@@ -621,9 +621,12 @@ export function isBashCommandOutsideProject(
 	return { isOutside: false };
 }
 
+export type RemoteConfirmFn = (title: string, message: string, signal: AbortSignal) => Promise<boolean | undefined>;
+
 export class PermissionPolicy {
 	private level: PermissionLevel;
 	private projectRoot: string;
+	private remoteConfirm?: RemoteConfirmFn;
 
 	constructor(initialLevel: PermissionLevel = "auto-approve", projectRoot: string = process.cwd()) {
 		this.level = initialLevel;
@@ -644,6 +647,14 @@ export class PermissionPolicy {
 
 	public setProjectRoot(projectRoot: string): void {
 		this.projectRoot = path.resolve(projectRoot);
+	}
+
+	public setRemoteConfirm(fn?: RemoteConfirmFn): void {
+		this.remoteConfirm = fn;
+	}
+
+	public getRemoteConfirm(): RemoteConfirmFn | undefined {
+		return this.remoteConfirm;
 	}
 
 	public isInsideProject(filePath: string): boolean {
@@ -757,25 +768,161 @@ export class PermissionPolicy {
 		}
 
 		if (check.requiresUserConfirmation) {
-			if (ctx?.ui) {
-				const title = `[1C Безопасность]: Разрешить вызов инструмента '${toolCall.toolName}'?`;
-				const message = check.reason || `Инструмент: ${toolCall.toolName}`;
+			const title = `[1C Безопасность]: Разрешить вызов инструмента '${toolCall.toolName}'?`;
+			const message = check.reason || `Инструмент: ${toolCall.toolName}`;
 
+			const hasLocalUI = ctx?.hasUI !== false && Boolean(ctx?.ui);
+			const hasRemote = typeof this.remoteConfirm === "function";
+
+			if (!hasLocalUI && !hasRemote) {
+				return {
+					block: true,
+					reason: `Вызов '${toolCall.toolName}' заблокирован: действие не подтверждено пользователем (${check.reason || this.level}).`,
+				};
+			}
+
+			if (!hasLocalUI && hasRemote) {
+				const remoteSignal = ctx?.signal || new AbortController().signal;
+				const confirmed = await this.remoteConfirm!(title, message, remoteSignal).catch(() => undefined);
+				if (confirmed === true) {
+					return { block: false };
+				}
+				return {
+					block: true,
+					reason: `Вызов '${toolCall.toolName}' заблокирован: действие не подтверждено пользователем (${check.reason || this.level}).`,
+				};
+			}
+
+			if (hasLocalUI && !hasRemote) {
 				let confirmed = false;
-				if (typeof (ctx.ui as any).askUser === "function") {
-					confirmed = Boolean(await (ctx.ui as any).askUser(title, message));
-				} else if (typeof ctx.ui.confirm === "function") {
-					confirmed = Boolean(await ctx.ui.confirm(title, message));
+				const ui = ctx!.ui as {
+					askUser?: (title: string, message: string) => Promise<unknown>;
+					confirm?: (title: string, message: string) => Promise<unknown>;
+				};
+				if (typeof ui.askUser === "function") {
+					confirmed = Boolean(await ui.askUser(title, message));
+				} else if (typeof ui.confirm === "function") {
+					confirmed = Boolean(await ui.confirm(title, message));
 				}
 
 				if (confirmed) {
 					return { block: false };
 				}
+				return {
+					block: true,
+					reason: `Вызов '${toolCall.toolName}' заблокирован: действие не подтверждено пользователем (${check.reason || this.level}).`,
+				};
 			}
-			return {
-				block: true,
-				reason: `Вызов '${toolCall.toolName}' заблокирован: действие не подтверждено пользователем (${check.reason || this.level}).`,
-			};
+
+			if (hasLocalUI && hasRemote) {
+				const localAc = new AbortController();
+				const remoteAc = new AbortController();
+
+				let confirmed = false;
+				let onParentAbort: (() => void) | undefined;
+
+				try {
+					confirmed = await new Promise<boolean>((resolve) => {
+						let settled = false;
+						let localFinished = false;
+						let remoteFinished = false;
+
+						const checkAllFinished = () => {
+							if (!settled && localFinished && remoteFinished) {
+								settled = true;
+								resolve(false);
+							}
+						};
+
+						onParentAbort = () => {
+							localAc.abort(ctx?.signal?.reason);
+							remoteAc.abort(ctx?.signal?.reason);
+							if (!settled) {
+								settled = true;
+								resolve(false);
+							}
+						};
+
+						if (ctx?.signal) {
+							if (ctx.signal.aborted) {
+								localAc.abort(ctx.signal.reason);
+								remoteAc.abort(ctx.signal.reason);
+								settled = true;
+								resolve(false);
+								return;
+							}
+							ctx.signal.addEventListener("abort", onParentAbort, { once: true });
+						}
+
+						// Remote prompt
+						Promise.resolve()
+							.then(() => this.remoteConfirm!(title, message, remoteAc.signal))
+							.then((remoteAnswer) => {
+								if (settled) return;
+								if (typeof remoteAnswer === "boolean") {
+									settled = true;
+									localAc.abort();
+									resolve(remoteAnswer);
+								} else {
+									remoteFinished = true;
+									checkAllFinished();
+								}
+							})
+							.catch(() => {
+								if (settled) return;
+								remoteFinished = true;
+								checkAllFinished();
+							});
+
+						// Local prompt
+						const runLocal = async (): Promise<boolean | undefined> => {
+							const ui = ctx!.ui as {
+								askUser?: (title: string, message: string, opts?: { signal?: AbortSignal }) => Promise<unknown>;
+								confirm?: (title: string, message: string, opts?: { signal?: AbortSignal }) => Promise<unknown>;
+							};
+							if (typeof ui.askUser === "function") {
+								const ans = await ui.askUser(title, message, { signal: localAc.signal });
+								return typeof ans === "boolean" ? ans : ans !== undefined ? Boolean(ans) : undefined;
+							}
+							if (typeof ui.confirm === "function") {
+								const ans = await ui.confirm(title, message, { signal: localAc.signal });
+								return typeof ans === "boolean" ? ans : Boolean(ans);
+							}
+							return false;
+						};
+
+						runLocal()
+							.then((localAnswer) => {
+								if (settled) return;
+								if (typeof localAnswer === "boolean") {
+									settled = true;
+									remoteAc.abort();
+									resolve(localAnswer);
+								} else {
+									localFinished = true;
+									checkAllFinished();
+								}
+							})
+							.catch(() => {
+								if (settled) return;
+								localFinished = true;
+								checkAllFinished();
+							});
+					});
+				} finally {
+					if (ctx?.signal && onParentAbort) {
+						ctx.signal.removeEventListener("abort", onParentAbort);
+					}
+				}
+
+				if (confirmed) {
+					return { block: false };
+				}
+				return {
+					block: true,
+					reason: `Вызов '${toolCall.toolName}' заблокирован: действие не подтверждено пользователем (${check.reason || this.level}).`,
+				};
+			}
 		}
 
 		return { block: true, reason: check.reason || "Действие запрещено политикой безопасности." };
