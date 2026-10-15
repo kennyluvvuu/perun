@@ -710,6 +710,19 @@ export async function runRpcMode(runtimeHost: AgentSessionRuntime): Promise<neve
 				return success(id, "get_commands", { commands });
 			}
 
+			// =================================================================
+			// Feedback
+			// =================================================================
+
+			case "submit_feedback": {
+				await session.extensionRunner.emit({
+					type: "submit_feedback",
+					feedback: command.feedback,
+				});
+				session.resourceLoader.getEventBus?.()?.emit("submit_feedback", command.feedback);
+				return success(id, "submit_feedback", { received: true });
+			}
+
 			default: {
 				const unknownCommand = command as { type: string };
 				return error(id, unknownCommand.type, `Unknown command: ${unknownCommand.type}`);

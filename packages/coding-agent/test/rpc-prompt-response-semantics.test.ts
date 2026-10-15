@@ -449,4 +449,41 @@ describe("RPC prompt response semantics", () => {
 			await cleanup();
 		}
 	});
+
+	it("handles submit_feedback command and emits event to extensions", async () => {
+		const receivedFeedbacks: unknown[] = [];
+		const { lineHandler, cleanup } = await startRpcMode({
+			withAuth: false,
+			responseDelayMs: 0,
+			extensionsResult: await createTestExtensionsResult([
+				(pi) => {
+					pi.on("submit_feedback", (event) => {
+						receivedFeedbacks.push(event.feedback);
+					});
+				},
+			]),
+		});
+
+		try {
+			lineHandler(
+				JSON.stringify({
+					id: "fb-1",
+					type: "submit_feedback",
+					feedback: { rating: "positive", comment: "good" },
+				}),
+			);
+			await vi.waitFor(() => {
+				expect(parseOutputLines(rpcIo.outputLines)).toContainEqual({
+					id: "fb-1",
+					type: "response",
+					command: "submit_feedback",
+					success: true,
+					data: { received: true },
+				});
+				expect(receivedFeedbacks).toEqual([{ rating: "positive", comment: "good" }]);
+			});
+		} finally {
+			await cleanup();
+		}
+	});
 });

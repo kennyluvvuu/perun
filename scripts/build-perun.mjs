@@ -50,6 +50,9 @@ try {
 	});
 
 	if (result.outputFiles && result.outputFiles.length > 0) {
+		const binDir = join(onecAgentDir, "bin");
+		mkdirSync(binDir, { recursive: true });
+
 		if (existsSync(outputFile)) {
 			try {
 				unlinkSync(outputFile);
@@ -62,7 +65,6 @@ try {
 		console.log(`PerUN ESM бандл готов: ${outputFile} (${(result.outputFiles[0].contents.byteLength / 1024 / 1024).toFixed(2)} MB)`);
 
 		// Copy runtime assets next to the binary
-		const binDir = join(onecAgentDir, "bin");
 		const themeSrcDir = join(repoRoot, "packages", "coding-agent", "src", "modes", "interactive", "theme");
 		const themeDestDir = join(binDir, "theme");
 		mkdirSync(themeDestDir, { recursive: true });

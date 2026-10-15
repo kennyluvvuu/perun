@@ -1434,7 +1434,14 @@ export type ExtensionEvent =
 	| UserBashEvent
 	| InputEvent
 	| ToolCallEvent
-	| ToolResultEvent;
+	| ToolResultEvent
+	| SubmitFeedbackEvent;
+
+/** Emitted when feedback is submitted via RPC or extension */
+export interface SubmitFeedbackEvent {
+	type: "submit_feedback";
+	feedback: Record<string, unknown>;
+}
 
 // ============================================================================
 // Event Results
@@ -1662,6 +1669,7 @@ export interface ExtensionAPI {
 	on(event: "tool_result", handler: ExtensionHandler<ToolResultEvent, ToolResultEventResult>): () => void;
 	on(event: "user_bash", handler: ExtensionHandler<UserBashEvent, UserBashEventResult>): () => void;
 	on(event: "input", handler: ExtensionHandler<InputEvent, InputEventResult>): () => void;
+	on(event: "submit_feedback", handler: ExtensionHandler<SubmitFeedbackEvent>): () => void;
 
 	// =========================================================================
 	// Tool Registration

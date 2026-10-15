@@ -170,6 +170,7 @@ export type {
 	SetLabelHandler,
 	SetModelHandler,
 	SetThinkingLevelHandler,
+	SubmitFeedbackEvent,
 	TerminalInputHandler,
 	ThinkingLevelSelectEvent,
 	ToolAnnotations,
