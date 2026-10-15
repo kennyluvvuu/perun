@@ -9,11 +9,16 @@ export type VanessaAction =
 	| "updatedb"
 	| "infobase-update"
 	| "test"
-	| "test-vanessa";
+	| "test-vanessa"
+	| "xunit"
+	| "test-xunit"
+	| "run"
+	| "run-epf";
 
 export interface VanessaToolOptions {
 	action: VanessaAction;
 	src?: string;
+	epf?: string;
 	ibconnection?: string;
 	features?: string;
 	vanessaPath?: string;
@@ -24,6 +29,8 @@ export interface VanessaToolOptions {
 	dbUser?: string;
 	dbPassword?: string;
 	settings?: string;
+	pathxunit?: string;
+	ordinaryapp?: boolean;
 	additionalArgs?: string[];
 }
 

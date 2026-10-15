@@ -115,6 +115,22 @@ export class ToolchainResolver {
 		return this.which("vrunner");
 	}
 
+	public resolveVrunnerVersion(vrunnerPath?: string): string | undefined {
+		if (process.env.VRUNNER_VERSION) {
+			return process.env.VRUNNER_VERSION;
+		}
+		const bin = vrunnerPath || this.resolveVrunner();
+		if (!bin) return undefined;
+		try {
+			const cmd = `"${bin}" --version`;
+			const out = execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 3000 }).trim();
+			const match = out.match(/(\d+\.\d+(?:\.\d+)?)/);
+			return match ? match[1] : undefined;
+		} catch {
+			return undefined;
+		}
+	}
+
 	public resolveOscript(): string | undefined {
 		if (process.env.OSCRIPT_PATH) {
 			return process.env.OSCRIPT_PATH;
@@ -340,6 +356,11 @@ export function resolveVrunnerPath(customPath?: string): string | undefined {
 	if (process.env.VRUNNER_PATH) return process.env.VRUNNER_PATH;
 	const resolver = new ToolchainResolver();
 	return resolver.resolveVrunner();
+}
+
+export function resolveVrunnerVersion(customPath?: string): string | undefined {
+	const resolver = new ToolchainResolver();
+	return resolver.resolveVrunnerVersion(customPath);
 }
 
 export function resolveVanessaAutomationPath(customPath?: string, projectRoot?: string): string | undefined {

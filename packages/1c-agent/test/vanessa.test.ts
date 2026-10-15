@@ -127,6 +127,107 @@ describe("Vanessa Tools (vrunner) Integration", () => {
 			]);
 		});
 
+		it("builds xunit command arguments with epf as vrunner test xunit (vrunner 3.x default)", () => {
+			const result = buildVanessaArgs(
+				{
+					action: "xunit",
+					epf: "./build/ТестыMiniCRM.epf",
+					ibconnection: "/F./build/ib",
+				},
+				undefined,
+				noEnterpriseResolver,
+			);
+
+			const expected = ["test", "xunit", "--ibconnection", "/F./build/ib"];
+			if (process.platform === "darwin") expected.push("--ordinaryapp");
+			expected.push("./build/ТестыMiniCRM.epf");
+			expect(result.args).toEqual(expected);
+		});
+
+		it("supports legacy vrunner 2.x xunit command arguments", () => {
+			const v2Resolver = {
+				...noEnterpriseResolver,
+				resolveVrunnerVersion: () => "2.10.5",
+			} as unknown as ToolchainResolver;
+
+			const result = buildVanessaArgs(
+				{
+					action: "xunit",
+					epf: "./build/ТестыMiniCRM.epf",
+					ibconnection: "/F./build/ib",
+				},
+				undefined,
+				v2Resolver,
+			);
+
+			const expected = ["xunit", "--ibconnection", "/F./build/ib"];
+			if (process.platform === "darwin") expected.push("--ordinaryapp");
+			expected.push("./build/ТестыMiniCRM.epf");
+			expect(result.args).toEqual(expected);
+		});
+
+		it("supports action alias test-xunit with epf", () => {
+			const result = buildVanessaArgs(
+				{
+					action: "test-xunit",
+					epf: "./build/ТестыMiniCRM.epf",
+					ibconnection: "/F./build/ib",
+				},
+				undefined,
+				noEnterpriseResolver,
+			);
+
+			const expected = ["test", "xunit", "--ibconnection", "/F./build/ib"];
+			if (process.platform === "darwin") expected.push("--ordinaryapp");
+			expected.push("./build/ТестыMiniCRM.epf");
+			expect(result.args).toEqual(expected);
+		});
+
+		it("builds run and run-epf command arguments with epf as vrunner run enterprise in 3.x", () => {
+			const result = buildVanessaArgs(
+				{
+					action: "run",
+					epf: "./build/ТестыMiniCRM.epf",
+					ibconnection: "/F./build/ib",
+				},
+				undefined,
+				noEnterpriseResolver,
+			);
+
+			const expected = [
+				"run",
+				"enterprise",
+				"--execute",
+				"./build/ТестыMiniCRM.epf",
+				"--ibconnection",
+				"/F./build/ib",
+			];
+			if (process.platform === "darwin") expected.push("--ordinaryapp");
+			expect(result.args).toEqual(expected);
+		});
+
+		it("builds run command arguments in legacy vrunner 2.x mode", () => {
+			const v2Resolver = {
+				...noEnterpriseResolver,
+				resolveVrunnerVersion: () => "2.9.0",
+			} as unknown as ToolchainResolver;
+
+			const result = buildVanessaArgs(
+				{
+					action: "run",
+					epf: "./build/ТестыMiniCRM.epf",
+					ibconnection: "/F./build/ib",
+				},
+				undefined,
+				v2Resolver,
+			);
+
+			const expected = ["run", "--ibconnection", "/F./build/ib"];
+			if (process.platform === "darwin") expected.push("--ordinaryapp");
+			expected.push("./build/ТестыMiniCRM.epf");
+			expect(result.args).toEqual(expected);
+		});
+
 		it("appends additionalArgs when provided", () => {
 			const result = buildVanessaArgs(
 				{
@@ -433,6 +534,67 @@ describe("Vanessa Tools (vrunner) Integration", () => {
 			expect(text0.text).toContain("Статус: ОШИБКА");
 			expect(text0.text).toContain("код возврата: прервано/сигнал");
 			expect(text0.text).not.toContain("код возврата: 0");
+		});
+
+		it("accepts xunit action in tool registration schema and executes xunit test", async () => {
+			let registeredTool: Parameters<ExtensionAPI["registerTool"]>[0] | undefined;
+			const mockPi = {
+				registerTool: vi.fn((tool) => {
+					registeredTool = tool;
+				}),
+			} as unknown as ExtensionAPI;
+
+			const mockExecutor: VanessaCommandExecutor = vi.fn(async () => {
+				return {
+					stdout: "xUnit тесты пройдены: 10 тестов, 0 ошибок",
+					stderr: "",
+					exitCode: 0,
+				};
+			});
+
+			registerVanessaTools(mockPi, "/test/project", mockExecutor);
+
+			expect(registeredTool).toBeDefined();
+			if (!registeredTool) throw new Error("not registered");
+
+			const paramsSchema = registeredTool.parameters as unknown as {
+				properties: {
+					action: { anyOf: Array<{ const?: string }> };
+					epf?: unknown;
+				};
+			};
+			const actions = paramsSchema.properties.action.anyOf.map((literal) => literal.const);
+			expect(actions).toContain("xunit");
+			expect(actions).toContain("test-xunit");
+			expect(actions).toContain("run");
+			expect(actions).toContain("run-epf");
+			expect(paramsSchema.properties.epf).toBeDefined();
+
+			const mockCtx = { cwd: "/test/custom-cwd" } as ExtensionToolContext;
+			const toolResult = await registeredTool.execute(
+				"call_xunit",
+				{
+					action: "xunit",
+					epf: "./build/ТестыMiniCRM.epf",
+				},
+				undefined,
+				undefined,
+				mockCtx,
+			);
+
+			expect(toolResult.isError).toBe(false);
+			const text0 = toolResult.content[0];
+			if (text0.type !== "text") throw new Error("expected text content");
+			expect(text0.text).toContain("[Vanessa Tools: XUNIT]");
+			expect(text0.text).toContain("Статус: УСПЕШНО");
+			expect(text0.text).toContain("xUnit тесты пройдены");
+			expect(mockExecutor).toHaveBeenCalledWith(
+				expect.any(String),
+				expect.arrayContaining(["xunit", "./build/ТестыMiniCRM.epf"]),
+				"/test/custom-cwd",
+				undefined,
+				expect.any(Object),
+			);
 		});
 	});
 });

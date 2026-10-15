@@ -217,4 +217,53 @@ describe("1C Agent Modes", () => {
 			expect(prompt).toContain("otool");
 		}
 	});
+
+	it("write mode prompt includes artifact routing table, prohibition rule, 1c_skill_execute docs, and external binary policy", () => {
+		const api = createMockExtensionAPI();
+		const manager = new ModeManager(api, "write");
+		const prompt = manager.getSystemPromptInjection();
+
+		// Routing table
+		expect(prompt).toContain("Metadata .mdo / *.xml -> 1c_skill_execute(skill: 'meta-info')");
+		expect(prompt).toContain("Managed forms Form.xml -> 1c_skill_execute(skill: 'form-info')");
+		expect(prompt).toContain("Data composition schema templates Template.xml -> 1c_skill_execute(skill: 'skd-info')");
+		expect(prompt).toContain("Spreadsheet documents *.mxl -> 1c_skill_execute(skill: 'mxl-info')");
+		expect(prompt).toContain("Roles and permissions Role.xml -> 1c_skill_execute(skill: 'role-validate')");
+		expect(prompt).toContain("Configuration validation Configuration.xml -> 1c_skill_execute(skill: 'cf-validate')");
+
+		// Negative prohibition rule
+		expect(prompt).toContain(
+			"КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать ad-hoc скрипты (python, bash heredoc, grep/awk) для разбора XML метаданных и СКД при наличии готового навыка. Используйте 1c_skill_execute.",
+		);
+
+		// 1c_skill_execute documentation
+		expect(prompt).toContain("1c_skill_execute");
+		expect(prompt).toContain("skill (string, обязательно)");
+		expect(prompt).toContain("args (Record<string, unknown> | string[], опционально)");
+		expect(prompt).toContain("cwd (string, опционально)");
+		expect(prompt).toContain("Python 3");
+		expect(prompt).toContain("OneScript");
+
+		// External binary policy & bash scoping
+		expect(prompt).toContain("ПОЛИТИКА ВНЕШНИХ БИНАРНИКОВ И СКРИПТОВ");
+		expect(prompt).toContain("1c_vanessa, bsl_fix_standards, 1c_skill_execute");
+		expect(prompt).toContain("Bash предназначен строго для операций внутри каталога проекта");
+
+		// Structure inspection via meta-info
+		expect(prompt).toContain("изучайте структуру через 1c_skill_execute с навыком meta-info");
+		expect(prompt).not.toContain("предварительно изучите существующие элементы файла через grep или read");
+
+		// Tool vs skill routing table
+		expect(prompt).toContain("Таблица маршрутизации инструментов (НЕ подменять инструмент навыком)");
+		expect(prompt).toContain(
+			"КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО вызывать bsl_fix_standards или 1c_vanessa через 1c_skill_execute",
+		);
+
+		// Runner failure policy
+		expect(prompt).toContain("ДИАГНОСТИЧЕСКАЯ РЕАКЦИЯ НА СБОИ РАННЕРА");
+		expect(prompt).toContain("НЕ предлагать пользователю интерактивный запуск 1С");
+
+		// LSP scope
+		expect(prompt).toContain("src/**/*.bsl");
+	});
 });

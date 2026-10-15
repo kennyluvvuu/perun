@@ -14,6 +14,7 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 import { registerAutofixTools } from "./autofix/index.ts";
 import { runDoctor } from "./doctor/index.ts";
+import { generateDocsForDiff, registerGitTools } from "./git/index.ts";
 import { BslLspClient, InlineFeedbackHandler } from "./lsp/index.ts";
 import { ModeManager } from "./modes/index.ts";
 import { registerNavigatorTools } from "./navigator/index.ts";
@@ -26,6 +27,7 @@ import { registerVanessaTools } from "./vanessa/index.ts";
 
 export * from "./autofix/index.ts";
 export * from "./doctor/index.ts";
+export * from "./git/index.ts";
 export * from "./lsp/index.ts";
 export * from "./modes/index.ts";
 export * from "./navigator/index.ts";
@@ -66,6 +68,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 		registerSubagentTools(pi);
 		registerVanessaTools(pi, projectRoot);
 		registerSkillTools(pi, projectRoot);
+		registerGitTools(pi, projectRoot);
 		permissionManager.register(pi);
 
 		// 2. Discover built-in 1C skills
@@ -101,7 +104,27 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			},
 		});
 
-		// 5. Register alt+m shortcut for mode cycling
+		// 5. Register /docgen command
+		pi.registerCommand("docgen", {
+			description: "Генерация и синхронизация BSLDoc по стандарту ИТС на основе Git diff: /docgen [ref] [--apply]",
+			handler: async (args: string, ctx: ExtensionCommandContext) => {
+				const parts = args.trim().split(/\s+/).filter(Boolean);
+				let targetRef = "HEAD~1";
+				let applyChanges = false;
+				for (const part of parts) {
+					if (part === "--apply" || part === "-a") {
+						applyChanges = true;
+					} else if (!part.startsWith("-")) {
+						targetRef = part;
+					}
+				}
+				ctx.ui.notify(`Анализ Git diff (${targetRef}) и генерация BSLDoc...`, "info");
+				const result = await generateDocsForDiff(targetRef, undefined, projectRoot, applyChanges);
+				ctx.ui.notify(result.summary, "info");
+			},
+		});
+
+		// 6. Register alt+m shortcut for mode cycling
 		try {
 			pi.registerShortcut("alt+m", {
 				description: "Циклическое переключение режимов 1С (НАЙТИ -> ОБЪЯСНИТЬ -> НАПИСАТЬ -> ПЛАНИРОВАТЬ)",
@@ -154,6 +177,8 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 				"  * 1c_call_hierarchy: анализ графа входящих и исходящих вызовов процедур и функций.\n" +
 				"  * 1c_impact_analysis: анализ влияния изменений на регистры и проведение документов.\n" +
 				"  * 1c_ast_symbols: быстрое извлечение AST-структуры модуля BSL (процедуры, функции, параметры, директивы компиляции &НаСервере/&НаКлиенте).\n" +
+				"  * 1c_git_blame_context: извлечение исторического контекста (git blame, git log -S, автор, дата, номер задачи ТЗ/#) для переменной, метода или строки кода.\n" +
+				"  * 1c_git_docgen: инкрементальная генерация и синхронизация документации BSLDoc по стандарту ИТС на основе Git diff (слэш-команда /docgen).\n" +
 				"- Субагенты (1c_subagent):\n" +
 				"  * Агент МОЖЕТ и ДОЛЖЕН вызывать субагентов через 1c_subagent для декомпозиции и параллельного/изолированного выполнения задач. Доступные роли: 1c-architect (архитектура метаданных), 1c-coder (написание BSL кода), 1c-tester (BDD-тесты Vanessa и YAXUnit), 1c-reviewer (аудит качества и стандартов ИТС).\n" +
 				"- БЕЗОПАСНОСТЬ ОКРУЖЕНИЯ, ЯЗЫК И ГРАНИЦЫ ЗАДАЧИ:\n" +

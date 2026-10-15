@@ -22,6 +22,26 @@ allowed-tools:
 | `Limit` / `Offset` | Пагинация (по умолчанию 150 строк) |
 | `OutFile` | Записать результат в файл (UTF-8 BOM) |
 
+### Через инструмент 1c_skill_execute (рекомендуется)
+
+```json
+{
+  "skill": "meta-info",
+  "args": {
+    "ObjectPath": "Catalogs/Валюты/Валюты.xml",
+    "Mode": "overview"
+  }
+}
+```
+
+### Через python3 (кроссплатформенно)
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/meta-info.py" -ObjectPath "<путь>"
+```
+
+### Через PowerShell
+
 ```powershell
 powershell.exe -NoProfile -File "${CLAUDE_SKILL_DIR}/scripts/meta-info.ps1" -ObjectPath "<путь>"
 ```
