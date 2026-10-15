@@ -4,7 +4,14 @@ import * as path from "node:path";
 import type { ExtensionAPI, ExtensionToolContext } from "@earendil-works/pi-coding-agent";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { generatePatches, generateUnifiedDiff } from "../src/autofix/patcher.ts";
-import { analyzeCodeForItsRules, parseBslAnalyzerJsonOutput } from "../src/autofix/rules.ts";
+import {
+	analyzeCodeForItsRules,
+	isRuleAutoFixable,
+	matchesRuleId,
+	normalizeRuleId,
+	parseBslAnalyzerJsonOutput,
+	RULE_ALIASES,
+} from "../src/autofix/rules.ts";
 import { registerAutofixTools } from "../src/autofix/tools.ts";
 
 describe("ITS Standards Auto-Fixer", () => {
@@ -202,5 +209,169 @@ describe("ITS Standards Auto-Fixer", () => {
 		expect(applyDetails.appliedFixes).toBe(1);
 		const contentAfterApply = await fs.promises.readFile(testFile, "utf8");
 		expect(contentAfterApply).toContain("ЗаписьЖурналаРегистрации");
+	});
+
+	describe("Rule Aliases & bsl-analyzer synchronization (Defect D3)", () => {
+		it("exports RULE_ALIASES mapping between bsl-analyzer and internal ITS rule codes", () => {
+			expect(RULE_ALIASES.CreateQueryInCycle).toBe("QueryInLoop");
+			expect(RULE_ALIASES.QueryInLoop).toBe("CreateQueryInCycle");
+			expect(RULE_ALIASES.MissingCodeTryCatchEx).toBe("EmptyExcept");
+			expect(RULE_ALIASES.EmptyExcept).toBe("MissingCodeTryCatchEx");
+			expect(RULE_ALIASES.UnusedLocalVariable).toBe("UnusedVariable");
+			expect(RULE_ALIASES.UnusedVariable).toBe("UnusedLocalVariable");
+			expect(RULE_ALIASES.MissingBSLDocComments).toBe("MissingBSLDoc");
+			expect(RULE_ALIASES.MissingBSLDocMethod).toBe("MissingBSLDoc");
+		});
+
+		it("normalizes canonical and alias rule IDs consistently via normalizeRuleId", () => {
+			expect(normalizeRuleId("CreateQueryInCycle")).toBe("QueryInLoop");
+			expect(normalizeRuleId("QueryInLoop")).toBe("QueryInLoop");
+			expect(normalizeRuleId("MissingCodeTryCatchEx")).toBe("EmptyExcept");
+			expect(normalizeRuleId("EmptyExcept")).toBe("EmptyExcept");
+			expect(normalizeRuleId("UnusedLocalVariable")).toBe("UnusedVariable");
+			expect(normalizeRuleId("UnusedVariable")).toBe("UnusedVariable");
+			expect(normalizeRuleId("MissingBSLDocComments")).toBe("MissingBSLDoc");
+			expect(normalizeRuleId("MissingBSLDocMethod")).toBe("MissingBSLDoc");
+			expect(normalizeRuleId("MissingBSLDoc")).toBe("MissingBSLDoc");
+			expect(normalizeRuleId("UnknownCustomRule")).toBe("UnknownCustomRule");
+		});
+
+		it("matches rule IDs bidirectionally with aliases via matchesRuleId", () => {
+			// CreateQueryInCycle <-> QueryInLoop
+			expect(matchesRuleId("CreateQueryInCycle", "QueryInLoop")).toBe(true);
+			expect(matchesRuleId("QueryInLoop", "CreateQueryInCycle")).toBe(true);
+
+			// MissingCodeTryCatchEx <-> EmptyExcept
+			expect(matchesRuleId("MissingCodeTryCatchEx", "EmptyExcept")).toBe(true);
+			expect(matchesRuleId("EmptyExcept", "MissingCodeTryCatchEx")).toBe(true);
+
+			// UnusedLocalVariable <-> UnusedVariable
+			expect(matchesRuleId("UnusedLocalVariable", "UnusedVariable")).toBe(true);
+			expect(matchesRuleId("UnusedVariable", "UnusedLocalVariable")).toBe(true);
+
+			// MissingBSLDocComments / MissingBSLDocMethod <-> MissingBSLDoc
+			expect(matchesRuleId("MissingBSLDocComments", "MissingBSLDoc")).toBe(true);
+			expect(matchesRuleId("MissingBSLDoc", "MissingBSLDocComments")).toBe(true);
+			expect(matchesRuleId("MissingBSLDocMethod", "MissingBSLDoc")).toBe(true);
+			expect(matchesRuleId("MissingBSLDoc", "MissingBSLDocMethod")).toBe(true);
+			expect(matchesRuleId("MissingBSLDocComments", "MissingBSLDocMethod")).toBe(true);
+
+			// Non-matching pairs
+			expect(matchesRuleId("CreateQueryInCycle", "EmptyExcept")).toBe(false);
+			expect(matchesRuleId("QueryInLoop", "MissingCodeTryCatchEx")).toBe(false);
+			expect(matchesRuleId("UnusedVariable", "MissingBSLDoc")).toBe(false);
+		});
+
+		it("isRuleAutoFixable returns true for both canonical bsl-analyzer codes and their aliases", () => {
+			// Auto-fixable canonical bsl-analyzer codes
+			expect(isRuleAutoFixable("MissingCodeTryCatchEx")).toBe(true);
+			expect(isRuleAutoFixable("UnusedLocalVariable")).toBe(true);
+			expect(isRuleAutoFixable("MissingBSLDocComments")).toBe(true);
+			expect(isRuleAutoFixable("MissingBSLDocMethod")).toBe(true);
+
+			// Auto-fixable internal aliases
+			expect(isRuleAutoFixable("EmptyExcept")).toBe(true);
+			expect(isRuleAutoFixable("UnusedVariable")).toBe(true);
+			expect(isRuleAutoFixable("MissingBSLDoc")).toBe(true);
+
+			// Non-fixable codes
+			expect(isRuleAutoFixable("CreateQueryInCycle")).toBe(false);
+			expect(isRuleAutoFixable("QueryInLoop")).toBe(false);
+			expect(isRuleAutoFixable("ServerModalCall")).toBe(false);
+			expect(isRuleAutoFixable("UnknownRule")).toBe(false);
+		});
+
+		it("parses external diagnostics and marks canAutoFix for bsl-analyzer codes", () => {
+			const json = JSON.stringify([
+				{ file: "Mod.bsl", line: 10, code: "MissingCodeTryCatchEx", message: "Empty try" },
+				{ file: "Mod.bsl", line: 20, code: "CreateQueryInCycle", message: "Query in loop" },
+				{ file: "Mod.bsl", line: 30, code: "UnusedLocalVariable", message: "Unused var" },
+			]);
+
+			const violations = parseBslAnalyzerJsonOutput(json, "Default.bsl");
+			expect(violations).toHaveLength(3);
+			expect(violations[0].canAutoFix).toBe(true);
+			expect(violations[1].canAutoFix).toBe(false);
+			expect(violations[2].canAutoFix).toBe(true);
+		});
+
+		it("filters violations in bsl_fix_standards by canonical ruleId or alias", async () => {
+			const code = `
+Процедура Тест()
+	Для Индекс = 1 По 10 Цикл
+		Запрос = Новый Запрос;
+		Запрос.Выполнить();
+	КонецЦикла;
+	Попытка
+		ПодключитьВнешнююКомпоненту();
+	Исключение
+	КонецПопытки;
+КонецПроцедуры
+`;
+			await fs.promises.writeFile(testFile, code, "utf8");
+
+			let registeredTool: Parameters<ExtensionAPI["registerTool"]>[0] | undefined;
+			const mockPi = {
+				registerTool: vi.fn((tool) => {
+					registeredTool = tool;
+				}),
+			} as unknown as ExtensionAPI;
+
+			registerAutofixTools(mockPi);
+			if (!registeredTool) throw new Error("tool not registered");
+
+			// Request filter using canonical bsl-analyzer rule code MissingCodeTryCatchEx
+			const result = await registeredTool.execute(
+				"call_filter_canonical",
+				{ target: testFile, dryRun: true, ruleIds: ["MissingCodeTryCatchEx"] },
+				undefined,
+				undefined,
+				{} as ExtensionToolContext,
+			);
+
+			const details = result.details as { totalViolations: number; appliedFixes: number };
+			expect(details.totalViolations).toBe(1);
+			expect(details.appliedFixes).toBe(1);
+
+			// Request filter using canonical bsl-analyzer rule code CreateQueryInCycle
+			const resultQuery = await registeredTool.execute(
+				"call_filter_cycle",
+				{ target: testFile, dryRun: true, ruleIds: ["CreateQueryInCycle"] },
+				undefined,
+				undefined,
+				{} as ExtensionToolContext,
+			);
+
+			const detailsQuery = resultQuery.details as { totalViolations: number; appliedFixes: number };
+			expect(detailsQuery.totalViolations).toBe(1);
+			expect(detailsQuery.appliedFixes).toBe(0); // QueryInLoop is not auto-fixable
+		});
+
+		it("generates patches for canonical bsl-analyzer rule code violations", () => {
+			const code = `
+Процедура Тест()
+	Попытка
+		X = 1;
+	Исключение
+	КонецПопытки;
+КонецПроцедуры
+`;
+			const violations = [
+				{
+					ruleId: "MissingCodeTryCatchEx",
+					ruleName: "MissingCodeTryCatchEx",
+					message: "Пустой блок исключения",
+					filePath: "Test.bsl",
+					line: 4,
+					column: 1,
+					severity: "warning" as const,
+					canAutoFix: true,
+				},
+			];
+
+			const { fixedContent, appliedCount } = generatePatches("Test.bsl", code, violations);
+			expect(appliedCount).toBe(1);
+			expect(fixedContent).toContain("ЗаписьЖурналаРегистрации");
+		});
 	});
 });

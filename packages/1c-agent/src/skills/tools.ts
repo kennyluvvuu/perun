@@ -106,6 +106,186 @@ export function resolveSkillScript(skillsDir: string, skill: string): string | u
 	return undefined;
 }
 
+export function isFormCompileSkill(skill: string, scriptPath?: string): boolean {
+	if (skill === "form-compile") {
+		return true;
+	}
+	if (skill.endsWith("form-compile.py") || skill.endsWith("form-compile.os")) {
+		return true;
+	}
+	if (scriptPath && (scriptPath.endsWith("form-compile.py") || scriptPath.endsWith("form-compile.os"))) {
+		return true;
+	}
+	return false;
+}
+
+const METADATA_PLURAL_MAP: Record<string, string> = {
+	catalog: "Catalogs",
+	catalogs: "Catalogs",
+	document: "Documents",
+	documents: "Documents",
+	dataprocessor: "DataProcessors",
+	dataprocessors: "DataProcessors",
+	report: "Reports",
+	reports: "Reports",
+	informationregister: "InformationRegisters",
+	informationregisters: "InformationRegisters",
+	accumulationregister: "AccumulationRegisters",
+	accumulationregisters: "AccumulationRegisters",
+	chartofcharacteristicstypes: "ChartsOfCharacteristicTypes",
+	chartsofcharacteristicstypes: "ChartsOfCharacteristicTypes",
+	chartofaccounts: "ChartsOfAccounts",
+	chartsofaccounts: "ChartsOfAccounts",
+	chartofcalculationtypes: "ChartsOfCalculationTypes",
+	chartsofcalculationtypes: "ChartsOfCalculationTypes",
+	calculationregister: "CalculationRegisters",
+	calculationregisters: "CalculationRegisters",
+	exchangeplan: "ExchangePlans",
+	exchangeplans: "ExchangePlans",
+	businessprocess: "BusinessProcesses",
+	businessprocesses: "BusinessProcesses",
+	task: "Tasks",
+	tasks: "Tasks",
+};
+
+const DOMAIN_PARAM_KEYS = new Set(["src", "type", "name", "form", "formname"]);
+
+function findArgKey(args: Record<string, unknown>, target: string): string | undefined {
+	const lower = target.toLowerCase();
+	for (const key of Object.keys(args)) {
+		if (key.replace(/^-+/, "").toLowerCase() === lower) {
+			return key;
+		}
+	}
+	return undefined;
+}
+
+export function translateFormCompileArgs(args: Record<string, unknown>, cwd?: string): Record<string, unknown> {
+	const typeKey = findArgKey(args, "type");
+	const nameKey = findArgKey(args, "name");
+	const outputKey = findArgKey(args, "outputpath") || findArgKey(args, "output");
+	const outputVal = outputKey ? args[outputKey] : undefined;
+
+	// Only translate domain parameters if Type and Name are present and OutputPath is absent
+	if (!typeKey || !nameKey || (outputVal !== undefined && outputVal !== null && outputVal !== "")) {
+		return args;
+	}
+
+	const typeVal = args[typeKey];
+	const nameVal = args[nameKey];
+	if (typeVal === undefined || typeVal === null || nameVal === undefined || nameVal === null) {
+		return args;
+	}
+
+	const typeStr = String(typeVal).trim();
+	const nameStr = String(nameVal).trim();
+	if (!typeStr || !nameStr) {
+		return args;
+	}
+
+	const typeLower = typeStr.toLowerCase();
+	let plural = METADATA_PLURAL_MAP[typeLower];
+	if (!plural) {
+		plural = typeStr.endsWith("s") ? typeStr : `${typeStr}s`;
+	}
+
+	const srcKey = findArgKey(args, "src");
+	const srcVal = srcKey ? args[srcKey] : undefined;
+	const srcDir = typeof srcVal === "string" && srcVal.trim() ? srcVal.trim() : "src";
+
+	const purposeKey = findArgKey(args, "purpose");
+	const purposeVal = purposeKey ? args[purposeKey] : undefined;
+	const rawPurpose = typeof purposeVal === "string" && purposeVal.trim() ? purposeVal.trim() : undefined;
+	const purposeLower = rawPurpose ? rawPurpose.toLowerCase() : "";
+
+	const explicitFormKey = findArgKey(args, "formname") || findArgKey(args, "form");
+	const explicitFormVal = explicitFormKey ? args[explicitFormKey] : undefined;
+	let formName: string;
+
+	if (typeof explicitFormVal === "string" && explicitFormVal.trim()) {
+		formName = explicitFormVal.trim();
+	} else if (typeLower === "catalog" || typeLower === "catalogs") {
+		if (purposeLower === "folder") {
+			formName = "ФормаГруппы";
+		} else if (purposeLower === "list") {
+			formName = "ФормаСписка";
+		} else {
+			formName = "ФормаЭлемента";
+		}
+	} else if (typeLower === "document" || typeLower === "documents") {
+		if (purposeLower === "list") {
+			formName = "ФормаСписка";
+		} else {
+			formName = "ФормаДокумента";
+		}
+	} else if (
+		typeLower === "record" ||
+		typeLower === "records" ||
+		typeLower === "informationregister" ||
+		typeLower === "accumulationregister" ||
+		purposeLower === "record"
+	) {
+		if (purposeLower === "list") {
+			formName = "ФормаСписка";
+		} else {
+			formName = "ФормаЗаписи";
+		}
+	} else {
+		formName = "ФормаЭлемента";
+	}
+
+	let finalPurpose = rawPurpose;
+	if (!finalPurpose) {
+		if (
+			typeLower === "catalog" ||
+			typeLower === "catalogs" ||
+			typeLower === "document" ||
+			typeLower === "documents"
+		) {
+			finalPurpose = "Item";
+		}
+	}
+
+	const defaultObjPath = `${srcDir}/${plural}/${nameStr}.xml`;
+	const nestedObjPath = `${srcDir}/${plural}/${nameStr}/${nameStr}.xml`;
+	let objectPath = defaultObjPath;
+	const existingObjKey = findArgKey(args, "objectpath");
+	const existingObjVal = existingObjKey ? args[existingObjKey] : undefined;
+	if (typeof existingObjVal === "string" && existingObjVal.trim()) {
+		objectPath = existingObjVal.trim();
+	} else {
+		const baseDir = cwd || process.cwd();
+		if (fs.existsSync(path.isAbsolute(defaultObjPath) ? defaultObjPath : path.join(baseDir, defaultObjPath))) {
+			objectPath = defaultObjPath;
+		} else if (fs.existsSync(path.isAbsolute(nestedObjPath) ? nestedObjPath : path.join(baseDir, nestedObjPath))) {
+			objectPath = nestedObjPath;
+		}
+	}
+
+	const outputPath = `${srcDir}/${plural}/${nameStr}/Forms/${formName}/Ext/Form.xml`;
+
+	const newArgs: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(args)) {
+		const clean = key.replace(/^-+/, "").toLowerCase();
+		if (DOMAIN_PARAM_KEYS.has(clean)) {
+			continue;
+		}
+		if (clean === "fromobject" || clean === "objectpath" || clean === "outputpath" || clean === "purpose") {
+			continue;
+		}
+		newArgs[key] = value;
+	}
+
+	newArgs.FromObject = true;
+	newArgs.ObjectPath = objectPath;
+	newArgs.OutputPath = outputPath;
+	if (finalPurpose !== undefined) {
+		newArgs.Purpose = finalPurpose;
+	}
+
+	return newArgs;
+}
+
 export function buildSkillArgs(args?: Record<string, unknown> | string[]): string[] {
 	if (!args) {
 		return [];
@@ -261,7 +441,17 @@ export async function runSkill(
 	const ext = path.extname(scriptPath).toLowerCase();
 	const command = ext === ".os" ? process.env.OSCRIPT_PATH || "oscript" : process.env.PYTHON_PATH || "python3";
 
-	const skillArgs = buildSkillArgs(params.args);
+	let effectiveArgs = params.args;
+	if (
+		isFormCompileSkill(params.skill, scriptPath) &&
+		effectiveArgs &&
+		typeof effectiveArgs === "object" &&
+		!Array.isArray(effectiveArgs)
+	) {
+		effectiveArgs = translateFormCompileArgs(effectiveArgs, cwd);
+	}
+
+	const skillArgs = buildSkillArgs(effectiveArgs);
 	const fullArgs = [scriptPath, ...skillArgs];
 	const executor = options.executor || defaultSkillExecutor;
 
@@ -272,7 +462,7 @@ export async function runSkill(
 	let artifactValidation: SkillExecutionResult["artifactValidation"] | undefined;
 
 	// Invariant validation for output artifacts (e.g. Form.xml)
-	const rawOutputPath = extractOutputPath(params.args);
+	const rawOutputPath = extractOutputPath(effectiveArgs);
 	if (rawOutputPath) {
 		const resolvedOut = path.isAbsolute(rawOutputPath) ? rawOutputPath : path.join(cwd, rawOutputPath);
 		if (resolvedOut.endsWith("Form.xml") || resolvedOut.endsWith("form.xml")) {

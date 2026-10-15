@@ -1,5 +1,5 @@
 import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import type { PermissionLevel } from "../types.ts";
+import type { PermissionCheckResult, PermissionLevel } from "../types.ts";
 import { PermissionPolicy } from "./policy.ts";
 
 export class PermissionManager {
@@ -41,6 +41,14 @@ export class PermissionManager {
 
 	public getPolicy(): PermissionPolicy {
 		return this.policy;
+	}
+
+	public checkToolCall(
+		toolName: string,
+		input: Record<string, unknown>,
+		ctx?: ExtensionContext,
+	): PermissionCheckResult {
+		return this.policy.checkToolCall(toolName, input, ctx?.cwd);
 	}
 
 	public async handleToolCall(

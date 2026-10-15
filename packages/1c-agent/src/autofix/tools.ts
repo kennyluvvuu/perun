@@ -6,7 +6,7 @@ import type { ExtensionAPI, ExtensionToolContext } from "@earendil-works/pi-codi
 import { Type } from "typebox";
 import type { StandardFixResult } from "../types.ts";
 import { generatePatches, generateUnifiedDiff } from "./patcher.ts";
-import { analyzeCodeForItsRules, parseBslAnalyzerJsonOutput } from "./rules.ts";
+import { analyzeCodeForItsRules, matchesRuleId, parseBslAnalyzerJsonOutput } from "./rules.ts";
 
 const execAsync = promisify(exec);
 
@@ -71,7 +71,7 @@ export function registerAutofixTools(pi: ExtensionAPI): void {
 						const externalViolations = parseBslAnalyzerJsonOutput(stdout, targetPath);
 						// Merge non-duplicate rule violations
 						for (const ext of externalViolations) {
-							if (!violations.some((v) => v.line === ext.line && v.ruleId === ext.ruleId)) {
+							if (!violations.some((v) => v.line === ext.line && matchesRuleId(v.ruleId, ext.ruleId))) {
 								violations.push(ext);
 							}
 						}
@@ -83,8 +83,10 @@ export function registerAutofixTools(pi: ExtensionAPI): void {
 
 			// Filter by ruleIds if specified
 			if (params.ruleIds && params.ruleIds.length > 0) {
-				const allowedSet = new Set(params.ruleIds);
-				violations = violations.filter((v) => allowedSet.has(v.ruleId));
+				const requestedRules = params.ruleIds;
+				violations = violations.filter((v) =>
+					requestedRules.some((targetRule) => matchesRuleId(v.ruleId, targetRule)),
+				);
 			}
 
 			if (violations.length === 0) {

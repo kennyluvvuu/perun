@@ -33,9 +33,55 @@ export function parseBslAnalyzerJsonOutput(jsonString: string, defaultFilePath: 
 	}
 }
 
+export const RULE_ALIASES: Record<string, string> = {
+	CreateQueryInCycle: "QueryInLoop",
+	QueryInLoop: "CreateQueryInCycle",
+	MissingCodeTryCatchEx: "EmptyExcept",
+	EmptyExcept: "MissingCodeTryCatchEx",
+	UnusedLocalVariable: "UnusedVariable",
+	UnusedVariable: "UnusedLocalVariable",
+	MissingBSLDocComments: "MissingBSLDoc",
+	MissingBSLDocMethod: "MissingBSLDoc",
+	MissingBSLDoc: "MissingBSLDocMethod",
+};
+
+const NORMALIZED_RULES: Record<string, string> = {
+	CreateQueryInCycle: "QueryInLoop",
+	QueryInLoop: "QueryInLoop",
+	MissingCodeTryCatchEx: "EmptyExcept",
+	EmptyExcept: "EmptyExcept",
+	UnusedLocalVariable: "UnusedVariable",
+	UnusedVariable: "UnusedVariable",
+	MissingBSLDocComments: "MissingBSLDoc",
+	MissingBSLDocMethod: "MissingBSLDoc",
+	MissingBSLDoc: "MissingBSLDoc",
+};
+
+export function normalizeRuleId(ruleId: string): string {
+	return NORMALIZED_RULES[ruleId] ?? ruleId;
+}
+
+export function matchesRuleId(candidate: string, target: string): boolean {
+	if (candidate === target) return true;
+	const normCandidate = normalizeRuleId(candidate);
+	const normTarget = normalizeRuleId(target);
+	if (normCandidate === normTarget) return true;
+	return RULE_ALIASES[candidate] === target || RULE_ALIASES[target] === candidate;
+}
+
+const AUTO_FIXABLE_RULES = new Set([
+	"EmptyExcept",
+	"MissingCodeTryCatchEx",
+	"UnusedVariable",
+	"UnusedLocalVariable",
+	"MissingBSLDoc",
+	"MissingBSLDocComments",
+	"MissingBSLDocMethod",
+]);
+
 export function isRuleAutoFixable(ruleId: string): boolean {
-	const autoFixableRules = new Set(["EmptyExcept", "UnusedVariable", "MissingBSLDoc"]);
-	return autoFixableRules.has(ruleId);
+	const normalized = normalizeRuleId(ruleId);
+	return AUTO_FIXABLE_RULES.has(ruleId) || AUTO_FIXABLE_RULES.has(normalized);
 }
 
 export function analyzeCodeForItsRules(filePath: string, sourceCode: string): readonly BslRuleViolation[] {

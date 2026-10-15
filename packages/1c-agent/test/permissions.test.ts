@@ -1,6 +1,6 @@
 import type { ExtensionAPI, ExtensionCommandContext, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { describe, expect, it, vi } from "vitest";
-import { PermissionPolicy } from "../src/permissions/policy.ts";
+import { isBashCommandOutsideProject, PermissionPolicy } from "../src/permissions/policy.ts";
 import { PermissionManager } from "../src/permissions/tools.ts";
 
 function createMockContext(confirmed = true) {
@@ -18,9 +18,10 @@ function createMockContext(confirmed = true) {
 }
 
 describe("1C Permission System", () => {
-	it("allows everything without confirmation in YOLO mode", () => {
+	it("allows operations inside project without confirmation in YOLO mode, but requires confirmation for outside operations (D1 invariant)", () => {
 		const policy = new PermissionPolicy("yolo", "/project");
 
+		// Inside project operations are allowed without confirmation
 		expect(policy.checkToolCall("read", { path: "/project/a.bsl" })).toEqual({
 			allowed: true,
 			requiresUserConfirmation: false,
@@ -29,10 +30,35 @@ describe("1C Permission System", () => {
 			allowed: true,
 			requiresUserConfirmation: false,
 		});
-		expect(policy.checkToolCall("bash", { command: "rm -rf /" })).toEqual({
+		expect(policy.checkToolCall("bash", { command: "git status" })).toEqual({
 			allowed: true,
 			requiresUserConfirmation: false,
 		});
+
+		// Outside project operations REQUIRE user confirmation even in YOLO mode (Invariant D1)
+		const outsideWrite = policy.checkToolCall("write", { path: "/tmp/probe.txt" });
+		expect(outsideWrite.allowed).toBe(false);
+		expect(outsideWrite.requiresUserConfirmation).toBe(true);
+
+		const outsideRead = policy.checkToolCall("read", { path: "/etc/passwd" });
+		expect(outsideRead.allowed).toBe(false);
+		expect(outsideRead.requiresUserConfirmation).toBe(true);
+
+		const bashRedirectOutside = policy.checkToolCall("bash", { command: "echo probe > /tmp/probe.txt" });
+		expect(bashRedirectOutside.allowed).toBe(false);
+		expect(bashRedirectOutside.requiresUserConfirmation).toBe(true);
+
+		const bashFindRoot = policy.checkToolCall("bash", { command: "find /" });
+		expect(bashFindRoot.allowed).toBe(false);
+		expect(bashFindRoot.requiresUserConfirmation).toBe(true);
+
+		const bashRmLocal = policy.checkToolCall("bash", { command: "rm -rf ~/.local/share" });
+		expect(bashRmLocal.allowed).toBe(false);
+		expect(bashRmLocal.requiresUserConfirmation).toBe(true);
+
+		const bashRmRoot = policy.checkToolCall("bash", { command: "rm -rf /" });
+		expect(bashRmRoot.allowed).toBe(false);
+		expect(bashRmRoot.requiresUserConfirmation).toBe(true);
 	});
 
 	it("auto-approves safe reads and project file writes in AUTO-APPROVE mode", () => {
@@ -221,5 +247,117 @@ describe("1C Permission System", () => {
 		const result = await manager.handleToolCall({ toolName: "write", input: { path: "/tmp/foo.txt" } }, headlessCtx);
 		expect(result.block).toBe(true);
 		expect(result.reason).toContain("действие не подтверждено пользователем");
+	});
+
+	describe("isBashCommandOutsideProject", () => {
+		const projectRoot = "/project";
+
+		it("detects outside cwd", () => {
+			expect(isBashCommandOutsideProject("git status", projectRoot, "/tmp")).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/tmp" }),
+			);
+			expect(isBashCommandOutsideProject("git status", projectRoot, "/project/src")).toEqual({
+				isOutside: false,
+			});
+		});
+
+		it("detects tilde expansion (~, ~/)", () => {
+			expect(isBashCommandOutsideProject("rm -rf ~/.local/share", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "~/.local/share" }),
+			);
+			expect(isBashCommandOutsideProject("cat ~", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "~" }),
+			);
+		});
+
+		it(`detects $HOME and \${HOME} tokens`, () => {
+			const homeCurly = "${" + "HOME}";
+			expect(isBashCommandOutsideProject("cat $HOME/.bashrc", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "$HOME/.bashrc" }),
+			);
+			expect(isBashCommandOutsideProject(`cat ${homeCurly}/.bashrc`, projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: `${homeCurly}/.bashrc` }),
+			);
+		});
+
+		it("detects parent directory traversal (.., ../)", () => {
+			expect(isBashCommandOutsideProject("cd ..", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: ".." }),
+			);
+			expect(isBashCommandOutsideProject("cat ../sibling.txt", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "../sibling.txt" }),
+			);
+			// Traversal within project from subfolder is allowed
+			expect(isBashCommandOutsideProject("cat ../file.txt", projectRoot, "/project/subdir")).toEqual({
+				isOutside: false,
+			});
+			// git range or commit references with double-dot are not parent traversal
+			expect(isBashCommandOutsideProject("git diff v1.0..v2.0", projectRoot)).toEqual({
+				isOutside: false,
+			});
+		});
+
+		it("detects file redirects (>, >>, <) outside project", () => {
+			expect(isBashCommandOutsideProject("echo probe > /tmp/probe.txt", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/tmp/probe.txt" }),
+			);
+			expect(isBashCommandOutsideProject("echo probe >> /tmp/append.txt", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/tmp/append.txt" }),
+			);
+			expect(isBashCommandOutsideProject("cat < /etc/passwd", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/etc/passwd" }),
+			);
+			// Redirect inside project is allowed
+			expect(isBashCommandOutsideProject("echo probe > /project/probe.txt", projectRoot)).toEqual({
+				isOutside: false,
+			});
+			expect(isBashCommandOutsideProject("echo probe > probe.txt", projectRoot)).toEqual({
+				isOutside: false,
+			});
+		});
+
+		it("detects root token '/' and absolute paths outside project", () => {
+			expect(isBashCommandOutsideProject("find /", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/" }),
+			);
+			expect(isBashCommandOutsideProject("ls /", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/" }),
+			);
+			expect(isBashCommandOutsideProject("cd /", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/" }),
+			);
+			expect(isBashCommandOutsideProject("cat /etc/shadow", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/etc/shadow" }),
+			);
+		});
+
+		it("allows standard system utilities in command position", () => {
+			expect(isBashCommandOutsideProject("/bin/ls -la", projectRoot)).toEqual({
+				isOutside: false,
+			});
+			expect(isBashCommandOutsideProject("/usr/bin/find . -name '*.bsl'", projectRoot)).toEqual({
+				isOutside: false,
+			});
+			expect(isBashCommandOutsideProject("/usr/local/bin/node index.js", projectRoot)).toEqual({
+				isOutside: false,
+			});
+			// Non-system binary outside project in command position is rejected
+			expect(isBashCommandOutsideProject("/tmp/mybin", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/tmp/mybin" }),
+			);
+			// System binary with outside argument is rejected
+			expect(isBashCommandOutsideProject("/bin/cat /etc/passwd", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/etc/passwd" }),
+			);
+		});
+
+		it("inspects chained commands and subshells", () => {
+			expect(isBashCommandOutsideProject("git status && ls /", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/" }),
+			);
+			expect(isBashCommandOutsideProject("bash -c 'echo probe > /tmp/test'", projectRoot)).toEqual(
+				expect.objectContaining({ isOutside: true, target: "/tmp/test" }),
+			);
+		});
 	});
 });

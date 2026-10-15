@@ -12,6 +12,7 @@ import {
 	resolveSkillScript,
 	runSkill,
 	type SkillCommandExecutor,
+	translateFormCompileArgs,
 	validateFormArtifact,
 } from "../src/skills/index.ts";
 import { resolveSkillsDir } from "../src/toolchain/index.ts";
@@ -246,6 +247,213 @@ describe("Epic 2: 1C Skills & Form Compilation", () => {
 				expect(extractOutputPath({ outputPath: "/path/to/Form.xml" })).toBe("/path/to/Form.xml");
 				expect(extractOutputPath(["-FromObject", "-OutputPath", "/path/to/Form.xml"])).toBe("/path/to/Form.xml");
 				expect(extractOutputPath(["-FromObject", "-outputpath=/path/to/Form.xml"])).toBe("/path/to/Form.xml");
+			});
+		});
+
+		describe("Domain parameter translation for form-compile (Defect D2)", () => {
+			it("translates domain parameters for Catalog with Purpose 'Object' into canonical flags", async () => {
+				const domainArgs = {
+					Src: "src",
+					Type: "Catalog",
+					Name: "Номенклатура",
+					Purpose: "Object",
+				};
+
+				const translated = translateFormCompileArgs(domainArgs);
+				expect(translated).toEqual({
+					FromObject: true,
+					ObjectPath: "src/Catalogs/Номенклатура.xml",
+					OutputPath: "src/Catalogs/Номенклатура/Forms/ФормаЭлемента/Ext/Form.xml",
+					Purpose: "Object",
+				});
+				expect(translated).not.toHaveProperty("Src");
+				expect(translated).not.toHaveProperty("Type");
+				expect(translated).not.toHaveProperty("Name");
+
+				const mockExecutor: SkillCommandExecutor = vi.fn(async (_cmd, _args, _cwd) => ({
+					stdout: "Form compiled successfully",
+					stderr: "",
+					exitCode: 0,
+				}));
+
+				const result = await runSkill(
+					{
+						skill: "form-compile",
+						args: domainArgs,
+					},
+					{
+						skillsDir,
+						executor: mockExecutor,
+					},
+				);
+
+				expect(result.success).toBe(true);
+				expect(result.args).toEqual([
+					"-FromObject",
+					"-ObjectPath",
+					"src/Catalogs/Номенклатура.xml",
+					"-OutputPath",
+					"src/Catalogs/Номенклатура/Forms/ФормаЭлемента/Ext/Form.xml",
+					"-Purpose",
+					"Object",
+				]);
+				expect(mockExecutor).toHaveBeenCalledWith(
+					expect.stringMatching(/python3/),
+					[
+						expect.stringContaining("form-compile.py"),
+						"-FromObject",
+						"-ObjectPath",
+						"src/Catalogs/Номенклатура.xml",
+						"-OutputPath",
+						"src/Catalogs/Номенклатура/Forms/ФормаЭлемента/Ext/Form.xml",
+						"-Purpose",
+						"Object",
+					],
+					expect.any(String),
+					undefined,
+				);
+			});
+
+			it("applies default values when Src and Purpose are omitted", () => {
+				const translated = translateFormCompileArgs({
+					Type: "Catalog",
+					Name: "Товары",
+				});
+
+				expect(translated).toEqual({
+					FromObject: true,
+					ObjectPath: "src/Catalogs/Товары.xml",
+					OutputPath: "src/Catalogs/Товары/Forms/ФормаЭлемента/Ext/Form.xml",
+					Purpose: "Item",
+				});
+			});
+
+			it("computes default form name for Catalog Folder and List purposes", () => {
+				const folder = translateFormCompileArgs({
+					Type: "Catalog",
+					Name: "Номенклатура",
+					Purpose: "Folder",
+				});
+				expect(folder.OutputPath).toBe("src/Catalogs/Номенклатура/Forms/ФормаГруппы/Ext/Form.xml");
+				expect(folder.Purpose).toBe("Folder");
+
+				const list = translateFormCompileArgs({
+					Type: "Catalog",
+					Name: "Номенклатура",
+					Purpose: "List",
+				});
+				expect(list.OutputPath).toBe("src/Catalogs/Номенклатура/Forms/ФормаСписка/Ext/Form.xml");
+				expect(list.Purpose).toBe("List");
+			});
+
+			it("translates domain parameters for Document (defaults to ФормаДокумента and Item)", () => {
+				const translated = translateFormCompileArgs({
+					Src: "app/src",
+					Type: "Document",
+					Name: "РасходнаяНакладная",
+				});
+
+				expect(translated).toEqual({
+					FromObject: true,
+					ObjectPath: "app/src/Documents/РасходнаяНакладная.xml",
+					OutputPath: "app/src/Documents/РасходнаяНакладная/Forms/ФормаДокумента/Ext/Form.xml",
+					Purpose: "Item",
+				});
+			});
+
+			it("translates domain parameters for InformationRegister and Record (defaults to ФормаЗаписи)", () => {
+				const reg = translateFormCompileArgs({
+					Type: "InformationRegister",
+					Name: "ЦеныНоменклатуры",
+				});
+				expect(reg).toEqual({
+					FromObject: true,
+					ObjectPath: "src/InformationRegisters/ЦеныНоменклатуры.xml",
+					OutputPath: "src/InformationRegisters/ЦеныНоменклатуры/Forms/ФормаЗаписи/Ext/Form.xml",
+				});
+
+				const rec = translateFormCompileArgs({
+					Type: "Record",
+					Name: "КурсыВалют",
+				});
+				expect(rec).toEqual({
+					FromObject: true,
+					ObjectPath: "src/Records/КурсыВалют.xml",
+					OutputPath: "src/Records/КурсыВалют/Forms/ФормаЗаписи/Ext/Form.xml",
+				});
+			});
+
+			it("preserves transparent passthrough of canonical parameters (-FromObject, -ObjectPath, -OutputPath)", async () => {
+				const canonicalArgs = {
+					FromObject: true,
+					ObjectPath: "custom/path.xml",
+					OutputPath: "custom/Form.xml",
+					Purpose: "Item",
+				};
+
+				const translated = translateFormCompileArgs(canonicalArgs);
+				expect(translated).toEqual(canonicalArgs);
+
+				const arrayArgs = ["-FromObject", "-ObjectPath", "custom/path.xml", "-OutputPath", "custom/Form.xml"];
+				const mockExecutor: SkillCommandExecutor = vi.fn(async () => ({
+					stdout: "",
+					stderr: "",
+					exitCode: 0,
+				}));
+
+				const result = await runSkill(
+					{
+						skill: "form-compile",
+						args: arrayArgs,
+					},
+					{
+						skillsDir,
+						executor: mockExecutor,
+					},
+				);
+
+				expect(result.args).toEqual(arrayArgs);
+			});
+
+			it("removes domain parameter keys (Src, Type, Name) and retains custom CLI options (e.g. Preset)", () => {
+				const translated = translateFormCompileArgs({
+					Src: "src",
+					Type: "Catalog",
+					Name: "Товары",
+					Preset: "erp-standard",
+				});
+
+				expect(translated).toEqual({
+					Preset: "erp-standard",
+					FromObject: true,
+					ObjectPath: "src/Catalogs/Товары.xml",
+					OutputPath: "src/Catalogs/Товары/Forms/ФормаЭлемента/Ext/Form.xml",
+					Purpose: "Item",
+				});
+				expect(translated).not.toHaveProperty("Src");
+				expect(translated).not.toHaveProperty("Type");
+				expect(translated).not.toHaveProperty("Name");
+			});
+
+			it("resolves nested object path if present on disk", () => {
+				const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "fc-nested-"));
+				try {
+					const nestedDir = path.join(tmpDir, "src", "Catalogs", "Items", "Items.xml");
+					fs.mkdirSync(path.dirname(nestedDir), { recursive: true });
+					fs.writeFileSync(nestedDir, "<xml/>", "utf8");
+
+					const translated = translateFormCompileArgs(
+						{
+							Type: "Catalog",
+							Name: "Items",
+						},
+						tmpDir,
+					);
+
+					expect(translated.ObjectPath).toBe("src/Catalogs/Items/Items.xml");
+				} finally {
+					fs.rmSync(tmpDir, { recursive: true, force: true });
+				}
 			});
 		});
 

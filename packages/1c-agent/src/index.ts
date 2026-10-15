@@ -117,6 +117,9 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 		pi.on("session_start", async (_event: SessionStartEvent, ctx: ExtensionContext) => {
 			modeManager.initializeTools();
 			modeManager.updateUI(ctx);
+			if (ctx.cwd) {
+				permissionManager.getPolicy().setProjectRoot(ctx.cwd);
+			}
 			permissionManager.updateUI(ctx);
 
 			// Automatically start LSP if 1C files/projects are detected
