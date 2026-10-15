@@ -265,7 +265,7 @@ describe("Coding Agent Tools", () => {
 			const result = await writeTool.execute("test-call-3", { path: testFile, content });
 
 			expect(getTextOutput(result)).toBe(`Successfully wrote to ${testFile}`);
-			expect(result.details).toBeUndefined();
+			expect(result.details).toEqual({ ranges: [{ startLine: 1, endLine: 1 }] });
 		});
 
 		it("should create parent directories", async () => {
@@ -1423,5 +1423,35 @@ describe("edit tool CRLF handling", () => {
 
 		const content = readFileSync(testFile, "utf-8");
 		expect(content).toBe("\uFEFFfirst\r\nSECOND\r\nthird\r\nFOURTH\r\n");
+	});
+
+	it("returns 1-based changed line ranges in edit tool details", async () => {
+		const testFile = join(testDir, "ranges-edit-test.txt");
+		writeFileSync(testFile, "line1\nline2\nline3\nline4\nline5\n");
+
+		const result = await editTool.execute("test-edit-ranges", {
+			path: testFile,
+			edits: [
+				{ oldText: "line2\n", newText: "NEW2A\nNEW2B\n" },
+				{ oldText: "line4\n", newText: "NEW4\n" },
+			],
+		});
+
+		expect(result.details).toBeDefined();
+		expect(result.details?.ranges).toEqual([
+			{ startLine: 2, endLine: 3 },
+			{ startLine: 5, endLine: 5 },
+		]);
+	});
+
+	it("returns line ranges in write tool details", async () => {
+		const testFile = join(testDir, "ranges-write-test.txt");
+		const result = await writeTool.execute("test-write-ranges", {
+			path: testFile,
+			content: "line1\nline2\nline3\n",
+		});
+
+		expect(result.details).toBeDefined();
+		expect(result.details?.ranges).toEqual([{ startLine: 1, endLine: 3 }]);
 	});
 });

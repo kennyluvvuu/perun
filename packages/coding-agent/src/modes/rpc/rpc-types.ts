@@ -70,6 +70,9 @@ export type RpcCommand =
 	// Messages
 	| { id?: string; type: "get_messages" }
 
+	// Feedback
+	| { id?: string; type: "submit_feedback"; feedback: Record<string, unknown> }
+
 	// Commands (available for invocation via prompt)
 	| { id?: string; type: "get_commands" };
 
@@ -239,6 +242,15 @@ export type RpcResponse =
 			command: "get_commands";
 			success: true;
 			data: { commands: RpcSlashCommand[] };
+	  }
+
+	// Feedback
+	| {
+			id?: string;
+			type: "response";
+			command: "submit_feedback";
+			success: true;
+			data: { received: true };
 	  }
 
 	// Error response (any command can fail)

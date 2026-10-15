@@ -160,6 +160,7 @@ export interface ResourceLoader {
 	getSystemPromptSource(): { path: string } | undefined;
 	getAppendSystemPrompt(): string[];
 	getAppendSystemPromptSources(): Array<{ path: string }>;
+	getEventBus?(): EventBus;
 	extendResources(paths: ResourceExtensionPaths): void;
 	reload(options?: ResourceLoaderReloadOptions): Promise<void>;
 }
@@ -460,6 +461,10 @@ export class DefaultResourceLoader implements ResourceLoader {
 
 	getAppendSystemPromptSources(): Array<{ path: string }> {
 		return this.appendSystemPromptSourcePaths.map((path) => ({ path }));
+	}
+
+	getEventBus(): EventBus {
+		return this.eventBus;
 	}
 
 	extendResources(paths: ResourceExtensionPaths): void {

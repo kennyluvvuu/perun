@@ -1,6 +1,6 @@
 {
 	"name": "@earendil-works/pi-1c-agent",
-	"version": "0.1.5",
+	"version": "0.1.9",
 	"description": "1C AI agent extension with BSL LSP feedback, Deep Code Navigator, ITS Auto-Fixer, Subagents, and Modes",
 	"type": "module",
 	"private": true,
