@@ -1,6 +1,8 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import type {
+	AgentEndEvent,
+	AgentSettledEvent,
 	BeforeAgentStartEvent,
 	BeforeAgentStartEventResult,
 	ExtensionAPI,
@@ -18,6 +20,7 @@ import { generateDocsForDiff, registerGitTools } from "./git/index.ts";
 import { BslLspClient, InlineFeedbackHandler } from "./lsp/index.ts";
 import { ModeManager } from "./modes/index.ts";
 import { registerNavigatorTools } from "./navigator/index.ts";
+import { PerunNotifyClient } from "./notify/index.ts";
 import { PermissionManager } from "./permissions/index.ts";
 import { registerSkillTools } from "./skills/index.ts";
 import { registerSubagentTools } from "./subagents/index.ts";
@@ -31,6 +34,7 @@ export * from "./git/index.ts";
 export * from "./lsp/index.ts";
 export * from "./modes/index.ts";
 export * from "./navigator/index.ts";
+export * from "./notify/index.ts";
 export * from "./permissions/index.ts";
 export * from "./skills/index.ts";
 export * from "./subagents/index.ts";
@@ -50,6 +54,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 		lspClient: BslLspClient;
 		inlineFeedback: InlineFeedbackHandler;
 		permissionManager: PermissionManager;
+		notifyClient?: PerunNotifyClient;
 	} {
 		const projectRoot = options.projectRoot || process.cwd();
 		const modeManager = new ModeManager(pi, options.initialMode || "write");
@@ -61,6 +66,49 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			bslAnalyzerPath: options.bslAnalyzerPath,
 		});
 		const permissionManager = new PermissionManager("auto-approve", projectRoot);
+
+		let activeCtx: ExtensionContext | undefined;
+		let notifyClient: PerunNotifyClient | undefined;
+
+		const notifyUrl = process.env.PERUN_NOTIFY_URL;
+		const notifySecret = process.env.PERUN_NOTIFY_SECRET;
+		if (notifyUrl && notifySecret) {
+			const notifySession = process.env.PERUN_NOTIFY_SESSION || path.basename(projectRoot);
+			notifyClient = new PerunNotifyClient({
+				url: notifyUrl,
+				secret: notifySecret,
+				session: notifySession,
+				onError: (message) => {
+					if (activeCtx?.mode === "tui" || activeCtx?.mode === "rpc") {
+						activeCtx.ui.notify(message, "warning");
+					} else {
+						process.stderr.write(`[Perun] ${message}\n`);
+					}
+				},
+			});
+
+			permissionManager.setRemoteConfirm((title, message, signal) =>
+				notifyClient!.askConfirm(title, message, signal),
+			);
+
+			pi.on("agent_end", (event: AgentEndEvent) => {
+				const lastAssistant = event.messages
+					?.slice()
+					.reverse()
+					.find((m) => (m as { role?: string })?.role === "assistant");
+				notifyClient!.notify({
+					type: "agent_end",
+					messages: lastAssistant ? [lastAssistant] : [],
+				});
+			});
+
+			pi.on("agent_settled", (event: AgentSettledEvent) => {
+				notifyClient!.notify({
+					type: "agent_settled",
+					aborted: Boolean(event.aborted),
+				});
+			});
+		}
 
 		// 1. Register tools
 		registerNavigatorTools(pi, lspClient, projectRoot);
@@ -138,6 +186,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 
 		// 6. Lifecycle event: session_start
 		pi.on("session_start", async (_event: SessionStartEvent, ctx: ExtensionContext) => {
+			activeCtx = ctx;
 			modeManager.initializeTools();
 			modeManager.updateUI(ctx);
 			if (ctx.cwd) {
@@ -154,6 +203,9 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 
 		// 7. Lifecycle event: session_shutdown
 		pi.on("session_shutdown", async () => {
+			if (notifyClient) {
+				await notifyClient.flush().catch(() => {});
+			}
 			await lspClient.stop().catch(() => {});
 		});
 
@@ -254,6 +306,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			lspClient,
 			inlineFeedback,
 			permissionManager,
+			notifyClient,
 		};
 	};
 }
