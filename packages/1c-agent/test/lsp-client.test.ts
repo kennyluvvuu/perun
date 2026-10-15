@@ -138,8 +138,9 @@ describe("BslLspClient", () => {
 		});
 
 		const result = await waitPromise;
-		expect(result).toHaveLength(1);
-		expect(result[0].message).toBe("Тестовое предупреждение");
+		expect(result.timedOut).toBe(false);
+		expect(result.diagnostics).toHaveLength(1);
+		expect(result.diagnostics[0].message).toBe("Тестовое предупреждение");
 	});
 
 	it("times out gracefully in waitForDiagnostics returning current cached state", async () => {
@@ -148,6 +149,7 @@ describe("BslLspClient", () => {
 
 		// Wait with 50ms timeout without publishing
 		const result = await client.waitForDiagnostics(filePath, 50);
-		expect(result).toEqual([]);
+		expect(result.timedOut).toBe(true);
+		expect(result.diagnostics).toEqual([]);
 	});
 });

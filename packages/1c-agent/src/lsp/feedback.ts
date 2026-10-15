@@ -83,7 +83,7 @@ export class InlineFeedbackHandler {
 	constructor(client: BslLspClient, options: InlineFeedbackOptions = {}) {
 		this.client = client;
 		this.options = {
-			waitForDiagnosticsTimeoutMs: options.waitForDiagnosticsTimeoutMs ?? 250,
+			waitForDiagnosticsTimeoutMs: options.waitForDiagnosticsTimeoutMs ?? 1500,
 			alwaysShowCleanNotice: options.alwaysShowCleanNotice ?? true,
 			bslAnalyzerPath: options.bslAnalyzerPath,
 		};
@@ -250,13 +250,35 @@ export class InlineFeedbackHandler {
 			await this.client.changeDocument(rawPath, updatedContent);
 
 			// Wait for diagnostics from bsl-analyzer
-			const diagnostics = await this.client.waitForDiagnostics(rawPath, this.options.waitForDiagnosticsTimeoutMs);
+			const result = await this.client.waitForDiagnostics(rawPath, this.options.waitForDiagnosticsTimeoutMs);
 
-			if (diagnostics.length === 0 && !this.options.alwaysShowCleanNotice) {
+			if (!result.timedOut) {
+				if (result.diagnostics.length === 0 && !this.options.alwaysShowCleanNotice) {
+					return undefined;
+				}
+
+				const feedbackText = formatDiagnostics(rawPath, result.diagnostics, "LSP");
+
+				return {
+					content: [...(event.content ?? []), { type: "text", text: feedbackText }],
+				};
+			}
+
+			// LSP timed out: fallback to CLI
+			const bslAnalyzer = resolveBslAnalyzerPath(this.options.bslAnalyzerPath ?? this.client.getExecutablePath());
+			if (!bslAnalyzer) {
+				const feedbackText = `\n[bsl-analyzer]: Статический анализ недоступен (LSP не ответил за ${this.options.waitForDiagnosticsTimeoutMs}ms, CLI недоступен)`;
+				return {
+					content: [...(event.content ?? []), { type: "text", text: feedbackText }],
+				};
+			}
+
+			const cliDiagnostics = await this.runCliAnalysis(bslAnalyzer, rawPath);
+			if (cliDiagnostics.length === 0 && !this.options.alwaysShowCleanNotice) {
 				return undefined;
 			}
 
-			const feedbackText = formatDiagnostics(rawPath, diagnostics, "LSP");
+			const feedbackText = formatDiagnostics(rawPath, cliDiagnostics, "CLI");
 
 			return {
 				content: [...(event.content ?? []), { type: "text", text: feedbackText }],
@@ -264,7 +286,7 @@ export class InlineFeedbackHandler {
 		}
 
 		// LSP client is not active: CLI-fallback
-		const bslAnalyzer = resolveBslAnalyzerPath(this.options.bslAnalyzerPath);
+		const bslAnalyzer = resolveBslAnalyzerPath(this.options.bslAnalyzerPath ?? this.client.getExecutablePath());
 		if (!bslAnalyzer) {
 			const feedbackText = "\n[bsl-analyzer]: Статический анализ недоступен (bsl-analyzer не обнаружен)";
 			return {

@@ -72,14 +72,17 @@ describe("Inline LSP Feedback", () => {
 
 		// Mock isReady and waitForDiagnostics to simulate bsl-analyzer LSP returning an error
 		vi.spyOn(client, "isReady").mockReturnValue(true);
-		vi.spyOn(client, "waitForDiagnostics").mockResolvedValue([
-			{
-				range: { start: { line: 4, character: 2 }, end: { line: 4, character: 20 } },
-				severity: 1,
-				code: "QueryInLoop",
-				message: "Запрос внутри цикла",
-			},
-		]);
+		vi.spyOn(client, "waitForDiagnostics").mockResolvedValue({
+			timedOut: false,
+			diagnostics: [
+				{
+					range: { start: { line: 4, character: 2 }, end: { line: 4, character: 20 } },
+					severity: 1,
+					code: "QueryInLoop",
+					message: "Запрос внутри цикла",
+				},
+			],
+		});
 
 		const event: ToolResultEvent = {
 			type: "tool_result",
@@ -110,7 +113,10 @@ describe("Inline LSP Feedback", () => {
 		const handler = new InlineFeedbackHandler(client, { alwaysShowCleanNotice: false });
 
 		vi.spyOn(client, "isReady").mockReturnValue(true);
-		vi.spyOn(client, "waitForDiagnostics").mockResolvedValue([]);
+		vi.spyOn(client, "waitForDiagnostics").mockResolvedValue({
+			timedOut: false,
+			diagnostics: [],
+		});
 
 		const event: ToolResultEvent = {
 			type: "tool_result",
@@ -202,7 +208,10 @@ describe("Inline LSP Feedback", () => {
 		const handler = new InlineFeedbackHandler(client);
 
 		vi.spyOn(client, "isReady").mockReturnValue(true);
-		vi.spyOn(client, "waitForDiagnostics").mockResolvedValue([]);
+		vi.spyOn(client, "waitForDiagnostics").mockResolvedValue({
+			timedOut: false,
+			diagnostics: [],
+		});
 
 		const event: ToolResultEvent = {
 			type: "tool_result",
@@ -219,6 +228,125 @@ describe("Inline LSP Feedback", () => {
 		const secondBlock = result?.content?.[1];
 		expect(secondBlock?.type).toBe("text");
 		if (secondBlock?.type === "text") {
+			expect(secondBlock.text).toContain("проверен. Ошибок синтаксиса и стандартов ИТС не обнаружено.");
+		}
+	});
+
+	it("falls back to CLI analysis when LSP times out (timedOut: true) without false clean notice", async () => {
+		const client = new BslLspClient({ projectPath: tempDir });
+		const handler = new InlineFeedbackHandler(client, { waitForDiagnosticsTimeoutMs: 1500 });
+
+		vi.spyOn(client, "isReady").mockReturnValue(true);
+		// LSP times out returning empty or stale diagnostics
+		vi.spyOn(client, "waitForDiagnostics").mockResolvedValue({
+			timedOut: true,
+			diagnostics: [],
+		});
+
+		const cliSpy = vi.spyOn(handler, "runCliAnalysis").mockResolvedValue([
+			{
+				range: { start: { line: 4, character: 2 }, end: { line: 4, character: 20 } },
+				severity: 1,
+				code: "QueryInLoop",
+				message: "Запрос в цикле запрещен стандартом ИТС",
+			},
+		]);
+
+		const resolverSpy = vi
+			.spyOn(toolchainResolver, "resolveBslAnalyzerPath")
+			.mockReturnValue("/mock/bin/bsl-analyzer");
+
+		try {
+			const event: ToolResultEvent = {
+				type: "tool_result",
+				toolName: "write",
+				toolCallId: "call_timeout_fallback",
+				input: { path: bslFile },
+				content: [{ type: "text", text: "Successfully saved DocumentPosting.bsl" }],
+				isError: false,
+				details: undefined,
+			};
+
+			const result = await handler.handleToolResult(event);
+			expect(cliSpy).toHaveBeenCalledWith("/mock/bin/bsl-analyzer", bslFile);
+			expect(result).toBeDefined();
+			expect(result?.content).toHaveLength(2);
+			const secondBlock = result?.content?.[1];
+			expect(secondBlock?.type).toBe("text");
+			if (secondBlock?.type === "text") {
+				expect(secondBlock.text).not.toContain("Ошибок синтаксиса и стандартов ИТС не обнаружено");
+				expect(secondBlock.text).toContain("[bsl-analyzer]: В файле");
+				expect(secondBlock.text).toContain("QueryInLoop");
+				expect(secondBlock.text).toContain("Запрос в цикле запрещен стандартом ИТС");
+			}
+		} finally {
+			resolverSpy.mockRestore();
+		}
+	});
+
+	it("reports static analysis unavailable when LSP times out and CLI is missing", async () => {
+		const client = new BslLspClient({ projectPath: tempDir });
+		const handler = new InlineFeedbackHandler(client, { waitForDiagnosticsTimeoutMs: 1500 });
+
+		vi.spyOn(client, "isReady").mockReturnValue(true);
+		vi.spyOn(client, "waitForDiagnostics").mockResolvedValue({
+			timedOut: true,
+			diagnostics: [],
+		});
+
+		const resolverSpy = vi.spyOn(toolchainResolver, "resolveBslAnalyzerPath").mockReturnValue(undefined);
+
+		try {
+			const event: ToolResultEvent = {
+				type: "tool_result",
+				toolName: "write",
+				toolCallId: "call_timeout_no_cli",
+				input: { path: bslFile },
+				content: [{ type: "text", text: "Saved file" }],
+				isError: false,
+				details: undefined,
+			};
+
+			const result = await handler.handleToolResult(event);
+			expect(result).toBeDefined();
+			const secondBlock = result?.content?.[1];
+			expect(secondBlock?.type).toBe("text");
+			if (secondBlock?.type === "text") {
+				expect(secondBlock.text).toContain(
+					"[bsl-analyzer]: Статический анализ недоступен (LSP не ответил за 1500ms, CLI недоступен)",
+				);
+			}
+		} finally {
+			resolverSpy.mockRestore();
+		}
+	});
+
+	it("returns confirmed clean notice when LSP responds in time without errors", async () => {
+		const client = new BslLspClient({ projectPath: tempDir });
+		const handler = new InlineFeedbackHandler(client);
+
+		vi.spyOn(client, "isReady").mockReturnValue(true);
+		vi.spyOn(client, "waitForDiagnostics").mockResolvedValue({
+			timedOut: false,
+			diagnostics: [],
+		});
+
+		const event: ToolResultEvent = {
+			type: "tool_result",
+			toolName: "write",
+			toolCallId: "call_ontime_clean",
+			input: { path: bslFile },
+			content: [{ type: "text", text: "Saved clean file" }],
+			isError: false,
+			details: undefined,
+		};
+
+		const result = await handler.handleToolResult(event);
+		expect(result).toBeDefined();
+		const secondBlock = result?.content?.[1];
+		expect(secondBlock?.type).toBe("text");
+		if (secondBlock?.type === "text") {
+			expect(secondBlock.text).toContain("[bsl-analyzer LSP]: Файл");
 			expect(secondBlock.text).toContain("проверен. Ошибок синтаксиса и стандартов ИТС не обнаружено.");
 		}
 	});

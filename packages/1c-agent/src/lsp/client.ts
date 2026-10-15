@@ -21,6 +21,11 @@ export interface BslLspClientOptions {
 	timeoutMs?: number;
 }
 
+export interface WaitForDiagnosticsResult {
+	readonly timedOut: boolean;
+	readonly diagnostics: readonly LspDiagnostic[];
+}
+
 export class BslLspClient {
 	private executablePath?: string;
 	private projectPath: string;
@@ -212,15 +217,15 @@ export class BslLspClient {
 		return this.diagnosticsCache.get(uri) ?? [];
 	}
 
-	public async waitForDiagnostics(filePath: string, timeoutMs = 300): Promise<readonly LspDiagnostic[]> {
+	public async waitForDiagnostics(filePath: string, timeoutMs = 1500): Promise<WaitForDiagnosticsResult> {
 		const uri = this.filePathToUri(filePath);
 
-		return new Promise<readonly LspDiagnostic[]>((resolve) => {
+		return new Promise<WaitForDiagnosticsResult>((resolve) => {
 			let timer: NodeJS.Timeout | null = null;
 
 			const onDiagnostics = (diagnostics: readonly LspDiagnostic[]) => {
 				if (timer) clearTimeout(timer);
-				resolve(diagnostics);
+				resolve({ timedOut: false, diagnostics });
 			};
 
 			const waiters = this.diagnosticWaiters.get(uri) ?? [];
@@ -233,7 +238,7 @@ export class BslLspClient {
 					uri,
 					currentWaiters.filter((w) => w !== onDiagnostics),
 				);
-				resolve(this.getDiagnostics(filePath));
+				resolve({ timedOut: true, diagnostics: this.getDiagnostics(filePath) });
 			}, timeoutMs);
 		});
 	}
