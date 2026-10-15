@@ -1,4 +1,4 @@
-export { BslLspClient, type BslLspClientOptions } from "./client.ts";
+export { BslLspClient, type BslLspClientOptions, type WaitForDiagnosticsResult } from "./client.ts";
 export {
 	formatDiagnostics,
 	formatSeverity,

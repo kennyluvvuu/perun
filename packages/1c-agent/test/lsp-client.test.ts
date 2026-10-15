@@ -1,8 +1,43 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { BslLspClient } from "../src/lsp/client.ts";
+import * as toolchainResolver from "../src/toolchain/resolver.ts";
 import type { LspDiagnostic } from "../src/types.ts";
 
 describe("BslLspClient", () => {
+	it("preserves explicitly provided executablePath in options", () => {
+		const client = new BslLspClient({ executablePath: "/custom/bsl-analyzer" });
+		expect(client.getExecutablePath()).toBe("/custom/bsl-analyzer");
+	});
+
+	it("returns false from start() when executablePath cannot be resolved", async () => {
+		const client = new BslLspClient({ projectPath: "/project" });
+		const resolverSpy = vi.spyOn(toolchainResolver, "resolveBslAnalyzerPath").mockReturnValue(undefined);
+
+		try {
+			const started = await client.start();
+			expect(started).toBe(false);
+			expect(client.isRunning()).toBe(false);
+		} finally {
+			resolverSpy.mockRestore();
+		}
+	});
+
+	it("lazily resolves executablePath when start() is called", async () => {
+		const client = new BslLspClient();
+		expect(client.getExecutablePath()).toBeUndefined();
+
+		const resolverSpy = vi
+			.spyOn(toolchainResolver, "resolveBslAnalyzerPath")
+			.mockReturnValue("/mock/bin/bsl-analyzer");
+
+		try {
+			const started = await client.start();
+			expect(client.getExecutablePath()).toBe("/mock/bin/bsl-analyzer");
+			expect(started).toBe(false);
+		} finally {
+			resolverSpy.mockRestore();
+		}
+	});
 	it("converts between file paths and file:// URIs correctly", () => {
 		const client = new BslLspClient({ projectPath: "/project/src" });
 
@@ -103,8 +138,9 @@ describe("BslLspClient", () => {
 		});
 
 		const result = await waitPromise;
-		expect(result).toHaveLength(1);
-		expect(result[0].message).toBe("Тестовое предупреждение");
+		expect(result.timedOut).toBe(false);
+		expect(result.diagnostics).toHaveLength(1);
+		expect(result.diagnostics[0].message).toBe("Тестовое предупреждение");
 	});
 
 	it("times out gracefully in waitForDiagnostics returning current cached state", async () => {
@@ -113,6 +149,7 @@ describe("BslLspClient", () => {
 
 		// Wait with 50ms timeout without publishing
 		const result = await client.waitForDiagnostics(filePath, 50);
-		expect(result).toEqual([]);
+		expect(result.timedOut).toBe(true);
+		expect(result.diagnostics).toEqual([]);
 	});
 });

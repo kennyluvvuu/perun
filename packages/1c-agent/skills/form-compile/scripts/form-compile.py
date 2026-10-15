@@ -11,7 +11,11 @@ import uuid
 import xml.etree.ElementTree as ET
 from collections import OrderedDict
 
-from lxml import etree
+try:
+    from lxml import etree
+except ImportError:
+    import xml.etree.ElementTree as etree
+
 
 # Регистронезависимый ввод — паритет с PS1: в PowerShell имена параметров и [ValidateSet]
 # регистр не различают, в argparse совпадение точное.
@@ -7386,6 +7390,15 @@ def main():
         if meta['Type'] not in supported:
             print(f"Object type '{meta['Type']}' not supported. Supported: Document, Catalog, InformationRegister, AccumulationRegister, ChartOfCharacteristicTypes, ExchangePlan, ChartOfAccounts.", file=sys.stderr)
             sys.exit(1)
+        # Alias Object -> Item for Catalog and Document; normalize case against supported
+        if meta['Type'] in ('Catalog', 'Document') and purpose.lower() == 'object':
+            purpose = 'Item'
+        else:
+            for s in supported[meta['Type']]:
+                if s.lower() == purpose.lower():
+                    purpose = s
+                    break
+
         if purpose not in supported[meta['Type']]:
             print(f"Purpose '{purpose}' not valid for {meta['Type']}. Valid: {', '.join(supported[meta['Type']])}", file=sys.stderr)
             sys.exit(1)
@@ -7702,6 +7715,34 @@ def main():
         os.makedirs(out_dir, exist_ok=True)
 
     content = sort_element_tag_order(normalize_enum_tags('\r\n'.join(lines)))
+
+    # --- Validate output XML (<ChildItems> invariant) ---
+    child_items_valid = False
+    validation_error = None
+    try:
+        root_el = etree.fromstring(content.encode('utf-8'))
+        child_items = None
+        for child in root_el:
+            tag = child.tag.split('}')[-1] if isinstance(child.tag, str) else ''
+            if tag == 'ChildItems':
+                child_items = child
+                break
+        if child_items is not None and len(child_items) > 0:
+            child_items_valid = True
+        else:
+            validation_error = "<ChildItems> is empty or missing"
+    except Exception as exc:
+        validation_error = f"XML parsing error: {exc}"
+
+    if not child_items_valid:
+        if os.path.exists(out_path):
+            try:
+                os.remove(out_path)
+            except OSError:
+                pass
+        print(f"[ERROR] Validation failed: Form.xml must contain non-empty <ChildItems> ({validation_error}): {out_path}", file=sys.stderr)
+        sys.exit(1)
+
     write_utf8_bom(out_path, content)
 
     # --- 4. Auto-register form in parent object XML ---

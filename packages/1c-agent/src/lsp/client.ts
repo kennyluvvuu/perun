@@ -21,11 +21,17 @@ export interface BslLspClientOptions {
 	timeoutMs?: number;
 }
 
+export interface WaitForDiagnosticsResult {
+	readonly timedOut: boolean;
+	readonly diagnostics: readonly LspDiagnostic[];
+}
+
 export class BslLspClient {
-	private readonly executablePath?: string;
+	private executablePath?: string;
 	private projectPath: string;
 	private readonly defaultTimeoutMs: number;
 	private process: ChildProcess | null = null;
+	private startingPromise: Promise<boolean> | null = null;
 	private nextRequestId = 1;
 	private readonly pendingRequests = new Map<
 		number | string,
@@ -42,9 +48,13 @@ export class BslLspClient {
 	private isInitialized = false;
 
 	constructor(options: BslLspClientOptions = {}) {
-		this.executablePath = resolveBslAnalyzerPath(options.executablePath);
+		this.executablePath = options.executablePath;
 		this.projectPath = options.projectPath || process.cwd();
 		this.defaultTimeoutMs = options.timeoutMs ?? 10000;
+	}
+
+	public getExecutablePath(): string | undefined {
+		return this.executablePath;
 	}
 
 	public isRunning(): boolean {
@@ -59,6 +69,19 @@ export class BslLspClient {
 		if (this.isRunning()) {
 			return true;
 		}
+		if (this.startingPromise) {
+			return this.startingPromise;
+		}
+		this.startingPromise = this.doStart(projectPath);
+		try {
+			return await this.startingPromise;
+		} finally {
+			this.startingPromise = null;
+		}
+	}
+
+	private async doStart(projectPath?: string): Promise<boolean> {
+		this.executablePath ??= resolveBslAnalyzerPath(this.executablePath);
 
 		if (!this.executablePath) {
 			return false;
@@ -194,15 +217,15 @@ export class BslLspClient {
 		return this.diagnosticsCache.get(uri) ?? [];
 	}
 
-	public async waitForDiagnostics(filePath: string, timeoutMs = 300): Promise<readonly LspDiagnostic[]> {
+	public async waitForDiagnostics(filePath: string, timeoutMs = 1500): Promise<WaitForDiagnosticsResult> {
 		const uri = this.filePathToUri(filePath);
 
-		return new Promise<readonly LspDiagnostic[]>((resolve) => {
+		return new Promise<WaitForDiagnosticsResult>((resolve) => {
 			let timer: NodeJS.Timeout | null = null;
 
 			const onDiagnostics = (diagnostics: readonly LspDiagnostic[]) => {
 				if (timer) clearTimeout(timer);
-				resolve(diagnostics);
+				resolve({ timedOut: false, diagnostics });
 			};
 
 			const waiters = this.diagnosticWaiters.get(uri) ?? [];
@@ -215,7 +238,7 @@ export class BslLspClient {
 					uri,
 					currentWaiters.filter((w) => w !== onDiagnostics),
 				);
-				resolve(this.getDiagnostics(filePath));
+				resolve({ timedOut: true, diagnostics: this.getDiagnostics(filePath) });
 			}, timeoutMs);
 		});
 	}

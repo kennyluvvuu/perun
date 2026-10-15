@@ -1,4 +1,5 @@
 import type { BslPatch, BslRuleViolation } from "../types.ts";
+import { matchesRuleId } from "./rules.ts";
 
 export function generateUnifiedDiff(filePath: string, original: string, modified: string, contextLines = 3): string {
 	if (original === modified) return "";
@@ -77,7 +78,7 @@ export function generatePatches(
 		const targetIndex = v.line - 1;
 		if (targetIndex < 0 || targetIndex >= lines.length) continue;
 
-		if (v.ruleId === "EmptyExcept") {
+		if (matchesRuleId(v.ruleId, "EmptyExcept")) {
 			// Find except line
 			const exceptLine = lines[targetIndex];
 			const indentMatch = /^\s*/.exec(exceptLine);
@@ -98,7 +99,7 @@ export function generatePatches(
 
 			content = newContent;
 			appliedCount++;
-		} else if (v.ruleId === "UnusedVariable") {
+		} else if (matchesRuleId(v.ruleId, "UnusedVariable")) {
 			const line = lines[targetIndex];
 			// Match variable name from message: 'Переменная 'X' объявлена...'
 			const nameMatch = /'([^']+)'/.exec(v.message);
@@ -141,7 +142,7 @@ export function generatePatches(
 				content = newContent;
 				appliedCount++;
 			}
-		} else if (v.ruleId === "MissingBSLDoc") {
+		} else if (matchesRuleId(v.ruleId, "MissingBSLDoc")) {
 			let insertIndex = targetIndex;
 			// If preceding non-empty line is a directive (&НаСервере etc.), place doc before the directive
 			while (insertIndex > 0 && lines[insertIndex - 1].trim().startsWith("&")) {
