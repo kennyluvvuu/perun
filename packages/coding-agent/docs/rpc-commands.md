@@ -833,6 +833,31 @@ Each command has:
 
 **Note**: Built-in TUI commands (`/settings`, `/hotkeys`, etc.) are not included. They are handled only in interactive mode and would not execute if sent via `prompt`.
 
+## Extension methods
+
+### extension_request
+
+Call a method exposed by an extension. Unlike slash commands, the method returns data in the response and does not touch the conversation.
+
+```json
+{"id": "req-1", "type": "extension_request", "method": "docs.search", "params": {"query": "Остаток"}}
+```
+
+Response:
+```json
+{
+  "id": "req-1",
+  "type": "response",
+  "command": "extension_request",
+  "success": true,
+  "data": {"hits": []}
+}
+```
+
+`data` is the JSON object returned by the extension. If no extension handles `method`, or the handler throws, the response has `success: false` and an `error` message.
+
+Extensions handle methods with `pi.on("extension_request", handler)`. The handler receives `{ method, params }` and returns an object for its own methods or `undefined` for methods it does not own. The first non-`undefined` result wins.
+
 ## Model object
 
 Model commands return the complete configured model definition. Costs are in US dollars per million tokens.

@@ -1435,13 +1435,27 @@ export type ExtensionEvent =
 	| InputEvent
 	| ToolCallEvent
 	| ToolResultEvent
-	| SubmitFeedbackEvent;
+	| SubmitFeedbackEvent
+	| ExtensionRequestEvent;
 
 /** Emitted when feedback is submitted via RPC or extension */
 export interface SubmitFeedbackEvent {
 	type: "submit_feedback";
 	feedback: Record<string, unknown>;
 }
+
+/** Emitted when an RPC client calls an extension method via the `extension_request` command */
+export interface ExtensionRequestEvent {
+	type: "extension_request";
+	method: string;
+	params: Record<string, unknown>;
+}
+
+/**
+ * Result from extension_request handler: the JSON object returned to the RPC client.
+ * Return undefined when the method belongs to another extension. Throw to answer with an error.
+ */
+export type ExtensionRequestEventResult = Record<string, unknown>;
 
 // ============================================================================
 // Event Results
@@ -1670,6 +1684,10 @@ export interface ExtensionAPI {
 	on(event: "user_bash", handler: ExtensionHandler<UserBashEvent, UserBashEventResult>): () => void;
 	on(event: "input", handler: ExtensionHandler<InputEvent, InputEventResult>): () => void;
 	on(event: "submit_feedback", handler: ExtensionHandler<SubmitFeedbackEvent>): () => void;
+	on(
+		event: "extension_request",
+		handler: ExtensionHandler<ExtensionRequestEvent, ExtensionRequestEventResult>,
+	): () => void;
 
 	// =========================================================================
 	// Tool Registration

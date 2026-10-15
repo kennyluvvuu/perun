@@ -460,6 +460,14 @@ export class RpcClient {
 		return this.getData<{ commands: RpcSlashCommand[] }>(response).commands;
 	}
 
+	/**
+	 * Call a method exposed by an extension via `pi.on("extension_request")`.
+	 */
+	async extensionRequest(method: string, params?: Record<string, unknown>): Promise<Record<string, unknown>> {
+		const response = await this.send({ type: "extension_request", method, params });
+		return this.getData<Record<string, unknown>>(response);
+	}
+
 	// =========================================================================
 	// Helpers
 	// =========================================================================

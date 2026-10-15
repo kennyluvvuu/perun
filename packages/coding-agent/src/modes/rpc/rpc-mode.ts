@@ -723,6 +723,22 @@ export async function runRpcMode(runtimeHost: AgentSessionRuntime): Promise<neve
 				return success(id, "submit_feedback", { received: true });
 			}
 
+			// =================================================================
+			// Extension methods
+			// =================================================================
+
+			case "extension_request": {
+				const data = await session.extensionRunner.emitExtensionRequest({
+					type: "extension_request",
+					method: command.method,
+					params: command.params ?? {},
+				});
+				if (data === undefined) {
+					return error(id, "extension_request", `Unknown extension method: ${command.method}`);
+				}
+				return success(id, "extension_request", data);
+			}
+
 			default: {
 				const unknownCommand = command as { type: string };
 				return error(id, unknownCommand.type, `Unknown command: ${unknownCommand.type}`);

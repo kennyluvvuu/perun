@@ -73,6 +73,9 @@ export type RpcCommand =
 	// Feedback
 	| { id?: string; type: "submit_feedback"; feedback: Record<string, unknown> }
 
+	// Extension methods
+	| { id?: string; type: "extension_request"; method: string; params?: Record<string, unknown> }
+
 	// Commands (available for invocation via prompt)
 	| { id?: string; type: "get_commands" };
 
@@ -251,6 +254,15 @@ export type RpcResponse =
 			command: "submit_feedback";
 			success: true;
 			data: { received: true };
+	  }
+
+	// Extension methods
+	| {
+			id?: string;
+			type: "response";
+			command: "extension_request";
+			success: true;
+			data: Record<string, unknown>;
 	  }
 
 	// Error response (any command can fail)
