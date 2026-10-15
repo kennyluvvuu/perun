@@ -57,17 +57,8 @@ export class ModeManager {
 			this.allKnownTools.add(t);
 		}
 
-		if (this.pi.setActiveTools) {
-			const allowedSet = new Set(config.allowedTools);
-			if (config.isReadOnly) {
-				const filtered = [...this.allKnownTools].filter((t) => allowedSet.has(t));
-				this.pi.setActiveTools(filtered.length > 0 ? filtered : [...config.allowedTools]);
-			} else {
-				// In write mode: restore full toolset
-				this.pi.setActiveTools([...this.allKnownTools]);
-			}
-		}
-
+		// Do not remove tools from the registry via setActiveTools to avoid toolset instability
+		// (e.g. "Tool bash not found" errors). Blocking is handled by checkToolCall.
 		this.updateUI(ctx);
 	}
 

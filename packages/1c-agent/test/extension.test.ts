@@ -1,4 +1,5 @@
 import * as fs from "node:fs";
+import * as os from "node:os";
 import * as path from "node:path";
 import type {
 	BeforeAgentStartEvent,
@@ -7,11 +8,12 @@ import type {
 	ResourcesDiscoverEvent,
 	SessionStartEvent,
 	ToolCallEvent,
+	ToolResultEvent,
 } from "@earendil-works/pi-coding-agent";
 import { describe, expect, it, vi } from "vitest";
-import { createOnecAgentExtension } from "../src/index.ts";
+import { createOnecAgentExtension, detect1cProject, type OnecAgentExtensionOptions } from "../src/index.ts";
 
-function setupExtensionTest() {
+function setupExtensionTest(options: OnecAgentExtensionOptions = { initialMode: "write" }) {
 	const registeredTools = new Map<string, any>();
 	const registeredCommands = new Map<string, any>();
 	const eventHandlers = new Map<string, Array<(...args: any[]) => any>>();
@@ -44,6 +46,7 @@ function setupExtensionTest() {
 			"1c_impact_analysis",
 			"1c_ast_symbols",
 			"1c_subagent",
+			"1c_skill_execute",
 		]),
 		setActiveTools: vi.fn(),
 	} as unknown as ExtensionAPI;
@@ -60,7 +63,7 @@ function setupExtensionTest() {
 		},
 	} as unknown as ExtensionContext;
 
-	const extension = createOnecAgentExtension({ initialMode: "write" });
+	const extension = createOnecAgentExtension(options);
 	const instance = extension(mockPi);
 
 	return {
@@ -85,6 +88,7 @@ describe("1C Agent Extension Integration", () => {
 		expect(registeredTools.has("bsl_fix_standards")).toBe(true);
 		expect(registeredTools.has("1c_subagent")).toBe(true);
 		expect(registeredTools.has("1c_vanessa")).toBe(true);
+		expect(registeredTools.has("1c_skill_execute")).toBe(true);
 
 		// Check commands and shortcut
 		expect(registeredCommands.has("mode")).toBe(true);
@@ -146,7 +150,7 @@ describe("1C Agent Extension Integration", () => {
 		});
 	});
 
-	it("injects mode instructions on before_agent_start", async () => {
+	it("injects mode instructions and security/language rules on before_agent_start", async () => {
 		const { instance, eventHandlers } = setupExtensionTest();
 		const beforeStartHandler = eventHandlers.get("before_agent_start")?.[0];
 		expect(beforeStartHandler).toBeDefined();
@@ -160,11 +164,20 @@ describe("1C Agent Extension Integration", () => {
 			systemPrompt: "Base prompt",
 			systemPromptOptions: {
 				promptGuidelines: [],
+				sections: {},
 			} as any,
 		};
 
 		await beforeStartHandler!(event);
 		expect(event.systemPromptOptions.promptGuidelines[0]).toContain("[РЕЖИМ: ОБЪЯСНИТЬ (DOCUMENT & EXPLAIN)]");
+		expect(event.systemPromptOptions.sections.onec_environment).toContain("ПИН ЯЗЫКА ОТВЕТА");
+		expect(event.systemPromptOptions.sections.onec_environment).toContain("ГРАНИЦЫ ЗАДАЧИ И АРТЕФАКТА");
+		expect(event.systemPromptOptions.sections.onec_environment).toContain(
+			"СТРОГИЙ ЗАПРЕТ СКАНИРОВАНИЯ ДИСКА И РЕВЕРС-ИНЖИНИРИНГА",
+		);
+		expect(event.systemPromptOptions.sections.onec_environment).toContain("find /");
+		expect(event.systemPromptOptions.sections.onec_environment).toContain("strings");
+		expect(event.systemPromptOptions.sections.onec_environment).toContain("otool");
 	});
 
 	it("initializes UI status on session_start", async () => {
@@ -176,5 +189,85 @@ describe("1C Agent Extension Integration", () => {
 
 		expect(ctx.ui.setStatus).toHaveBeenCalledWith("1c-mode", "[1C: НАПИСАТЬ]");
 		expect(ctx.ui.setStatus).toHaveBeenCalledWith("1c-permissions", "[Права: AUTO-APPROVE]");
+	});
+
+	it("detects 1C project with Configuration.xml, Configuration.mdo, and recursive .bsl/.os files", async () => {
+		const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "1c-detect-test-"));
+
+		try {
+			// Initially empty -> false
+			expect(await detect1cProject(tempDir)).toBe(false);
+
+			// Non-1C files -> false
+			await fs.promises.writeFile(path.join(tempDir, "package.json"), "{}");
+			await fs.promises.writeFile(path.join(tempDir, "index.ts"), "export {}");
+			expect(await detect1cProject(tempDir)).toBe(false);
+
+			// Configurator in src/: src/Configuration.xml -> true
+			const srcDir = path.join(tempDir, "src");
+			await fs.promises.mkdir(srcDir, { recursive: true });
+			const configXml = path.join(srcDir, "Configuration.xml");
+			await fs.promises.writeFile(configXml, "<MetaDataObject/>");
+			expect(await detect1cProject(tempDir)).toBe(true);
+
+			// Remove Configuration.xml
+			await fs.promises.unlink(configXml);
+			expect(await detect1cProject(tempDir)).toBe(false);
+
+			// EDT in src/: src/Configuration.mdo -> true
+			const configMdo = path.join(srcDir, "Configuration.mdo");
+			await fs.promises.writeFile(configMdo, "<mdclass:Configuration/>");
+			expect(await detect1cProject(tempDir)).toBe(true);
+
+			await fs.promises.unlink(configMdo);
+			expect(await detect1cProject(tempDir)).toBe(false);
+
+			// Recursive .bsl files at depth 2: src/Documents/Order.bsl -> true
+			const docsDir = path.join(srcDir, "Documents");
+			await fs.promises.mkdir(docsDir, { recursive: true });
+			const bslFile = path.join(docsDir, "Order.bsl");
+			await fs.promises.writeFile(bslFile, "Процедура Тест() КонецПроцедуры");
+			expect(await detect1cProject(tempDir)).toBe(true);
+		} finally {
+			await fs.promises.rm(tempDir, { recursive: true, force: true });
+		}
+	});
+
+	it("lazily starts LSP client upon writing .bsl file if not already running", async () => {
+		const tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), "1c-lazy-start-test-"));
+
+		try {
+			const { instance, eventHandlers } = setupExtensionTest({
+				projectRoot: tempDir,
+				initialMode: "write",
+			});
+
+			const startSpy = vi.spyOn(instance.lspClient, "start").mockResolvedValue(true);
+			vi.spyOn(instance.lspClient, "isReady").mockReturnValue(false);
+
+			// Create a .bsl file in the project
+			const bslPath = path.join(tempDir, "Module.bsl");
+			await fs.promises.writeFile(bslPath, "Процедура Тест() КонецПроцедуры");
+
+			const toolResultHandler = eventHandlers.get("tool_result")?.[0];
+			expect(toolResultHandler).toBeDefined();
+
+			const event: ToolResultEvent = {
+				type: "tool_result",
+				toolName: "write",
+				toolCallId: "call_lazy_1",
+				input: { path: bslPath },
+				content: [{ type: "text", text: "Successfully saved" }],
+				isError: false,
+				details: undefined,
+			};
+
+			await toolResultHandler!(event);
+
+			// LSP start should have been triggered
+			expect(startSpy).toHaveBeenCalledWith(tempDir);
+		} finally {
+			await fs.promises.rm(tempDir, { recursive: true, force: true });
+		}
 	});
 });

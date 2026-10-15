@@ -135,4 +135,91 @@ describe("1C Permission System", () => {
 		await commandHandler("yolo", ctx as unknown as ExtensionCommandContext);
 		expect(manager.getLevel()).toBe("yolo");
 	});
+
+	it("forces strict mode when target path is outside projectRoot across various input keys", () => {
+		const policy = new PermissionPolicy("auto-approve", "/project");
+
+		// file_path outside projectRoot
+		const filePathCheck = policy.checkToolCall("write", { file_path: "/opt/1cv8/test.bsl" });
+		expect(filePathCheck.allowed).toBe(false);
+		expect(filePathCheck.requiresUserConfirmation).toBe(true);
+		expect(filePathCheck.reason).toContain("/opt/1cv8/test.bsl");
+
+		// targetPath outside projectRoot
+		const targetPathCheck = policy.checkToolCall("write", { targetPath: "/tmp/gen.xml" });
+		expect(targetPathCheck.allowed).toBe(false);
+		expect(targetPathCheck.requiresUserConfirmation).toBe(true);
+
+		// outputPath outside projectRoot
+		const outputPathCheck = policy.checkToolCall("write", { outputPath: "/tmp/out.xml" });
+		expect(outputPathCheck.allowed).toBe(false);
+		expect(outputPathCheck.requiresUserConfirmation).toBe(true);
+
+		// cwd outside projectRoot for terminal commands
+		const cwdCheck = policy.checkToolCall("bash", { command: "ls", cwd: "/tmp" });
+		expect(cwdCheck.allowed).toBe(false);
+		expect(cwdCheck.requiresUserConfirmation).toBe(true);
+
+		// tilde expansion for ~/.local (incident E5)
+		const tildeCheck = policy.checkToolCall("edit", {
+			path: "~/.local/share/onescript/lib/v8find/src/Классы/Платформа1С.os",
+		});
+		expect(tildeCheck.allowed).toBe(false);
+		expect(tildeCheck.requiresUserConfirmation).toBe(true);
+
+		// relative path escaping project
+		const relEscapeCheck = policy.checkToolCall("edit", { path: "../outside/Module.bsl" });
+		expect(relEscapeCheck.allowed).toBe(false);
+		expect(relEscapeCheck.requiresUserConfirmation).toBe(true);
+
+		// 1c_vanessa with outside src requires confirmation even in auto-approve
+		const vanessaOutsideCheck = policy.checkToolCall("1c_vanessa", {
+			action: "load",
+			src: "/opt/external-src",
+		});
+		expect(vanessaOutsideCheck.allowed).toBe(false);
+		expect(vanessaOutsideCheck.requiresUserConfirmation).toBe(true);
+	});
+
+	it("supports confirmation via ctx.ui.askUser as well as ctx.ui.confirm", async () => {
+		const manager = new PermissionManager("auto-approve", "/project");
+
+		// Context with askUser instead of confirm
+		const askUserAcceptCtx = {
+			hasUI: true,
+			ui: {
+				askUser: vi.fn(async () => true),
+			},
+		} as unknown as ExtensionContext;
+
+		const resultAllowed = await manager.handleToolCall(
+			{ toolName: "write", input: { path: "/etc/passwd" } },
+			askUserAcceptCtx,
+		);
+		expect(resultAllowed.block).toBe(false);
+		expect((askUserAcceptCtx.ui as any).askUser).toHaveBeenCalled();
+
+		const askUserDenyCtx = {
+			hasUI: true,
+			ui: {
+				askUser: vi.fn(async () => false),
+			},
+		} as unknown as ExtensionContext;
+
+		const resultDenied = await manager.handleToolCall(
+			{ toolName: "write", input: { path: "/etc/passwd" } },
+			askUserDenyCtx,
+		);
+		expect(resultDenied.block).toBe(true);
+		expect(resultDenied.reason).toContain("действие не подтверждено пользователем");
+	});
+
+	it("blocks outside project writes when running headless without UI", async () => {
+		const manager = new PermissionManager("auto-approve", "/project");
+		const headlessCtx = { hasUI: false } as unknown as ExtensionContext;
+
+		const result = await manager.handleToolCall({ toolName: "write", input: { path: "/tmp/foo.txt" } }, headlessCtx);
+		expect(result.block).toBe(true);
+		expect(result.reason).toContain("действие не подтверждено пользователем");
+	});
 });

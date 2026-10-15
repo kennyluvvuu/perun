@@ -1,4 +1,5 @@
 import * as fs from "node:fs";
+import * as path from "node:path";
 import type {
 	BeforeAgentStartEvent,
 	BeforeAgentStartEventResult,
@@ -17,6 +18,7 @@ import { BslLspClient, InlineFeedbackHandler } from "./lsp/index.ts";
 import { ModeManager } from "./modes/index.ts";
 import { registerNavigatorTools } from "./navigator/index.ts";
 import { PermissionManager } from "./permissions/index.ts";
+import { registerSkillTools } from "./skills/index.ts";
 import { registerSubagentTools } from "./subagents/index.ts";
 import { resolveSkillsDir } from "./toolchain/index.ts";
 import type { AgentMode } from "./types.ts";
@@ -28,6 +30,7 @@ export * from "./lsp/index.ts";
 export * from "./modes/index.ts";
 export * from "./navigator/index.ts";
 export * from "./permissions/index.ts";
+export * from "./skills/index.ts";
 export * from "./subagents/index.ts";
 export * from "./toolchain/index.ts";
 export * from "./types.ts";
@@ -52,7 +55,9 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			executablePath: options.bslAnalyzerPath,
 			projectPath: projectRoot,
 		});
-		const inlineFeedback = new InlineFeedbackHandler(lspClient);
+		const inlineFeedback = new InlineFeedbackHandler(lspClient, {
+			bslAnalyzerPath: options.bslAnalyzerPath,
+		});
 		const permissionManager = new PermissionManager("auto-approve", projectRoot);
 
 		// 1. Register tools
@@ -60,6 +65,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 		registerAutofixTools(pi);
 		registerSubagentTools(pi);
 		registerVanessaTools(pi, projectRoot);
+		registerSkillTools(pi, projectRoot);
 		permissionManager.register(pi);
 
 		// 2. Discover built-in 1C skills
@@ -146,7 +152,11 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 				"  * 1c_impact_analysis: анализ влияния изменений на регистры и проведение документов.\n" +
 				"  * 1c_ast_symbols: быстрое извлечение AST-структуры модуля BSL (процедуры, функции, параметры, директивы компиляции &НаСервере/&НаКлиенте).\n" +
 				"- Субагенты (1c_subagent):\n" +
-				"  * Агент МОЖЕТ и ДОЛЖЕН вызывать субагентов через 1c_subagent для декомпозиции и параллельного/изолированного выполнения задач. Доступные роли: 1c-architect (архитектура метаданных), 1c-coder (написание BSL кода), 1c-tester (BDD-тесты Vanessa и YAXUnit), 1c-reviewer (аудит качества и стандартов ИТС).";
+				"  * Агент МОЖЕТ и ДОЛЖЕН вызывать субагентов через 1c_subagent для декомпозиции и параллельного/изолированного выполнения задач. Доступные роли: 1c-architect (архитектура метаданных), 1c-coder (написание BSL кода), 1c-tester (BDD-тесты Vanessa и YAXUnit), 1c-reviewer (аудит качества и стандартов ИТС).\n" +
+				"- БЕЗОПАСНОСТЬ ОКРУЖЕНИЯ, ЯЗЫК И ГРАНИЦЫ ЗАДАЧИ:\n" +
+				"  * ПИН ЯЗЫКА ОТВЕТА: Язык ответа обязан строго соответствовать языку пользовательского запроса; переключение языка запрещено (недопустим дрейф на китайский, английский или другие языки при запросе на русском).\n" +
+				"  * ГРАНИЦЫ ЗАДАЧИ И АРТЕФАКТА: Явно названный в запросе артефакт (файл, модуль, отчет) является жесткой границей задачи; смежные дефекты оформлять только как предложения, не вносить изменения самостоятельно без прямого указания пользователя.\n" +
+				"  * СТРОГИЙ ЗАПРЕТ СКАНИРОВАНИЯ ДИСКА И РЕВЕРС-ИНЖИНИРИНГА: Категорически запрещен тотальный поиск find / по всему диску; поиск файлов разрешен только внутри каталога проекта. Категорически запрещено дизассемблирование и реверс-инжиниринг бинарников платформы и утилит через strings, otool, чтение .res/.hbk.";
 
 			if (event.systemPromptOptions?.sections) {
 				event.systemPromptOptions.sections.onec_environment = envInjection;
@@ -163,7 +173,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			return undefined;
 		});
 
-		// 7. Hook: tool_call - mode isolation & permission system
+		// 9. Hook: tool_call - mode isolation & permission system
 		pi.on(
 			"tool_call",
 			async (event: ToolCallEvent, ctx: ExtensionContext): Promise<ToolCallEventResult | undefined> => {
@@ -186,8 +196,22 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			},
 		);
 
-		// 8. Hook: tool_result - inline LSP feedback on write/edit
+		// 10. Hook: tool_result - inline LSP feedback on write/edit
 		pi.on("tool_result", async (event: ToolResultEvent): Promise<ToolResultEventResult | undefined> => {
+			if (event.toolName === "write" || event.toolName === "edit") {
+				const rawPath =
+					(event.input as { path?: string; file_path?: string } | undefined)?.path ||
+					(event.input as { path?: string; file_path?: string } | undefined)?.file_path;
+				if (rawPath && typeof rawPath === "string" && inlineFeedback.isBslFile(rawPath)) {
+					if (!lspClient.isReady()) {
+						const has1c = await detect1cProject(projectRoot);
+						if (has1c) {
+							await lspClient.start(projectRoot).catch(() => {});
+						}
+					}
+				}
+			}
+
 			const feedback = await inlineFeedback.handleToolResult(event);
 			if (feedback?.content) {
 				return {
@@ -206,25 +230,54 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 	};
 }
 
-async function detect1cProject(directory: string): Promise<boolean> {
+async function checkDirectory(currentDir: string, currentDepth: number, maxDepth: number): Promise<boolean> {
+	let entries: fs.Dirent[];
 	try {
-		const items = await fs.promises.readdir(directory);
-		for (const item of items) {
-			const lower = item.toLowerCase();
+		entries = await fs.promises.readdir(currentDir, { withFileTypes: true });
+	} catch {
+		return false;
+	}
+
+	const skipDirs = new Set([".git", "node_modules", "dist", ".idea", ".vscode", "bin", "build"]);
+	const subdirs: string[] = [];
+
+	for (const entry of entries) {
+		const lower = entry.name.toLowerCase();
+
+		if (entry.isFile() || entry.isSymbolicLink()) {
 			if (
 				lower.endsWith(".bsl") ||
 				lower.endsWith(".os") ||
 				lower === "configuration.mdo" ||
+				lower === "configuration.xml" ||
 				lower === "bsl-analyzer.toml" ||
 				lower === ".project"
 			) {
 				return true;
 			}
+		} else if (entry.isDirectory()) {
+			if (!skipDirs.has(lower) && currentDepth < maxDepth) {
+				subdirs.push(path.join(currentDir, entry.name));
+			}
 		}
-	} catch {
-		// Ignore readdir error
 	}
+
+	for (const subdir of subdirs) {
+		const found = await checkDirectory(subdir, currentDepth + 1, maxDepth);
+		if (found) {
+			return true;
+		}
+	}
+
 	return false;
+}
+
+export async function detect1cProject(directory: string, maxDepth = 2): Promise<boolean> {
+	try {
+		return await checkDirectory(directory, 0, maxDepth);
+	} catch {
+		return false;
+	}
 }
 
 export default createOnecAgentExtension();

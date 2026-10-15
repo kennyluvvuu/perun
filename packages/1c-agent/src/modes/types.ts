@@ -12,7 +12,7 @@ export const READ_ONLY_TOOLS = [
 	"1c_subagent",
 ] as const;
 
-export const MUTATING_TOOLS = ["edit", "write", "bsl_fix_standards", "1c_vanessa"] as const;
+export const MUTATING_TOOLS = ["edit", "write", "bash", "bsl_fix_standards", "1c_vanessa", "1c_skill_execute"] as const;
 
 export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 	find: {
@@ -58,10 +58,12 @@ export const MODE_CONFIGS: Record<AgentMode, ModeConfig> = {
 			"find",
 			"grep",
 			"ls",
+			"bash",
 			"edit",
 			"write",
 			"bsl_fix_standards",
 			"1c_vanessa",
+			"1c_skill_execute",
 			"1c_call_hierarchy",
 			"1c_impact_analysis",
 			"1c_ast_symbols",

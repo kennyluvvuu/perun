@@ -35,32 +35,19 @@ export class PermissionManager {
 		ctx.ui.setStatus("1c-permissions", text);
 	}
 
+	public getProjectRoot(): string {
+		return this.policy.getProjectRoot();
+	}
+
+	public getPolicy(): PermissionPolicy {
+		return this.policy;
+	}
+
 	public async handleToolCall(
 		event: { toolName: string; input: Record<string, unknown> },
 		ctx?: ExtensionContext,
 	): Promise<{ block: boolean; reason?: string }> {
-		const check = this.policy.checkToolCall(event.toolName, event.input);
-		if (check.allowed) {
-			return { block: false };
-		}
-
-		if (check.requiresUserConfirmation) {
-			if (ctx?.ui && typeof ctx.ui.confirm === "function") {
-				const confirmed = await ctx.ui.confirm(
-					`[1C Безопасность]: Разрешить вызов инструмента '${event.toolName}'?`,
-					check.reason || `Инструмент: ${event.toolName}`,
-				);
-				if (confirmed) {
-					return { block: false };
-				}
-			}
-			return {
-				block: true,
-				reason: `Вызов '${event.toolName}' заблокирован: действие не подтверждено пользователем (${check.reason || this.policy.getLevel()}).`,
-			};
-		}
-
-		return { block: true, reason: check.reason || "Действие запрещено политикой безопасности." };
+		return this.policy.handleToolCall(event, ctx);
 	}
 
 	public register(pi: ExtensionAPI): void {
