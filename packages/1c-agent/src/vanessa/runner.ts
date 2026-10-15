@@ -76,6 +76,11 @@ export function buildVanessaArgs(
 	const args: string[] = [];
 	let trailingPositional: string | undefined;
 
+	const vrunnerVersion = resolver.resolveVrunnerVersion
+		? resolver.resolveVrunnerVersion(options.vrunnerPath)
+		: undefined;
+	const isVrunner2 = vrunnerVersion ? vrunnerVersion.startsWith("2.") : false;
+
 	switch (options.action) {
 		case "init-dev":
 		case "infobase-init":
@@ -132,6 +137,45 @@ export function buildVanessaArgs(
 			if (options.dbPassword) args.push("--db-pwd", options.dbPassword);
 			break;
 		}
+
+		case "xunit":
+		case "test-xunit": {
+			if (isVrunner2) {
+				args.push("xunit");
+			} else {
+				args.push("test", "xunit");
+			}
+			if (options.ibconnection) args.push("--ibconnection", options.ibconnection);
+			if (options.settings) args.push("--settings", options.settings);
+			if (options.dbUser) args.push("--db-user", options.dbUser);
+			if (options.dbPassword) args.push("--db-pwd", options.dbPassword);
+			if (options.pathxunit) args.push("--pathxunit", options.pathxunit);
+			const target = options.epf || options.src;
+			if (target) trailingPositional = target;
+			break;
+		}
+
+		case "run":
+		case "run-epf": {
+			if (isVrunner2) {
+				args.push("run");
+				const target = options.epf || options.src;
+				if (target) trailingPositional = target;
+				if (options.ibconnection) args.push("--ibconnection", options.ibconnection);
+				if (options.settings) args.push("--settings", options.settings);
+				if (options.dbUser) args.push("--db-user", options.dbUser);
+				if (options.dbPassword) args.push("--db-pwd", options.dbPassword);
+			} else {
+				args.push("run", "enterprise");
+				const target = options.epf || options.src;
+				if (target) args.push("--execute", target);
+				if (options.ibconnection) args.push("--ibconnection", options.ibconnection);
+				if (options.settings) args.push("--settings", options.settings);
+				if (options.dbUser) args.push("--db-user", options.dbUser);
+				if (options.dbPassword) args.push("--db-pwd", options.dbPassword);
+			}
+			break;
+		}
 	}
 
 	const hasAdditionalV8version = options.additionalArgs?.includes("--v8version");
@@ -153,6 +197,21 @@ export function buildVanessaArgs(
 				args.push("--ibcmd");
 			}
 		}
+	}
+
+	const hasAdditionalOrdinaryapp = options.additionalArgs?.includes("--ordinaryapp");
+	if (options.ordinaryapp && !args.includes("--ordinaryapp") && !hasAdditionalOrdinaryapp) {
+		args.push("--ordinaryapp");
+	} else if (
+		process.platform === "darwin" &&
+		(options.action === "run" ||
+			options.action === "run-epf" ||
+			options.action === "xunit" ||
+			options.action === "test-xunit") &&
+		!args.includes("--ordinaryapp") &&
+		!hasAdditionalOrdinaryapp
+	) {
+		args.push("--ordinaryapp");
 	}
 
 	if (options.additionalArgs && options.additionalArgs.length > 0) {
@@ -235,6 +294,18 @@ export async function runVanessaCommand(
 	const execResult = await executor(command, args, cwd, context.signal, env);
 	const success = execResult.exitCode === 0;
 
+	let errorMsg: string | undefined;
+	if (!success) {
+		const combined = `${execResult.stderr}\n${execResult.stdout}`;
+		if (combined.includes("Ошибка чтения параметров команды") || combined.includes("Команда верхнего уровня")) {
+			errorMsg = `Ошибка параметров vrunner. Использованная команда: ${command} ${args.join(" ")}. Проверьте версию vanessa-runner (для vrunner 3.x запуск тестов выполняется через 'test xunit', запуск обработки через 'run enterprise --execute'). Детали: ${execResult.stderr || execResult.stdout}`;
+		} else {
+			errorMsg =
+				execResult.stderr ||
+				`Команда завершилась с кодом ${execResult.exitCode !== null ? execResult.exitCode : "прервано/сигнал"}`;
+		}
+	}
+
 	return {
 		success,
 		action: options.action,
@@ -243,9 +314,6 @@ export async function runVanessaCommand(
 		stdout: execResult.stdout,
 		stderr: execResult.stderr,
 		exitCode: execResult.exitCode,
-		error: success
-			? undefined
-			: execResult.stderr ||
-				`Команда завершилась с кодом ${execResult.exitCode !== null ? execResult.exitCode : "прервано/сигнал"}`,
+		error: errorMsg,
 	};
 }

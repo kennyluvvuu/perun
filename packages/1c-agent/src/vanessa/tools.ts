@@ -9,12 +9,14 @@ export function registerVanessaTools(pi: ExtensionAPI, projectRoot?: string, exe
 		name: "1c_vanessa",
 		label: "1C Vanessa Tools",
 		description:
-			"Управление информационной базой 1С и BDD-тестированием через Vanessa Tools (vrunner 3.x + Vanessa Automation). " +
+			"Управление информационной базой 1С, BDD/xUnit-тестированием и запуском внешних обработок через Vanessa Tools (vrunner 3.x + Vanessa Automation / xUnitFor1C). " +
 			"Операции: 'init-dev'/'infobase-init' (создание dev-базы), 'load'/'cf-load' (загрузка исходников XML/EDT), " +
 			"'dump'/'cf-decompile' (выгрузка в файлы), 'updatedb'/'infobase-update' (применение изменений в БД), " +
-			"'test'/'test-vanessa' (запуск BDD feature-сценариев через Vanessa Automation).",
+			"'test'/'test-vanessa' (запуск BDD feature-сценариев через Vanessa Automation), " +
+			"'xunit'/'test-xunit' (запуск xUnit-тестов через внешнюю обработку .epf), " +
+			"'run'/'run-epf' (запуск внешней обработки .epf в 1С).",
 		promptSnippet:
-			"1c_vanessa: пакетное управление ИБ и BDD-тесты через Vanessa Tools (init-dev, load, dump, updatedb, test)",
+			"1c_vanessa: пакетное управление ИБ, BDD/xUnit тесты и запуск epf через Vanessa Tools (init-dev, load, dump, updatedb, test, xunit, run)",
 		parameters: Type.Object({
 			action: Type.Union(
 				[
@@ -29,15 +31,24 @@ export function registerVanessaTools(pi: ExtensionAPI, projectRoot?: string, exe
 					Type.Literal("infobase-update"),
 					Type.Literal("test"),
 					Type.Literal("test-vanessa"),
+					Type.Literal("xunit"),
+					Type.Literal("test-xunit"),
+					Type.Literal("run"),
+					Type.Literal("run-epf"),
 				],
 				{
 					description:
-						"Действие: 'init-dev'/'infobase-init' (создать ИБ), 'load'/'cf-load' (загрузить исходники), 'dump'/'cf-decompile' (выгрузить в файлы), 'updatedb'/'infobase-update' (обновить конфигурацию БД), 'test'/'test-vanessa' (запустить BDD-тесты).",
+						"Действие: 'init-dev'/'infobase-init' (создать ИБ), 'load'/'cf-load' (загрузить исходники), 'dump'/'cf-decompile' (выгрузить в файлы), 'updatedb'/'infobase-update' (обновить конфигурацию БД), 'test'/'test-vanessa' (запустить BDD-тесты), 'xunit'/'test-xunit' (запустить xUnit-тесты), 'run'/'run-epf' (запустить внешнюю обработку .epf).",
 				},
 			),
 			src: Type.Optional(
 				Type.String({
 					description: "Путь к каталогу исходников конфигурации XML/EDT (для init-dev, load, dump).",
+				}),
+			),
+			epf: Type.Optional(
+				Type.String({
+					description: "Путь к внешней обработке .epf (для action xunit или run)",
 				}),
 			),
 			ibconnection: Type.Optional(
