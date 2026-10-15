@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { chmodSync, copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { chmodSync, copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, unlinkSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -50,6 +50,11 @@ try {
 	});
 
 	if (result.outputFiles && result.outputFiles.length > 0) {
+		if (existsSync(outputFile)) {
+			try {
+				unlinkSync(outputFile);
+			} catch {}
+		}
 		writeFileSync(outputFile, result.outputFiles[0].contents);
 		try {
 			chmodSync(outputFile, 0o755);
@@ -100,10 +105,30 @@ try {
 		// Bun native binary compilation
 		const bunCandidate = process.env.BUN_PATH || (existsSync(join(homedir(), ".bun", "bin", "bun")) ? join(homedir(), ".bun", "bin", "bun") : "bun");
 		const bunBinaryOutput = join(onecAgentDir, "bin", "perun");
+
+		if (existsSync(bunBinaryOutput)) {
+			try {
+				unlinkSync(bunBinaryOutput);
+			} catch {}
+		}
 		console.log("Компиляция в нативный бинарник с помощью Bun...");
-		const bunProc = spawnSync(bunCandidate, ["build", "--compile", "--outfile", bunBinaryOutput, outputFile], {
-			stdio: "inherit",
-		});
+		const bunProc = spawnSync(
+			bunCandidate,
+			[
+				"build",
+				"--compile",
+				"--define",
+				'process.env.APP_NAME="perun"',
+				"--define",
+				`process.env.APP_VERSION="${onecPkg.version}"`,
+				"--outfile",
+				bunBinaryOutput,
+				outputFile,
+			],
+			{
+				stdio: "inherit",
+			},
+		);
 		if (bunProc.status === 0) {
 			try {
 				chmodSync(bunBinaryOutput, 0o755);

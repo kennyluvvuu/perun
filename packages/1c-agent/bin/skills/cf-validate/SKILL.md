@@ -23,6 +23,40 @@ allowed-tools:
 
 ## Команда
 
+Скрипт `scripts/cf-validate.py` является кроссплатформенным и не требует наличия pwsh или Windows.
+
+### Через инструмент 1c_skill_execute (рекомендуется)
+
+```json
+{
+  "skill": "cf-validate",
+  "args": {
+    "ConfigPath": "upload/cfempty"
+  }
+}
+```
+
+С дополнительными параметрами:
+```json
+{
+  "skill": "cf-validate",
+  "args": {
+    "ConfigPath": "upload/cfempty/Configuration.xml",
+    "Detailed": true,
+    "MaxErrors": 50
+  }
+}
+```
+
+### Через python3 (кроссплатформенно)
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/cf-validate.py" -ConfigPath "upload/cfempty"
+python3 "${CLAUDE_SKILL_DIR}/scripts/cf-validate.py" -ConfigPath "upload/cfempty/Configuration.xml"
+```
+
+### Через PowerShell
+
 ```powershell
 powershell.exe -NoProfile -File "${CLAUDE_SKILL_DIR}/scripts/cf-validate.ps1" -ConfigPath "upload/cfempty"
 powershell.exe -NoProfile -File "${CLAUDE_SKILL_DIR}/scripts/cf-validate.ps1" -ConfigPath "upload/cfempty/Configuration.xml"

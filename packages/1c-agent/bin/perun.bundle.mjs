@@ -49,28 +49,28 @@ var require_windows = __commonJS({
   "node_modules/isexe/windows.js"(exports, module) {
     module.exports = isexe;
     isexe.sync = sync;
-    var fs22 = __require("fs");
-    function checkPathExt(path23, options) {
+    var fs26 = __require("fs");
+    function checkPathExt(path28, options) {
       var pathext = options.pathExt !== void 0 ? options.pathExt : process.env.PATHEXT;
       if (!pathext || (pathext = pathext.split(";"), pathext.indexOf("") !== -1))
         return !0;
       for (var i2 = 0; i2 < pathext.length; i2++) {
         var p = pathext[i2].toLowerCase();
-        if (p && path23.substr(-p.length).toLowerCase() === p)
+        if (p && path28.substr(-p.length).toLowerCase() === p)
           return !0;
       }
       return !1;
     }
-    function checkStat(stat6, path23, options) {
-      return !stat6.isSymbolicLink() && !stat6.isFile() ? !1 : checkPathExt(path23, options);
+    function checkStat(stat6, path28, options) {
+      return !stat6.isSymbolicLink() && !stat6.isFile() ? !1 : checkPathExt(path28, options);
     }
-    function isexe(path23, options, cb) {
-      fs22.stat(path23, function(er, stat6) {
-        cb(er, er ? !1 : checkStat(stat6, path23, options));
+    function isexe(path28, options, cb) {
+      fs26.stat(path28, function(er, stat6) {
+        cb(er, er ? !1 : checkStat(stat6, path28, options));
       });
     }
-    function sync(path23, options) {
-      return checkStat(fs22.statSync(path23), path23, options);
+    function sync(path28, options) {
+      return checkStat(fs26.statSync(path28), path28, options);
     }
   }
 });
@@ -80,14 +80,14 @@ var require_mode = __commonJS({
   "node_modules/isexe/mode.js"(exports, module) {
     module.exports = isexe;
     isexe.sync = sync;
-    var fs22 = __require("fs");
-    function isexe(path23, options, cb) {
-      fs22.stat(path23, function(er, stat6) {
+    var fs26 = __require("fs");
+    function isexe(path28, options, cb) {
+      fs26.stat(path28, function(er, stat6) {
         cb(er, er ? !1 : checkStat(stat6, options));
       });
     }
-    function sync(path23, options) {
-      return checkStat(fs22.statSync(path23), options);
+    function sync(path28, options) {
+      return checkStat(fs26.statSync(path28), options);
     }
     function checkStat(stat6, options) {
       return stat6.isFile() && checkMode(stat6, options);
@@ -102,27 +102,27 @@ var require_mode = __commonJS({
 // node_modules/isexe/index.js
 var require_isexe = __commonJS({
   "node_modules/isexe/index.js"(exports, module) {
-    var fs22 = __require("fs"), core;
+    var fs26 = __require("fs"), core;
     process.platform === "win32" || global.TESTING_WINDOWS ? core = require_windows() : core = require_mode();
     module.exports = isexe;
     isexe.sync = sync;
-    function isexe(path23, options, cb) {
+    function isexe(path28, options, cb) {
       if (typeof options == "function" && (cb = options, options = {}), !cb) {
         if (typeof Promise != "function")
           throw new TypeError("callback not provided");
-        return new Promise(function(resolve22, reject) {
-          isexe(path23, options || {}, function(er, is) {
-            er ? reject(er) : resolve22(is);
+        return new Promise(function(resolve23, reject) {
+          isexe(path28, options || {}, function(er, is) {
+            er ? reject(er) : resolve23(is);
           });
         });
       }
-      core(path23, options || {}, function(er, is) {
+      core(path28, options || {}, function(er, is) {
         er && (er.code === "EACCES" || options && options.ignoreErrors) && (er = null, is = !1), cb(er, is);
       });
     }
-    function sync(path23, options) {
+    function sync(path28, options) {
       try {
-        return core.sync(path23, options || {});
+        return core.sync(path28, options || {});
       } catch (er) {
         if (options && options.ignoreErrors || er.code === "EACCES")
           return !1;
@@ -135,7 +135,7 @@ var require_isexe = __commonJS({
 // node_modules/which/which.js
 var require_which = __commonJS({
   "node_modules/which/which.js"(exports, module) {
-    var isWindows = process.platform === "win32" || process.env.OSTYPE === "cygwin" || process.env.OSTYPE === "msys", path23 = __require("path"), COLON2 = isWindows ? ";" : ":", isexe = require_isexe(), getNotFoundError2 = (cmd) => Object.assign(new Error(`not found: ${cmd}`), { code: "ENOENT" }), getPathInfo = (cmd, opt) => {
+    var isWindows = process.platform === "win32" || process.env.OSTYPE === "cygwin" || process.env.OSTYPE === "msys", path28 = __require("path"), COLON2 = isWindows ? ";" : ":", isexe = require_isexe(), getNotFoundError2 = (cmd) => Object.assign(new Error(`not found: ${cmd}`), { code: "ENOENT" }), getPathInfo = (cmd, opt) => {
       let colon = opt.colon || COLON2, pathEnv = cmd.match(/\//) || isWindows && cmd.match(/\\/) ? [""] : [
         // windows always checks the cwd first
         ...isWindows ? [process.cwd()] : [],
@@ -149,22 +149,22 @@ var require_which = __commonJS({
       };
     }, which = (cmd, opt, cb) => {
       typeof opt == "function" && (cb = opt, opt = {}), opt || (opt = {});
-      let { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt), found = [], step = (i2) => new Promise((resolve22, reject) => {
+      let { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt), found = [], step = (i2) => new Promise((resolve23, reject) => {
         if (i2 === pathEnv.length)
-          return opt.all && found.length ? resolve22(found) : reject(getNotFoundError2(cmd));
-        let ppRaw = pathEnv[i2], pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw, pCmd = path23.join(pathPart, cmd), p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
-        resolve22(subStep(p, i2, 0));
-      }), subStep = (p, i2, ii) => new Promise((resolve22, reject) => {
+          return opt.all && found.length ? resolve23(found) : reject(getNotFoundError2(cmd));
+        let ppRaw = pathEnv[i2], pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw, pCmd = path28.join(pathPart, cmd), p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
+        resolve23(subStep(p, i2, 0));
+      }), subStep = (p, i2, ii) => new Promise((resolve23, reject) => {
         if (ii === pathExt.length)
-          return resolve22(step(i2 + 1));
+          return resolve23(step(i2 + 1));
         let ext2 = pathExt[ii];
         isexe(p + ext2, { pathExt: pathExtExe }, (er, is) => {
           if (!er && is)
             if (opt.all)
               found.push(p + ext2);
             else
-              return resolve22(p + ext2);
-          return resolve22(subStep(p, i2, ii + 1));
+              return resolve23(p + ext2);
+          return resolve23(subStep(p, i2, ii + 1));
         });
       });
       return cb ? step(0).then((res) => cb(null, res), cb) : step(0);
@@ -172,7 +172,7 @@ var require_which = __commonJS({
       opt = opt || {};
       let { pathEnv, pathExt, pathExtExe } = getPathInfo(cmd, opt), found = [];
       for (let i2 = 0; i2 < pathEnv.length; i2++) {
-        let ppRaw = pathEnv[i2], pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw, pCmd = path23.join(pathPart, cmd), p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
+        let ppRaw = pathEnv[i2], pathPart = /^".*"$/.test(ppRaw) ? ppRaw.slice(1, -1) : ppRaw, pCmd = path28.join(pathPart, cmd), p = !pathPart && /^\.[\\\/]/.test(cmd) ? cmd.slice(0, 2) + pCmd : pCmd;
         for (let j2 = 0; j2 < pathExt.length; j2++) {
           let cur = p + pathExt[j2];
           try {
@@ -213,7 +213,7 @@ var require_path_key = __commonJS({
 var require_resolveCommand = __commonJS({
   "node_modules/cross-spawn/lib/util/resolveCommand.js"(exports, module) {
     "use strict";
-    var path23 = __require("path"), which = require_which(), getPathKey = require_path_key();
+    var path28 = __require("path"), which = require_which(), getPathKey = require_path_key();
     function resolveCommandAttempt(parsed, withoutPathExt) {
       let env3 = parsed.options.env || process.env, cwd = process.cwd(), hasCustomCwd = parsed.options.cwd != null, shouldSwitchCwd = hasCustomCwd && process.chdir !== void 0 && !process.chdir.disabled;
       if (shouldSwitchCwd)
@@ -225,13 +225,13 @@ var require_resolveCommand = __commonJS({
       try {
         resolved = which.sync(parsed.command, {
           path: env3[getPathKey({ env: env3 })],
-          pathExt: withoutPathExt ? path23.delimiter : void 0
+          pathExt: withoutPathExt ? path28.delimiter : void 0
         });
       } catch {
       } finally {
         shouldSwitchCwd && process.chdir(cwd);
       }
-      return resolved && (resolved = path23.resolve(hasCustomCwd ? parsed.options.cwd : "", resolved)), resolved;
+      return resolved && (resolved = path28.resolve(hasCustomCwd ? parsed.options.cwd : "", resolved)), resolved;
     }
     function resolveCommand(parsed) {
       return resolveCommandAttempt(parsed) || resolveCommandAttempt(parsed, !0);
@@ -273,7 +273,7 @@ var require_shebang_command = __commonJS({
       let match3 = string.match(shebangRegex);
       if (!match3)
         return null;
-      let [path23, argument] = match3[0].replace(/#! ?/, "").split(" "), binary = path23.split("/").pop();
+      let [path28, argument] = match3[0].replace(/#! ?/, "").split(" "), binary = path28.split("/").pop();
       return binary === "env" ? argument : argument ? `${binary} ${argument}` : binary;
     };
   }
@@ -283,11 +283,11 @@ var require_shebang_command = __commonJS({
 var require_readShebang = __commonJS({
   "node_modules/cross-spawn/lib/util/readShebang.js"(exports, module) {
     "use strict";
-    var fs22 = __require("fs"), shebangCommand = require_shebang_command();
+    var fs26 = __require("fs"), shebangCommand = require_shebang_command();
     function readShebang(command) {
       let buffer = Buffer.alloc(150), fd;
       try {
-        fd = fs22.openSync(command, "r"), fs22.readSync(fd, buffer, 0, 150, 0), fs22.closeSync(fd);
+        fd = fs26.openSync(command, "r"), fs26.readSync(fd, buffer, 0, 150, 0), fs26.closeSync(fd);
       } catch {
       }
       return shebangCommand(buffer.toString());
@@ -300,7 +300,7 @@ var require_readShebang = __commonJS({
 var require_parse = __commonJS({
   "node_modules/cross-spawn/lib/parse.js"(exports, module) {
     "use strict";
-    var path23 = __require("path"), resolveCommand = require_resolveCommand(), escape3 = require_escape(), readShebang = require_readShebang(), isWin = process.platform === "win32", isExecutableRegExp = /\.(?:com|exe)$/i, isCmdShimRegExp = /node_modules[\\/].bin[\\/][^\\/]+\.cmd$/i;
+    var path28 = __require("path"), resolveCommand = require_resolveCommand(), escape3 = require_escape(), readShebang = require_readShebang(), isWin = process.platform === "win32", isExecutableRegExp = /\.(?:com|exe)$/i, isCmdShimRegExp = /node_modules[\\/].bin[\\/][^\\/]+\.cmd$/i;
     function detectShebang(parsed) {
       parsed.file = resolveCommand(parsed);
       let shebang = parsed.file && readShebang(parsed.file);
@@ -312,7 +312,7 @@ var require_parse = __commonJS({
       let commandFile = detectShebang(parsed), needsShell = !isExecutableRegExp.test(commandFile);
       if (parsed.options.forceShell || needsShell) {
         let needsDoubleEscapeMetaChars = isCmdShimRegExp.test(commandFile);
-        parsed.command = path23.normalize(parsed.command), parsed.command = escape3.command(parsed.command), parsed.args = parsed.args.map((arg) => escape3.argument(arg, needsDoubleEscapeMetaChars));
+        parsed.command = path28.normalize(parsed.command), parsed.command = escape3.command(parsed.command), parsed.args = parsed.args.map((arg) => escape3.argument(arg, needsDoubleEscapeMetaChars));
         let shellCommand = [parsed.command].concat(parsed.args).join(" ");
         parsed.args = ["/d", "/s", "/c", `"${shellCommand}"`], parsed.command = process.env.comspec || "cmd.exe", parsed.options.windowsVerbatimArguments = !0;
       }
@@ -383,17 +383,17 @@ var require_cross_spawn = __commonJS({
   "node_modules/cross-spawn/index.js"(exports, module) {
     "use strict";
     var cp2 = __require("child_process"), parse3 = require_parse(), enoent = require_enoent();
-    function spawn16(command, args, options) {
+    function spawn18(command, args, options) {
       let parsed = parse3(command, args, options), spawned = cp2.spawn(parsed.command, parsed.args, parsed.options);
       return enoent.hookChildProcess(spawned, parsed), spawned;
     }
-    function spawnSync7(command, args, options) {
+    function spawnSync8(command, args, options) {
       let parsed = parse3(command, args, options), result = cp2.spawnSync(parsed.command, parsed.args, parsed.options);
       return result.error = result.error || enoent.verifyENOENTSync(result.status, parsed), result;
     }
-    module.exports = spawn16;
-    module.exports.spawn = spawn16;
-    module.exports.sync = spawnSync7;
+    module.exports = spawn18;
+    module.exports.spawn = spawn18;
+    module.exports.sync = spawnSync8;
     module.exports._parse = parse3;
     module.exports._enoent = enoent;
   }
@@ -411,11 +411,11 @@ function spawnProcessSync(command, args, options) {
   return process.platform === "win32" ? import_cross_spawn.default.sync(command, args, options) : nodeSpawnSync(command, args, options);
 }
 function waitForChildProcess(child) {
-  return new Promise((resolve22, reject) => {
+  return new Promise((resolve23, reject) => {
     let settled = !1, exited = !1, exitCode = null, postExitTimer, stdoutEnded = child.stdout === null, stderrEnded = child.stderr === null, cleanup = () => {
       postExitTimer && (clearTimeout(postExitTimer), postExitTimer = void 0), child.removeListener("error", onError), child.removeListener("exit", onExit), child.removeListener("close", onClose), child.stdout?.removeListener("end", onStdoutEnd), child.stderr?.removeListener("end", onStderrEnd), child.stdout?.removeListener("data", onData), child.stderr?.removeListener("data", onData);
     }, finalize = (code) => {
-      settled || (settled = !0, cleanup(), child.stdout?.destroy(), child.stderr?.destroy(), resolve22(code));
+      settled || (settled = !0, cleanup(), child.stdout?.destroy(), child.stderr?.destroy(), resolve23(code));
     }, maybeFinalizeAfterExit = () => {
       !exited || settled || stdoutEnded && stderrEnded && finalize(exitCode);
     }, armIdleTimer = () => {
@@ -448,16 +448,16 @@ import { realpathSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, resolve as nodeResolvePath, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-function canonicalizePath(path23) {
+function canonicalizePath(path28) {
   try {
-    return realpathSync(path23);
+    return realpathSync(path28);
   } catch {
-    return path23;
+    return path28;
   }
 }
-function getFileRevision(path23) {
+function getFileRevision(path28) {
   try {
-    let stats = statSync(path23, { bigint: !0 });
+    let stats = statSync(path28, { bigint: !0 });
     return `${stats.dev}:${stats.ino}:${stats.size}:${stats.mtimeNs}:${stats.ctimeNs}`;
   } catch {
     return;
@@ -496,10 +496,10 @@ function formatPathRelativeToCwdOrAbsolute(filePath, cwd) {
   let absolutePath = resolvePath(filePath, cwd);
   return (getCwdRelativePath(absolutePath, cwd) ?? absolutePath).split(sep).join("/");
 }
-function markPathIgnoredByCloudSync(path23) {
+function markPathIgnoredByCloudSync(path28) {
   let attrs = process.platform === "darwin" ? ["com.dropbox.ignored", "com.apple.fileprovider.ignore#P"] : process.platform === "linux" ? ["user.com.dropbox.ignored"] : [];
   for (let attr of attrs)
-    process.platform === "darwin" ? spawnProcessSync("xattr", ["-w", attr, "1", path23], { encoding: "utf-8", stdio: "ignore" }) : spawnProcessSync("setfattr", ["-n", attr, "-v", "1", path23], { encoding: "utf-8", stdio: "ignore" });
+    process.platform === "darwin" ? spawnProcessSync("xattr", ["-w", attr, "1", path28], { encoding: "utf-8", stdio: "ignore" }) : spawnProcessSync("setfattr", ["-n", attr, "-v", "1", path28], { encoding: "utf-8", stdio: "ignore" });
 }
 var UNICODE_SPACES, init_paths = __esm({
   "packages/coding-agent/src/utils/paths.ts"() {
@@ -552,10 +552,10 @@ function detectInstallMethod() {
   return resolvedPath.includes("/pnpm/") || resolvedPath.includes("/.pnpm/") ? "pnpm" : resolvedPath.includes("/yarn/") || resolvedPath.includes("/.yarn/") ? "yarn" : isBunRuntime || resolvedPath.includes("/install/global/node_modules/") ? "bun" : resolvedPath.includes("/npm/") || resolvedPath.includes("/node_modules/") ? "npm" : "unknown";
 }
 function getInferredNpmInstall() {
-  let packageDir = getPackageDir(), path23 = process.platform === "win32" || packageDir.includes("\\") ? win32 : { basename, dirname }, parent = path23.dirname(packageDir), root;
-  if (path23.basename(parent).startsWith("@") && path23.basename(path23.dirname(parent)) === "node_modules" ? root = path23.dirname(parent) : path23.basename(parent) === "node_modules" && (root = parent), !root) return;
-  let rootParent = path23.dirname(root);
-  if (path23.basename(rootParent) === "lib") return { root, prefix: path23.dirname(rootParent) };
+  let packageDir = getPackageDir(), path28 = process.platform === "win32" || packageDir.includes("\\") ? win32 : { basename, dirname }, parent = path28.dirname(packageDir), root;
+  if (path28.basename(parent).startsWith("@") && path28.basename(path28.dirname(parent)) === "node_modules" ? root = path28.dirname(parent) : path28.basename(parent) === "node_modules" && (root = parent), !root) return;
+  let rootParent = path28.dirname(root);
+  if (path28.basename(rootParent) === "lib") return { root, prefix: path28.dirname(rootParent) };
 }
 function getSelfUpdateCommandForMethod(method, installedPackageName, updatePackageTarget = installedPackageName, npmCommand) {
   let target = normalizeSelfUpdatePackageTarget(updatePackageTarget);
@@ -652,8 +652,8 @@ function getGlobalPackageRoots(method, _packageName, npmCommand) {
       return [];
   }
 }
-function normalizeExistingPathForComparison(path23, resolveSymlinks) {
-  let resolvedPath = resolve(path23);
+function normalizeExistingPathForComparison(path28, resolveSymlinks) {
+  let resolvedPath = resolve(path28);
   if (!existsSync(resolvedPath))
     return;
   let normalizedPath = resolvedPath;
@@ -665,10 +665,10 @@ function normalizeExistingPathForComparison(path23, resolveSymlinks) {
     }
   return process.platform === "win32" && (normalizedPath = normalizedPath.toLowerCase()), normalizedPath;
 }
-function getPathComparisonCandidates(path23) {
+function getPathComparisonCandidates(path28) {
   return Array.from(
     new Set(
-      [normalizeExistingPathForComparison(path23, !1), normalizeExistingPathForComparison(path23, !0)].filter(
+      [normalizeExistingPathForComparison(path28, !1), normalizeExistingPathForComparison(path28, !0)].filter(
         (candidate) => !!candidate
       )
     )
@@ -739,7 +739,11 @@ function getExportTemplateDir() {
   return join2(packageDir, srcOrDist, "core", "export-html");
 }
 function getPackageJsonPath() {
-  return join2(getPackageDir(), "package.json");
+  let packageDir = getPackageDir(), directPath = join2(packageDir, "package.json");
+  if (existsSync(directPath))
+    return directPath;
+  let candidateDir = findNodePackageDir(packageDir), candidatePath = join2(candidateDir, "package.json");
+  return existsSync(candidatePath) ? candidatePath : directPath;
 }
 function getReadmePath() {
   return resolve(join2(getPackageDir(), "README.md"));
@@ -774,8 +778,8 @@ function detectInstallChange(packageJsonPath = startupPackageJsonPath) {
   }
   return installed.version && installed.version !== VERSION ? { kind: "updated", version: installed.version } : void 0;
 }
-function expandTildePath(path23) {
-  return normalizePath(path23);
+function expandTildePath(path28) {
+  return normalizePath(path28);
 }
 function getShareViewerUrl(gistId) {
   return `${process.env.PI_SHARE_VIEWER_URL || DEFAULT_SHARE_VIEWER_URL}#${gistId}`;
@@ -816,7 +820,7 @@ var __filename2, __dirname, isBunBinary, isBunRuntime, isBundledNode, quickJSWas
     } catch (e2) {
       if (e2.code !== "ENOENT") throw e2;
     }
-    piConfigName = pkg.piConfig?.name, PACKAGE_NAME = pkg.name || "@earendil-works/pi-coding-agent", APP_NAME = "perun", APP_TITLE = APP_NAME === "perun" ? "\u041F\u0435\u0440\u0423\u041D" : piConfigName ? APP_NAME : "\u03C0", CONFIG_DIR_NAME = APP_NAME === "perun" ? ".perun" : pkg.piConfig?.configDir || ".pi", VERSION = pkg.version || "0.0.0", ENV_AGENT_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_DIR`, ENV_SESSION_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_SESSION_DIR`;
+    piConfigName = pkg.piConfig?.name, PACKAGE_NAME = pkg.name || "@earendil-works/pi-coding-agent", APP_NAME = "perun", APP_TITLE = APP_NAME === "perun" ? "\u041F\u0435\u0440\u0423\u041D" : piConfigName ? APP_NAME : "\u03C0", CONFIG_DIR_NAME = APP_NAME === "perun" ? ".perun" : pkg.piConfig?.configDir || ".pi", VERSION = "0.1.5", ENV_AGENT_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_DIR`, ENV_SESSION_DIR = `${APP_NAME.toUpperCase()}_CODING_AGENT_SESSION_DIR`;
     DEFAULT_SHARE_VIEWER_URL = "https://pi.dev/session/";
   }
 });
@@ -1670,8 +1674,8 @@ var require_util = __commonJS({
           throw new InvalidArgumentError("Invalid URL origin: the origin must be a string or null/undefined.");
         if (!isHttpOrHttpsPrefixed(url.origin || url.protocol))
           throw new InvalidArgumentError("Invalid URL protocol: the URL must start with `http:` or `https:`.");
-        let port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80, origin = url.origin != null ? url.origin : `${url.protocol || ""}//${url.hostname || ""}:${port}`, path23 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
-        return origin[origin.length - 1] === "/" && (origin = origin.slice(0, origin.length - 1)), path23 && path23[0] !== "/" && (path23 = `/${path23}`), new URL(`${origin}${path23}`);
+        let port = url.port != null ? url.port : url.protocol === "https:" ? 443 : 80, origin = url.origin != null ? url.origin : `${url.protocol || ""}//${url.hostname || ""}:${port}`, path28 = url.path != null ? url.path : `${url.pathname || ""}${url.search || ""}`;
+        return origin[origin.length - 1] === "/" && (origin = origin.slice(0, origin.length - 1)), path28 && path28[0] !== "/" && (path28 = `/${path28}`), new URL(`${origin}${path28}`);
       }
       if (!isHttpOrHttpsPrefixed(url.origin || url.protocol))
         throw new InvalidArgumentError("Invalid URL protocol: the URL must start with `http:` or `https:`.");
@@ -2426,9 +2430,9 @@ var require_diagnostics = __commonJS({
           "undici:client:sendHeaders",
           (evt) => {
             let {
-              request: { method, path: path23, origin }
+              request: { method, path: path28, origin }
             } = evt;
-            debugLog("sending request to %s %s%s", method, origin, path23);
+            debugLog("sending request to %s %s%s", method, origin, path28);
           }
         );
       }
@@ -2444,14 +2448,14 @@ var require_diagnostics = __commonJS({
           "undici:request:headers",
           (evt) => {
             let {
-              request: { method, path: path23, origin },
+              request: { method, path: path28, origin },
               response: { statusCode }
             } = evt;
             debugLog(
               "received response to %s %s%s - HTTP %d",
               method,
               origin,
-              path23,
+              path28,
               statusCode
             );
           }
@@ -2459,22 +2463,22 @@ var require_diagnostics = __commonJS({
           "undici:request:trailers",
           (evt) => {
             let {
-              request: { method, path: path23, origin }
+              request: { method, path: path28, origin }
             } = evt;
-            debugLog("trailers received from %s %s%s", method, origin, path23);
+            debugLog("trailers received from %s %s%s", method, origin, path28);
           }
         ), diagnosticsChannel.subscribe(
           "undici:request:error",
           (evt) => {
             let {
-              request: { method, path: path23, origin },
+              request: { method, path: path28, origin },
               error
             } = evt;
             debugLog(
               "request to %s %s%s errored - %s",
               method,
               origin,
-              path23,
+              path28,
               error.message
             );
           }
@@ -2599,7 +2603,7 @@ var require_request = __commonJS({
       }
     }, Request3 = class {
       constructor(origin, {
-        path: path23,
+        path: path28,
         method,
         body,
         headers,
@@ -2616,11 +2620,11 @@ var require_request = __commonJS({
         maxRedirections,
         typeOfService
       }, handler) {
-        if (typeof path23 != "string")
+        if (typeof path28 != "string")
           throw new InvalidArgumentError("path must be a string");
-        if (path23[0] !== "/" && !(path23.startsWith("http://") || path23.startsWith("https://")) && method !== "CONNECT")
+        if (path28[0] !== "/" && !(path28.startsWith("http://") || path28.startsWith("https://")) && method !== "CONNECT")
           throw new InvalidArgumentError("path must be an absolute URL or start with a slash");
-        if (invalidPathRegex.test(path23))
+        if (invalidPathRegex.test(path28))
           throw new InvalidArgumentError("invalid request path");
         if (typeof method != "string")
           throw new InvalidArgumentError("method must be a string");
@@ -2666,7 +2670,7 @@ var require_request = __commonJS({
           this.body = body;
         else
           throw new InvalidArgumentError("body must be a string, a Buffer, a Readable stream, an iterable, or an async iterable");
-        if (this.completed = !1, this.aborted = !1, this.upgrade = upgrade || null, this.path = query ? serializePathWithQuery(path23, query) : path23, this.origin = origin, this.protocol = getProtocolFromUrlString(origin), this.idempotent = idempotent ?? (method === "HEAD" || method === "GET" || method === "QUERY"), this.blocking = blocking ?? this.method !== "HEAD", this.reset = reset ?? null, this.host = null, this.contentLength = null, this.contentType = null, this.headers = [], this.expectContinue = expectContinue ?? !1, Array.isArray(headers)) {
+        if (this.completed = !1, this.aborted = !1, this.upgrade = upgrade || null, this.path = query ? serializePathWithQuery(path28, query) : path28, this.origin = origin, this.protocol = getProtocolFromUrlString(origin), this.idempotent = idempotent ?? (method === "HEAD" || method === "GET" || method === "QUERY"), this.blocking = blocking ?? this.method !== "HEAD", this.reset = reset ?? null, this.host = null, this.contentLength = null, this.contentType = null, this.headers = [], this.expectContinue = expectContinue ?? !1, Array.isArray(headers)) {
           if (headers.length % 2 !== 0)
             throw new InvalidArgumentError("headers array must be even");
           for (let i2 = 0; i2 < headers.length; i2 += 2)
@@ -2924,8 +2928,8 @@ var require_dispatcher_base = __commonJS({
       }
       close(callback) {
         if (callback === void 0)
-          return new Promise((resolve22, reject) => {
-            this.close((err, data) => err ? reject(err) : resolve22(data));
+          return new Promise((resolve23, reject) => {
+            this.close((err, data) => err ? reject(err) : resolve23(data));
           });
         if (typeof callback != "function")
           throw new InvalidArgumentError("invalid callback");
@@ -2949,8 +2953,8 @@ var require_dispatcher_base = __commonJS({
       }
       destroy(err, callback) {
         if (typeof err == "function" && (callback = err, err = null), callback === void 0)
-          return new Promise((resolve22, reject) => {
-            this.destroy(err, (err2, data) => err2 ? reject(err2) : resolve22(data));
+          return new Promise((resolve23, reject) => {
+            this.destroy(err, (err2, data) => err2 ? reject(err2) : resolve23(data));
           });
         if (typeof callback != "function")
           throw new InvalidArgumentError("invalid callback");
@@ -6379,7 +6383,7 @@ var require_client_h1 = __commonJS({
         }
     }
     function writeH1(client, request) {
-      let { method, path: path23, host, upgrade, blocking, reset } = request, { body, headers, contentLength } = request, expectsPayload = method === "PUT" || method === "POST" || method === "PATCH" || method === "QUERY" || method === "PROPFIND" || method === "PROPPATCH";
+      let { method, path: path28, host, upgrade, blocking, reset } = request, { body, headers, contentLength } = request, expectsPayload = method === "PUT" || method === "POST" || method === "PATCH" || method === "QUERY" || method === "PROPFIND" || method === "PROPPATCH";
       if (util2.isFormDataLike(body)) {
         extractBody2 || (extractBody2 = require_body().extractBody);
         let [bodyStream, contentType2] = extractBody2(body);
@@ -6413,7 +6417,7 @@ var require_client_h1 = __commonJS({
       if (request.aborted)
         return !1;
       method === "HEAD" && (socket[kReset] = !0), (upgrade || method === "CONNECT") && (socket[kReset] = !0), reset != null && (socket[kReset] = reset), client[kMaxRequests] && ++socket[kCounter] >= client[kMaxRequests] && (socket[kReset] = !0), blocking && (socket[kBlocking] = !0), setTypeOfService(socket, request);
-      let header = `${method} ${path23} HTTP/1.1\r
+      let header = `${method} ${path28} HTTP/1.1\r
 `;
       if (typeof host == "string" ? header += `host: ${host}\r
 ` : header += client[kHostHeader], upgrade ? header += `connection: upgrade\r
@@ -6497,8 +6501,8 @@ upgrade: ${upgrade}\r
           callback = null, cb();
         }
       }
-      let waitForDrain = () => new Promise((resolve22, reject) => {
-        assert(callback === null), socket[kError] ? reject(socket[kError]) : callback = resolve22;
+      let waitForDrain = () => new Promise((resolve23, reject) => {
+        assert(callback === null), socket[kError] ? reject(socket[kError]) : callback = resolve23;
       });
       socket.on("close", onDrain).on("drain", onDrain);
       let writer = new AsyncWriter({ abort, socket, request, contentLength, client, expectsPayload, header });
@@ -7018,7 +7022,7 @@ var require_client_h2 = __commonJS({
       }
     }
     function writeH2(client, request) {
-      let headersTimeout = request.headersTimeout ?? client[kHeadersTimeout], bodyTimeout = request.bodyTimeout ?? client[kBodyTimeout], session = client[kHTTP2Session], { method, path: path23, host, upgrade, expectContinue, signal, protocol, headers: reqHeaders } = request;
+      let headersTimeout = request.headersTimeout ?? client[kHeadersTimeout], bodyTimeout = request.bodyTimeout ?? client[kBodyTimeout], session = client[kHTTP2Session], { method, path: path28, host, upgrade, expectContinue, signal, protocol, headers: reqHeaders } = request;
       if (upgrade != null && upgrade !== "websocket")
         return util2.errorRequest(client, request, new InvalidArgumentError(`Custom upgrade "${upgrade}" not supported over HTTP/2`)), !1;
       let headers = buildRequestHeaders(reqHeaders);
@@ -7061,8 +7065,8 @@ var require_client_h2 = __commonJS({
       if (request.aborted)
         return !1;
       if (upgrade || method === "CONNECT")
-        return refH2Session(session), upgrade === "websocket" ? session[kEnableConnectProtocol] === !1 ? (util2.errorRequest(client, request, new InformationalError("HTTP/2: Extended CONNECT protocol not supported by server")), unrefH2Session(session), !1) : (headers[HTTP2_HEADER_METHOD] = "CONNECT", headers[HTTP2_HEADER_PROTOCOL] = "websocket", headers[HTTP2_HEADER_PATH] = path23, protocol === "ws:" || protocol === "wss:" ? headers[HTTP2_HEADER_SCHEME] = protocol === "ws:" ? "http" : "https" : headers[HTTP2_HEADER_SCHEME] = protocol === "http:" ? "http" : "https", stream12 = openStream(client, request, session, abort, headers, { endStream: !1, signal }), stream12 == null ? (unrefH2Session(session), !1) : (setupUpgradeStream(stream12, state3), !0)) : (stream12 = openStream(client, request, session, abort, headers, { endStream: !1, signal }), stream12 == null ? (unrefH2Session(session), !1) : (setupUpgradeStream(stream12, state3), !0));
-      headers[HTTP2_HEADER_PATH] = path23, headers[HTTP2_HEADER_SCHEME] = protocol === "http:" ? "http" : "https";
+        return refH2Session(session), upgrade === "websocket" ? session[kEnableConnectProtocol] === !1 ? (util2.errorRequest(client, request, new InformationalError("HTTP/2: Extended CONNECT protocol not supported by server")), unrefH2Session(session), !1) : (headers[HTTP2_HEADER_METHOD] = "CONNECT", headers[HTTP2_HEADER_PROTOCOL] = "websocket", headers[HTTP2_HEADER_PATH] = path28, protocol === "ws:" || protocol === "wss:" ? headers[HTTP2_HEADER_SCHEME] = protocol === "ws:" ? "http" : "https" : headers[HTTP2_HEADER_SCHEME] = protocol === "http:" ? "http" : "https", stream12 = openStream(client, request, session, abort, headers, { endStream: !1, signal }), stream12 == null ? (unrefH2Session(session), !1) : (setupUpgradeStream(stream12, state3), !0)) : (stream12 = openStream(client, request, session, abort, headers, { endStream: !1, signal }), stream12 == null ? (unrefH2Session(session), !1) : (setupUpgradeStream(stream12, state3), !0));
+      headers[HTTP2_HEADER_PATH] = path28, headers[HTTP2_HEADER_SCHEME] = protocol === "http:" ? "http" : "https";
       let expectsPayload = method === "PUT" || method === "POST" || method === "PATCH" || method === "QUERY" || method === "PROPFIND" || method === "PROPPATCH", body = state3.body;
       body && typeof body.read == "function" && body.read(0);
       let contentLength = util2.bodyLength(body);
@@ -7271,8 +7275,8 @@ var require_client_h2 = __commonJS({
           callback = null, cb();
         }
       }
-      let waitForDrain = () => new Promise((resolve22, reject) => {
-        assert(callback === null), socket[kError] ? reject(socket[kError]) : callback = resolve22;
+      let waitForDrain = () => new Promise((resolve23, reject) => {
+        assert(callback === null), socket[kError] ? reject(socket[kError]) : callback = resolve23;
       });
       h2stream.on("close", onDrain).on("drain", onDrain);
       try {
@@ -7533,19 +7537,19 @@ var require_client = __commonJS({
         return this[kQueue].push(request), this[kResuming] || (util2.bodyLength(request.body) == null && util2.isIterable(request.body) ? (this[kResuming] = 1, queueMicrotask(() => resume(this))) : this[kResume](!0)), this[kResuming] && this[kNeedDrain] !== 2 && this[kBusy] && (this[kNeedDrain] = 2), this[kNeedDrain] < 2;
       }
       [kClose]() {
-        return new Promise((resolve22) => {
-          this[kSize] ? this[kClosedResolve] = resolve22 : resolve22(null);
+        return new Promise((resolve23) => {
+          this[kSize] ? this[kClosedResolve] = resolve23 : resolve23(null);
         });
       }
       [kDestroy](err) {
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           let requests = this[kQueue].splice(this[kPendingIdx]);
           for (let i2 = 0; i2 < requests.length; i2++) {
             let request = requests[i2];
             request != null && util2.errorRequest(this, request, err);
           }
           let callback = () => {
-            this[kClosedResolve] && (this[kClosedResolve](), this[kClosedResolve] = null), resolve22(null);
+            this[kClosedResolve] && (this[kClosedResolve](), this[kClosedResolve] = null), resolve23(null);
           };
           this[kHTTPContext] ? (this[kHTTPContext].destroy(err, callback), this[kHTTPContext] = null) : queueMicrotask(callback), this[kResume]();
         });
@@ -7837,8 +7841,8 @@ var require_pool_base = __commonJS({
           }
           return Promise.all(closeAll);
         } else
-          return new Promise((resolve22) => {
-            this[kClosedResolve] = resolve22;
+          return new Promise((resolve23) => {
+            this[kClosedResolve] = resolve23;
           });
       }
       [kDestroy](err) {
@@ -8889,10 +8893,10 @@ var require_proxy_agent = __commonJS({
         };
         let {
           origin,
-          path: path23 = "/",
+          path: path28 = "/",
           headers = {}
         } = opts;
-        if (opts.path = origin + path23, !("host" in headers) && !("Host" in headers)) {
+        if (opts.path = origin + path28, !("host" in headers) && !("Host" in headers)) {
           let { host } = new URL(origin);
           headers.host = host;
         }
@@ -9682,16 +9686,16 @@ var require_readable = __commonJS({
         if (signal != null && (typeof signal != "object" || !("aborted" in signal)))
           return Promise.reject(new InvalidArgumentError("signal must be an AbortSignal"));
         let limit3 = opts?.limit && Number.isFinite(opts.limit) ? opts.limit : 128 * 1024;
-        return signal?.aborted ? Promise.reject(signal.reason ?? new AbortError2()) : this._readableState.closeEmitted ? Promise.resolve(null) : new Promise((resolve22, reject) => {
+        return signal?.aborted ? Promise.reject(signal.reason ?? new AbortError2()) : this._readableState.closeEmitted ? Promise.resolve(null) : new Promise((resolve23, reject) => {
           if ((this[kContentLength] && this[kContentLength] > limit3 || this[kBytesRead] > limit3) && this.destroy(new AbortError2()), signal) {
             let abortListener = addAbortListener(signal, () => {
               this.destroy(signal.reason ?? new AbortError2());
             });
             this.on("close", function() {
-              abortListener[Symbol.dispose](), signal.aborted ? reject(signal.reason ?? new AbortError2()) : resolve22(null);
+              abortListener[Symbol.dispose](), signal.aborted ? reject(signal.reason ?? new AbortError2()) : resolve23(null);
             });
           } else
-            this.on("close", resolve22);
+            this.on("close", resolve23);
           this.on("error", noop4).on("data", () => {
             this[kBytesRead] > limit3 && this.destroy();
           }).resume();
@@ -9712,7 +9716,7 @@ var require_readable = __commonJS({
       return util2.isDisturbed(bodyReadable) || isLocked(bodyReadable);
     }
     function consume(stream12, type) {
-      return assert(!stream12[kConsume]), new Promise((resolve22, reject) => {
+      return assert(!stream12[kConsume]), new Promise((resolve23, reject) => {
         if (isUnusable(stream12)) {
           let rState = stream12._readableState;
           rState.destroyed && rState.closeEmitted === !1 ? stream12.on("error", reject).on("close", () => {
@@ -9723,7 +9727,7 @@ var require_readable = __commonJS({
             stream12[kConsume] = {
               type,
               stream: stream12,
-              resolve: resolve22,
+              resolve: resolve23,
               reject,
               length: 0,
               body: []
@@ -9775,9 +9779,9 @@ var require_readable = __commonJS({
       return buffer;
     }
     function consumeEnd(consume2, encoding) {
-      let { type, body, resolve: resolve22, stream: stream12, length } = consume2;
+      let { type, body, resolve: resolve23, stream: stream12, length } = consume2;
       try {
-        type === "text" ? resolve22(chunksDecode(body, length, encoding)) : type === "json" ? resolve22(JSON.parse(chunksDecode(body, length, encoding))) : type === "arrayBuffer" ? resolve22(chunksConcat(body, length).buffer) : type === "blob" ? resolve22(new Blob(body, { type: stream12[kContentType] })) : type === "bytes" && resolve22(chunksConcat(body, length)), consumeFinish(consume2);
+        type === "text" ? resolve23(chunksDecode(body, length, encoding)) : type === "json" ? resolve23(JSON.parse(chunksDecode(body, length, encoding))) : type === "arrayBuffer" ? resolve23(chunksConcat(body, length).buffer) : type === "blob" ? resolve23(new Blob(body, { type: stream12[kContentType] })) : type === "bytes" && resolve23(chunksConcat(body, length)), consumeFinish(consume2);
       } catch (err) {
         stream12.destroy(err);
       }
@@ -9891,8 +9895,8 @@ var require_api_request = __commonJS({
     };
     function request(opts, callback) {
       if (callback === void 0)
-        return new Promise((resolve22, reject) => {
-          request.call(this, opts, (err, data) => err ? reject(err) : resolve22(data));
+        return new Promise((resolve23, reject) => {
+          request.call(this, opts, (err, data) => err ? reject(err) : resolve23(data));
         });
       try {
         let handler = new RequestHandler(opts, callback);
@@ -10032,8 +10036,8 @@ var require_api_stream = __commonJS({
     };
     function stream12(opts, factory, callback) {
       if (callback === void 0)
-        return new Promise((resolve22, reject) => {
-          stream12.call(this, opts, factory, (err, data) => err ? reject(err) : resolve22(data));
+        return new Promise((resolve23, reject) => {
+          stream12.call(this, opts, factory, (err, data) => err ? reject(err) : resolve23(data));
         });
       try {
         let handler = new StreamHandler(opts, factory, callback);
@@ -10242,8 +10246,8 @@ var require_api_upgrade = __commonJS({
     };
     function upgrade(opts, callback) {
       if (callback === void 0)
-        return new Promise((resolve22, reject) => {
-          upgrade.call(this, opts, (err, data) => err ? reject(err) : resolve22(data));
+        return new Promise((resolve23, reject) => {
+          upgrade.call(this, opts, (err, data) => err ? reject(err) : resolve23(data));
         });
       try {
         let upgradeHandler = new UpgradeHandler(opts, callback), upgradeOpts = {
@@ -10309,8 +10313,8 @@ var require_api_connect = __commonJS({
     };
     function connect(opts, callback) {
       if (callback === void 0)
-        return new Promise((resolve22, reject) => {
-          connect.call(this, opts, (err, data) => err ? reject(err) : resolve22(data));
+        return new Promise((resolve23, reject) => {
+          connect.call(this, opts, (err, data) => err ? reject(err) : resolve23(data));
         });
       try {
         let connectHandler = new ConnectHandler(opts, callback), connectOptions = { ...opts, method: "CONNECT" };
@@ -10467,24 +10471,24 @@ var require_mock_utils = __commonJS({
       }
       return normalizedQp;
     }
-    function safeUrl2(path23) {
-      if (typeof path23 != "string")
-        return path23;
-      let pathSegments = path23.split("?", 3);
+    function safeUrl2(path28) {
+      if (typeof path28 != "string")
+        return path28;
+      let pathSegments = path28.split("?", 3);
       if (pathSegments.length !== 2)
-        return path23;
+        return path28;
       let qp = new URLSearchParams(pathSegments.pop());
       return qp.sort(), [...pathSegments, qp.toString()].join("?");
     }
-    function matchKey(mockDispatch2, { path: path23, method, body, headers }) {
-      let pathMatch = matchValue(mockDispatch2.path, path23), methodMatch = matchValue(mockDispatch2.method, method), bodyMatch = typeof mockDispatch2.body < "u" ? matchValue(mockDispatch2.body, body) : !0, headersMatch = matchHeaders(mockDispatch2, headers);
+    function matchKey(mockDispatch2, { path: path28, method, body, headers }) {
+      let pathMatch = matchValue(mockDispatch2.path, path28), methodMatch = matchValue(mockDispatch2.method, method), bodyMatch = typeof mockDispatch2.body < "u" ? matchValue(mockDispatch2.body, body) : !0, headersMatch = matchHeaders(mockDispatch2, headers);
       return pathMatch && methodMatch && bodyMatch && headersMatch;
     }
     function getResponseData(data) {
       return Buffer.isBuffer(data) || data instanceof Uint8Array || data instanceof ArrayBuffer ? data : ArrayBuffer.isView(data) ? new Uint8Array(data.buffer, data.byteOffset, data.byteLength) : typeof data == "object" ? JSON.stringify(data) : data ? data.toString() : "";
     }
     function getMockDispatch(mockDispatches, key) {
-      let basePath = key.query ? serializePathWithQuery(key.path, key.query) : key.path, resolvedPath = typeof basePath == "string" ? safeUrl2(basePath) : basePath, resolvedPathWithoutTrailingSlash = removeTrailingSlash(resolvedPath), matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path23, ignoreTrailingSlash }) => ignoreTrailingSlash ? matchValue(removeTrailingSlash(safeUrl2(path23)), resolvedPathWithoutTrailingSlash) : matchValue(safeUrl2(path23), resolvedPath));
+      let basePath = key.query ? serializePathWithQuery(key.path, key.query) : key.path, resolvedPath = typeof basePath == "string" ? safeUrl2(basePath) : basePath, resolvedPathWithoutTrailingSlash = removeTrailingSlash(resolvedPath), matchedMockDispatches = mockDispatches.filter(({ consumed }) => !consumed).filter(({ path: path28, ignoreTrailingSlash }) => ignoreTrailingSlash ? matchValue(removeTrailingSlash(safeUrl2(path28)), resolvedPathWithoutTrailingSlash) : matchValue(safeUrl2(path28), resolvedPath));
       if (matchedMockDispatches.length === 0)
         throw new MockNotMatchedError(`Mock dispatch not matched for path '${resolvedPath}'`);
       if (matchedMockDispatches = matchedMockDispatches.filter(({ method }) => matchValue(method, key.method)), matchedMockDispatches.length === 0)
@@ -10505,17 +10509,17 @@ var require_mock_utils = __commonJS({
       let index3 = mockDispatches.findIndex((dispatch) => dispatch.consumed ? matchKey(dispatch, key) : !1);
       index3 !== -1 && mockDispatches.splice(index3, 1);
     }
-    function removeTrailingSlash(path23) {
-      if (typeof path23 != "string")
-        return path23;
-      for (; path23.endsWith("/"); )
-        path23 = path23.slice(0, -1);
-      return path23.length === 0 && (path23 = "/"), path23;
+    function removeTrailingSlash(path28) {
+      if (typeof path28 != "string")
+        return path28;
+      for (; path28.endsWith("/"); )
+        path28 = path28.slice(0, -1);
+      return path28.length === 0 && (path28 = "/"), path28;
     }
     function buildKey(opts) {
-      let { path: path23, method, body, headers, query } = opts;
+      let { path: path28, method, body, headers, query } = opts;
       return {
-        path: path23,
+        path: path28,
         method,
         body,
         headers,
@@ -10884,7 +10888,7 @@ var require_mock_interceptor = __commonJS({
 var require_mock_client = __commonJS({
   "node_modules/undici/lib/mock/mock-client.js"(exports, module) {
     "use strict";
-    var { promisify: promisify3 } = __require("node:util"), Client2 = require_client(), { buildMockDispatch } = require_mock_utils(), {
+    var { promisify: promisify4 } = __require("node:util"), Client2 = require_client(), { buildMockDispatch } = require_mock_utils(), {
       kDispatches,
       kMockAgent,
       kClose,
@@ -10915,7 +10919,7 @@ var require_mock_client = __commonJS({
         this[kDispatches] = [];
       }
       async [kClose]() {
-        await promisify3(this[kOriginalClose])(), this[kConnected] = 0, this[kMockAgent][Symbols2.kClients].delete(this[kOrigin]);
+        await promisify4(this[kOriginalClose])(), this[kConnected] = 0, this[kMockAgent][Symbols2.kClients].delete(this[kOrigin]);
       }
     };
     module.exports = MockClient;
@@ -11059,7 +11063,7 @@ var require_mock_call_history = __commonJS({
 var require_mock_pool = __commonJS({
   "node_modules/undici/lib/mock/mock-pool.js"(exports, module) {
     "use strict";
-    var { promisify: promisify3 } = __require("node:util"), Pool2 = require_pool(), { buildMockDispatch } = require_mock_utils(), {
+    var { promisify: promisify4 } = __require("node:util"), Pool2 = require_pool(), { buildMockDispatch } = require_mock_utils(), {
       kDispatches,
       kMockAgent,
       kClose,
@@ -11090,7 +11094,7 @@ var require_mock_pool = __commonJS({
         this[kDispatches] = [];
       }
       async [kClose]() {
-        await promisify3(this[kOriginalClose])(), this[kConnected] = 0, this[kMockAgent][Symbols2.kClients].delete(this[kOrigin]);
+        await promisify4(this[kOriginalClose])(), this[kConnected] = 0, this[kMockAgent][Symbols2.kClients].delete(this[kOrigin]);
       }
     };
     module.exports = MockPool;
@@ -11117,10 +11121,10 @@ var require_pending_interceptors_formatter = __commonJS({
       }
       format(pendingInterceptors) {
         let withPrettyHeaders = pendingInterceptors.map(
-          ({ method, path: path23, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
+          ({ method, path: path28, data: { statusCode }, persist, times, timesInvoked, origin }) => ({
             Method: method,
             Origin: origin,
-            Path: path23,
+            Path: path28,
             "Status code": statusCode,
             Persistent: persist ? PERSISTENT : NOT_PERSISTENT,
             Invocations: timesInvoked,
@@ -11180,8 +11184,8 @@ var require_mock_agent = __commonJS({
           }
         }
         if (acceptNonStandardSearchParameters && dispatchOpts.path) {
-          let [path23, searchParams] = dispatchOpts.path.split("?"), normalizedSearchParams = normalizeSearchParams(searchParams, acceptNonStandardSearchParameters);
-          dispatchOpts.path = `${path23}?${normalizedSearchParams}`;
+          let [path28, searchParams] = dispatchOpts.path.split("?"), normalizedSearchParams = normalizeSearchParams(searchParams, acceptNonStandardSearchParameters);
+          dispatchOpts.path = `${path28}?${normalizedSearchParams}`;
         }
         return this[kAgent].dispatch(dispatchOpts, handler);
       }
@@ -11342,7 +11346,7 @@ var require_snapshot_utils = __commonJS({
 var require_snapshot_recorder = __commonJS({
   "node_modules/undici/lib/mock/snapshot-recorder.js"(exports, module) {
     "use strict";
-    var { writeFile: writeFile4, readFile: readFile7, mkdir: mkdir2 } = __require("node:fs/promises"), { dirname: dirname29, resolve: resolve22 } = __require("node:path"), { setTimeout: setTimeout2, clearTimeout: clearTimeout2 } = __require("node:timers"), { InvalidArgumentError, UndiciError } = require_errors(), { hashId, isUrlExcludedFactory, normalizeHeaders, createHeaderFilters } = require_snapshot_utils();
+    var { writeFile: writeFile4, readFile: readFile7, mkdir: mkdir2 } = __require("node:fs/promises"), { dirname: dirname31, resolve: resolve23 } = __require("node:path"), { setTimeout: setTimeout2, clearTimeout: clearTimeout2 } = __require("node:timers"), { InvalidArgumentError, UndiciError } = require_errors(), { hashId, isUrlExcludedFactory, normalizeHeaders, createHeaderFilters } = require_snapshot_utils();
     function normalizeUrlForMatching(url, matchQuery, normalizeQuery2) {
       if (matchQuery === !1) return `${url.origin}${url.pathname}`;
       if (normalizeQuery2) {
@@ -11498,11 +11502,11 @@ var require_snapshot_recorder = __commonJS({
        * @return {Promise<void>} - Resolves when snapshots are loaded
        */
       async loadSnapshots(filePath) {
-        let path23 = filePath || this.#snapshotPath;
-        if (!path23)
+        let path28 = filePath || this.#snapshotPath;
+        if (!path28)
           throw new InvalidArgumentError("Snapshot path is required");
         try {
-          let data = await readFile7(resolve22(path23), "utf8"), parsed = JSON.parse(data);
+          let data = await readFile7(resolve23(path28), "utf8"), parsed = JSON.parse(data);
           if (Array.isArray(parsed)) {
             this.#snapshots.clear();
             for (let { hash: hash2, snapshot } of parsed)
@@ -11513,7 +11517,7 @@ var require_snapshot_recorder = __commonJS({
           if (error.code === "ENOENT")
             this.#snapshots.clear();
           else
-            throw new UndiciError(`Failed to load snapshots from ${path23}`, { cause: error });
+            throw new UndiciError(`Failed to load snapshots from ${path28}`, { cause: error });
         }
       }
       /**
@@ -11523,11 +11527,11 @@ var require_snapshot_recorder = __commonJS({
        * @returns {Promise<void>} - Resolves when snapshots are saved
        */
       async saveSnapshots(filePath) {
-        let path23 = filePath || this.#snapshotPath;
-        if (!path23)
+        let path28 = filePath || this.#snapshotPath;
+        if (!path28)
           throw new InvalidArgumentError("Snapshot path is required");
-        let resolvedPath = resolve22(path23);
-        await mkdir2(dirname29(resolvedPath), { recursive: !0 });
+        let resolvedPath = resolve23(path28);
+        await mkdir2(dirname31(resolvedPath), { recursive: !0 });
         let data = Array.from(this.#snapshots.entries()).map(([hash2, snapshot]) => ({
           hash: hash2,
           snapshot
@@ -12035,11 +12039,11 @@ var require_redirect_handler = __commonJS({
           this.handler.onResponseStart?.(controller, statusCode, headers, statusMessage);
           return;
         }
-        let baseUrl = requestOrigin ? new URL(this.opts.path, requestOrigin) : void 0, { origin, pathname, search } = util2.parseURL(new URL(this.location, baseUrl)), path23 = search ? `${pathname}${search}` : pathname, redirectUrlString = `${origin}${path23}`;
+        let baseUrl = requestOrigin ? new URL(this.opts.path, requestOrigin) : void 0, { origin, pathname, search } = util2.parseURL(new URL(this.location, baseUrl)), path28 = search ? `${pathname}${search}` : pathname, redirectUrlString = `${origin}${path28}`;
         for (let historyUrl of this.history)
           if (historyUrl.toString() === redirectUrlString)
             throw new InvalidArgumentError(`Redirect loop detected. Cannot redirect to ${origin}. This typically happens when using a Client or Pool with cross-origin redirects. Use an Agent for cross-origin redirects.`);
-        this.opts.headers = cleanRequestHeaders(this.opts.headers, removeContentHeaders, requestOrigin !== origin, this.stripHeadersOnRedirect, this.stripHeadersOnCrossOriginRedirect), this.opts.path = path23, this.opts.origin = origin, this.opts[kRequestOrigin] = origin, this.opts.query = null;
+        this.opts.headers = cleanRequestHeaders(this.opts.headers, removeContentHeaders, requestOrigin !== origin, this.stripHeadersOnRedirect, this.stripHeadersOnCrossOriginRedirect), this.opts.path = path28, this.opts.origin = origin, this.opts[kRequestOrigin] = origin, this.opts.query = null;
       }
       onResponseData(controller, chunk) {
         this.location || this.handler.onResponseData?.(controller, chunk);
@@ -13377,17 +13381,17 @@ var require_cache_handler = __commonJS({
       if (locationUrl.origin === originUrl.origin)
         return locationUrl.pathname + locationUrl.search;
     }
-    function deleteCachedUri(store, cacheKey, path23) {
+    function deleteCachedUri(store, cacheKey, path28) {
       deleteCachedValue(store, {
         ...cacheKey,
-        path: path23
+        path: path28
       });
       for (let i2 = 0; i2 < util2.safeHTTPMethods.length; i2++) {
         let method = util2.safeHTTPMethods[i2];
         method !== cacheKey.method && deleteCachedValue(store, {
           ...cacheKey,
           method,
-          path: path23
+          path: path28
         });
       }
     }
@@ -13396,8 +13400,8 @@ var require_cache_handler = __commonJS({
         return;
       let values = Array.isArray(headerValue2) ? headerValue2 : [headerValue2];
       for (let i2 = 0; i2 < values.length; i2++) {
-        let path23 = getSameOriginPath(cacheKey, values[i2]);
-        path23 !== void 0 && deleteCachedUri(store, cacheKey, path23);
+        let path28 = getSameOriginPath(cacheKey, values[i2]);
+        path28 !== void 0 && deleteCachedUri(store, cacheKey, path28);
       }
     }
     function invalidateUnsafeRequest(store, cacheKey, resHeaders) {
@@ -17011,12 +17015,12 @@ var require_fetch = __commonJS({
       }
       return response;
       function dispatch({ body }) {
-        let url = requestCurrentURL(request), agent = fetchParams.controller.dispatcher, path23 = url.pathname + url.search, hasTrailingQuestionMark = url.search.length === 0 && url.href[url.href.length - url.hash.length - 1] === "?";
+        let url = requestCurrentURL(request), agent = fetchParams.controller.dispatcher, path28 = url.pathname + url.search, hasTrailingQuestionMark = url.search.length === 0 && url.href[url.href.length - url.hash.length - 1] === "?";
         return dispatchWithProtocolPreference(body);
         function dispatchWithProtocolPreference(body2, allowH2) {
-          return new Promise((resolve22, reject) => agent.dispatch(
+          return new Promise((resolve23, reject) => agent.dispatch(
             {
-              path: hasTrailingQuestionMark ? `${path23}?` : path23,
+              path: hasTrailingQuestionMark ? `${path28}?` : path28,
               origin: url.origin,
               method: request.method,
               body: agent.isMockActive ? request.body && (request.body.source || request.body.stream) : body2,
@@ -17086,7 +17090,7 @@ var require_fetch = __commonJS({
                   }
                 }
                 let onError = (err) => this.onResponseError(controller, err);
-                resolve22({
+                resolve23({
                   status,
                   statusText,
                   headersList,
@@ -17106,7 +17110,7 @@ var require_fetch = __commonJS({
               },
               onResponseError(_controller, error) {
                 if (this.abort && fetchParams.controller.off("terminated", this.abort), request.mode === "websocket" && allowH2 !== !1 && error?.code === "UND_ERR_INFO" && error?.message === "HTTP/2: Extended CONNECT protocol not supported by server") {
-                  resolve22(dispatchWithProtocolPreference(body2, !1));
+                  resolve23(dispatchWithProtocolPreference(body2, !1));
                   return;
                 }
                 this.body?.destroy(error), fetchParams.controller.terminate(error), reject(error);
@@ -17115,7 +17119,7 @@ var require_fetch = __commonJS({
                 if (socket.session != null && status !== 200 || socket.session == null && status !== 101)
                   return socket.session != null && controller.abort(new SocketError("bad upgrade", null)), !1;
                 let rawHeaders = controller?.rawHeaders ?? [], headersList = new HeadersList();
-                return appendHeadersListFromResponseHeaders(headersList, headers, rawHeaders), resolve22({
+                return appendHeadersListFromResponseHeaders(headersList, headers, rawHeaders), resolve23({
                   status,
                   statusText: STATUS_CODES[status],
                   headersList,
@@ -17728,9 +17732,9 @@ var require_util4 = __commonJS({
           throw new Error("Invalid cookie value");
       }
     }
-    function validateCookiePath(path23) {
-      for (let i2 = 0; i2 < path23.length; ++i2) {
-        let code = path23.charCodeAt(i2);
+    function validateCookiePath(path28) {
+      for (let i2 = 0; i2 < path28.length; ++i2) {
+        let code = path28.charCodeAt(i2);
         if (code < 32 || // exclude CTLs (0-31)
         code > 126 || // exclude non-ascii and DEL
         code === 59)
@@ -20134,8 +20138,8 @@ var require_undici = __commonJS({
         if (opts && opts.path != null) {
           if (typeof opts.path != "string")
             throw new InvalidArgumentError("invalid opts.path");
-          let path23 = opts.path;
-          opts.path.startsWith("/") || (path23 = `/${path23}`), url = new URL(util2.parseOrigin(url).origin + path23);
+          let path28 = opts.path;
+          opts.path.startsWith("/") || (path28 = `/${path28}`), url = new URL(util2.parseOrigin(url).origin + path28);
         } else
           opts || (opts = typeof url == "object" ? url : {}), url = util2.parseURL(url);
         let { agent, dispatcher = getGlobalDispatcher(), ...restOpts } = opts;
@@ -27965,8 +27969,8 @@ var FifoQueue, EventStream, AssistantMessageEventStream, init_event_stream = __e
       isComplete;
       extractResult;
       constructor(isComplete, extractResult) {
-        this.isComplete = isComplete, this.extractResult = extractResult, this.finalResultPromise = new Promise((resolve22) => {
-          this.resolveFinalResult = resolve22;
+        this.isComplete = isComplete, this.extractResult = extractResult, this.finalResultPromise = new Promise((resolve23) => {
+          this.resolveFinalResult = resolve23;
         });
       }
       push(event) {
@@ -27987,7 +27991,7 @@ var FifoQueue, EventStream, AssistantMessageEventStream, init_event_stream = __e
             if (this.done)
               return;
             {
-              let result = await new Promise((resolve22) => this.waiting.enqueue(resolve22));
+              let result = await new Promise((resolve23) => this.waiting.enqueue(resolve23));
               if (result.done) return;
               yield result.value;
             }
@@ -28092,10 +28096,10 @@ function defaultProviderAuthContext() {
       let value = getProcessEnv()?.[name];
       return typeof value == "string" && value.trim().length > 0 ? value : void 0;
     },
-    async fileExists(path23) {
+    async fileExists(path28) {
       try {
-        let fs22 = await importNodeModule("node:fs/promises"), resolved = path23;
-        return resolved.startsWith("~") && (resolved = (await importNodeModule("node:os")).homedir() + resolved.slice(1)), await fs22.access(resolved), !0;
+        let fs26 = await importNodeModule("node:fs/promises"), resolved = path28;
+        return resolved.startsWith("~") && (resolved = (await importNodeModule("node:os")).homedir() + resolved.slice(1)), await fs26.access(resolved), !0;
       } catch {
         return !1;
       }
@@ -28120,13 +28124,13 @@ function operationSignal(signal) {
 }
 function raceWithAbortSignal(operation, signal) {
   return signal.aborted ? (operation.catch(() => {
-  }), Promise.reject(abortReason(signal))) : new Promise((resolve22, reject) => {
+  }), Promise.reject(abortReason(signal))) : new Promise((resolve23, reject) => {
     let settled = !1, cleanup = () => signal.removeEventListener("abort", onAbort), onAbort = () => {
       settled || (settled = !0, cleanup(), reject(abortReason(signal)));
     };
     signal.addEventListener("abort", onAbort, { once: !0 }), operation.then(
       (value) => {
-        settled || (settled = !0, cleanup(), resolve22(value));
+        settled || (settled = !0, cleanup(), resolve23(value));
       },
       (error) => {
         settled || (settled = !0, cleanup(), reject(error));
@@ -28319,7 +28323,7 @@ async function resolveProviderAuthWithSignal(provider, credentials, authContext,
 function overlayEnvAuthContext(base, env3) {
   return {
     env: async (name) => env3[name] || await base.env(name),
-    fileExists: (path23) => base.fileExists(path23)
+    fileExists: (path28) => base.fileExists(path28)
   };
 }
 async function refreshStoredOAuthCredential(credentials, providerId, oauth, needsRefresh, signal) {
@@ -29023,8 +29027,8 @@ var KNOWN_MODEL_TYPES, ModelsImpl, EXTENDED_THINKING_LEVELS, init_models = __esm
         let method = type === "oauth" ? provider.auth.oauth : provider.auth.apiKey;
         if (!method?.login)
           throw new ModelsError("auth", `${provider.name} does not support ${type} login`);
-        let loginOperation = method.login({ ...interaction, signal }, options), credential = await raceWithAbortSignal(loginOperation, signal), mutationStarted = !1, markMutationStarted, started = new Promise((resolve22) => {
-          markMutationStarted = resolve22;
+        let loginOperation = method.login({ ...interaction, signal }, options), credential = await raceWithAbortSignal(loginOperation, signal), mutationStarted = !1, markMutationStarted, started = new Promise((resolve23) => {
+          markMutationStarted = resolve23;
         }), mutation = this.credentials.modify(
           providerId,
           async () => (mutationStarted = !0, markMutationStarted?.(), credential),
@@ -29033,13 +29037,13 @@ var KNOWN_MODEL_TYPES, ModelsImpl, EXTENDED_THINKING_LEVELS, init_models = __esm
         mutation.catch(() => {
         });
         try {
-          await new Promise((resolve22, reject) => {
+          await new Promise((resolve23, reject) => {
             let onAbort = () => {
               mutationStarted || reject(signal.reason);
             };
             signal.addEventListener("abort", onAbort, { once: !0 }), Promise.race([started, mutation]).then(
               () => {
-                signal.removeEventListener("abort", onAbort), resolve22();
+                signal.removeEventListener("abort", onAbort), resolve23();
               },
               (error) => {
                 signal.removeEventListener("abort", onAbort), reject(error);
@@ -29312,9 +29316,9 @@ function createAbortedMessage(partial) {
 }
 function scheduleChunk(chunk, tokensPerSecond) {
   if (!tokensPerSecond || tokensPerSecond <= 0)
-    return new Promise((resolve22) => queueMicrotask(resolve22));
+    return new Promise((resolve23) => queueMicrotask(resolve23));
   let delayMs = estimateTokens(chunk) / tokensPerSecond * 1e3;
-  return new Promise((resolve22) => setTimeout(resolve22, delayMs));
+  return new Promise((resolve23) => setTimeout(resolve23, delayMs));
 }
 async function streamWithDeltas(stream12, message, minTokenSize, maxTokenSize, tokensPerSecond, signal) {
   let partial = { ...message, content: [], stopReason: "pending" };
@@ -30276,12 +30280,12 @@ function retryDelayMs(policy, attempt2) {
   return Math.min(safeDelay, policy.maxAgentDelayMs ?? DEFAULT_MAX_AGENT_RETRY_DELAY_MS);
 }
 function sleep(ms, signal) {
-  return new Promise((resolve22, reject) => {
+  return new Promise((resolve23, reject) => {
     if (signal?.aborted) {
       reject(new RetrySleepAbortError());
       return;
     }
-    let timeout = setTimeout(resolve22, ms);
+    let timeout = setTimeout(resolve23, ms);
     signal?.addEventListener(
       "abort",
       () => {
@@ -35894,54 +35898,54 @@ var init_parse3 = __esm({
 });
 
 // node_modules/typebox/build/value/delta/diff.mjs
-function CreateUpdate(path23, value) {
-  return { type: "update", path: path23, value };
+function CreateUpdate(path28, value) {
+  return { type: "update", path: path28, value };
 }
-function CreateInsert(path23, value) {
-  return { type: "insert", path: path23, value };
+function CreateInsert(path28, value) {
+  return { type: "insert", path: path28, value };
 }
-function CreateDelete(path23) {
-  return { type: "delete", path: path23 };
+function CreateDelete(path28) {
+  return { type: "delete", path: path28 };
 }
 function AssertCanDiffObject(value) {
   if (!(guard_exports.IsObject(value) && guard_exports.IsEqual(guard_exports.Symbols(value).length, 0)))
     throw new Error("Cannot create diffs for objects with symbols keys");
 }
-function* FromObject17(path23, left, right) {
+function* FromObject17(path28, left, right) {
   if (!guard_exports.IsObject(right) || guard_exports.IsArray(right))
-    return yield CreateUpdate(path23, right);
+    return yield CreateUpdate(path28, right);
   AssertCanDiffObject(left), AssertCanDiffObject(right);
   let leftKeys = guard_exports.Keys(left), rightKeys = guard_exports.Keys(right);
   for (let key of rightKeys)
-    guard_exports.HasPropertyKey(left, key) || guard_exports.IsUnsafePropertyKey(key) || (yield CreateInsert(`${path23}/${key}`, right[key]));
+    guard_exports.HasPropertyKey(left, key) || guard_exports.IsUnsafePropertyKey(key) || (yield CreateInsert(`${path28}/${key}`, right[key]));
   for (let key of leftKeys)
-    guard_exports.HasPropertyKey(right, key) && (guard_exports.IsUnsafePropertyKey(key) || Equal(left, right) || (yield* FromValue4(`${path23}/${key}`, left[key], right[key])));
+    guard_exports.HasPropertyKey(right, key) && (guard_exports.IsUnsafePropertyKey(key) || Equal(left, right) || (yield* FromValue4(`${path28}/${key}`, left[key], right[key])));
   for (let key of leftKeys)
-    guard_exports.HasPropertyKey(right, key) || guard_exports.IsUnsafePropertyKey(key) || (yield CreateDelete(`${path23}/${key}`));
+    guard_exports.HasPropertyKey(right, key) || guard_exports.IsUnsafePropertyKey(key) || (yield CreateDelete(`${path28}/${key}`));
 }
-function* FromArray13(path23, left, right) {
+function* FromArray13(path28, left, right) {
   if (!guard_exports.IsArray(right))
-    return yield CreateUpdate(path23, right);
+    return yield CreateUpdate(path28, right);
   for (let i2 = 0; i2 < Math.min(left.length, right.length); i2++)
-    yield* FromValue4(`${path23}/${i2}`, left[i2], right[i2]);
+    yield* FromValue4(`${path28}/${i2}`, left[i2], right[i2]);
   for (let i2 = 0; i2 < right.length; i2++)
-    i2 < left.length || (yield CreateInsert(`${path23}/${i2}`, right[i2]));
+    i2 < left.length || (yield CreateInsert(`${path28}/${i2}`, right[i2]));
   for (let i2 = left.length - 1; i2 >= 0; i2--)
-    i2 < right.length || (yield CreateDelete(`${path23}/${i2}`));
+    i2 < right.length || (yield CreateDelete(`${path28}/${i2}`));
 }
-function* FromTypedArray2(path23, left, right) {
+function* FromTypedArray2(path28, left, right) {
   let typeLeft = globalThis.Object.getPrototypeOf(left).constructor.name, typeRight = globalThis.Object.getPrototypeOf(right).constructor.name;
   if (globals_exports.IsTypeArray(right) && guard_exports.IsEqual(left.length, right.length) && guard_exports.IsEqual(typeLeft, typeRight))
     for (let index3 = 0; index3 < Math.min(left.length, right.length); index3++)
-      yield* FromValue4(`${path23}/${index3}`, left[index3], right[index3]);
+      yield* FromValue4(`${path28}/${index3}`, left[index3], right[index3]);
   else
-    return yield CreateUpdate(path23, right);
+    return yield CreateUpdate(path28, right);
 }
-function* FromUnknown(path23, left, right) {
-  left !== right && (yield CreateUpdate(path23, right));
+function* FromUnknown(path28, left, right) {
+  left !== right && (yield CreateUpdate(path28, right));
 }
-function* FromValue4(path23, left, right) {
-  return globals_exports.IsTypeArray(left) ? yield* FromTypedArray2(path23, left, right) : guard_exports.IsArray(left) ? yield* FromArray13(path23, left, right) : guard_exports.IsObject(left) ? yield* FromObject17(path23, left, right) : yield* FromUnknown(path23, left, right);
+function* FromValue4(path28, left, right) {
+  return globals_exports.IsTypeArray(left) ? yield* FromTypedArray2(path28, left, right) : guard_exports.IsArray(left) ? yield* FromArray13(path28, left, right) : guard_exports.IsObject(left) ? yield* FromObject17(path28, left, right) : yield* FromUnknown(path28, left, right);
 }
 function Diff(current, next) {
   return [...FromValue4("", current, next)];
@@ -38795,9 +38799,9 @@ function extractQuotedPrefix(text) {
 function parsePathPrefix(prefix) {
   return prefix.startsWith('@"') ? { rawPrefix: prefix.slice(2), isAtPrefix: !0, isQuotedPrefix: !0 } : prefix.startsWith('"') ? { rawPrefix: prefix.slice(1), isAtPrefix: !1, isQuotedPrefix: !0 } : prefix.startsWith("@") ? { rawPrefix: prefix.slice(1), isAtPrefix: !0, isQuotedPrefix: !1 } : { rawPrefix: prefix, isAtPrefix: !1, isQuotedPrefix: !1 };
 }
-function buildCompletionValue(path23, options) {
-  let needsQuotes = options.isQuotedPrefix || autocompleteSeparatorRegex.test(path23), prefix = options.isAtPrefix ? "@" : "";
-  return needsQuotes ? `${`${prefix}"`}${path23}"` : `${prefix}${path23}`;
+function buildCompletionValue(path28, options) {
+  let needsQuotes = options.isQuotedPrefix || autocompleteSeparatorRegex.test(path28), prefix = options.isAtPrefix ? "@" : "";
+  return needsQuotes ? `${`${prefix}"`}${path28}"` : `${prefix}${path28}`;
 }
 async function walkDirectoryWithFd(baseDir, fdPath, query, maxResults, signal, maxDepth) {
   let args = [
@@ -38818,15 +38822,15 @@ async function walkDirectoryWithFd(baseDir, fdPath, query, maxResults, signal, m
     "--exclude",
     ".git/**"
   ];
-  return maxDepth !== void 0 && args.push("--max-depth", String(maxDepth)), toDisplayPath(query).includes("/") && args.push("--full-path"), query && args.push(buildFdPathQuery(query)), await new Promise((resolve22) => {
+  return maxDepth !== void 0 && args.push("--max-depth", String(maxDepth)), toDisplayPath(query).includes("/") && args.push("--full-path"), query && args.push(buildFdPathQuery(query)), await new Promise((resolve23) => {
     if (signal.aborted) {
-      resolve22([]);
+      resolve23([]);
       return;
     }
     let child = spawn(fdPath, args, {
       stdio: ["ignore", "pipe", "pipe"]
     }), stdout = "", resolved = !1, finish = (results) => {
-      resolved || (resolved = !0, signal.removeEventListener("abort", onAbort), resolve22(results));
+      resolved || (resolved = !0, signal.removeEventListener("abort", onAbort), resolve23(results));
     }, onAbort = () => {
       child.exitCode === null && child.kill("SIGKILL");
     };
@@ -38982,13 +38986,13 @@ var PATH_DELIMITERS, tokenStartRegex, PATH_WRAPPERS, CombinedAutocompleteProvide
         return forceExtract || pathPrefix.includes("/") || pathPrefix.startsWith(".") || pathPrefix.startsWith("~/") || pathPrefix === "" && text !== "" && tokenStartRegex.test(text) ? pathPrefix : null;
       }
       // Expand home directory (~/) to actual home path
-      expandHomePath(path23) {
-        if (path23.startsWith("~/")) {
-          let expandedPath = join3(homedir3(), path23.slice(2));
-          return path23.endsWith("/") && !expandedPath.endsWith("/") ? `${expandedPath}/` : expandedPath;
-        } else if (path23 === "~")
+      expandHomePath(path28) {
+        if (path28.startsWith("~/")) {
+          let expandedPath = join3(homedir3(), path28.slice(2));
+          return path28.endsWith("/") && !expandedPath.endsWith("/") ? `${expandedPath}/` : expandedPath;
+        } else if (path28 === "~")
           return homedir3();
-        return path23;
+        return path28;
       }
       resolveScopedFuzzyQuery(rawQuery) {
         let normalizedQuery = toDisplayPath(rawQuery), slashIndex = normalizedQuery.lastIndexOf("/");
@@ -41056,16 +41060,16 @@ var TERMINAL_PALETTE_SIZE, TERMINAL_COLOR_REPLY_COUNT, TERMINAL_COLOR_QUERY, DEV
         timeoutMs,
         onLateReply
       }) {
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           let query = {
             palette: Array.from({ length: TERMINAL_PALETTE_SIZE }, () => {
             }),
             replied: /* @__PURE__ */ new Set(),
-            deliver: resolve22,
+            deliver: resolve23,
             timer: void 0
           };
           query.timer = setTimeout(() => {
-            query.deliver = onLateReply, resolve22(this.terminalColorQueryResult(query));
+            query.deliver = onLateReply, resolve23(this.terminalColorQueryResult(query));
           }, timeoutMs), this.pendingTerminalColorQueries.push(query), this.terminal.write(TERMINAL_COLOR_QUERY);
         });
       }
@@ -45999,7 +46003,7 @@ var TERMINAL_PROGRESS_KEEPALIVE_MS, TERMINAL_PROGRESS_ACTIVE_SEQUENCE, TERMINAL_
           for (; ; ) {
             let now = Date.now(), timeLeft = endTime - now;
             if (timeLeft <= 0 || now - lastDataTime >= idleMs) break;
-            await new Promise((resolve22) => setTimeout(resolve22, Math.min(idleMs, timeLeft)));
+            await new Promise((resolve23) => setTimeout(resolve23, Math.min(idleMs, timeLeft)));
           }
         } finally {
           process.stdin.removeListener("data", onData), this.inputHandler = previousHandler;
@@ -48378,20 +48382,20 @@ var require_polyfills = __commonJS({
     }, Object.setPrototypeOf && Object.setPrototypeOf(process.chdir, chdir));
     var chdir;
     module.exports = patch;
-    function patch(fs22) {
-      constants9.hasOwnProperty("O_SYMLINK") && process.version.match(/^v0\.6\.[0-2]|^v0\.5\./) && patchLchmod(fs22), fs22.lutimes || patchLutimes(fs22), fs22.chown = chownFix(fs22.chown), fs22.fchown = chownFix(fs22.fchown), fs22.lchown = chownFix(fs22.lchown), fs22.chmod = chmodFix(fs22.chmod), fs22.fchmod = chmodFix(fs22.fchmod), fs22.lchmod = chmodFix(fs22.lchmod), fs22.chownSync = chownFixSync(fs22.chownSync), fs22.fchownSync = chownFixSync(fs22.fchownSync), fs22.lchownSync = chownFixSync(fs22.lchownSync), fs22.chmodSync = chmodFixSync(fs22.chmodSync), fs22.fchmodSync = chmodFixSync(fs22.fchmodSync), fs22.lchmodSync = chmodFixSync(fs22.lchmodSync), fs22.stat = statFix(fs22.stat), fs22.fstat = statFix(fs22.fstat), fs22.lstat = statFix(fs22.lstat), fs22.statSync = statFixSync(fs22.statSync), fs22.fstatSync = statFixSync(fs22.fstatSync), fs22.lstatSync = statFixSync(fs22.lstatSync), fs22.chmod && !fs22.lchmod && (fs22.lchmod = function(path23, mode, cb) {
+    function patch(fs26) {
+      constants9.hasOwnProperty("O_SYMLINK") && process.version.match(/^v0\.6\.[0-2]|^v0\.5\./) && patchLchmod(fs26), fs26.lutimes || patchLutimes(fs26), fs26.chown = chownFix(fs26.chown), fs26.fchown = chownFix(fs26.fchown), fs26.lchown = chownFix(fs26.lchown), fs26.chmod = chmodFix(fs26.chmod), fs26.fchmod = chmodFix(fs26.fchmod), fs26.lchmod = chmodFix(fs26.lchmod), fs26.chownSync = chownFixSync(fs26.chownSync), fs26.fchownSync = chownFixSync(fs26.fchownSync), fs26.lchownSync = chownFixSync(fs26.lchownSync), fs26.chmodSync = chmodFixSync(fs26.chmodSync), fs26.fchmodSync = chmodFixSync(fs26.fchmodSync), fs26.lchmodSync = chmodFixSync(fs26.lchmodSync), fs26.stat = statFix(fs26.stat), fs26.fstat = statFix(fs26.fstat), fs26.lstat = statFix(fs26.lstat), fs26.statSync = statFixSync(fs26.statSync), fs26.fstatSync = statFixSync(fs26.fstatSync), fs26.lstatSync = statFixSync(fs26.lstatSync), fs26.chmod && !fs26.lchmod && (fs26.lchmod = function(path28, mode, cb) {
         cb && process.nextTick(cb);
-      }, fs22.lchmodSync = function() {
-      }), fs22.chown && !fs22.lchown && (fs22.lchown = function(path23, uid, gid, cb) {
+      }, fs26.lchmodSync = function() {
+      }), fs26.chown && !fs26.lchown && (fs26.lchown = function(path28, uid, gid, cb) {
         cb && process.nextTick(cb);
-      }, fs22.lchownSync = function() {
-      }), platform3 === "win32" && (fs22.rename = typeof fs22.rename != "function" ? fs22.rename : (function(fs$rename) {
+      }, fs26.lchownSync = function() {
+      }), platform3 === "win32" && (fs26.rename = typeof fs26.rename != "function" ? fs26.rename : (function(fs$rename) {
         function rename(from, to, cb) {
           var start = Date.now(), backoff3 = 0;
           fs$rename(from, to, function CB(er) {
             if (er && (er.code === "EACCES" || er.code === "EPERM" || er.code === "EBUSY") && Date.now() - start < 6e4) {
               setTimeout(function() {
-                fs22.stat(to, function(stater, st2) {
+                fs26.stat(to, function(stater, st2) {
                   stater && stater.code === "ENOENT" ? fs$rename(from, to, CB) : cb(er);
                 });
               }, backoff3), backoff3 < 100 && (backoff3 += 10);
@@ -48401,25 +48405,25 @@ var require_polyfills = __commonJS({
           });
         }
         return Object.setPrototypeOf && Object.setPrototypeOf(rename, fs$rename), rename;
-      })(fs22.rename)), fs22.read = typeof fs22.read != "function" ? fs22.read : (function(fs$read) {
+      })(fs26.rename)), fs26.read = typeof fs26.read != "function" ? fs26.read : (function(fs$read) {
         function read(fd, buffer, offset, length, position, callback_) {
           var callback;
           if (callback_ && typeof callback_ == "function") {
             var eagCounter = 0;
             callback = function(er, _2, __) {
               if (er && er.code === "EAGAIN" && eagCounter < 10)
-                return eagCounter++, fs$read.call(fs22, fd, buffer, offset, length, position, callback);
+                return eagCounter++, fs$read.call(fs26, fd, buffer, offset, length, position, callback);
               callback_.apply(this, arguments);
             };
           }
-          return fs$read.call(fs22, fd, buffer, offset, length, position, callback);
+          return fs$read.call(fs26, fd, buffer, offset, length, position, callback);
         }
         return Object.setPrototypeOf && Object.setPrototypeOf(read, fs$read), read;
-      })(fs22.read), fs22.readSync = typeof fs22.readSync != "function" ? fs22.readSync : /* @__PURE__ */ (function(fs$readSync) {
+      })(fs26.read), fs26.readSync = typeof fs26.readSync != "function" ? fs26.readSync : /* @__PURE__ */ (function(fs$readSync) {
         return function(fd, buffer, offset, length, position) {
           for (var eagCounter = 0; ; )
             try {
-              return fs$readSync.call(fs22, fd, buffer, offset, length, position);
+              return fs$readSync.call(fs26, fd, buffer, offset, length, position);
             } catch (er) {
               if (er.code === "EAGAIN" && eagCounter < 10) {
                 eagCounter++;
@@ -48428,11 +48432,11 @@ var require_polyfills = __commonJS({
               throw er;
             }
         };
-      })(fs22.readSync);
-      function patchLchmod(fs23) {
-        fs23.lchmod = function(path23, mode, callback) {
-          fs23.open(
-            path23,
+      })(fs26.readSync);
+      function patchLchmod(fs27) {
+        fs27.lchmod = function(path28, mode, callback) {
+          fs27.open(
+            path28,
             constants9.O_WRONLY | constants9.O_SYMLINK,
             mode,
             function(err, fd) {
@@ -48440,64 +48444,64 @@ var require_polyfills = __commonJS({
                 callback && callback(err);
                 return;
               }
-              fs23.fchmod(fd, mode, function(err2) {
-                fs23.close(fd, function(err22) {
+              fs27.fchmod(fd, mode, function(err2) {
+                fs27.close(fd, function(err22) {
                   callback && callback(err2 || err22);
                 });
               });
             }
           );
-        }, fs23.lchmodSync = function(path23, mode) {
-          var fd = fs23.openSync(path23, constants9.O_WRONLY | constants9.O_SYMLINK, mode), threw = !0, ret;
+        }, fs27.lchmodSync = function(path28, mode) {
+          var fd = fs27.openSync(path28, constants9.O_WRONLY | constants9.O_SYMLINK, mode), threw = !0, ret;
           try {
-            ret = fs23.fchmodSync(fd, mode), threw = !1;
+            ret = fs27.fchmodSync(fd, mode), threw = !1;
           } finally {
             if (threw)
               try {
-                fs23.closeSync(fd);
+                fs27.closeSync(fd);
               } catch {
               }
             else
-              fs23.closeSync(fd);
+              fs27.closeSync(fd);
           }
           return ret;
         };
       }
-      function patchLutimes(fs23) {
-        constants9.hasOwnProperty("O_SYMLINK") && fs23.futimes ? (fs23.lutimes = function(path23, at2, mt, cb) {
-          fs23.open(path23, constants9.O_SYMLINK, function(er, fd) {
+      function patchLutimes(fs27) {
+        constants9.hasOwnProperty("O_SYMLINK") && fs27.futimes ? (fs27.lutimes = function(path28, at2, mt, cb) {
+          fs27.open(path28, constants9.O_SYMLINK, function(er, fd) {
             if (er) {
               cb && cb(er);
               return;
             }
-            fs23.futimes(fd, at2, mt, function(er2) {
-              fs23.close(fd, function(er22) {
+            fs27.futimes(fd, at2, mt, function(er2) {
+              fs27.close(fd, function(er22) {
                 cb && cb(er2 || er22);
               });
             });
           });
-        }, fs23.lutimesSync = function(path23, at2, mt) {
-          var fd = fs23.openSync(path23, constants9.O_SYMLINK), ret, threw = !0;
+        }, fs27.lutimesSync = function(path28, at2, mt) {
+          var fd = fs27.openSync(path28, constants9.O_SYMLINK), ret, threw = !0;
           try {
-            ret = fs23.futimesSync(fd, at2, mt), threw = !1;
+            ret = fs27.futimesSync(fd, at2, mt), threw = !1;
           } finally {
             if (threw)
               try {
-                fs23.closeSync(fd);
+                fs27.closeSync(fd);
               } catch {
               }
             else
-              fs23.closeSync(fd);
+              fs27.closeSync(fd);
           }
           return ret;
-        }) : fs23.futimes && (fs23.lutimes = function(_a8, _b, _c, cb) {
+        }) : fs27.futimes && (fs27.lutimes = function(_a8, _b, _c, cb) {
           cb && process.nextTick(cb);
-        }, fs23.lutimesSync = function() {
+        }, fs27.lutimesSync = function() {
         });
       }
       function chmodFix(orig) {
         return orig && function(target, mode, cb) {
-          return orig.call(fs22, target, mode, function(er) {
+          return orig.call(fs26, target, mode, function(er) {
             chownErOk(er) && (er = null), cb && cb.apply(this, arguments);
           });
         };
@@ -48505,7 +48509,7 @@ var require_polyfills = __commonJS({
       function chmodFixSync(orig) {
         return orig && function(target, mode) {
           try {
-            return orig.call(fs22, target, mode);
+            return orig.call(fs26, target, mode);
           } catch (er) {
             if (!chownErOk(er)) throw er;
           }
@@ -48513,7 +48517,7 @@ var require_polyfills = __commonJS({
       }
       function chownFix(orig) {
         return orig && function(target, uid, gid, cb) {
-          return orig.call(fs22, target, uid, gid, function(er) {
+          return orig.call(fs26, target, uid, gid, function(er) {
             chownErOk(er) && (er = null), cb && cb.apply(this, arguments);
           });
         };
@@ -48521,7 +48525,7 @@ var require_polyfills = __commonJS({
       function chownFixSync(orig) {
         return orig && function(target, uid, gid) {
           try {
-            return orig.call(fs22, target, uid, gid);
+            return orig.call(fs26, target, uid, gid);
           } catch (er) {
             if (!chownErOk(er)) throw er;
           }
@@ -48533,12 +48537,12 @@ var require_polyfills = __commonJS({
           function callback(er, stats) {
             stats && (stats.uid < 0 && (stats.uid += 4294967296), stats.gid < 0 && (stats.gid += 4294967296)), cb && cb.apply(this, arguments);
           }
-          return options ? orig.call(fs22, target, options, callback) : orig.call(fs22, target, callback);
+          return options ? orig.call(fs26, target, options, callback) : orig.call(fs26, target, callback);
         };
       }
       function statFixSync(orig) {
         return orig && function(target, options) {
-          var stats = options ? orig.call(fs22, target, options) : orig.call(fs22, target);
+          var stats = options ? orig.call(fs26, target, options) : orig.call(fs26, target);
           return stats && (stats.uid < 0 && (stats.uid += 4294967296), stats.gid < 0 && (stats.gid += 4294967296)), stats;
         };
       }
@@ -48557,16 +48561,16 @@ var require_legacy_streams = __commonJS({
   "node_modules/graceful-fs/legacy-streams.js"(exports, module) {
     var Stream6 = __require("stream").Stream;
     module.exports = legacy;
-    function legacy(fs22) {
+    function legacy(fs26) {
       return {
         ReadStream,
         WriteStream
       };
-      function ReadStream(path23, options) {
-        if (!(this instanceof ReadStream)) return new ReadStream(path23, options);
+      function ReadStream(path28, options) {
+        if (!(this instanceof ReadStream)) return new ReadStream(path28, options);
         Stream6.call(this);
         var self2 = this;
-        this.path = path23, this.fd = null, this.readable = !0, this.paused = !1, this.flags = "r", this.mode = 438, this.bufferSize = 64 * 1024, options = options || {};
+        this.path = path28, this.fd = null, this.readable = !0, this.paused = !1, this.flags = "r", this.mode = 438, this.bufferSize = 64 * 1024, options = options || {};
         for (var keys = Object.keys(options), index3 = 0, length = keys.length; index3 < length; index3++) {
           var key = keys[index3];
           this[key] = options[key];
@@ -48588,7 +48592,7 @@ var require_legacy_streams = __commonJS({
           });
           return;
         }
-        fs22.open(this.path, this.flags, this.mode, function(err, fd) {
+        fs26.open(this.path, this.flags, this.mode, function(err, fd) {
           if (err) {
             self2.emit("error", err), self2.readable = !1;
             return;
@@ -48596,9 +48600,9 @@ var require_legacy_streams = __commonJS({
           self2.fd = fd, self2.emit("open", fd), self2._read();
         });
       }
-      function WriteStream(path23, options) {
-        if (!(this instanceof WriteStream)) return new WriteStream(path23, options);
-        Stream6.call(this), this.path = path23, this.fd = null, this.writable = !0, this.flags = "w", this.encoding = "binary", this.mode = 438, this.bytesWritten = 0, options = options || {};
+      function WriteStream(path28, options) {
+        if (!(this instanceof WriteStream)) return new WriteStream(path28, options);
+        Stream6.call(this), this.path = path28, this.fd = null, this.writable = !0, this.flags = "w", this.encoding = "binary", this.mode = 438, this.bytesWritten = 0, options = options || {};
         for (var keys = Object.keys(options), index3 = 0, length = keys.length; index3 < length; index3++) {
           var key = keys[index3];
           this[key] = options[key];
@@ -48610,7 +48614,7 @@ var require_legacy_streams = __commonJS({
             throw new Error("start must be >= zero");
           this.pos = this.start;
         }
-        this.busy = !1, this._queue = [], this.fd === null && (this._open = fs22.open, this._queue.push([this._open, this.path, this.flags, this.mode, void 0]), this.flush());
+        this.busy = !1, this._queue = [], this.fd === null && (this._open = fs26.open, this._queue.push([this._open, this.path, this.flags, this.mode, void 0]), this.flush());
       }
     }
   }
@@ -48641,7 +48645,7 @@ var require_clone = __commonJS({
 // node_modules/graceful-fs/graceful-fs.js
 var require_graceful_fs = __commonJS({
   "node_modules/graceful-fs/graceful-fs.js"(exports, module) {
-    var fs22 = __require("fs"), polyfills = require_polyfills(), legacy = require_legacy_streams(), clone2 = require_clone(), util2 = __require("util"), gracefulQueue, previousSymbol;
+    var fs26 = __require("fs"), polyfills = require_polyfills(), legacy = require_legacy_streams(), clone2 = require_clone(), util2 = __require("util"), gracefulQueue, previousSymbol;
     typeof Symbol == "function" && typeof Symbol.for == "function" ? (gracefulQueue = /* @__PURE__ */ Symbol.for("graceful-fs.queue"), previousSymbol = /* @__PURE__ */ Symbol.for("graceful-fs.previous")) : (gracefulQueue = "___graceful-fs.queue", previousSymbol = "___graceful-fs.previous");
     function noop4() {
     }
@@ -48658,63 +48662,63 @@ var require_graceful_fs = __commonJS({
       m3 = "GFS4: " + m3.split(/\n/).join(`
 GFS4: `), console.error(m3);
     });
-    fs22[gracefulQueue] || (queue = global[gracefulQueue] || [], publishQueue(fs22, queue), fs22.close = (function(fs$close) {
+    fs26[gracefulQueue] || (queue = global[gracefulQueue] || [], publishQueue(fs26, queue), fs26.close = (function(fs$close) {
       function close(fd, cb) {
-        return fs$close.call(fs22, fd, function(err) {
+        return fs$close.call(fs26, fd, function(err) {
           err || resetQueue(), typeof cb == "function" && cb.apply(this, arguments);
         });
       }
       return Object.defineProperty(close, previousSymbol, {
         value: fs$close
       }), close;
-    })(fs22.close), fs22.closeSync = (function(fs$closeSync) {
+    })(fs26.close), fs26.closeSync = (function(fs$closeSync) {
       function closeSync2(fd) {
-        fs$closeSync.apply(fs22, arguments), resetQueue();
+        fs$closeSync.apply(fs26, arguments), resetQueue();
       }
       return Object.defineProperty(closeSync2, previousSymbol, {
         value: fs$closeSync
       }), closeSync2;
-    })(fs22.closeSync), /\bgfs4\b/i.test(process.env.NODE_DEBUG || "") && process.on("exit", function() {
-      debug(fs22[gracefulQueue]), __require("assert").equal(fs22[gracefulQueue].length, 0);
+    })(fs26.closeSync), /\bgfs4\b/i.test(process.env.NODE_DEBUG || "") && process.on("exit", function() {
+      debug(fs26[gracefulQueue]), __require("assert").equal(fs26[gracefulQueue].length, 0);
     }));
     var queue;
-    global[gracefulQueue] || publishQueue(global, fs22[gracefulQueue]);
-    module.exports = patch(clone2(fs22));
-    process.env.TEST_GRACEFUL_FS_GLOBAL_PATCH && !fs22.__patched && (module.exports = patch(fs22), fs22.__patched = !0);
-    function patch(fs23) {
-      polyfills(fs23), fs23.gracefulify = patch, fs23.createReadStream = createReadStream4, fs23.createWriteStream = createWriteStream4;
-      var fs$readFile = fs23.readFile;
-      fs23.readFile = readFile7;
-      function readFile7(path23, options, cb) {
-        return typeof options == "function" && (cb = options, options = null), go$readFile(path23, options, cb);
-        function go$readFile(path24, options2, cb2, startTime) {
-          return fs$readFile(path24, options2, function(err) {
-            err && (err.code === "EMFILE" || err.code === "ENFILE") ? enqueue([go$readFile, [path24, options2, cb2], err, startTime || Date.now(), Date.now()]) : typeof cb2 == "function" && cb2.apply(this, arguments);
+    global[gracefulQueue] || publishQueue(global, fs26[gracefulQueue]);
+    module.exports = patch(clone2(fs26));
+    process.env.TEST_GRACEFUL_FS_GLOBAL_PATCH && !fs26.__patched && (module.exports = patch(fs26), fs26.__patched = !0);
+    function patch(fs27) {
+      polyfills(fs27), fs27.gracefulify = patch, fs27.createReadStream = createReadStream4, fs27.createWriteStream = createWriteStream4;
+      var fs$readFile = fs27.readFile;
+      fs27.readFile = readFile7;
+      function readFile7(path28, options, cb) {
+        return typeof options == "function" && (cb = options, options = null), go$readFile(path28, options, cb);
+        function go$readFile(path29, options2, cb2, startTime) {
+          return fs$readFile(path29, options2, function(err) {
+            err && (err.code === "EMFILE" || err.code === "ENFILE") ? enqueue([go$readFile, [path29, options2, cb2], err, startTime || Date.now(), Date.now()]) : typeof cb2 == "function" && cb2.apply(this, arguments);
           });
         }
       }
-      var fs$writeFile = fs23.writeFile;
-      fs23.writeFile = writeFile4;
-      function writeFile4(path23, data, options, cb) {
-        return typeof options == "function" && (cb = options, options = null), go$writeFile(path23, data, options, cb);
-        function go$writeFile(path24, data2, options2, cb2, startTime) {
-          return fs$writeFile(path24, data2, options2, function(err) {
-            err && (err.code === "EMFILE" || err.code === "ENFILE") ? enqueue([go$writeFile, [path24, data2, options2, cb2], err, startTime || Date.now(), Date.now()]) : typeof cb2 == "function" && cb2.apply(this, arguments);
+      var fs$writeFile = fs27.writeFile;
+      fs27.writeFile = writeFile4;
+      function writeFile4(path28, data, options, cb) {
+        return typeof options == "function" && (cb = options, options = null), go$writeFile(path28, data, options, cb);
+        function go$writeFile(path29, data2, options2, cb2, startTime) {
+          return fs$writeFile(path29, data2, options2, function(err) {
+            err && (err.code === "EMFILE" || err.code === "ENFILE") ? enqueue([go$writeFile, [path29, data2, options2, cb2], err, startTime || Date.now(), Date.now()]) : typeof cb2 == "function" && cb2.apply(this, arguments);
           });
         }
       }
-      var fs$appendFile = fs23.appendFile;
-      fs$appendFile && (fs23.appendFile = appendFile);
-      function appendFile(path23, data, options, cb) {
-        return typeof options == "function" && (cb = options, options = null), go$appendFile(path23, data, options, cb);
-        function go$appendFile(path24, data2, options2, cb2, startTime) {
-          return fs$appendFile(path24, data2, options2, function(err) {
-            err && (err.code === "EMFILE" || err.code === "ENFILE") ? enqueue([go$appendFile, [path24, data2, options2, cb2], err, startTime || Date.now(), Date.now()]) : typeof cb2 == "function" && cb2.apply(this, arguments);
+      var fs$appendFile = fs27.appendFile;
+      fs$appendFile && (fs27.appendFile = appendFile);
+      function appendFile(path28, data, options, cb) {
+        return typeof options == "function" && (cb = options, options = null), go$appendFile(path28, data, options, cb);
+        function go$appendFile(path29, data2, options2, cb2, startTime) {
+          return fs$appendFile(path29, data2, options2, function(err) {
+            err && (err.code === "EMFILE" || err.code === "ENFILE") ? enqueue([go$appendFile, [path29, data2, options2, cb2], err, startTime || Date.now(), Date.now()]) : typeof cb2 == "function" && cb2.apply(this, arguments);
           });
         }
       }
-      var fs$copyFile = fs23.copyFile;
-      fs$copyFile && (fs23.copyFile = copyFile);
+      var fs$copyFile = fs27.copyFile;
+      fs$copyFile && (fs27.copyFile = copyFile);
       function copyFile(src, dest, flags, cb) {
         return typeof flags == "function" && (cb = flags, flags = 0), go$copyFile(src, dest, flags, cb);
         function go$copyFile(src2, dest2, flags2, cb2, startTime) {
@@ -48723,32 +48727,32 @@ GFS4: `), console.error(m3);
           });
         }
       }
-      var fs$readdir = fs23.readdir;
-      fs23.readdir = readdir3;
+      var fs$readdir = fs27.readdir;
+      fs27.readdir = readdir3;
       var noReaddirOptionVersions = /^v[0-5]\./;
-      function readdir3(path23, options, cb) {
+      function readdir3(path28, options, cb) {
         typeof options == "function" && (cb = options, options = null);
-        var go$readdir = noReaddirOptionVersions.test(process.version) ? function(path24, options2, cb2, startTime) {
-          return fs$readdir(path24, fs$readdirCallback(
-            path24,
+        var go$readdir = noReaddirOptionVersions.test(process.version) ? function(path29, options2, cb2, startTime) {
+          return fs$readdir(path29, fs$readdirCallback(
+            path29,
             options2,
             cb2,
             startTime
           ));
-        } : function(path24, options2, cb2, startTime) {
-          return fs$readdir(path24, options2, fs$readdirCallback(
-            path24,
+        } : function(path29, options2, cb2, startTime) {
+          return fs$readdir(path29, options2, fs$readdirCallback(
+            path29,
             options2,
             cb2,
             startTime
           ));
         };
-        return go$readdir(path23, options, cb);
-        function fs$readdirCallback(path24, options2, cb2, startTime) {
+        return go$readdir(path28, options, cb);
+        function fs$readdirCallback(path29, options2, cb2, startTime) {
           return function(err, files) {
             err && (err.code === "EMFILE" || err.code === "ENFILE") ? enqueue([
               go$readdir,
-              [path24, options2, cb2],
+              [path29, options2, cb2],
               err,
               startTime || Date.now(),
               Date.now()
@@ -48757,13 +48761,13 @@ GFS4: `), console.error(m3);
         }
       }
       if (process.version.substr(0, 4) === "v0.8") {
-        var legStreams = legacy(fs23);
+        var legStreams = legacy(fs27);
         ReadStream = legStreams.ReadStream, WriteStream = legStreams.WriteStream;
       }
-      var fs$ReadStream = fs23.ReadStream;
+      var fs$ReadStream = fs27.ReadStream;
       fs$ReadStream && (ReadStream.prototype = Object.create(fs$ReadStream.prototype), ReadStream.prototype.open = ReadStream$open);
-      var fs$WriteStream = fs23.WriteStream;
-      fs$WriteStream && (WriteStream.prototype = Object.create(fs$WriteStream.prototype), WriteStream.prototype.open = WriteStream$open), Object.defineProperty(fs23, "ReadStream", {
+      var fs$WriteStream = fs27.WriteStream;
+      fs$WriteStream && (WriteStream.prototype = Object.create(fs$WriteStream.prototype), WriteStream.prototype.open = WriteStream$open), Object.defineProperty(fs27, "ReadStream", {
         get: function() {
           return ReadStream;
         },
@@ -48772,7 +48776,7 @@ GFS4: `), console.error(m3);
         },
         enumerable: !0,
         configurable: !0
-      }), Object.defineProperty(fs23, "WriteStream", {
+      }), Object.defineProperty(fs27, "WriteStream", {
         get: function() {
           return WriteStream;
         },
@@ -48783,7 +48787,7 @@ GFS4: `), console.error(m3);
         configurable: !0
       });
       var FileReadStream = ReadStream;
-      Object.defineProperty(fs23, "FileReadStream", {
+      Object.defineProperty(fs27, "FileReadStream", {
         get: function() {
           return FileReadStream;
         },
@@ -48794,7 +48798,7 @@ GFS4: `), console.error(m3);
         configurable: !0
       });
       var FileWriteStream = WriteStream;
-      Object.defineProperty(fs23, "FileWriteStream", {
+      Object.defineProperty(fs27, "FileWriteStream", {
         get: function() {
           return FileWriteStream;
         },
@@ -48804,7 +48808,7 @@ GFS4: `), console.error(m3);
         enumerable: !0,
         configurable: !0
       });
-      function ReadStream(path23, options) {
+      function ReadStream(path28, options) {
         return this instanceof ReadStream ? (fs$ReadStream.apply(this, arguments), this) : ReadStream.apply(Object.create(ReadStream.prototype), arguments);
       }
       function ReadStream$open() {
@@ -48813,7 +48817,7 @@ GFS4: `), console.error(m3);
           err ? (that.autoClose && that.destroy(), that.emit("error", err)) : (that.fd = fd, that.emit("open", fd), that.read());
         });
       }
-      function WriteStream(path23, options) {
+      function WriteStream(path28, options) {
         return this instanceof WriteStream ? (fs$WriteStream.apply(this, arguments), this) : WriteStream.apply(Object.create(WriteStream.prototype), arguments);
       }
       function WriteStream$open() {
@@ -48822,36 +48826,36 @@ GFS4: `), console.error(m3);
           err ? (that.destroy(), that.emit("error", err)) : (that.fd = fd, that.emit("open", fd));
         });
       }
-      function createReadStream4(path23, options) {
-        return new fs23.ReadStream(path23, options);
+      function createReadStream4(path28, options) {
+        return new fs27.ReadStream(path28, options);
       }
-      function createWriteStream4(path23, options) {
-        return new fs23.WriteStream(path23, options);
+      function createWriteStream4(path28, options) {
+        return new fs27.WriteStream(path28, options);
       }
-      var fs$open = fs23.open;
-      fs23.open = open4;
-      function open4(path23, flags, mode, cb) {
-        return typeof mode == "function" && (cb = mode, mode = null), go$open(path23, flags, mode, cb);
-        function go$open(path24, flags2, mode2, cb2, startTime) {
-          return fs$open(path24, flags2, mode2, function(err, fd) {
-            err && (err.code === "EMFILE" || err.code === "ENFILE") ? enqueue([go$open, [path24, flags2, mode2, cb2], err, startTime || Date.now(), Date.now()]) : typeof cb2 == "function" && cb2.apply(this, arguments);
+      var fs$open = fs27.open;
+      fs27.open = open4;
+      function open4(path28, flags, mode, cb) {
+        return typeof mode == "function" && (cb = mode, mode = null), go$open(path28, flags, mode, cb);
+        function go$open(path29, flags2, mode2, cb2, startTime) {
+          return fs$open(path29, flags2, mode2, function(err, fd) {
+            err && (err.code === "EMFILE" || err.code === "ENFILE") ? enqueue([go$open, [path29, flags2, mode2, cb2], err, startTime || Date.now(), Date.now()]) : typeof cb2 == "function" && cb2.apply(this, arguments);
           });
         }
       }
-      return fs23;
+      return fs27;
     }
     function enqueue(elem) {
-      debug("ENQUEUE", elem[0].name, elem[1]), fs22[gracefulQueue].push(elem), retry2();
+      debug("ENQUEUE", elem[0].name, elem[1]), fs26[gracefulQueue].push(elem), retry2();
     }
     var retryTimer;
     function resetQueue() {
-      for (var now = Date.now(), i2 = 0; i2 < fs22[gracefulQueue].length; ++i2)
-        fs22[gracefulQueue][i2].length > 2 && (fs22[gracefulQueue][i2][3] = now, fs22[gracefulQueue][i2][4] = now);
+      for (var now = Date.now(), i2 = 0; i2 < fs26[gracefulQueue].length; ++i2)
+        fs26[gracefulQueue][i2].length > 2 && (fs26[gracefulQueue][i2][3] = now, fs26[gracefulQueue][i2][4] = now);
       retry2();
     }
     function retry2() {
-      if (clearTimeout(retryTimer), retryTimer = void 0, fs22[gracefulQueue].length !== 0) {
-        var elem = fs22[gracefulQueue].shift(), fn = elem[0], args = elem[1], err = elem[2], startTime = elem[3], lastTime = elem[4];
+      if (clearTimeout(retryTimer), retryTimer = void 0, fs26[gracefulQueue].length !== 0) {
+        var elem = fs26[gracefulQueue].shift(), fn = elem[0], args = elem[1], err = elem[2], startTime = elem[3], lastTime = elem[4];
         if (startTime === void 0)
           debug("RETRY", fn.name, args), fn.apply(null, args);
         else if (Date.now() - startTime >= 6e4) {
@@ -48860,7 +48864,7 @@ GFS4: `), console.error(m3);
           typeof cb == "function" && cb.call(null, err);
         } else {
           var sinceAttempt = Date.now() - lastTime, sinceStart = Math.max(lastTime - startTime, 1), desiredDelay = Math.min(sinceStart * 1.2, 100);
-          sinceAttempt >= desiredDelay ? (debug("RETRY", fn.name, args), fn.apply(null, args.concat([startTime]))) : fs22[gracefulQueue].push(elem);
+          sinceAttempt >= desiredDelay ? (debug("RETRY", fn.name, args), fn.apply(null, args.concat([startTime]))) : fs26[gracefulQueue].push(elem);
         }
         retryTimer === void 0 && (retryTimer = setTimeout(retry2, 0));
       }
@@ -49096,23 +49100,23 @@ var require_mtime_precision = __commonJS({
   "node_modules/proper-lockfile/lib/mtime-precision.js"(exports, module) {
     "use strict";
     var cacheSymbol = /* @__PURE__ */ Symbol();
-    function probe(file, fs22, callback) {
-      let cachedPrecision = fs22[cacheSymbol];
+    function probe(file, fs26, callback) {
+      let cachedPrecision = fs26[cacheSymbol];
       if (cachedPrecision)
-        return fs22.stat(file, (err, stat6) => {
+        return fs26.stat(file, (err, stat6) => {
           if (err)
             return callback(err);
           callback(null, stat6.mtime, cachedPrecision);
         });
       let mtime = new Date(Math.ceil(Date.now() / 1e3) * 1e3 + 5);
-      fs22.utimes(file, mtime, mtime, (err) => {
+      fs26.utimes(file, mtime, mtime, (err) => {
         if (err)
           return callback(err);
-        fs22.stat(file, (err2, stat6) => {
+        fs26.stat(file, (err2, stat6) => {
           if (err2)
             return callback(err2);
           let precision = stat6.mtime.getTime() % 1e3 === 0 ? "s" : "ms";
-          Object.defineProperty(fs22, cacheSymbol, { value: precision }), callback(null, stat6.mtime, precision);
+          Object.defineProperty(fs26, cacheSymbol, { value: precision }), callback(null, stat6.mtime, precision);
         });
       });
     }
@@ -49129,13 +49133,13 @@ var require_mtime_precision = __commonJS({
 var require_lockfile = __commonJS({
   "node_modules/proper-lockfile/lib/lockfile.js"(exports, module) {
     "use strict";
-    var path23 = __require("path"), fs22 = require_graceful_fs(), retry2 = require_retry3(), onExit = require_signal_exit(), mtimePrecision = require_mtime_precision(), locks = {};
+    var path28 = __require("path"), fs26 = require_graceful_fs(), retry2 = require_retry3(), onExit = require_signal_exit(), mtimePrecision = require_mtime_precision(), locks = {};
     function getLockFile(file, options) {
       return options.lockfilePath || `${file}.lock`;
     }
     function resolveCanonicalPath(file, options, callback) {
       if (!options.realpath)
-        return callback(null, path23.resolve(file));
+        return callback(null, path28.resolve(file));
       options.fs.realpath(file, callback);
     }
     function acquireLock(file, options, callback) {
@@ -49212,7 +49216,7 @@ var require_lockfile = __commonJS({
         update: null,
         realpath: !0,
         retries: 0,
-        fs: fs22,
+        fs: fs26,
         onCompromised: (err) => {
           throw err;
         },
@@ -49245,7 +49249,7 @@ var require_lockfile = __commonJS({
     }
     function unlock(file, options, callback) {
       options = {
-        fs: fs22,
+        fs: fs26,
         realpath: !0,
         ...options
       }, resolveCanonicalPath(file, options, (err, file2) => {
@@ -49261,7 +49265,7 @@ var require_lockfile = __commonJS({
       options = {
         stale: 1e4,
         realpath: !0,
-        fs: fs22,
+        fs: fs26,
         ...options
       }, options.stale = Math.max(options.stale || 0, 2e3), resolveCanonicalPath(file, options, (err, file2) => {
         if (err)
@@ -49292,14 +49296,14 @@ var require_lockfile = __commonJS({
 var require_adapter = __commonJS({
   "node_modules/proper-lockfile/lib/adapter.js"(exports, module) {
     "use strict";
-    var fs22 = require_graceful_fs();
-    function createSyncFs(fs23) {
-      let methods = ["mkdir", "realpath", "stat", "rmdir", "utimes"], newFs = { ...fs23 };
+    var fs26 = require_graceful_fs();
+    function createSyncFs(fs27) {
+      let methods = ["mkdir", "realpath", "stat", "rmdir", "utimes"], newFs = { ...fs27 };
       return methods.forEach((method) => {
         newFs[method] = (...args) => {
           let callback = args.pop(), ret;
           try {
-            ret = fs23[`${method}Sync`](...args);
+            ret = fs27[`${method}Sync`](...args);
           } catch (err) {
             return callback(err);
           }
@@ -49308,9 +49312,9 @@ var require_adapter = __commonJS({
       }), newFs;
     }
     function toPromise(method) {
-      return (...args) => new Promise((resolve22, reject) => {
+      return (...args) => new Promise((resolve23, reject) => {
         args.push((err, result) => {
-          err ? reject(err) : resolve22(result);
+          err ? reject(err) : resolve23(result);
         }), method(...args);
       });
     }
@@ -49325,7 +49329,7 @@ var require_adapter = __commonJS({
       };
     }
     function toSyncOptions(options) {
-      if (options = { ...options }, options.fs = createSyncFs(options.fs || fs22), typeof options.retries == "number" && options.retries > 0 || options.retries && typeof options.retries.retries == "number" && options.retries.retries > 0)
+      if (options = { ...options }, options.fs = createSyncFs(options.fs || fs26), typeof options.retries == "number" && options.retries > 0 || options.retries && typeof options.retries.retries == "number" && options.retries.retries > 0)
         throw Object.assign(new Error("Cannot use retries with the sync api"), { code: "ESYNC" });
       return options;
     }
@@ -49498,10 +49502,10 @@ function parseTimeoutSetting(value, settingName) {
   if (value !== void 0)
     throw new Error(`Invalid ${settingName} setting: ${String(value)}`);
 }
-function toSettingsError(scope, error, path23) {
+function toSettingsError(scope, error, path28) {
   return {
     scope,
-    ...path23 ? { path: path23 } : {},
+    ...path28 ? { path: path28 } : {},
     error: error instanceof Error ? error : new Error(String(error))
   };
 }
@@ -49526,11 +49530,11 @@ var import_proper_lockfile, CACHE_WARMING_MODES, DEFAULT_COMPACTION_TOKEN_SETTIN
         let resolvedCwd = resolvePath(cwd), resolvedAgentDir = resolvePath(agentDir);
         this.globalSettingsPath = join8(resolvedAgentDir, "settings.json"), this.projectSettingsPath = join8(resolvedCwd, CONFIG_DIR_NAME, "settings.json");
       }
-      acquireLockSyncWithRetry(path23) {
+      acquireLockSyncWithRetry(path28) {
         let lastError;
         for (let attempt2 = 1; attempt2 <= 10; attempt2++)
           try {
-            return import_proper_lockfile.default.lockSync(path23, { realpath: !1 });
+            return import_proper_lockfile.default.lockSync(path28, { realpath: !1 });
           } catch (error) {
             if ((typeof error == "object" && error !== null && "code" in error ? String(error.code) : void 0) !== "ELOCKED" || attempt2 === 10)
               throw error;
@@ -49542,12 +49546,12 @@ var import_proper_lockfile, CACHE_WARMING_MODES, DEFAULT_COMPACTION_TOKEN_SETTIN
         throw lastError ?? new Error("Failed to acquire settings lock");
       }
       withLock(scope, fn) {
-        let path23 = scope === "global" ? this.globalSettingsPath : this.projectSettingsPath, dir = dirname5(path23), release2;
+        let path28 = scope === "global" ? this.globalSettingsPath : this.projectSettingsPath, dir = dirname5(path28), release2;
         try {
-          let fileExists2 = existsSync2(path23);
-          fileExists2 && (release2 = this.acquireLockSyncWithRetry(path23));
-          let current = fileExists2 ? readFileSync2(path23, "utf-8") : void 0, next = fn(current);
-          next !== void 0 && (existsSync2(dir) || mkdirSync2(dir, { recursive: !0 }), release2 || (release2 = this.acquireLockSyncWithRetry(path23)), writeFileSync2(path23, next, "utf-8"));
+          let fileExists2 = existsSync2(path28);
+          fileExists2 && (release2 = this.acquireLockSyncWithRetry(path28));
+          let current = fileExists2 ? readFileSync2(path28, "utf-8") : void 0, next = fn(current);
+          next !== void 0 && (existsSync2(dir) || mkdirSync2(dir, { recursive: !0 }), release2 || (release2 = this.acquireLockSyncWithRetry(path28)), writeFileSync2(path28, next, "utf-8"));
         } finally {
           release2 && release2();
         }
@@ -49942,8 +49946,8 @@ var import_proper_lockfile, CACHE_WARMING_MODES, DEFAULT_COMPACTION_TOKEN_SETTIN
         let shellPath = this.settings.shellPath;
         return shellPath && normalizePath(shellPath);
       }
-      setShellPath(path23) {
-        this.globalSettings.shellPath = path23, this.markModified("shellPath"), this.save();
+      setShellPath(path28) {
+        this.globalSettings.shellPath = path28, this.markModified("shellPath"), this.save();
       }
       getQuietStartup() {
         let value = this.settings.quietStartup;
@@ -53373,7 +53377,7 @@ var startsWithSchemeRegexp, isAbsoluteURL, isArray, isReadonlyArray, validatePos
 // packages/ai/node_modules/openai/internal/utils/sleep.mjs
 var sleep2, init_sleep = __esm({
   "packages/ai/node_modules/openai/internal/utils/sleep.mjs"() {
-    sleep2 = (ms, ...signals) => new Promise((resolve22, reject) => {
+    sleep2 = (ms, ...signals) => new Promise((resolve23, reject) => {
       let activeSignals = [...new Set(signals.filter((signal) => signal != null))], timeout, settled = !1, cleanup = () => {
         for (let signal of activeSignals)
           try {
@@ -53390,7 +53394,7 @@ var sleep2, init_sleep = __esm({
         return;
       }
       timeout = setTimeout(() => {
-        settle(resolve22);
+        settle(resolve23);
       }, ms);
       for (let signal of activeSignals) {
         if (settled)
@@ -53711,8 +53715,8 @@ var levelNumbers, parseLogLevel, noopLogger, cachedLoggers, sensitiveQueryNames,
     formatRequestDetails = (details) => {
       if (details.options) {
         if (details.options = { ...details.options }, delete details.options.headers, details.options.path) {
-          let path23 = details.options.path, redacted = new URL(redactURL(new URL(path23, "https://redacted.invalid").href));
-          details.options.path = redacted.origin === "https://redacted.invalid" ? `${path23.startsWith("/") ? "/" : ""}${redacted.pathname.slice(1)}${redacted.search}` : redacted.href;
+          let path28 = details.options.path, redacted = new URL(redactURL(new URL(path28, "https://redacted.invalid").href));
+          details.options.path = redacted.origin === "https://redacted.invalid" ? `${path28.startsWith("/") ? "/" : ""}${redacted.pathname.slice(1)}${redacted.search}` : redacted.href;
         }
         details.options.query && (details.options.query = Object.fromEntries(Object.entries(details.options.query).map(([name, value]) => [
           name,
@@ -53757,8 +53761,8 @@ function createAbortableSSESource(body, signal) {
     return: () => reader.cancel()
   } : ReadableStreamToAsyncIterable(body)[Symbol.asyncIterator](), ended = { value: void 0, done: !0 }, closed = !1, canceled = !1, cancellation, interrupt, waitForAbort = () => (
     // oxlint-disable-next-line promise/avoid-new -- AbortSignal callbacks need a portable Promise bridge.
-    new Promise((resolve22) => {
-      interrupt = resolve22;
+    new Promise((resolve23) => {
+      interrupt = resolve23;
     })
   ), cancel = () => {
     if (canceled || closed)
@@ -54659,8 +54663,8 @@ var _APIPromise_client, APIPromise, init_api_promise = __esm({
     init_parse4();
     APIPromise = class _APIPromise extends Promise {
       constructor(client, responsePromise, parseResponse2 = defaultParseResponse) {
-        super((resolve22) => {
-          resolve22(null);
+        super((resolve23) => {
+          resolve23(null);
         }), this.responsePromise = responsePromise, this.parseResponse = parseResponse2, _APIPromise_client.set(this, void 0), __classPrivateFieldSet(this, _APIPromise_client, client, "f");
       }
       _thenUnwrap(transform) {
@@ -55729,8 +55733,8 @@ function getName(value, options) {
     } catch {
       return basename3(url);
     }
-  let path23 = "path" in value && value.path && String(value.path);
-  return path23 ? basename3(path23) : void 0;
+  let path28 = "path" in value && value.path && String(value.path);
+  return path28 ? basename3(path28) : void 0;
 }
 function basename3(value) {
   return value.split(/[\\/]/).pop() || void 0;
@@ -56026,7 +56030,7 @@ var EMPTY, createPathTagFunction, path5, init_path = __esm({
     EMPTY = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.create(null)), createPathTagFunction = (pathEncoder = encodeURIPath) => function(statics, ...params) {
       if (statics.length === 1)
         return statics[0];
-      let postPath = !1, invalidSegments = [], path24 = "";
+      let postPath = !1, invalidSegments = [], path29 = "";
       for (let index3 = 0; index3 < statics.length; index3 += 1)
         if (index3 in statics) {
           let currentValue = statics[index3];
@@ -56035,12 +56039,12 @@ var EMPTY, createPathTagFunction, path5, init_path = __esm({
           index3 !== params.length && (value == null || // oxlint-disable-next-line anti-slop/no-runtime-typeof -- Path parameters may arrive from JavaScript callers and require runtime validation before URL encoding.
           typeof value == "object" && // handle values from other realms
           value.toString === Object.getPrototypeOf(Object.getPrototypeOf(value.hasOwnProperty ?? EMPTY) ?? EMPTY)?.toString) && (encoded = value + "", invalidSegments.push({
-            start: path24.length + currentValue.length,
+            start: path29.length + currentValue.length,
             length: encoded.length,
             error: `Value of type ${Object.prototype.toString.call(value).slice(8, -1)} is not a valid path parameter`
-          })), path24 += currentValue + (index3 === params.length ? "" : encoded);
+          })), path29 += currentValue + (index3 === params.length ? "" : encoded);
         }
-      let pathOnly = path24.split(/[?#]/, 1)[0], invalidSegmentPattern = /(?<=^|\/)(?:\.|%2e){1,2}(?=\/|$)/gi, match3;
+      let pathOnly = path29.split(/[?#]/, 1)[0], invalidSegmentPattern = /(?<=^|\/)(?:\.|%2e){1,2}(?=\/|$)/gi, match3;
       for (; (match3 = invalidSegmentPattern.exec(pathOnly)) !== null; )
         invalidSegments.push({
           start: match3.index,
@@ -56056,10 +56060,10 @@ var EMPTY, createPathTagFunction, path5, init_path = __esm({
         throw new OpenAIError(`Path parameters result in path with invalid segments:
 ${invalidSegments.map((e2) => e2.error).join(`
 `)}
-${path24}
+${path29}
 ${underline}`);
       }
-      return path24;
+      return path29;
     }, path5 = /* @__PURE__ */ createPathTagFunction(encodeURIPath);
   }
 });
@@ -56814,10 +56818,10 @@ var _EventStream_instances, _EventStream_connectedPromise, _EventStream_resolveC
         }), _EventStream_rejectConnectedPromise.set(this, () => {
         }), _EventStream_endPromise.set(this, void 0), _EventStream_resolveEndPromise.set(this, () => {
         }), _EventStream_rejectEndPromise.set(this, () => {
-        }), _EventStream_listeners.set(this, /* @__PURE__ */ Object.create(null)), _EventStream_abortListeners.set(this, []), _EventStream_emittedListenerRegistrations.set(this, /* @__PURE__ */ new WeakMap()), _EventStream_pendingListenerCleanup.set(this, /* @__PURE__ */ new Set()), _EventStream_pendingBufferedEventChecks.set(this, /* @__PURE__ */ new Set()), _EventStream_listenerDispatchDepth.set(this, 0), _EventStream_ended.set(this, !1), _EventStream_errored.set(this, !1), _EventStream_aborted.set(this, !1), _EventStream_catchingPromiseCreated.set(this, !1), _EventStream_terminalFailure.set(this, void 0), __classPrivateFieldSet(this, _EventStream_connectedPromise, new Promise((resolve22, reject) => {
-          __classPrivateFieldSet(this, _EventStream_resolveConnectedPromise, resolve22, "f"), __classPrivateFieldSet(this, _EventStream_rejectConnectedPromise, reject, "f");
-        }), "f"), __classPrivateFieldSet(this, _EventStream_endPromise, new Promise((resolve22, reject) => {
-          __classPrivateFieldSet(this, _EventStream_resolveEndPromise, resolve22, "f"), __classPrivateFieldSet(this, _EventStream_rejectEndPromise, reject, "f");
+        }), _EventStream_listeners.set(this, /* @__PURE__ */ Object.create(null)), _EventStream_abortListeners.set(this, []), _EventStream_emittedListenerRegistrations.set(this, /* @__PURE__ */ new WeakMap()), _EventStream_pendingListenerCleanup.set(this, /* @__PURE__ */ new Set()), _EventStream_pendingBufferedEventChecks.set(this, /* @__PURE__ */ new Set()), _EventStream_listenerDispatchDepth.set(this, 0), _EventStream_ended.set(this, !1), _EventStream_errored.set(this, !1), _EventStream_aborted.set(this, !1), _EventStream_catchingPromiseCreated.set(this, !1), _EventStream_terminalFailure.set(this, void 0), __classPrivateFieldSet(this, _EventStream_connectedPromise, new Promise((resolve23, reject) => {
+          __classPrivateFieldSet(this, _EventStream_resolveConnectedPromise, resolve23, "f"), __classPrivateFieldSet(this, _EventStream_rejectConnectedPromise, reject, "f");
+        }), "f"), __classPrivateFieldSet(this, _EventStream_endPromise, new Promise((resolve23, reject) => {
+          __classPrivateFieldSet(this, _EventStream_resolveEndPromise, resolve23, "f"), __classPrivateFieldSet(this, _EventStream_rejectEndPromise, reject, "f");
         }), "f"), __classPrivateFieldGet2(this, _EventStream_connectedPromise, "f").catch(() => {
         }), __classPrivateFieldGet2(this, _EventStream_endPromise, "f").catch(() => {
         });
@@ -56934,12 +56938,12 @@ var _EventStream_instances, _EventStream_connectedPromise, _EventStream_resolveC
        *   const message = await stream.emitted('message') // rejects if the stream errors
        */
       emitted(event) {
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           __classPrivateFieldSet(this, _EventStream_catchingPromiseCreated, !0, "f");
           let onError = (error) => {
             this.off(event, onEvent), reject(error);
           }, onEvent = (...values) => {
-            event !== "error" && this.off("error", onError), resolve22(values.length > 1 ? values : values[0]);
+            event !== "error" && this.off("error", onError), resolve23(values.length > 1 ? values : values[0]);
           };
           event !== "error" && __classPrivateFieldGet2(this, _EventStream_instances, "m", _EventStream_onceForEmitted).call(this, "error", onError), __classPrivateFieldGet2(this, _EventStream_instances, "m", _EventStream_onceForEmitted).call(this, event, onEvent);
         });
@@ -57068,8 +57072,8 @@ var _EventStream_instances, _EventStream_connectedPromise, _EventStream_resolveC
               }
               return bufferedLedger.release(entry.retention), Promise.resolve({ value, done: !1 });
             }
-            return (ended || this.ended) && adoptTerminalFailure(), failure && !failureDelivered ? (failureDelivered = !0, Promise.reject(failure)) : ended ? Promise.resolve(doneResult()) : new Promise((resolve22, reject) => {
-              readQueue.enqueue({ resolve: resolve22, reject });
+            return (ended || this.ended) && adoptTerminalFailure(), failure && !failureDelivered ? (failureDelivered = !0, Promise.reject(failure)) : ended ? Promise.resolve(doneResult()) : new Promise((resolve23, reject) => {
+              readQueue.enqueue({ resolve: resolve23, reject });
             });
           },
           return: () => {
@@ -62110,8 +62114,8 @@ var _AgentSessionStream_instances, _AgentSessionStream_consumed, _AgentSessionSt
         try {
           await __classPrivateFieldGet2(this, _AgentSessionStream_instances, "m", _AgentSessionStream_wait).call(this, () => (
             // oxlint-disable-next-line promise/avoid-new -- Own the registration timer so cancellation clears it promptly.
-            new Promise((resolve22) => {
-              timer = setTimeout(resolve22, delay2);
+            new Promise((resolve23) => {
+              timer = setTimeout(resolve23, delay2);
             })
           ));
         } finally {
@@ -64263,7 +64267,7 @@ var _AssistantStream_instances, _AssistantStream_runStepSnapshots, _AssistantStr
 
 // packages/ai/node_modules/openai/lib/polling.mjs
 function sleepUntilAborted(milliseconds, signal) {
-  return new Promise((resolve22, reject) => {
+  return new Promise((resolve23, reject) => {
     let timer, registered, settled = !1, removeAbortListener = (listener) => {
       try {
         signal.removeEventListener("abort", listener);
@@ -64294,7 +64298,7 @@ function sleepUntilAborted(milliseconds, signal) {
       return;
     }
     timer = setTimeout(() => {
-      settled || (settled = !0, cleanup(), resolve22());
+      settled || (settled = !0, cleanup(), resolve23());
     }, milliseconds), registered = abort;
     try {
       signal.addEventListener("abort", abort, { once: !0 }), settled ? removeAbortListener(abort) : signal.aborted && abort();
@@ -68631,8 +68635,8 @@ https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety
           throw new OpenAIError(`Expected 'apiKey' function argument to return a string but it returned ${token}`);
         return this.apiKey = token, capture?.(this.apiKey), !0;
       }
-      buildURL(path23, query, defaultBaseURL) {
-        let baseURL = !__classPrivateFieldGet2(this, _OpenAI_instances, "m", _OpenAI_baseURLOverridden).call(this) && defaultBaseURL || this.baseURL, url = isAbsoluteURL(path23) ? new URL(path23) : new URL(baseURL + (baseURL.endsWith("/") && path23.startsWith("/") ? path23.slice(1) : path23)), defaultQuery = this.defaultQuery(), pathQuery = Object.fromEntries(url.searchParams);
+      buildURL(path28, query, defaultBaseURL) {
+        let baseURL = !__classPrivateFieldGet2(this, _OpenAI_instances, "m", _OpenAI_baseURLOverridden).call(this) && defaultBaseURL || this.baseURL, url = isAbsoluteURL(path28) ? new URL(path28) : new URL(baseURL + (baseURL.endsWith("/") && path28.startsWith("/") ? path28.slice(1) : path28)), defaultQuery = this.defaultQuery(), pathQuery = Object.fromEntries(url.searchParams);
         return (!isEmptyObj(defaultQuery) || !isEmptyObj(pathQuery)) && (query = { ...pathQuery, ...defaultQuery, ...query }), typeof query == "object" && query && !Array.isArray(query) && (url.search = this.stringifyQuery(query)), url.toString();
       }
       /**
@@ -68651,23 +68655,23 @@ https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety
        */
       async prepareRequest(request, { url, options }) {
       }
-      get(path23, opts) {
-        return this.methodRequest("get", path23, opts);
+      get(path28, opts) {
+        return this.methodRequest("get", path28, opts);
       }
-      post(path23, opts) {
-        return this.methodRequest("post", path23, opts);
+      post(path28, opts) {
+        return this.methodRequest("post", path28, opts);
       }
-      patch(path23, opts) {
-        return this.methodRequest("patch", path23, opts);
+      patch(path28, opts) {
+        return this.methodRequest("patch", path28, opts);
       }
-      put(path23, opts) {
-        return this.methodRequest("put", path23, opts);
+      put(path28, opts) {
+        return this.methodRequest("put", path28, opts);
       }
-      delete(path23, opts) {
-        return this.methodRequest("delete", path23, opts);
+      delete(path28, opts) {
+        return this.methodRequest("delete", path28, opts);
       }
-      methodRequest(method, path23, opts) {
-        return this.request(Promise.resolve(opts).then((opts2) => ({ method, path: path23, ...opts2 })));
+      methodRequest(method, path28, opts) {
+        return this.request(Promise.resolve(opts).then((opts2) => ({ method, path: path28, ...opts2 })));
       }
       request(options, remainingRetries = null) {
         let authentication = __classPrivateFieldGet2(this, _OpenAI_x509Authentication, "f") ?? this._workloadIdentityAuth, request = authentication instanceof X509WorkloadIdentityAuth ? Promise.resolve(options).then((resolved) => authentication.runRequest(() => this.makeRequest(resolved, remainingRetries, void 0), this)) : this.makeRequest(options, remainingRetries, void 0);
@@ -68888,8 +68892,8 @@ https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety
           startTime
         };
       }
-      getAPIList(path23, Page3, opts) {
-        return this.requestAPIList(Page3, opts && "then" in opts ? opts.then((opts2) => ({ method: "get", path: path23, ...opts2 })) : { method: "get", path: path23, ...opts });
+      getAPIList(path28, Page3, opts) {
+        return this.requestAPIList(Page3, opts && "then" in opts ? opts.then((opts2) => ({ method: "get", path: path28, ...opts2 })) : { method: "get", path: path28, ...opts });
       }
       requestAPIList(Page3, options) {
         let authentication = __classPrivateFieldGet2(this, _OpenAI_x509Authentication, "f") ?? this._workloadIdentityAuth, request = authentication instanceof X509WorkloadIdentityAuth ? Promise.resolve(options).then((resolved) => authentication.runRequest(() => this.makeRequest(resolved, null, void 0), this)) : this.makeRequest(options, null, void 0), page = new PagePromise(this, request, Page3), guarded = this.responsePromise(request, async (client, props) => {
@@ -68986,7 +68990,7 @@ https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety
         }
         let options = { ...inputOptions }, x509Authentication = __classPrivateFieldGet2(this, _OpenAI_x509Authentication, "f"), x509Tenant = x509Authentication?.snapshotTenant(this.organization, this.project), x509Headers = x509Authentication?.snapshotHeaders(this._options.defaultHeaders, options.headers);
         x509Headers && (options.headers = x509Headers.requestHeaders);
-        let x509ClientFetchOptions = x509Authentication ? snapshotX509RequestOptions(this.fetchOptions) : void 0, x509RequestFetchOptions = x509Authentication ? snapshotX509RequestOptions(options.fetchOptions) : void 0, { method, path: path23, query, defaultBaseURL } = options, url = this.buildURL(path23, query, defaultBaseURL);
+        let x509ClientFetchOptions = x509Authentication ? snapshotX509RequestOptions(this.fetchOptions) : void 0, x509RequestFetchOptions = x509Authentication ? snapshotX509RequestOptions(options.fetchOptions) : void 0, { method, path: path28, query, defaultBaseURL } = options, url = this.buildURL(path28, query, defaultBaseURL);
         x509Authentication?.snapshotAPIURL(url);
         let explicitTimeout = "timeout" in options;
         if (explicitTimeout && validatePositiveInteger("timeout", options.timeout), options.timeout = options.timeout ?? this.timeout, x509Authentication && x509RequestFetchOptions && x509Authentication.snapshotRequest(options.signal, options.timeout, x509RequestFetchOptions), x509Authentication) {
@@ -69387,7 +69391,7 @@ function getBunSandboxEnvValue(name) {
     if (procEnvCache === null) {
       procEnvCache = /* @__PURE__ */ new Map();
       try {
-        let { readFileSync: readFileSync24 } = __require("node:fs"), data = readFileSync24("/proc/self/environ", "utf-8");
+        let { readFileSync: readFileSync27 } = __require("node:fs"), data = readFileSync27("/proc/self/environ", "utf-8");
         for (let entry of data.split("\0")) {
           let idx = entry.indexOf("=");
           idx > 0 && procEnvCache.set(entry.slice(0, idx), entry.slice(idx + 1));
@@ -69442,7 +69446,7 @@ function createAbortError() {
   return error.name = "AbortError", error;
 }
 function abortableSleep(ms, signal) {
-  return new Promise((resolve22, reject) => {
+  return new Promise((resolve23, reject) => {
     if (signal?.aborted) {
       reject(createAbortError());
       return;
@@ -69451,7 +69455,7 @@ function abortableSleep(ms, signal) {
       clearTimeout(timeout), reject(createAbortError());
     }, timeout = setTimeout(
       () => {
-        signal?.removeEventListener("abort", onAbort), resolve22();
+        signal?.removeEventListener("abort", onAbort), resolve23();
       },
       Math.max(0, ms)
     );
@@ -70881,13 +70885,13 @@ var startsWithSchemeRegexp2, isAbsoluteURL2, isArray2, isReadonlyArray2, validat
 // node_modules/@anthropic-ai/sdk/internal/utils/sleep.mjs
 var sleep3, init_sleep2 = __esm({
   "node_modules/@anthropic-ai/sdk/internal/utils/sleep.mjs"() {
-    sleep3 = (ms, signal) => new Promise((resolve22) => {
+    sleep3 = (ms, signal) => new Promise((resolve23) => {
       if (signal?.aborted)
-        return resolve22();
+        return resolve23();
       let onAbort = () => {
-        clearTimeout(timer), resolve22();
+        clearTimeout(timer), resolve23();
       }, timer = setTimeout(() => {
-        signal?.removeEventListener("abort", onAbort), resolve22();
+        signal?.removeEventListener("abort", onAbort), resolve23();
       }, ms);
       signal?.addEventListener("abort", onAbort, { once: !0 });
     });
@@ -71448,12 +71452,12 @@ function redactSensitive(body) {
   }
   return null;
 }
-async function checkCredentialsFileSafety(path23, onWarn = (m3) => console.warn(`anthropic-sdk: ${m3}`)) {
+async function checkCredentialsFileSafety(path28, onWarn = (m3) => console.warn(`anthropic-sdk: ${m3}`)) {
   if (typeof process > "u" || process.platform === "win32")
     return;
-  let { fs: fs22 } = await Promise.resolve().then(() => (init_node(), node_exports)), resolved = path23, st2;
+  let { fs: fs26 } = await Promise.resolve().then(() => (init_node(), node_exports)), resolved = path28, st2;
   try {
-    resolved = await fs22.promises.realpath(path23), st2 = await fs22.promises.stat(resolved);
+    resolved = await fs26.promises.realpath(path28), st2 = await fs26.promises.stat(resolved);
   } catch {
     return;
   }
@@ -71465,23 +71469,23 @@ async function checkCredentialsFileSafety(path23, onWarn = (m3) => console.warn(
   typeof process.getuid == "function" && st2.uid !== process.getuid() && onWarn(`credentials file at ${resolved} is owned by uid ${st2.uid} (current process uid ${process.getuid()}); verify this is intentional.`);
 }
 async function writeCredentialsFileAtomic(targetPath, data) {
-  let { fs: fs22, path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports)), dir = path23.dirname(targetPath);
-  await fs22.promises.mkdir(dir, { recursive: !0, mode: 448 });
+  let { fs: fs26, path: path28 } = await Promise.resolve().then(() => (init_node(), node_exports)), dir = path28.dirname(targetPath);
+  await fs26.promises.mkdir(dir, { recursive: !0, mode: 448 });
   let tmpPath = `${targetPath}.${process.pid}.${Math.random().toString(36).slice(2)}.tmp`;
   try {
-    let fh = await fs22.promises.open(tmpPath, "w", 384);
+    let fh = await fs26.promises.open(tmpPath, "w", 384);
     try {
       await fh.writeFile(JSON.stringify(data, null, 2)), await fh.sync();
     } finally {
       await fh.close();
     }
-    await fs22.promises.rename(tmpPath, targetPath);
+    await fs26.promises.rename(tmpPath, targetPath);
   } catch (err) {
-    throw await fs22.promises.unlink(tmpPath).catch(() => {
+    throw await fs26.promises.unlink(tmpPath).catch(() => {
     }), err;
   }
   try {
-    let dirFh = await fs22.promises.open(dir, "r");
+    let dirFh = await fs26.promises.open(dir, "r");
     try {
       await dirFh.sync();
     } finally {
@@ -71765,9 +71769,9 @@ var CREDENTIALS_FILE_VERSION, PROFILE_NAME_PATTERN, loadConfigWithSource, getCre
       if (profileName === null)
         return null;
       validateProfileName(profileName);
-      let { fs: fs22, path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports)), configPath = path23.join(rootConfigPath, "configs", `${profileName}.json`), configRaw;
+      let { fs: fs26, path: path28 } = await Promise.resolve().then(() => (init_node(), node_exports)), configPath = path28.join(rootConfigPath, "configs", `${profileName}.json`), configRaw;
       try {
-        configRaw = await fs22.promises.readFile(configPath, "utf-8");
+        configRaw = await fs26.promises.readFile(configPath, "utf-8");
       } catch (err) {
         if (err?.code !== "ENOENT")
           throw new Error(`failed to read config file ${configPath}: ${err}`);
@@ -71827,26 +71831,26 @@ var CREDENTIALS_FILE_VERSION, PROFILE_NAME_PATTERN, loadConfigWithSource, getCre
       if (!profileName)
         return null;
       validateProfileName(profileName);
-      let { path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports));
-      return path23.join(rootConfigPath, "credentials", `${profileName}.json`);
+      let { path: path28 } = await Promise.resolve().then(() => (init_node(), node_exports));
+      return path28.join(rootConfigPath, "credentials", `${profileName}.json`);
     }, getRootConfigPath = async () => {
       if (!supportsLocalConfigFiles())
         return null;
-      let { path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports)), configDir = readEnv2("ANTHROPIC_CONFIG_DIR");
+      let { path: path28 } = await Promise.resolve().then(() => (init_node(), node_exports)), configDir = readEnv2("ANTHROPIC_CONFIG_DIR");
       if (configDir)
         return configDir;
       if (getPlatformHeaders2()["X-Stainless-OS"] === "Windows") {
         let appData = readEnv2("APPDATA");
         if (appData)
-          return path23.join(appData, "Anthropic");
+          return path28.join(appData, "Anthropic");
         let userProfile = readEnv2("USERPROFILE");
-        return userProfile ? path23.join(userProfile, "AppData", "Roaming", "Anthropic") : null;
+        return userProfile ? path28.join(userProfile, "AppData", "Roaming", "Anthropic") : null;
       }
       let xdgConfigHome = readEnv2("XDG_CONFIG_HOME");
       if (xdgConfigHome)
-        return path23.join(xdgConfigHome, "anthropic");
+        return path28.join(xdgConfigHome, "anthropic");
       let home = readEnv2("HOME");
-      return home ? path23.join(home, ".config", "anthropic") : null;
+      return home ? path28.join(home, ".config", "anthropic") : null;
     }, supportsLocalConfigFiles = () => {
       let runtime = getPlatformHeaders2()["X-Stainless-Runtime"];
       return runtime === "node" || runtime === "deno";
@@ -71857,9 +71861,9 @@ var CREDENTIALS_FILE_VERSION, PROFILE_NAME_PATTERN, loadConfigWithSource, getCre
       let profileName = readEnv2("ANTHROPIC_PROFILE");
       if (profileName)
         return profileName;
-      let { fs: fs22, path: path23 } = await Promise.resolve().then(() => (init_node(), node_exports)), filePath = path23.join(rootConfigPath, "active_config");
+      let { fs: fs26, path: path28 } = await Promise.resolve().then(() => (init_node(), node_exports)), filePath = path28.join(rootConfigPath, "active_config");
       try {
-        return (await fs22.promises.readFile(filePath, "utf-8")).trim() || "default";
+        return (await fs26.promises.readFile(filePath, "utf-8")).trim() || "default";
       } catch (err) {
         if (err?.code !== "ENOENT")
           throw new Error(`failed to read ${filePath}: ${err}`);
@@ -71870,19 +71874,19 @@ var CREDENTIALS_FILE_VERSION, PROFILE_NAME_PATTERN, loadConfigWithSource, getCre
 });
 
 // node_modules/@anthropic-ai/sdk/lib/credentials/identity-token.mjs
-function identityTokenFromFile(path23) {
-  if (!path23)
+function identityTokenFromFile(path28) {
+  if (!path28)
     throw new AnthropicError("Identity token file path is empty");
   return async () => {
-    let { fs: fs22 } = await Promise.resolve().then(() => (init_node(), node_exports)), content;
+    let { fs: fs26 } = await Promise.resolve().then(() => (init_node(), node_exports)), content;
     try {
-      content = await fs22.promises.readFile(path23, "utf-8");
+      content = await fs26.promises.readFile(path28, "utf-8");
     } catch (err) {
-      throw new AnthropicError(`Failed to read identity token file at ${path23}: ${err}`);
+      throw new AnthropicError(`Failed to read identity token file at ${path28}: ${err}`);
     }
     let token = content.trim();
     if (!token)
-      throw new AnthropicError(`Identity token file at ${path23} is empty`);
+      throw new AnthropicError(`Identity token file at ${path28} is empty`);
     return token;
   };
 }
@@ -71950,11 +71954,11 @@ var init_oidc_federation = __esm({
 // node_modules/@anthropic-ai/sdk/lib/credentials/user-oauth.mjs
 function userOAuthProvider(config) {
   return async (opts) => {
-    let { fs: fs22 } = await Promise.resolve().then(() => (init_node(), node_exports));
+    let { fs: fs26 } = await Promise.resolve().then(() => (init_node(), node_exports));
     await checkCredentialsFileSafety(config.credentialsPath, config.onSafetyWarning);
     let raw;
     try {
-      raw = await fs22.promises.readFile(config.credentialsPath, "utf-8");
+      raw = await fs26.promises.readFile(config.credentialsPath, "utf-8");
     } catch (err) {
       throw new WorkloadIdentityError(`Credentials file not found at ${config.credentialsPath}: ${err}`);
     }
@@ -72095,11 +72099,11 @@ function resolveIdentityTokenProvider(auth) {
 }
 function cachedExchangeProvider(exchange, credentialsPath, onCacheWriteError, onSafetyWarning) {
   return async (opts) => {
-    let { fs: fs22 } = await Promise.resolve().then(() => (init_node(), node_exports));
+    let { fs: fs26 } = await Promise.resolve().then(() => (init_node(), node_exports));
     await checkCredentialsFileSafety(credentialsPath, onSafetyWarning);
     let existing;
     try {
-      let raw = await fs22.promises.readFile(credentialsPath, "utf-8");
+      let raw = await fs26.promises.readFile(credentialsPath, "utf-8");
       existing = JSON.parse(raw);
       let token = existing?.access_token;
       if (token && !opts?.forceRefresh) {
@@ -72513,8 +72517,8 @@ var _APIPromise_client2, APIPromise2, init_api_promise2 = __esm({
     APIPromise2 = /* @__PURE__ */ (() => {
       class APIPromise4 extends Promise {
         constructor(client, responsePromise, parseResponse2 = defaultParseResponse2) {
-          super((resolve22) => {
-            resolve22(null);
+          super((resolve23) => {
+            resolve23(null);
           }), this.responsePromise = responsePromise, this.parseResponse = parseResponse2, _APIPromise_client2.set(this, void 0), __classPrivateFieldSet2(this, _APIPromise_client2, client, "f");
         }
         _thenUnwrap(transform) {
@@ -72893,7 +72897,7 @@ var EMPTY2, createPathTagFunction2, path7, init_path2 = __esm({
     EMPTY2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.create(null)), createPathTagFunction2 = (pathEncoder = encodeURIPath2) => function(statics, ...params) {
       if (statics.length === 1)
         return statics[0];
-      let postPath = !1, invalidSegments = [], path24 = statics.reduce((previousValue, currentValue, index3) => {
+      let postPath = !1, invalidSegments = [], path29 = statics.reduce((previousValue, currentValue, index3) => {
         /[?#]/.test(currentValue) && (postPath = !0);
         let value = params[index3], encoded = (postPath ? encodeURIComponent : pathEncoder)("" + value);
         return index3 !== params.length && (value == null || typeof value == "object" && // handle values from other realms
@@ -72902,7 +72906,7 @@ var EMPTY2, createPathTagFunction2, path7, init_path2 = __esm({
           length: encoded.length,
           error: `Value of type ${Object.prototype.toString.call(value).slice(8, -1)} is not a valid path parameter`
         })), previousValue + currentValue + (index3 === params.length ? "" : encoded);
-      }, ""), pathOnly = path24.split(/[?#]/, 1)[0], invalidSegmentPattern = /(?<=^|\/)(?:\.|%2e){1,2}(?=\/|$)/gi, match3;
+      }, ""), pathOnly = path29.split(/[?#]/, 1)[0], invalidSegmentPattern = /(?<=^|\/)(?:\.|%2e){1,2}(?=\/|$)/gi, match3;
       for (; (match3 = invalidSegmentPattern.exec(pathOnly)) !== null; )
         invalidSegments.push({
           start: match3.index,
@@ -72917,10 +72921,10 @@ var EMPTY2, createPathTagFunction2, path7, init_path2 = __esm({
         throw new AnthropicError(`Path parameters result in path with invalid segments:
 ${invalidSegments.map((e2) => e2.error).join(`
 `)}
-${path24}
+${path29}
 ${underline}`);
       }
-      return path24;
+      return path29;
     }, path7 = /* @__PURE__ */ createPathTagFunction2(encodeURIPath2);
   }
 });
@@ -74624,12 +74628,12 @@ var _AsyncQueue_items, _AsyncQueue_waiters, _AsyncQueue_closed, AsyncQueue, init
          * an outer `Promise.race`).
          */
         next(signal) {
-          return __classPrivateFieldGet3(this, _AsyncQueue_items, "f").length > 0 ? Promise.resolve({ done: !1, value: __classPrivateFieldGet3(this, _AsyncQueue_items, "f").shift() }) : __classPrivateFieldGet3(this, _AsyncQueue_closed, "f") || signal?.aborted ? Promise.resolve({ done: !0, value: void 0 }) : new Promise((resolve22) => {
+          return __classPrivateFieldGet3(this, _AsyncQueue_items, "f").length > 0 ? Promise.resolve({ done: !1, value: __classPrivateFieldGet3(this, _AsyncQueue_items, "f").shift() }) : __classPrivateFieldGet3(this, _AsyncQueue_closed, "f") || signal?.aborted ? Promise.resolve({ done: !0, value: void 0 }) : new Promise((resolve23) => {
             let waiter = (r2) => {
-              signal?.removeEventListener("abort", onAbort), resolve22(r2);
+              signal?.removeEventListener("abort", onAbort), resolve23(r2);
             }, onAbort = () => {
               let idx = __classPrivateFieldGet3(this, _AsyncQueue_waiters, "f").indexOf(waiter);
-              idx >= 0 && __classPrivateFieldGet3(this, _AsyncQueue_waiters, "f").splice(idx, 1), resolve22({ done: !0, value: void 0 });
+              idx >= 0 && __classPrivateFieldGet3(this, _AsyncQueue_waiters, "f").splice(idx, 1), resolve23({ done: !0, value: void 0 });
             };
             __classPrivateFieldGet3(this, _AsyncQueue_waiters, "f").push(waiter), signal?.addEventListener("abort", onAbort, { once: !0 });
           });
@@ -75088,10 +75092,10 @@ var init_json_schema = __esm({
 
 // node_modules/@anthropic-ai/sdk/internal/utils/promise.mjs
 function promiseWithResolvers() {
-  let resolve22, reject;
+  let resolve23, reject;
   return { promise: new Promise((res, rej) => {
-    resolve22 = res, reject = rej;
-  }), resolve: resolve22, reject };
+    resolve23 = res, reject = rej;
+  }), resolve: resolve23, reject };
 }
 var init_promise = __esm({
   "node_modules/@anthropic-ai/sdk/internal/utils/promise.mjs"() {
@@ -75215,9 +75219,9 @@ async function setupSkills(ctx) {
   let skillsRoot = path6.resolve(ctx.workdir, "skills"), created = [];
   for (let skill of session.agent.skills)
     try {
-      let version2 = await client.beta.skills.versions.retrieve(skill.version, { skill_id: skill.skill_id }), dirname29 = path6.basename(version2.name.trim());
-      (dirname29 === "" || dirname29 === "." || dirname29 === "..") && (dirname29 = skill.skill_id);
-      let dest = path6.resolve(skillsRoot, dirname29);
+      let version2 = await client.beta.skills.versions.retrieve(skill.version, { skill_id: skill.skill_id }), dirname31 = path6.basename(version2.name.trim());
+      (dirname31 === "" || dirname31 === "." || dirname31 === "..") && (dirname31 = skill.skill_id);
+      let dest = path6.resolve(skillsRoot, dirname31);
       if (dest !== skillsRoot && !dest.startsWith(skillsRoot + path6.sep)) {
         log.warn("skill name escapes the skills dir; skipping", {
           component: "agent-tool-context",
@@ -75732,8 +75736,8 @@ async function settledOrAborted(p, signal) {
     await p;
     return;
   }
-  let onAbort, aborted = new Promise((resolve22) => {
-    onAbort = resolve22, signal.aborted && resolve22();
+  let onAbort, aborted = new Promise((resolve23) => {
+    onAbort = resolve23, signal.aborted && resolve23();
   });
   signal.addEventListener("abort", onAbort, { once: !0 });
   try {
@@ -76567,7 +76571,7 @@ function betaGrepTool(ctx) {
   });
 }
 function runRipgrep(rg, pattern, searchPath, signal) {
-  return new Promise((resolve22, reject) => {
+  return new Promise((resolve23, reject) => {
     let proc = cp.spawn(rg, ["-n", "--no-heading", "-e", pattern, "--", searchPath], {
       ...signal ? { signal } : {}
     }), out = "", errOut = "", truncated = !1;
@@ -76577,12 +76581,12 @@ function runRipgrep(rg, pattern, searchPath, signal) {
       if (signal?.aborted)
         return reject(new ToolError("grep: aborted"));
       if (truncated)
-        return resolve22(out + `
+        return resolve23(out + `
 [output truncated at ${GREP_OUTPUT_LIMIT} bytes]`);
       if (code === 0)
-        return resolve22(out);
+        return resolve23(out);
       if (code === 1)
-        return resolve22("no matches");
+        return resolve23("no matches");
       reject(new ToolError(`grep: rg failed: ${errOut || `exit ${code}`}`));
     }), proc.on("error", (e2) => {
       if (signal?.aborted)
@@ -76704,8 +76708,8 @@ var _BashSession_instances, _BashSession_proc, _BashSession_buf, _BashSession_tr
 } </dev/null 2>&1; printf '\\n${sentinelSplit}%d\\n' $?
 `;
           if (__classPrivateFieldGet3(this, _BashSession_proc, "f").stdin.write(wrapped), __classPrivateFieldGet3(this, _BashSession_buf, "f").indexOf(sentinel3) < 0) {
-            let { promise: sentinelSeen, resolve: resolve22 } = promiseWithResolvers();
-            __classPrivateFieldSet2(this, _BashSession_waiting, { sentinel: sentinel3, resolve: resolve22 }, "f");
+            let { promise: sentinelSeen, resolve: resolve23 } = promiseWithResolvers();
+            __classPrivateFieldSet2(this, _BashSession_waiting, { sentinel: sentinel3, resolve: resolve23 }, "f");
             let timer, onAbort;
             try {
               await Promise.race([
@@ -76809,8 +76813,8 @@ async function withTimeout(p, ms) {
   try {
     return await Promise.race([
       p.then(() => !1, () => !1),
-      new Promise((resolve22) => {
-        timer = setTimeout(() => resolve22(!0), ms);
+      new Promise((resolve23) => {
+        timer = setTimeout(() => resolve23(!0), ms);
       })
     ]);
   } finally {
@@ -78477,10 +78481,10 @@ var _BetaMessageStream_instances, _BetaMessageStream_currentMessageSnapshot, _Be
               return anthropicError.cause = error, this._emit("error", anthropicError);
             }
             return this._emit("error", new AnthropicError(String(error)));
-          }), __classPrivateFieldSet2(this, _BetaMessageStream_connectedPromise, new Promise((resolve22, reject) => {
-            __classPrivateFieldSet2(this, _BetaMessageStream_resolveConnectedPromise, resolve22, "f"), __classPrivateFieldSet2(this, _BetaMessageStream_rejectConnectedPromise, reject, "f");
-          }), "f"), __classPrivateFieldSet2(this, _BetaMessageStream_endPromise, new Promise((resolve22, reject) => {
-            __classPrivateFieldSet2(this, _BetaMessageStream_resolveEndPromise, resolve22, "f"), __classPrivateFieldSet2(this, _BetaMessageStream_rejectEndPromise, reject, "f");
+          }), __classPrivateFieldSet2(this, _BetaMessageStream_connectedPromise, new Promise((resolve23, reject) => {
+            __classPrivateFieldSet2(this, _BetaMessageStream_resolveConnectedPromise, resolve23, "f"), __classPrivateFieldSet2(this, _BetaMessageStream_rejectConnectedPromise, reject, "f");
+          }), "f"), __classPrivateFieldSet2(this, _BetaMessageStream_endPromise, new Promise((resolve23, reject) => {
+            __classPrivateFieldSet2(this, _BetaMessageStream_resolveEndPromise, resolve23, "f"), __classPrivateFieldSet2(this, _BetaMessageStream_rejectEndPromise, reject, "f");
           }), "f"), __classPrivateFieldGet3(this, _BetaMessageStream_connectedPromise, "f").catch(() => {
           }), __classPrivateFieldGet3(this, _BetaMessageStream_endPromise, "f").catch(() => {
           }), __classPrivateFieldSet2(this, _BetaMessageStream_params, params, "f"), __classPrivateFieldSet2(this, _BetaMessageStream_logger, opts?.logger ?? console, "f");
@@ -78619,8 +78623,8 @@ var _BetaMessageStream_instances, _BetaMessageStream_currentMessageSnapshot, _Be
          *   const message = await stream.emitted('message') // rejects if the stream errors
          */
         emitted(event) {
-          return new Promise((resolve22, reject) => {
-            __classPrivateFieldSet2(this, _BetaMessageStream_catchingPromiseCreated, !0, "f"), event !== "error" && this.once("error", reject), this.once(event, resolve22);
+          return new Promise((resolve23, reject) => {
+            __classPrivateFieldSet2(this, _BetaMessageStream_catchingPromiseCreated, !0, "f"), event !== "error" && this.once("error", reject), this.once(event, resolve23);
           });
         }
         async done() {
@@ -78869,7 +78873,7 @@ var _BetaMessageStream_instances, _BetaMessageStream_currentMessageSnapshot, _Be
               reader.reject(err);
             readQueue.length = 0;
           }), {
-            next: async () => pushQueue.length ? { value: pushQueue.shift(), done: !1 } : done ? { value: void 0, done: !0 } : new Promise((resolve22, reject) => readQueue.push({ resolve: resolve22, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: !1 } : { value: void 0, done: !0 }),
+            next: async () => pushQueue.length ? { value: pushQueue.shift(), done: !1 } : done ? { value: void 0, done: !0 } : new Promise((resolve23, reject) => readQueue.push({ resolve: resolve23, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: !1 } : { value: void 0, done: !0 }),
             return: async () => (this.abort(), { value: void 0, done: !0 })
           };
         }
@@ -83121,10 +83125,10 @@ var _MessageStream_instances, _MessageStream_currentMessageSnapshot, _MessageStr
               return anthropicError.cause = error, this._emit("error", anthropicError);
             }
             return this._emit("error", new AnthropicError(String(error)));
-          }), __classPrivateFieldSet2(this, _MessageStream_connectedPromise, new Promise((resolve22, reject) => {
-            __classPrivateFieldSet2(this, _MessageStream_resolveConnectedPromise, resolve22, "f"), __classPrivateFieldSet2(this, _MessageStream_rejectConnectedPromise, reject, "f");
-          }), "f"), __classPrivateFieldSet2(this, _MessageStream_endPromise, new Promise((resolve22, reject) => {
-            __classPrivateFieldSet2(this, _MessageStream_resolveEndPromise, resolve22, "f"), __classPrivateFieldSet2(this, _MessageStream_rejectEndPromise, reject, "f");
+          }), __classPrivateFieldSet2(this, _MessageStream_connectedPromise, new Promise((resolve23, reject) => {
+            __classPrivateFieldSet2(this, _MessageStream_resolveConnectedPromise, resolve23, "f"), __classPrivateFieldSet2(this, _MessageStream_rejectConnectedPromise, reject, "f");
+          }), "f"), __classPrivateFieldSet2(this, _MessageStream_endPromise, new Promise((resolve23, reject) => {
+            __classPrivateFieldSet2(this, _MessageStream_resolveEndPromise, resolve23, "f"), __classPrivateFieldSet2(this, _MessageStream_rejectEndPromise, reject, "f");
           }), "f"), __classPrivateFieldGet3(this, _MessageStream_connectedPromise, "f").catch(() => {
           }), __classPrivateFieldGet3(this, _MessageStream_endPromise, "f").catch(() => {
           }), __classPrivateFieldSet2(this, _MessageStream_params, params, "f"), __classPrivateFieldSet2(this, _MessageStream_logger, opts?.logger ?? console, "f");
@@ -83263,8 +83267,8 @@ var _MessageStream_instances, _MessageStream_currentMessageSnapshot, _MessageStr
          *   const message = await stream.emitted('message') // rejects if the stream errors
          */
         emitted(event) {
-          return new Promise((resolve22, reject) => {
-            __classPrivateFieldSet2(this, _MessageStream_catchingPromiseCreated, !0, "f"), event !== "error" && this.once("error", reject), this.once(event, resolve22);
+          return new Promise((resolve23, reject) => {
+            __classPrivateFieldSet2(this, _MessageStream_catchingPromiseCreated, !0, "f"), event !== "error" && this.once("error", reject), this.once(event, resolve23);
           });
         }
         async done() {
@@ -83481,7 +83485,7 @@ var _MessageStream_instances, _MessageStream_currentMessageSnapshot, _MessageStr
               reader.reject(err);
             readQueue.length = 0;
           }), {
-            next: async () => pushQueue.length ? { value: pushQueue.shift(), done: !1 } : done ? { value: void 0, done: !0 } : new Promise((resolve22, reject) => readQueue.push({ resolve: resolve22, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: !1 } : { value: void 0, done: !0 }),
+            next: async () => pushQueue.length ? { value: pushQueue.shift(), done: !1 } : done ? { value: void 0, done: !0 } : new Promise((resolve23, reject) => readQueue.push({ resolve: resolve23, reject })).then((chunk2) => chunk2 ? { value: chunk2, done: !1 } : { value: void 0, done: !0 }),
             return: async () => (this.abort(), { value: void 0, done: !0 })
           };
         }
@@ -84364,8 +84368,8 @@ new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
         makeStatusError(status, error, message, headers) {
           return APIError2.generate(status, error, message, headers);
         }
-        buildURL(path23, query, defaultBaseURL) {
-          let baseURL = !__classPrivateFieldGet3(this, _BaseAnthropic_instances, "m", _BaseAnthropic_baseURLOverridden).call(this) && defaultBaseURL || this.baseURL, url = isAbsoluteURL2(path23) ? new URL(path23) : new URL(baseURL + (baseURL.endsWith("/") && path23.startsWith("/") ? path23.slice(1) : path23)), defaultQuery = this.defaultQuery(), pathQuery = Object.fromEntries(url.searchParams);
+        buildURL(path28, query, defaultBaseURL) {
+          let baseURL = !__classPrivateFieldGet3(this, _BaseAnthropic_instances, "m", _BaseAnthropic_baseURLOverridden).call(this) && defaultBaseURL || this.baseURL, url = isAbsoluteURL2(path28) ? new URL(path28) : new URL(baseURL + (baseURL.endsWith("/") && path28.startsWith("/") ? path28.slice(1) : path28)), defaultQuery = this.defaultQuery(), pathQuery = Object.fromEntries(url.searchParams);
           return (!isEmptyObj2(defaultQuery) || !isEmptyObj2(pathQuery)) && (query = { ...pathQuery, ...defaultQuery, ...query }), typeof query == "object" && query && !Array.isArray(query) && (url.search = this.stringifyQuery(query)), url.toString();
         }
         _calculateNonstreamingTimeout(maxTokens) {
@@ -84421,23 +84425,23 @@ new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
         backendMiddleware() {
           return [];
         }
-        get(path23, opts) {
-          return this.methodRequest("get", path23, opts);
+        get(path28, opts) {
+          return this.methodRequest("get", path28, opts);
         }
-        post(path23, opts) {
-          return this.methodRequest("post", path23, opts);
+        post(path28, opts) {
+          return this.methodRequest("post", path28, opts);
         }
-        patch(path23, opts) {
-          return this.methodRequest("patch", path23, opts);
+        patch(path28, opts) {
+          return this.methodRequest("patch", path28, opts);
         }
-        put(path23, opts) {
-          return this.methodRequest("put", path23, opts);
+        put(path28, opts) {
+          return this.methodRequest("put", path28, opts);
         }
-        delete(path23, opts) {
-          return this.methodRequest("delete", path23, opts);
+        delete(path28, opts) {
+          return this.methodRequest("delete", path28, opts);
         }
-        methodRequest(method, path23, opts) {
-          return this.request(Promise.resolve(opts).then((opts2) => ({ method, path: path23, ...opts2 })));
+        methodRequest(method, path28, opts) {
+          return this.request(Promise.resolve(opts).then((opts2) => ({ method, path: path28, ...opts2 })));
         }
         request(options, remainingRetries = null) {
           return new APIPromise2(this, this.makeRequest(options, remainingRetries, void 0));
@@ -84514,8 +84518,8 @@ new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
             durationMs: headersTime - startTime
           }), armAbandonmentBackstop(response.body ?? response, controller), { response, options, controller, requestLogID, retryOfRequestLogID, startTime };
         }
-        getAPIList(path23, Page3, opts) {
-          return this.requestAPIList(Page3, opts && "then" in opts ? opts.then((opts2) => ({ method: "get", path: path23, ...opts2 })) : { method: "get", path: path23, ...opts });
+        getAPIList(path28, Page3, opts) {
+          return this.requestAPIList(Page3, opts && "then" in opts ? opts.then((opts2) => ({ method: "get", path: path28, ...opts2 })) : { method: "get", path: path28, ...opts });
         }
         requestAPIList(Page3, options) {
           let request = this.makeRequest(options, null, void 0);
@@ -84584,9 +84588,9 @@ new Anthropic({ apiKey, dangerouslyAllowBrowser: true });
           return 6e5;
         }
         async buildRequest(inputOptions, { retryCount = 0 } = {}) {
-          let options = { ...inputOptions }, { method, path: path23, query, defaultBaseURL } = options;
+          let options = { ...inputOptions }, { method, path: path28, query, defaultBaseURL } = options;
           this._authState.resolution && await this._authState.resolution, !this._baseURLIsExplicit && this._authState.baseURL && this.baseURL !== this._authState.baseURL && (this.baseURL = this._authState.baseURL);
-          let url = this.buildURL(path23, query, defaultBaseURL);
+          let url = this.buildURL(path28, query, defaultBaseURL);
           "timeout" in options && validatePositiveInteger2("timeout", options.timeout), options.timeout = options.timeout ?? this.timeout;
           let { bodyHeaders, body } = this.buildBody({ options }), reqHeaders = await this.buildHeaders({
             options: inputOptions,
@@ -87357,7 +87361,7 @@ var require_p_retry = __commonJS({
     }, decorateErrorWithCounts = (error, attemptNumber, options) => {
       let retriesLeft = options.retries - (attemptNumber - 1);
       return error.attemptNumber = attemptNumber, error.retriesLeft = retriesLeft, error;
-    }, isNetworkError = (errorMessage9) => networkErrorMsgs.includes(errorMessage9), pRetry2 = (input2, options) => new Promise((resolve22, reject) => {
+    }, isNetworkError = (errorMessage9) => networkErrorMsgs.includes(errorMessage9), pRetry2 = (input2, options) => new Promise((resolve23, reject) => {
       options = {
         onFailedAttempt: () => {
         },
@@ -87367,7 +87371,7 @@ var require_p_retry = __commonJS({
       let operation = retry2.operation(options);
       operation.attempt(async (attemptNumber) => {
         try {
-          resolve22(await input2(attemptNumber));
+          resolve23(await input2(attemptNumber));
         } catch (error) {
           if (!(error instanceof Error)) {
             reject(new TypeError(`Non-error was thrown: "${error}". You should only throw errors.`));
@@ -87771,8 +87775,8 @@ var require_retry6 = __commonJS({
         return { shouldRetry: !1, config: err.config };
       let delay2 = getNextRetryDelay(config);
       err.config.retryConfig.currentRetryAttempt += 1;
-      let backoff3 = config.retryBackoff ? config.retryBackoff(err, delay2) : new Promise((resolve22) => {
-        setTimeout(resolve22, delay2);
+      let backoff3 = config.retryBackoff ? config.retryBackoff(err, delay2) : new Promise((resolve23) => {
+        setTimeout(resolve23, delay2);
       });
       return config.onRetryAttempt && await config.onRetryAttempt(err), await backoff3, { shouldRetry: !0, config: err.config };
     }
@@ -88337,8 +88341,8 @@ var require_helpers = __commonJS({
     }
     exports.json = json3;
     function req(url, opts = {}) {
-      let req2 = ((typeof url == "string" ? url : url.href).startsWith("https:") ? https2 : http3).request(url, opts), promise = new Promise((resolve22, reject) => {
-        req2.once("response", resolve22).once("error", reject).end();
+      let req2 = ((typeof url == "string" ? url : url.href).startsWith("https:") ? https2 : http3).request(url, opts), promise = new Promise((resolve23, reject) => {
+        req2.once("response", resolve23).once("error", reject).end();
       });
       return req2.then = promise.then.bind(promise), req2;
     }
@@ -88467,7 +88471,7 @@ var require_parse_proxy_response = __commonJS({
     exports.parseProxyResponse = void 0;
     var debug_1 = __importDefault(require_src()), debug = (0, debug_1.default)("https-proxy-agent:parse-proxy-response");
     function parseProxyResponse(socket) {
-      return new Promise((resolve22, reject) => {
+      return new Promise((resolve23, reject) => {
         let buffersLength = 0, buffers = [];
         function read() {
           let b2 = socket.read();
@@ -88505,7 +88509,7 @@ var require_parse_proxy_response = __commonJS({
             let key = header.slice(0, firstColon).toLowerCase(), value = header.slice(firstColon + 1).trimStart(), current = headers[key];
             typeof current == "string" ? headers[key] = [current, value] : Array.isArray(current) ? current.push(value) : headers[key] = value;
           }
-          debug("got proxy server response: %o %o", firstLine3, headers), cleanup(), resolve22({
+          debug("got proxy server response: %o %o", firstLine3, headers), cleanup(), resolve23({
             connect: {
               statusCode,
               statusText,
@@ -88660,7 +88664,7 @@ var require_ponyfill_es2018 = __commonJS({
         return new originalPromise(executor);
       }
       function promiseResolvedWith(value) {
-        return newPromise((resolve22) => resolve22(value));
+        return newPromise((resolve23) => resolve23(value));
       }
       function promiseRejectedWith(reason) {
         return originalPromiseReject(reason);
@@ -88768,8 +88772,8 @@ var require_ponyfill_es2018 = __commonJS({
         return new TypeError("Cannot " + name + " a stream using a released reader");
       }
       function defaultReaderClosedPromiseInitialize(reader) {
-        reader._closedPromise = newPromise((resolve22, reject) => {
-          reader._closedPromise_resolve = resolve22, reader._closedPromise_reject = reject;
+        reader._closedPromise = newPromise((resolve23, reject) => {
+          reader._closedPromise_resolve = resolve23, reader._closedPromise_reject = reject;
         });
       }
       function defaultReaderClosedPromiseInitializeAsRejected(reader, reason) {
@@ -88885,8 +88889,8 @@ var require_ponyfill_es2018 = __commonJS({
             return promiseRejectedWith(defaultReaderBrandCheckException("read"));
           if (this._ownerReadableStream === void 0)
             return promiseRejectedWith(readerLockException("read from"));
-          let resolvePromise, rejectPromise, promise = newPromise((resolve22, reject) => {
-            resolvePromise = resolve22, rejectPromise = reject;
+          let resolvePromise, rejectPromise, promise = newPromise((resolve23, reject) => {
+            resolvePromise = resolve23, rejectPromise = reject;
           });
           return ReadableStreamDefaultReaderRead(this, {
             _chunkSteps: (chunk) => resolvePromise({ value: chunk, done: !1 }),
@@ -88956,8 +88960,8 @@ var require_ponyfill_es2018 = __commonJS({
         _nextSteps() {
           if (this._isFinished)
             return Promise.resolve({ value: void 0, done: !0 });
-          let reader = this._reader, resolvePromise, rejectPromise, promise = newPromise((resolve22, reject) => {
-            resolvePromise = resolve22, rejectPromise = reject;
+          let reader = this._reader, resolvePromise, rejectPromise, promise = newPromise((resolve23, reject) => {
+            resolvePromise = resolve23, rejectPromise = reject;
           });
           return ReadableStreamDefaultReaderRead(reader, {
             _chunkSteps: (chunk) => {
@@ -89618,8 +89622,8 @@ var require_ponyfill_es2018 = __commonJS({
             return promiseRejectedWith(new RangeError("options.min must be less than or equal to view's length"));
           if (this._ownerReadableStream === void 0)
             return promiseRejectedWith(readerLockException("read from"));
-          let resolvePromise, rejectPromise, promise = newPromise((resolve22, reject) => {
-            resolvePromise = resolve22, rejectPromise = reject;
+          let resolvePromise, rejectPromise, promise = newPromise((resolve23, reject) => {
+            resolvePromise = resolve23, rejectPromise = reject;
           });
           return ReadableStreamBYOBReaderRead(this, view, min, {
             _chunkSteps: (chunk) => resolvePromise({ value: chunk, done: !1 }),
@@ -89829,10 +89833,10 @@ var require_ponyfill_es2018 = __commonJS({
           return stream12._pendingAbortRequest._promise;
         let wasAlreadyErroring = !1;
         state3 === "erroring" && (wasAlreadyErroring = !0, reason = void 0);
-        let promise = newPromise((resolve22, reject) => {
+        let promise = newPromise((resolve23, reject) => {
           stream12._pendingAbortRequest = {
             _promise: void 0,
-            _resolve: resolve22,
+            _resolve: resolve23,
             _reject: reject,
             _reason: reason,
             _wasAlreadyErroring: wasAlreadyErroring
@@ -89844,9 +89848,9 @@ var require_ponyfill_es2018 = __commonJS({
         let state3 = stream12._state;
         if (state3 === "closed" || state3 === "errored")
           return promiseRejectedWith(new TypeError(`The stream (in ${state3} state) is not in the writable state and cannot be closed`));
-        let promise = newPromise((resolve22, reject) => {
+        let promise = newPromise((resolve23, reject) => {
           let closeRequest = {
-            _resolve: resolve22,
+            _resolve: resolve23,
             _reject: reject
           };
           stream12._closeRequest = closeRequest;
@@ -89854,9 +89858,9 @@ var require_ponyfill_es2018 = __commonJS({
         return writer !== void 0 && stream12._backpressure && state3 === "writable" && defaultWriterReadyPromiseResolve(writer), WritableStreamDefaultControllerClose(stream12._writableStreamController), promise;
       }
       function WritableStreamAddWriteRequest(stream12) {
-        return newPromise((resolve22, reject) => {
+        return newPromise((resolve23, reject) => {
           let writeRequest = {
-            _resolve: resolve22,
+            _resolve: resolve23,
             _reject: reject
           };
           stream12._writeRequests.push(writeRequest);
@@ -90224,8 +90228,8 @@ var require_ponyfill_es2018 = __commonJS({
         return new TypeError("Cannot " + name + " a stream using a released writer");
       }
       function defaultWriterClosedPromiseInitialize(writer) {
-        writer._closedPromise = newPromise((resolve22, reject) => {
-          writer._closedPromise_resolve = resolve22, writer._closedPromise_reject = reject, writer._closedPromiseState = "pending";
+        writer._closedPromise = newPromise((resolve23, reject) => {
+          writer._closedPromise_resolve = resolve23, writer._closedPromise_reject = reject, writer._closedPromiseState = "pending";
         });
       }
       function defaultWriterClosedPromiseInitializeAsRejected(writer, reason) {
@@ -90244,8 +90248,8 @@ var require_ponyfill_es2018 = __commonJS({
         writer._closedPromise_resolve !== void 0 && (writer._closedPromise_resolve(void 0), writer._closedPromise_resolve = void 0, writer._closedPromise_reject = void 0, writer._closedPromiseState = "resolved");
       }
       function defaultWriterReadyPromiseInitialize(writer) {
-        writer._readyPromise = newPromise((resolve22, reject) => {
-          writer._readyPromise_resolve = resolve22, writer._readyPromise_reject = reject;
+        writer._readyPromise = newPromise((resolve23, reject) => {
+          writer._readyPromise_resolve = resolve23, writer._readyPromise_reject = reject;
         }), writer._readyPromiseState = "pending";
       }
       function defaultWriterReadyPromiseInitializeAsRejected(writer, reason) {
@@ -90299,7 +90303,7 @@ var require_ponyfill_es2018 = __commonJS({
         let reader = AcquireReadableStreamDefaultReader(source), writer = AcquireWritableStreamDefaultWriter(dest);
         source._disturbed = !0;
         let shuttingDown = !1, currentWrite = promiseResolvedWith(void 0);
-        return newPromise((resolve22, reject) => {
+        return newPromise((resolve23, reject) => {
           let abortAlgorithm;
           if (signal !== void 0) {
             if (abortAlgorithm = () => {
@@ -90357,7 +90361,7 @@ var require_ponyfill_es2018 = __commonJS({
             shuttingDown || (shuttingDown = !0, dest._state === "writable" && !WritableStreamCloseQueuedOrInFlight(dest) ? uponFulfillment(waitForWritesToFinish(), () => finalize(isError, error)) : finalize(isError, error));
           }
           function finalize(isError, error) {
-            return WritableStreamDefaultWriterRelease(writer), ReadableStreamReaderGenericRelease(reader), signal !== void 0 && signal.removeEventListener("abort", abortAlgorithm), isError ? reject(error) : resolve22(void 0), null;
+            return WritableStreamDefaultWriterRelease(writer), ReadableStreamReaderGenericRelease(reader), signal !== void 0 && signal.removeEventListener("abort", abortAlgorithm), isError ? reject(error) : resolve23(void 0), null;
           }
         });
       }
@@ -90508,8 +90512,8 @@ var require_ponyfill_es2018 = __commonJS({
         return IsReadableByteStreamController(stream12._readableStreamController) ? ReadableByteStreamTee(stream12) : ReadableStreamDefaultTee(stream12);
       }
       function ReadableStreamDefaultTee(stream12, cloneForBranch2) {
-        let reader = AcquireReadableStreamDefaultReader(stream12), reading = !1, readAgain = !1, canceled1 = !1, canceled2 = !1, reason1, reason2, branch1, branch2, resolveCancelPromise, cancelPromise = newPromise((resolve22) => {
-          resolveCancelPromise = resolve22;
+        let reader = AcquireReadableStreamDefaultReader(stream12), reading = !1, readAgain = !1, canceled1 = !1, canceled2 = !1, reason1, reason2, branch1, branch2, resolveCancelPromise, cancelPromise = newPromise((resolve23) => {
+          resolveCancelPromise = resolve23;
         });
         function pullAlgorithm() {
           return reading ? (readAgain = !0, promiseResolvedWith(void 0)) : (reading = !0, ReadableStreamDefaultReaderRead(reader, {
@@ -90547,8 +90551,8 @@ var require_ponyfill_es2018 = __commonJS({
         return branch1 = CreateReadableStream(startAlgorithm, pullAlgorithm, cancel1Algorithm), branch2 = CreateReadableStream(startAlgorithm, pullAlgorithm, cancel2Algorithm), uponRejection(reader._closedPromise, (r2) => (ReadableStreamDefaultControllerError(branch1._readableStreamController, r2), ReadableStreamDefaultControllerError(branch2._readableStreamController, r2), (!canceled1 || !canceled2) && resolveCancelPromise(void 0), null)), [branch1, branch2];
       }
       function ReadableByteStreamTee(stream12) {
-        let reader = AcquireReadableStreamDefaultReader(stream12), reading = !1, readAgainForBranch1 = !1, readAgainForBranch2 = !1, canceled1 = !1, canceled2 = !1, reason1, reason2, branch1, branch2, resolveCancelPromise, cancelPromise = newPromise((resolve22) => {
-          resolveCancelPromise = resolve22;
+        let reader = AcquireReadableStreamDefaultReader(stream12), reading = !1, readAgainForBranch1 = !1, readAgainForBranch2 = !1, canceled1 = !1, canceled2 = !1, reason1, reason2, branch1, branch2, resolveCancelPromise, cancelPromise = newPromise((resolve23) => {
+          resolveCancelPromise = resolve23;
         });
         function forwardReaderError(thisReader) {
           uponRejection(thisReader._closedPromise, (r2) => (thisReader !== reader || (ReadableByteStreamControllerError(branch1._readableStreamController, r2), ReadableByteStreamControllerError(branch2._readableStreamController, r2), (!canceled1 || !canceled2) && resolveCancelPromise(void 0)), null));
@@ -91054,8 +91058,8 @@ var require_ponyfill_es2018 = __commonJS({
             throw new RangeError("Invalid readableType specified");
           if (transformer.writableType !== void 0)
             throw new RangeError("Invalid writableType specified");
-          let readableHighWaterMark = ExtractHighWaterMark(readableStrategy, 0), readableSizeAlgorithm = ExtractSizeAlgorithm(readableStrategy), writableHighWaterMark = ExtractHighWaterMark(writableStrategy, 1), writableSizeAlgorithm = ExtractSizeAlgorithm(writableStrategy), startPromise_resolve, startPromise = newPromise((resolve22) => {
-            startPromise_resolve = resolve22;
+          let readableHighWaterMark = ExtractHighWaterMark(readableStrategy, 0), readableSizeAlgorithm = ExtractSizeAlgorithm(readableStrategy), writableHighWaterMark = ExtractHighWaterMark(writableStrategy, 1), writableSizeAlgorithm = ExtractSizeAlgorithm(writableStrategy), startPromise_resolve, startPromise = newPromise((resolve23) => {
+            startPromise_resolve = resolve23;
           });
           InitializeTransformStream(this, startPromise, writableHighWaterMark, writableSizeAlgorithm, readableHighWaterMark, readableSizeAlgorithm), SetUpTransformStreamDefaultControllerFromTransformer(this, transformer), transformer.start !== void 0 ? startPromise_resolve(transformer.start(this._transformStreamController)) : startPromise_resolve(void 0);
         }
@@ -91118,8 +91122,8 @@ var require_ponyfill_es2018 = __commonJS({
         stream12._backpressure && TransformStreamSetBackpressure(stream12, !1);
       }
       function TransformStreamSetBackpressure(stream12, backpressure) {
-        stream12._backpressureChangePromise !== void 0 && stream12._backpressureChangePromise_resolve(), stream12._backpressureChangePromise = newPromise((resolve22) => {
-          stream12._backpressureChangePromise_resolve = resolve22;
+        stream12._backpressureChangePromise !== void 0 && stream12._backpressureChangePromise_resolve(), stream12._backpressureChangePromise = newPromise((resolve23) => {
+          stream12._backpressureChangePromise_resolve = resolve23;
         }), stream12._backpressure = backpressure;
       }
       class TransformStreamDefaultController {
@@ -91231,8 +91235,8 @@ var require_ponyfill_es2018 = __commonJS({
         if (controller._finishPromise !== void 0)
           return controller._finishPromise;
         let readable = stream12._readable;
-        controller._finishPromise = newPromise((resolve22, reject) => {
-          controller._finishPromise_resolve = resolve22, controller._finishPromise_reject = reject;
+        controller._finishPromise = newPromise((resolve23, reject) => {
+          controller._finishPromise_resolve = resolve23, controller._finishPromise_reject = reject;
         });
         let cancelPromise = controller._cancelAlgorithm(reason);
         return TransformStreamDefaultControllerClearAlgorithms(controller), uponPromise(cancelPromise, () => (readable._state === "errored" ? defaultControllerFinishPromiseReject(controller, readable._storedError) : (ReadableStreamDefaultControllerError(readable._readableStreamController, reason), defaultControllerFinishPromiseResolve(controller)), null), (r2) => (ReadableStreamDefaultControllerError(readable._readableStreamController, r2), defaultControllerFinishPromiseReject(controller, r2), null)), controller._finishPromise;
@@ -91242,8 +91246,8 @@ var require_ponyfill_es2018 = __commonJS({
         if (controller._finishPromise !== void 0)
           return controller._finishPromise;
         let readable = stream12._readable;
-        controller._finishPromise = newPromise((resolve22, reject) => {
-          controller._finishPromise_resolve = resolve22, controller._finishPromise_reject = reject;
+        controller._finishPromise = newPromise((resolve23, reject) => {
+          controller._finishPromise_resolve = resolve23, controller._finishPromise_reject = reject;
         });
         let flushPromise = controller._flushAlgorithm();
         return TransformStreamDefaultControllerClearAlgorithms(controller), uponPromise(flushPromise, () => (readable._state === "errored" ? defaultControllerFinishPromiseReject(controller, readable._storedError) : (ReadableStreamDefaultControllerClose(readable._readableStreamController), defaultControllerFinishPromiseResolve(controller)), null), (r2) => (ReadableStreamDefaultControllerError(readable._readableStreamController, r2), defaultControllerFinishPromiseReject(controller, r2), null)), controller._finishPromise;
@@ -91256,8 +91260,8 @@ var require_ponyfill_es2018 = __commonJS({
         if (controller._finishPromise !== void 0)
           return controller._finishPromise;
         let writable = stream12._writable;
-        controller._finishPromise = newPromise((resolve22, reject) => {
-          controller._finishPromise_resolve = resolve22, controller._finishPromise_reject = reject;
+        controller._finishPromise = newPromise((resolve23, reject) => {
+          controller._finishPromise_resolve = resolve23, controller._finishPromise_reject = reject;
         });
         let cancelPromise = controller._cancelAlgorithm(reason);
         return TransformStreamDefaultControllerClearAlgorithms(controller), uponPromise(cancelPromise, () => (writable._state === "errored" ? defaultControllerFinishPromiseReject(controller, writable._storedError) : (WritableStreamDefaultControllerErrorIfNeeded(writable._writableStreamController, reason), TransformStreamUnblockWrite(stream12), defaultControllerFinishPromiseResolve(controller)), null), (r2) => (WritableStreamDefaultControllerErrorIfNeeded(writable._writableStreamController, r2), TransformStreamUnblockWrite(stream12), defaultControllerFinishPromiseReject(controller, r2), null)), controller._finishPromise;
@@ -91650,17 +91654,17 @@ var import_node_domexception, stat2, blobFromSync, blobFrom, fileFrom, fileFromS
     import_node_domexception = __toESM(require_node_domexception(), 1);
     init_file();
     init_fetch_blob();
-    ({ stat: stat2 } = fs7), blobFromSync = (path23, type) => fromBlob(statSync4(path23), path23, type), blobFrom = (path23, type) => stat2(path23).then((stat6) => fromBlob(stat6, path23, type)), fileFrom = (path23, type) => stat2(path23).then((stat6) => fromFile(stat6, path23, type)), fileFromSync = (path23, type) => fromFile(statSync4(path23), path23, type), fromBlob = (stat6, path23, type = "") => new fetch_blob_default([new BlobDataItem({
-      path: path23,
+    ({ stat: stat2 } = fs7), blobFromSync = (path28, type) => fromBlob(statSync4(path28), path28, type), blobFrom = (path28, type) => stat2(path28).then((stat6) => fromBlob(stat6, path28, type)), fileFrom = (path28, type) => stat2(path28).then((stat6) => fromFile(stat6, path28, type)), fileFromSync = (path28, type) => fromFile(statSync4(path28), path28, type), fromBlob = (stat6, path28, type = "") => new fetch_blob_default([new BlobDataItem({
+      path: path28,
       size: stat6.size,
       lastModified: stat6.mtimeMs,
       start: 0
-    })], { type }), fromFile = (stat6, path23, type = "") => new file_default([new BlobDataItem({
-      path: path23,
+    })], { type }), fromFile = (stat6, path28, type = "") => new file_default([new BlobDataItem({
+      path: path28,
       size: stat6.size,
       lastModified: stat6.mtimeMs,
       start: 0
-    })], basename4(path23), { type, lastModified: stat6.mtimeMs }), BlobDataItem = class _BlobDataItem {
+    })], basename4(path28), { type, lastModified: stat6.mtimeMs }), BlobDataItem = class _BlobDataItem {
       #path;
       #start;
       constructor(options) {
@@ -92561,13 +92565,13 @@ import zlib from "node:zlib";
 import Stream4, { PassThrough as PassThrough2, pipeline as pump } from "node:stream";
 import { Buffer as Buffer3 } from "node:buffer";
 async function fetch2(url, options_) {
-  return new Promise((resolve22, reject) => {
+  return new Promise((resolve23, reject) => {
     let request = new Request2(url, options_), { parsedURL, options } = getNodeRequestOptions(request);
     if (!supportedSchemas.has(parsedURL.protocol))
       throw new TypeError(`node-fetch cannot load ${url}. URL scheme "${parsedURL.protocol.replace(/:$/, "")}" is not supported.`);
     if (parsedURL.protocol === "data:") {
       let data = dist_default(request.url), response2 = new Response2(data, { headers: { "Content-Type": data.typeFull } });
-      resolve22(response2);
+      resolve23(response2);
       return;
     }
     let send = (parsedURL.protocol === "https:" ? https : http2).request, { signal } = request, response = null, abort = () => {
@@ -92647,7 +92651,7 @@ async function fetch2(url, options_) {
             }
             (response_.statusCode === 303 || (response_.statusCode === 301 || response_.statusCode === 302) && request.method === "POST") && (requestOptions.method = "GET", requestOptions.body = void 0, requestOptions.headers.delete("content-length"));
             let responseReferrerPolicy = parseReferrerPolicyFromHeader(headers);
-            responseReferrerPolicy && (requestOptions.referrerPolicy = responseReferrerPolicy), resolve22(fetch2(new Request2(locationURL, requestOptions))), finalize();
+            responseReferrerPolicy && (requestOptions.referrerPolicy = responseReferrerPolicy), resolve23(fetch2(new Request2(locationURL, requestOptions))), finalize();
             return;
           }
           default:
@@ -92671,7 +92675,7 @@ async function fetch2(url, options_) {
         highWaterMark: request.highWaterMark
       }, codings = headers.get("Content-Encoding");
       if (!request.compress || request.method === "HEAD" || codings === null || response_.statusCode === 204 || response_.statusCode === 304) {
-        response = new Response2(body, responseOptions), resolve22(response);
+        response = new Response2(body, responseOptions), resolve23(response);
         return;
       }
       let zlibOptions = {
@@ -92681,7 +92685,7 @@ async function fetch2(url, options_) {
       if (codings === "gzip" || codings === "x-gzip") {
         body = pump(body, zlib.createGunzip(zlibOptions), (error) => {
           error && reject(error);
-        }), response = new Response2(body, responseOptions), resolve22(response);
+        }), response = new Response2(body, responseOptions), resolve23(response);
         return;
       }
       if (codings === "deflate" || codings === "x-deflate") {
@@ -92693,19 +92697,19 @@ async function fetch2(url, options_) {
             error && reject(error);
           }) : body = pump(body, zlib.createInflateRaw(), (error) => {
             error && reject(error);
-          }), response = new Response2(body, responseOptions), resolve22(response);
+          }), response = new Response2(body, responseOptions), resolve23(response);
         }), raw.once("end", () => {
-          response || (response = new Response2(body, responseOptions), resolve22(response));
+          response || (response = new Response2(body, responseOptions), resolve23(response));
         });
         return;
       }
       if (codings === "br") {
         body = pump(body, zlib.createBrotliDecompress(), (error) => {
           error && reject(error);
-        }), response = new Response2(body, responseOptions), resolve22(response);
+        }), response = new Response2(body, responseOptions), resolve23(response);
         return;
       }
-      response = new Response2(body, responseOptions), resolve22(response);
+      response = new Response2(body, responseOptions), resolve23(response);
     }), writeToStream(request_, request).catch(reject);
   });
 }
@@ -94876,7 +94880,7 @@ var require_util8 = __commonJS({
     exports.removeUndefinedValuesInObject = removeUndefinedValuesInObject;
     exports.isValidFile = isValidFile;
     exports.getWellKnownCertificateConfigFileLocation = getWellKnownCertificateConfigFileLocation;
-    var fs22 = __require("fs"), os9 = __require("os"), path23 = __require("path"), WELL_KNOWN_CERTIFICATE_CONFIG_FILE = "certificate_config.json", CLOUDSDK_CONFIG_DIRECTORY = "gcloud";
+    var fs26 = __require("fs"), os10 = __require("os"), path28 = __require("path"), WELL_KNOWN_CERTIFICATE_CONFIG_FILE = "certificate_config.json", CLOUDSDK_CONFIG_DIRECTORY = "gcloud";
     function snakeToCamel(str2) {
       return str2.replace(/([_][^_])/g, (match3) => match3.slice(1).toUpperCase());
     }
@@ -94948,17 +94952,17 @@ var require_util8 = __commonJS({
     }
     async function isValidFile(filePath) {
       try {
-        return (await fs22.promises.lstat(filePath)).isFile();
+        return (await fs26.promises.lstat(filePath)).isFile();
       } catch {
         return !1;
       }
     }
     function getWellKnownCertificateConfigFileLocation() {
-      let configDir = process.env.CLOUDSDK_CONFIG || (_isWindows() ? path23.join(process.env.APPDATA || "", CLOUDSDK_CONFIG_DIRECTORY) : path23.join(process.env.HOME || "", ".config", CLOUDSDK_CONFIG_DIRECTORY));
-      return path23.join(configDir, WELL_KNOWN_CERTIFICATE_CONFIG_FILE);
+      let configDir = process.env.CLOUDSDK_CONFIG || (_isWindows() ? path28.join(process.env.APPDATA || "", CLOUDSDK_CONFIG_DIRECTORY) : path28.join(process.env.HOME || "", ".config", CLOUDSDK_CONFIG_DIRECTORY));
+      return path28.join(configDir, WELL_KNOWN_CERTIFICATE_CONFIG_FILE);
     }
     function _isWindows() {
-      return os9.platform().startsWith("win");
+      return os10.platform().startsWith("win");
     }
   }
 });
@@ -96404,7 +96408,7 @@ var require_getCredentials = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: !0 });
     exports.getCredentials = getCredentials;
-    var path23 = __require("path"), fs22 = __require("fs"), util_1 = __require("util"), errorWithCode_1 = require_errorWithCode(), readFile7 = fs22.readFile ? (0, util_1.promisify)(fs22.readFile) : async () => {
+    var path28 = __require("path"), fs26 = __require("fs"), util_1 = __require("util"), errorWithCode_1 = require_errorWithCode(), readFile7 = fs26.readFile ? (0, util_1.promisify)(fs26.readFile) : async () => {
       throw new errorWithCode_1.ErrorWithCode("use key rather than keyFile.", "MISSING_CREDENTIALS");
     }, ExtensionFiles;
     (function(ExtensionFiles2) {
@@ -96459,7 +96463,7 @@ var require_getCredentials = __commonJS({
        * @returns An instance of a class that implements ICredentialsProvider.
        */
       static create(keyFilePath) {
-        switch (path23.extname(keyFilePath)) {
+        switch (path28.extname(keyFilePath)) {
           case ExtensionFiles.JSON:
             return new JsonCredentialsProvider(keyFilePath);
           case ExtensionFiles.DER:
@@ -96767,13 +96771,13 @@ var require_jwtaccess = __commonJS({
           return this.fromStreamAsync(inputStream);
       }
       fromStreamAsync(inputStream) {
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           inputStream || reject(new Error("Must pass in a stream containing the service account auth settings."));
           let s2 = "";
           inputStream.setEncoding("utf8").on("data", (chunk) => s2 += chunk).on("error", reject).on("end", () => {
             try {
               let data = JSON.parse(s2);
-              this.fromJSON(data), resolve22();
+              this.fromJSON(data), resolve23();
             } catch (err) {
               reject(err);
             }
@@ -96956,14 +96960,14 @@ var require_jwtclient = __commonJS({
           return this.fromStreamAsync(inputStream);
       }
       fromStreamAsync(inputStream) {
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           if (!inputStream)
             throw new Error("Must pass in a stream containing the service account auth settings.");
           let s2 = "";
           inputStream.setEncoding("utf8").on("error", reject).on("data", (chunk) => s2 += chunk).on("end", () => {
             try {
               let data = JSON.parse(s2);
-              this.fromJSON(data), resolve22();
+              this.fromJSON(data), resolve23();
             } catch (e2) {
               reject(e2);
             }
@@ -97078,14 +97082,14 @@ var require_refreshclient = __commonJS({
           return this.fromStreamAsync(inputStream);
       }
       async fromStreamAsync(inputStream) {
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           if (!inputStream)
             return reject(new Error("Must pass in a stream containing the user refresh token."));
           let s2 = "";
           inputStream.setEncoding("utf8").on("error", reject).on("data", (chunk) => s2 += chunk).on("end", () => {
             try {
               let data = JSON.parse(s2);
-              return this.fromJSON(data), resolve22();
+              return this.fromJSON(data), resolve23();
             } catch (err) {
               return reject(err);
             }
@@ -97743,9 +97747,9 @@ var require_filesubjecttokensupplier = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: !0 });
     exports.FileSubjectTokenSupplier = void 0;
-    var util_1 = __require("util"), fs22 = __require("fs"), readFile7 = (0, util_1.promisify)(fs22.readFile ?? (() => {
-    })), realpath3 = (0, util_1.promisify)(fs22.realpath ?? (() => {
-    })), lstat = (0, util_1.promisify)(fs22.lstat ?? (() => {
+    var util_1 = __require("util"), fs26 = __require("fs"), readFile7 = (0, util_1.promisify)(fs26.readFile ?? (() => {
+    })), realpath3 = (0, util_1.promisify)(fs26.realpath ?? (() => {
+    })), lstat = (0, util_1.promisify)(fs26.lstat ?? (() => {
     })), FileSubjectTokenSupplier = class {
       filePath;
       formatType;
@@ -97833,7 +97837,7 @@ var require_certificatesubjecttokensupplier = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: !0 });
     exports.CertificateSubjectTokenSupplier = exports.InvalidConfigurationError = exports.CertificateSourceUnavailableError = exports.CERTIFICATE_CONFIGURATION_ENV_VARIABLE = void 0;
-    var util_1 = require_util8(), fs22 = __require("fs"), crypto_1 = __require("crypto"), https2 = __require("https");
+    var util_1 = require_util8(), fs26 = __require("fs"), crypto_1 = __require("crypto"), https2 = __require("https");
     exports.CERTIFICATE_CONFIGURATION_ENV_VARIABLE = "GOOGLE_API_CERTIFICATE_CONFIG";
     var CertificateSourceUnavailableError = class extends Error {
       constructor(message) {
@@ -97914,7 +97918,7 @@ var require_certificatesubjecttokensupplier = __commonJS({
       async #getCertAndKeyPaths() {
         let configPath = this.certificateConfigPath, fileContents;
         try {
-          fileContents = await fs22.promises.readFile(configPath, "utf8");
+          fileContents = await fs26.promises.readFile(configPath, "utf8");
         } catch {
           throw new CertificateSourceUnavailableError(`Failed to read certificate config file at: ${configPath}`);
         }
@@ -97934,13 +97938,13 @@ var require_certificatesubjecttokensupplier = __commonJS({
       async #getKeyAndCert(certPath, keyPath) {
         let cert, key;
         try {
-          cert = await fs22.promises.readFile(certPath), new crypto_1.X509Certificate(cert);
+          cert = await fs26.promises.readFile(certPath), new crypto_1.X509Certificate(cert);
         } catch (err) {
           let message = err instanceof Error ? err.message : String(err);
           throw new CertificateSourceUnavailableError(`Failed to read certificate file at ${certPath}: ${message}`);
         }
         try {
-          key = await fs22.promises.readFile(keyPath), (0, crypto_1.createPrivateKey)(key);
+          key = await fs26.promises.readFile(keyPath), (0, crypto_1.createPrivateKey)(key);
         } catch (err) {
           let message = err instanceof Error ? err.message : String(err);
           throw new CertificateSourceUnavailableError(`Failed to read private key file at ${keyPath}: ${message}`);
@@ -97957,7 +97961,7 @@ var require_certificatesubjecttokensupplier = __commonJS({
         if (!this.trustChainPath)
           return JSON.stringify([leafCert.raw.toString("base64")]);
         try {
-          let chainCerts = ((await fs22.promises.readFile(this.trustChainPath, "utf8")).match(/-----BEGIN CERTIFICATE-----[^-]+-----END CERTIFICATE-----/g) ?? []).map((pem, index3) => {
+          let chainCerts = ((await fs26.promises.readFile(this.trustChainPath, "utf8")).match(/-----BEGIN CERTIFICATE-----[^-]+-----END CERTIFICATE-----/g) ?? []).map((pem, index3) => {
             try {
               return new crypto_1.X509Certificate(pem);
             } catch (err) {
@@ -98524,7 +98528,7 @@ var require_pluggable_auth_handler = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: !0 });
     exports.PluggableAuthHandler = exports.ExecutableError = void 0;
-    var executable_response_1 = require_executable_response(), childProcess = __require("child_process"), fs22 = __require("fs"), ExecutableError = class extends Error {
+    var executable_response_1 = require_executable_response(), childProcess = __require("child_process"), fs26 = __require("fs"), ExecutableError = class extends Error {
       /**
        * The exit code returned by the executable.
        */
@@ -98557,7 +98561,7 @@ var require_pluggable_auth_handler = __commonJS({
        * @return A promise that resolves with the executable response.
        */
       retrieveResponseFromExecutable(envMap) {
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           let child = childProcess.spawn(this.commandComponents[0], this.commandComponents.slice(1), {
             env: { ...process.env, ...Object.fromEntries(envMap) }
           }), output = "";
@@ -98571,7 +98575,7 @@ var require_pluggable_auth_handler = __commonJS({
             if (clearTimeout(timeout), code === 0)
               try {
                 let responseJson = JSON.parse(output), response = new executable_response_1.ExecutableResponse(responseJson);
-                return resolve22(response);
+                return resolve23(response);
               } catch (error) {
                 return error instanceof executable_response_1.ExecutableResponseError ? reject(error) : reject(new executable_response_1.ExecutableResponseError(`The executable returned an invalid response: ${output}`));
               }
@@ -98589,13 +98593,13 @@ var require_pluggable_auth_handler = __commonJS({
           return;
         let filePath;
         try {
-          filePath = await fs22.promises.realpath(this.outputFile);
+          filePath = await fs26.promises.realpath(this.outputFile);
         } catch {
           return;
         }
-        if (!(await fs22.promises.lstat(filePath)).isFile())
+        if (!(await fs26.promises.lstat(filePath)).isFile())
           return;
-        let responseString = await fs22.promises.readFile(filePath, {
+        let responseString = await fs26.promises.readFile(filePath, {
           encoding: "utf8"
         });
         if (responseString !== "")
@@ -98900,7 +98904,7 @@ var require_googleauth = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: !0 });
     exports.GoogleAuth = exports.GoogleAuthExceptionMessages = void 0;
-    var child_process_1 = __require("child_process"), fs22 = __require("fs"), gaxios_1 = require_src2(), gcpMetadata = require_src4(), os9 = __require("os"), path23 = __require("path"), crypto_1 = require_crypto3(), computeclient_1 = require_computeclient(), idtokenclient_1 = require_idtokenclient(), envDetect_1 = require_envDetect(), jwtclient_1 = require_jwtclient(), refreshclient_1 = require_refreshclient(), impersonated_1 = require_impersonated(), externalclient_1 = require_externalclient(), baseexternalclient_1 = require_baseexternalclient(), authclient_1 = require_authclient(), externalAccountAuthorizedUserClient_1 = require_externalAccountAuthorizedUserClient(), util_1 = require_util8();
+    var child_process_1 = __require("child_process"), fs26 = __require("fs"), gaxios_1 = require_src2(), gcpMetadata = require_src4(), os10 = __require("os"), path28 = __require("path"), crypto_1 = require_crypto3(), computeclient_1 = require_computeclient(), idtokenclient_1 = require_idtokenclient(), envDetect_1 = require_envDetect(), jwtclient_1 = require_jwtclient(), refreshclient_1 = require_refreshclient(), impersonated_1 = require_impersonated(), externalclient_1 = require_externalclient(), baseexternalclient_1 = require_baseexternalclient(), authclient_1 = require_authclient(), externalAccountAuthorizedUserClient_1 = require_externalAccountAuthorizedUserClient(), util_1 = require_util8();
     exports.GoogleAuthExceptionMessages = {
       API_KEY_WITH_CREDENTIALS: "API Keys and Credentials are mutually exclusive authentication methods and cannot be used together.",
       NO_PROJECT_ID_FOUND: `Unable to detect a Project Id in the current environment. 
@@ -99114,9 +99118,9 @@ https://cloud.google.com/compute/docs/metadata/predefined-metadata-keys`
           location = process.env.APPDATA;
         else {
           let home = process.env.HOME;
-          home && (location = path23.join(home, ".config"));
+          home && (location = path28.join(home, ".config"));
         }
-        return location && (location = path23.join(location, "gcloud", "application_default_credentials.json"), fs22.existsSync(location) || (location = null)), location ? await this._getApplicationCredentialsFromFilePath(location, options) : null;
+        return location && (location = path28.join(location, "gcloud", "application_default_credentials.json"), fs26.existsSync(location) || (location = null)), location ? await this._getApplicationCredentialsFromFilePath(location, options) : null;
       }
       /**
        * Attempts to load default credentials from a file at the given path..
@@ -99128,12 +99132,12 @@ https://cloud.google.com/compute/docs/metadata/predefined-metadata-keys`
         if (!filePath || filePath.length === 0)
           throw new Error("The file path is invalid.");
         try {
-          if (filePath = fs22.realpathSync(filePath), !fs22.lstatSync(filePath).isFile())
+          if (filePath = fs26.realpathSync(filePath), !fs26.lstatSync(filePath).isFile())
             throw new Error();
         } catch (err) {
           throw err instanceof Error && (err.message = `The file at ${filePath} does not exist, or it is not a file. ${err.message}`), err;
         }
-        let readStream = fs22.createReadStream(filePath);
+        let readStream = fs26.createReadStream(filePath);
         return this.fromStream(readStream, options);
       }
       /**
@@ -99235,7 +99239,7 @@ https://cloud.google.com/compute/docs/metadata/predefined-metadata-keys`
           return this.fromStreamAsync(inputStream, options);
       }
       fromStreamAsync(inputStream, options) {
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           if (!inputStream)
             throw new Error("Must pass in a stream containing the Google auth settings.");
           let chunks = [];
@@ -99243,7 +99247,7 @@ https://cloud.google.com/compute/docs/metadata/predefined-metadata-keys`
             try {
               try {
                 let data = JSON.parse(chunks.join("")), r2 = this._cacheClientFromJSON(data, options);
-                return resolve22(r2);
+                return resolve23(r2);
               } catch (err) {
                 if (!this.keyFilename)
                   throw err;
@@ -99251,7 +99255,7 @@ https://cloud.google.com/compute/docs/metadata/predefined-metadata-keys`
                   ...this.clientOptions,
                   keyFile: this.keyFilename
                 });
-                return this.cachedCredential = client, this.setGapicJWTValues(client), resolve22(client);
+                return this.cachedCredential = client, this.setGapicJWTValues(client), resolve23(client);
               }
             } catch (err) {
               return reject(err);
@@ -99275,23 +99279,23 @@ https://cloud.google.com/compute/docs/metadata/predefined-metadata-keys`
        * @api private
        */
       _isWindows() {
-        let sys = os9.platform();
+        let sys = os10.platform();
         return !!(sys && sys.length >= 3 && sys.substring(0, 3).toLowerCase() === "win");
       }
       /**
        * Run the Google Cloud SDK command that prints the default project ID
        */
       async getDefaultServiceProjectId() {
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           (0, child_process_1.exec)("gcloud config config-helper --format json", (err, stdout) => {
             if (!err && stdout)
               try {
                 let projectId = JSON.parse(stdout).configuration.properties.core.project;
-                resolve22(projectId);
+                resolve23(projectId);
                 return;
               } catch {
               }
-            resolve22(null);
+            resolve23(null);
           });
         });
       }
@@ -99385,7 +99389,7 @@ https://cloud.google.com/compute/docs/metadata/predefined-metadata-keys`
         if (this.jsonContent)
           return this._cacheClientFromJSON(this.jsonContent, this.clientOptions);
         if (this.keyFilename) {
-          let filePath = path23.resolve(this.keyFilename), stream12 = fs22.createReadStream(filePath);
+          let filePath = path28.resolve(this.keyFilename), stream12 = fs26.createReadStream(filePath);
           return await this.fromStreamAsync(stream12, this.clientOptions);
         } else if (this.apiKey) {
           let client = await this.fromAPIKey(this.apiKey, this.clientOptions);
@@ -104540,14 +104544,14 @@ function __asyncValues(o) {
   }, i2);
   function verb(n) {
     i2[n] = o[n] && function(v2) {
-      return new Promise(function(resolve22, reject) {
-        v2 = o[n](v2), settle(resolve22, reject, v2.done, v2.value);
+      return new Promise(function(resolve23, reject) {
+        v2 = o[n](v2), settle(resolve23, reject, v2.done, v2.value);
       });
     };
   }
-  function settle(resolve22, reject, d, v2) {
+  function settle(resolve23, reject, d, v2) {
     Promise.resolve(v2).then(function(v3) {
-      resolve22({ value: v3, done: d });
+      resolve23({ value: v3, done: d });
     }, reject);
   }
 }
@@ -108625,7 +108629,7 @@ function retryIntervalFromResponse(res) {
   return 0;
 }
 async function delay(delay2) {
-  return new Promise((resolve22) => setTimeout(resolve22, delay2));
+  return new Promise((resolve23) => setTimeout(resolve23, delay2));
 }
 async function logRequest(logger, req) {
   if (!logger)
@@ -108954,7 +108958,7 @@ async function $do$q(client, body, api_version, options) {
     api_version
   }, body$ = encodeJSON("body", payload.body, { explode: !0 }), pathParams = {
     api_version: encodeSimple("api_version", (_a8 = payload.api_version) !== null && _a8 !== void 0 ? _a8 : client._options.api_version, { explode: !1, charEncoding: "percent" })
-  }, path23 = pathToFunc("/{api_version}/agents")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/agents")(pathParams), headers = new Headers(compactMap({
     "Content-Type": "application/json",
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
@@ -108980,7 +108984,7 @@ async function $do$q(client, body, api_version, options) {
     security: requestSecurity,
     method: "POST",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body: body$,
     userAgent: client._options.user_agent,
@@ -109013,7 +109017,7 @@ async function $do$p(client, id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/agents/{id}")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/agents/{id}")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -109038,7 +109042,7 @@ async function $do$p(client, id, api_version, options) {
     security: requestSecurity,
     method: "DELETE",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -109071,7 +109075,7 @@ async function $do$o(client, id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/agents/{id}")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/agents/{id}")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -109096,7 +109100,7 @@ async function $do$o(client, id, api_version, options) {
     security: requestSecurity,
     method: "GET",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -109127,7 +109131,7 @@ async function $do$n(client, api_version, page_size, page_token, parent, options
     parent
   }, body = null, pathParams = {
     api_version: encodeSimple("api_version", (_a8 = payload?.api_version) !== null && _a8 !== void 0 ? _a8 : client._options.api_version, { explode: !1, charEncoding: "percent" })
-  }, path23 = pathToFunc("/{api_version}/agents")(pathParams), query = encodeFormQuery({
+  }, path28 = pathToFunc("/{api_version}/agents")(pathParams), query = encodeFormQuery({
     page_size: payload?.page_size,
     page_token: payload?.page_token,
     parent: payload?.parent
@@ -109156,7 +109160,7 @@ async function $do$n(client, api_version, page_size, page_token, parent, options
     security: requestSecurity,
     method: "GET",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     query,
     body,
@@ -109186,7 +109190,7 @@ async function $do$m(client, body, api_version, options) {
     api_version
   }, body$ = encodeJSON("body", payload.body, { explode: !0 }), pathParams = {
     api_version: encodeSimple("api_version", (_a8 = payload.api_version) !== null && _a8 !== void 0 ? _a8 : client._options.api_version, { explode: !1, charEncoding: "percent" })
-  }, path23 = pathToFunc("/{api_version}/environments")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/environments")(pathParams), headers = new Headers(compactMap({
     "Content-Type": "application/json",
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
@@ -109212,7 +109216,7 @@ async function $do$m(client, body, api_version, options) {
     security: requestSecurity,
     method: "POST",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body: body$,
     userAgent: client._options.user_agent,
@@ -109245,7 +109249,7 @@ async function $do$l(client, id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/environments/{id}")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/environments/{id}")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -109270,7 +109274,7 @@ async function $do$l(client, id, api_version, options) {
     security: requestSecurity,
     method: "DELETE",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -109303,7 +109307,7 @@ async function $do$k(client, id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/environments/{id}")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/environments/{id}")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -109328,7 +109332,7 @@ async function $do$k(client, id, api_version, options) {
     security: requestSecurity,
     method: "GET",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -109358,7 +109362,7 @@ async function $do$j(client, api_version, page_size, page_token, options) {
     page_token
   }, body = null, pathParams = {
     api_version: encodeSimple("api_version", (_a8 = payload?.api_version) !== null && _a8 !== void 0 ? _a8 : client._options.api_version, { explode: !1, charEncoding: "percent" })
-  }, path23 = pathToFunc("/{api_version}/environments")(pathParams), query = encodeFormQuery({
+  }, path28 = pathToFunc("/{api_version}/environments")(pathParams), query = encodeFormQuery({
     page_size: payload?.page_size,
     page_token: payload?.page_token
   }), headers = new Headers(compactMap({
@@ -109386,7 +109390,7 @@ async function $do$j(client, api_version, page_size, page_token, options) {
     security: requestSecurity,
     method: "GET",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     query,
     body,
@@ -109406,14 +109410,14 @@ async function $do$j(client, api_version, page_size, page_token, options) {
   let response = doResult.value, [result] = await match2(fail("4XX"), fail("5XX"), json("default"))(response, req);
   return result.ok ? [result, { status: "complete", request: req, response }] : [result, { status: "complete", request: req, response }];
 }
-function environmentsFilesList(client, environment, path23, api_version, page_size, page_token, recursive, options) {
-  return new APIPromise3($do$i(client, environment, path23, api_version, page_size, page_token, recursive, options));
+function environmentsFilesList(client, environment, path28, api_version, page_size, page_token, recursive, options) {
+  return new APIPromise3($do$i(client, environment, path28, api_version, page_size, page_token, recursive, options));
 }
-async function $do$i(client, environment, path23, api_version, page_size, page_token, recursive, options) {
+async function $do$i(client, environment, path28, api_version, page_size, page_token, recursive, options) {
   var _a8, _b, _c;
   let payload = {
     environment,
-    path: path23,
+    path: path28,
     api_version,
     page_size,
     page_token,
@@ -109491,7 +109495,7 @@ async function $do$h(client, id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/interactions/{id}/cancel")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/interactions/{id}/cancel")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -109516,7 +109520,7 @@ async function $do$h(client, id, api_version, options) {
     security: requestSecurity,
     method: "POST",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -109547,7 +109551,7 @@ async function $do$g(client, body, api_version, options) {
     api_version
   }, payload = input2, body$ = encodeJSON("body", payload.body, { explode: !0 }), pathParams = {
     api_version: encodeSimple("api_version", (_a8 = payload.api_version) !== null && _a8 !== void 0 ? _a8 : client._options.api_version, { explode: !1, charEncoding: "percent" })
-  }, path23 = pathToFunc("/{api_version}/interactions")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/interactions")(pathParams), headers = new Headers(compactMap({
     "Content-Type": "application/json",
     Accept: !((_b = input2?.body) === null || _b === void 0) && _b.stream ? "text/event-stream" : "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
@@ -109573,7 +109577,7 @@ async function $do$g(client, body, api_version, options) {
     security: requestSecurity,
     method: "POST",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body: body$,
     userAgent: client._options.user_agent,
@@ -109611,7 +109615,7 @@ async function $do$f(client, id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/interactions/{id}")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/interactions/{id}")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -109636,7 +109640,7 @@ async function $do$f(client, id, api_version, options) {
     security: requestSecurity,
     method: "DELETE",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -109674,7 +109678,7 @@ async function $do$e(client, id, api_version, include_input, last_event_id, stre
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/interactions/{id}")(pathParams), query = encodeFormQuery({
+  }, path28 = pathToFunc("/{api_version}/interactions/{id}")(pathParams), query = encodeFormQuery({
     include_input: payload.include_input,
     last_event_id: payload.last_event_id,
     stream: payload.stream
@@ -109703,7 +109707,7 @@ async function $do$e(client, id, api_version, include_input, last_event_id, stre
     security: requestSecurity,
     method: "GET",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     query,
     body,
@@ -109738,7 +109742,7 @@ async function $do$d(client, body, api_version, options) {
     api_version
   }, body$ = encodeJSON("body", payload.body, { explode: !0 }), pathParams = {
     api_version: encodeSimple("api_version", (_a8 = payload.api_version) !== null && _a8 !== void 0 ? _a8 : client._options.api_version, { explode: !1, charEncoding: "percent" })
-  }, path23 = pathToFunc("/{api_version}/triggers")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/triggers")(pathParams), headers = new Headers(compactMap({
     "Content-Type": "application/json",
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
@@ -109764,7 +109768,7 @@ async function $do$d(client, body, api_version, options) {
     security: requestSecurity,
     method: "POST",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body: body$,
     userAgent: client._options.user_agent,
@@ -109797,7 +109801,7 @@ async function $do$c(client, id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/triggers/{id}")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/triggers/{id}")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -109822,7 +109826,7 @@ async function $do$c(client, id, api_version, options) {
     security: requestSecurity,
     method: "DELETE",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -109855,7 +109859,7 @@ async function $do$b(client, id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/triggers/{id}")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/triggers/{id}")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -109880,7 +109884,7 @@ async function $do$b(client, id, api_version, options) {
     security: requestSecurity,
     method: "GET",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -109915,7 +109919,7 @@ async function $do$a(client, trigger_id, api_version, page_size, page_token, opt
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/triggers/{trigger_id}/executions")(pathParams), query = encodeFormQuery({
+  }, path28 = pathToFunc("/{api_version}/triggers/{trigger_id}/executions")(pathParams), query = encodeFormQuery({
     page_size: payload.page_size,
     page_token: payload.page_token
   }), headers = new Headers(compactMap({
@@ -109943,7 +109947,7 @@ async function $do$a(client, trigger_id, api_version, page_size, page_token, opt
     security: requestSecurity,
     method: "GET",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     query,
     body,
@@ -109975,7 +109979,7 @@ async function $do$9(client, api_version, filter2, page_size, page_token, option
     page_token
   }, body = null, pathParams = {
     api_version: encodeSimple("api_version", (_a8 = payload?.api_version) !== null && _a8 !== void 0 ? _a8 : client._options.api_version, { explode: !1, charEncoding: "percent" })
-  }, path23 = pathToFunc("/{api_version}/triggers")(pathParams), query = encodeFormQuery({
+  }, path28 = pathToFunc("/{api_version}/triggers")(pathParams), query = encodeFormQuery({
     filter: payload?.filter,
     page_size: payload?.page_size,
     page_token: payload?.page_token
@@ -110004,7 +110008,7 @@ async function $do$9(client, api_version, filter2, page_size, page_token, option
     security: requestSecurity,
     method: "GET",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     query,
     body,
@@ -110038,7 +110042,7 @@ async function $do$8(client, trigger_id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/triggers/{trigger_id}/executions")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/triggers/{trigger_id}/executions")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -110063,7 +110067,7 @@ async function $do$8(client, trigger_id, api_version, options) {
     security: requestSecurity,
     method: "POST",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -110097,7 +110101,7 @@ async function $do$7(client, id, body, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/triggers/{id}")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/triggers/{id}")(pathParams), headers = new Headers(compactMap({
     "Content-Type": "application/json",
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
@@ -110123,7 +110127,7 @@ async function $do$7(client, id, body, api_version, options) {
     security: requestSecurity,
     method: "PATCH",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body: body$,
     userAgent: client._options.user_agent,
@@ -110152,7 +110156,7 @@ async function $do$6(client, body, api_version, options) {
     api_version
   }, body$ = encodeJSON("body", payload.body, { explode: !0 }), pathParams = {
     api_version: encodeSimple("api_version", (_a8 = payload.api_version) !== null && _a8 !== void 0 ? _a8 : client._options.api_version, { explode: !1, charEncoding: "percent" })
-  }, path23 = pathToFunc("/{api_version}/webhooks")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/webhooks")(pathParams), headers = new Headers(compactMap({
     "Content-Type": "application/json",
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
@@ -110178,7 +110182,7 @@ async function $do$6(client, body, api_version, options) {
     security: requestSecurity,
     method: "POST",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body: body$,
     userAgent: client._options.user_agent,
@@ -110211,7 +110215,7 @@ async function $do$5(client, id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/webhooks/{id}")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/webhooks/{id}")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -110236,7 +110240,7 @@ async function $do$5(client, id, api_version, options) {
     security: requestSecurity,
     method: "DELETE",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -110269,7 +110273,7 @@ async function $do$4(client, id, api_version, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/webhooks/{id}")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/webhooks/{id}")(pathParams), headers = new Headers(compactMap({
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
     options: client._options,
@@ -110294,7 +110298,7 @@ async function $do$4(client, id, api_version, options) {
     security: requestSecurity,
     method: "GET",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body,
     userAgent: client._options.user_agent,
@@ -110324,7 +110328,7 @@ async function $do$3(client, api_version, page_size, page_token, options) {
     page_token
   }, body = null, pathParams = {
     api_version: encodeSimple("api_version", (_a8 = payload?.api_version) !== null && _a8 !== void 0 ? _a8 : client._options.api_version, { explode: !1, charEncoding: "percent" })
-  }, path23 = pathToFunc("/{api_version}/webhooks")(pathParams), query = encodeFormQuery({
+  }, path28 = pathToFunc("/{api_version}/webhooks")(pathParams), query = encodeFormQuery({
     page_size: payload?.page_size,
     page_token: payload?.page_token
   }), headers = new Headers(compactMap({
@@ -110352,7 +110356,7 @@ async function $do$3(client, api_version, page_size, page_token, options) {
     security: requestSecurity,
     method: "GET",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     query,
     body,
@@ -110387,7 +110391,7 @@ async function $do$2(client, id, api_version, body, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/webhooks/{id}:ping")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/webhooks/{id}:ping")(pathParams), headers = new Headers(compactMap({
     "Content-Type": "application/json",
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
@@ -110413,7 +110417,7 @@ async function $do$2(client, id, api_version, body, options) {
     security: requestSecurity,
     method: "POST",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body: body$,
     userAgent: client._options.user_agent,
@@ -110447,7 +110451,7 @@ async function $do$1(client, id, api_version, body, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/webhooks/{id}:rotateSigningSecret")(pathParams), headers = new Headers(compactMap({
+  }, path28 = pathToFunc("/{api_version}/webhooks/{id}:rotateSigningSecret")(pathParams), headers = new Headers(compactMap({
     "Content-Type": "application/json",
     Accept: "application/json"
   })), securityInput = await extractSecurity(client._options.security), requestSecurity = resolveGlobalSecurity(securityInput), context = {
@@ -110473,7 +110477,7 @@ async function $do$1(client, id, api_version, body, options) {
     security: requestSecurity,
     method: "POST",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     body: body$,
     userAgent: client._options.user_agent,
@@ -110508,7 +110512,7 @@ async function $do(client, id, api_version, update_mask, body, options) {
       explode: !1,
       charEncoding: "percent"
     })
-  }, path23 = pathToFunc("/{api_version}/webhooks/{id}")(pathParams), query = encodeFormQuery({
+  }, path28 = pathToFunc("/{api_version}/webhooks/{id}")(pathParams), query = encodeFormQuery({
     update_mask: payload.update_mask
   }), headers = new Headers(compactMap({
     "Content-Type": "application/json",
@@ -110536,7 +110540,7 @@ async function $do(client, id, api_version, update_mask, body, options) {
     security: requestSecurity,
     method: "PATCH",
     baseURL: options?.server_url,
-    path: path23,
+    path: path28,
     headers,
     query,
     body: body$,
@@ -112376,7 +112380,7 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           this.apiClient,
           // Use instance apiClient
           params
-        ), urlParams = body._url, path23 = formatMap("{model}:batchGenerateContent", urlParams), requestsWrapper = body.batch.inputConfig.requests, requests = requestsWrapper.requests, newRequests = [];
+        ), urlParams = body._url, path28 = formatMap("{model}:batchGenerateContent", urlParams), requestsWrapper = body.batch.inputConfig.requests, requests = requestsWrapper.requests, newRequests = [];
         for (let request of requests) {
           let requestDict = Object.assign({}, request);
           if (requestDict.systemInstruction) {
@@ -112387,7 +112391,7 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           }
           newRequests.push(requestDict);
         }
-        return requestsWrapper.requests = newRequests, delete body.config, delete body._url, delete body._query, { path: path23, body };
+        return requestsWrapper.requests = newRequests, delete body.config, delete body._url, delete body._query, { path: path28, body };
       }
       // Helper function to get the first GCS URI
       getGcsUri(src) {
@@ -112426,11 +112430,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async createInternal(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = createBatchJobParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("batchPredictionJobs", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("batchPredictionJobs", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -112439,8 +112443,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           }).then((httpResponse) => httpResponse.json()), response.then((apiResponse) => batchJobFromVertex(apiResponse));
         } else {
           let body = createBatchJobParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{model}:batchGenerateContent", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:batchGenerateContent", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -112458,13 +112462,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async createEmbeddingsInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = createEmbeddingsBatchJobParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{model}:asyncBatchEmbedContent", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:asyncBatchEmbedContent", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -112486,11 +112490,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async get(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = getBatchJobParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("batchPredictionJobs/{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("batchPredictionJobs/{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -112499,8 +112503,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           }).then((httpResponse) => httpResponse.json()), response.then((apiResponse) => batchJobFromVertex(apiResponse));
         } else {
           let body = getBatchJobParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("batches/{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("batches/{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -112522,11 +112526,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async cancel(params) {
         var _a8, _b, _c, _d;
-        let path23 = "", queryParams = {};
+        let path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = cancelBatchJobParametersToVertex(this.apiClient, params);
-          path23 = formatMap("batchPredictionJobs/{name}:cancel", body._url), queryParams = body._query, delete body._url, delete body._query, await this.apiClient.request({
-            path: path23,
+          path28 = formatMap("batchPredictionJobs/{name}:cancel", body._url), queryParams = body._query, delete body._url, delete body._query, await this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -112535,8 +112539,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = cancelBatchJobParametersToMldev(this.apiClient, params);
-          path23 = formatMap("batches/{name}:cancel", body._url), queryParams = body._query, delete body._url, delete body._query, await this.apiClient.request({
-            path: path23,
+          path28 = formatMap("batches/{name}:cancel", body._url), queryParams = body._query, delete body._url, delete body._query, await this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -112547,11 +112551,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async listInternal(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = listBatchJobsParametersToVertex(params);
-          return path23 = formatMap("batchPredictionJobs", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("batchPredictionJobs", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -112568,8 +112572,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = listBatchJobsParametersToMldev(params);
-          return path23 = formatMap("batches", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("batches", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -112599,11 +112603,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async delete(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = deleteBatchJobParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("batchPredictionJobs/{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("batchPredictionJobs/{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "DELETE",
@@ -112617,8 +112621,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           })), response.then((apiResponse) => deleteResourceJobFromVertex(apiResponse));
         } else {
           let body = deleteBatchJobParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("batches/{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("batches/{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "DELETE",
@@ -112665,11 +112669,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async create(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = createCachedContentParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("cachedContents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("cachedContents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -112678,8 +112682,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           }).then((httpResponse) => httpResponse.json()), response.then((resp) => resp);
         } else {
           let body = createCachedContentParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("cachedContents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("cachedContents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -112701,11 +112705,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async get(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = getCachedContentParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -112714,8 +112718,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           }).then((httpResponse) => httpResponse.json()), response.then((resp) => resp);
         } else {
           let body = getCachedContentParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -112737,11 +112741,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async delete(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = deleteCachedContentParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "DELETE",
@@ -112758,8 +112762,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = deleteCachedContentParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "DELETE",
@@ -112792,11 +112796,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async update(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = updateCachedContentParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "PATCH",
@@ -112805,8 +112809,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           }).then((httpResponse) => httpResponse.json()), response.then((resp) => resp);
         } else {
           let body = updateCachedContentParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "PATCH",
@@ -112817,11 +112821,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async listInternal(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = listCachedContentsParametersToVertex(params);
-          return path23 = formatMap("cachedContents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("cachedContents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -112838,8 +112842,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = listCachedContentsParametersToMldev(params);
-          return path23 = formatMap("cachedContents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("cachedContents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -113121,13 +113125,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async listInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = listFilesParametersToMldev(params);
-          return path23 = formatMap("files", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("files", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -113146,13 +113150,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async createInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = createFileParametersToMldev(params);
-          return path23 = formatMap("upload/v1beta/files", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("upload/v1beta/files", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -113181,13 +113185,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async get(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = getFileParametersToMldev(params);
-          return path23 = formatMap("files/{file}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("files/{file}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -113211,13 +113215,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async delete(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = deleteFileParametersToMldev(params);
-          return path23 = formatMap("files/{file}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("files/{file}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "DELETE",
@@ -113236,13 +113240,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async registerFilesInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = internalRegisterFilesParametersToMldev(params);
-          return path23 = formatMap("files:register", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("files:register", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -113340,9 +113344,9 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
         else
           throw new Error("HTTP options are not correctly set.");
       }
-      constructUrl(path23, httpOptions, prependProjectLocation) {
+      constructUrl(path28, httpOptions, prependProjectLocation) {
         let urlElement = [this.getRequestUrlInternal(httpOptions)];
-        return prependProjectLocation && urlElement.push(this.getBaseResourcePath()), path23 !== "" && urlElement.push(path23), new URL(`${urlElement.join("/")}`);
+        return prependProjectLocation && urlElement.push(this.getBaseResourcePath()), path28 !== "" && urlElement.push(path28), new URL(`${urlElement.join("/")}`);
       }
       shouldPrependVertexProjectPath(request, httpOptions) {
         return !(httpOptions.baseUrl && httpOptions.baseUrlResourceScope === ResourceScope.COLLECTION || !this.clientOptions.vertexai || !this.clientOptions.project || !this.clientOptions.location || request.path.startsWith("projects/") || request.httpMethod === "GET" && request.path.startsWith("publishers/google/models"));
@@ -113529,7 +113533,7 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
         fileToUpload.mimeType = mimeType;
         let body = {
           file: fileToUpload
-        }, fileName = this.getFileName(file), path23 = formatMap("upload/v1beta/files", body._url), uploadUrl = await this.fetchUploadUrl(path23, fileToUpload.sizeBytes, fileToUpload.mimeType, fileName, body, config?.httpOptions);
+        }, fileName = this.getFileName(file), path28 = formatMap("upload/v1beta/files", body._url), uploadUrl = await this.fetchUploadUrl(path28, fileToUpload.sizeBytes, fileToUpload.mimeType, fileName, body, config?.httpOptions);
         return uploader.upload(file, uploadUrl, this);
       }
       /**
@@ -113549,9 +113553,9 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
         let uploader = this.clientOptions.uploader, fileStat = await uploader.stat(file), sizeBytes = String(fileStat.size), mimeType = (_a8 = config?.mimeType) !== null && _a8 !== void 0 ? _a8 : fileStat.type;
         if (mimeType === void 0 || mimeType === "")
           throw new Error("Can not determine mimeType. Please provide mimeType in the config.");
-        let path23 = `upload/v1beta/${fileSearchStoreName}:uploadToFileSearchStore`, fileName = this.getFileName(file), body = {};
+        let path28 = `upload/v1beta/${fileSearchStoreName}:uploadToFileSearchStore`, fileName = this.getFileName(file), body = {};
         config != null && uploadToFileSearchStoreConfigToMldev(config, body);
-        let uploadUrl = await this.fetchUploadUrl(path23, sizeBytes, mimeType, fileName, body, config?.httpOptions);
+        let uploadUrl = await this.fetchUploadUrl(path28, sizeBytes, mimeType, fileName, body, config?.httpOptions);
         return uploader.uploadToFileSearchStore(file, uploadUrl, this);
       }
       /**
@@ -113563,7 +113567,7 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       async downloadFile(params) {
         await this.clientOptions.downloader.download(params, this);
       }
-      async fetchUploadUrl(path23, sizeBytes, mimeType, fileName, body, configHttpOptions) {
+      async fetchUploadUrl(path28, sizeBytes, mimeType, fileName, body, configHttpOptions) {
         var _a8;
         let httpOptions = {};
         configHttpOptions ? httpOptions = configHttpOptions : httpOptions = {
@@ -113572,7 +113576,7 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           headers: Object.assign({ "Content-Type": "application/json", "X-Goog-Upload-Protocol": "resumable", "X-Goog-Upload-Command": "start", "X-Goog-Upload-Header-Content-Length": `${sizeBytes}`, "X-Goog-Upload-Header-Content-Type": `${mimeType}` }, fileName ? { "X-Goog-Upload-File-Name": fileName } : {})
         };
         let httpResponse = await this.request({
-          path: path23,
+          path: path28,
           body: JSON.stringify(body),
           httpMethod: "POST",
           httpOptions
@@ -113702,8 +113706,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           throw new Error("Live music is not supported for Vertex AI.");
         console.warn("Live music generation is experimental and may change in future versions.");
         let websocketBaseUrl = this.apiClient.getWebsocketBaseUrl(), apiVersion = this.apiClient.getApiVersion(), headers = mapToHeaders$1(this.apiClient.getDefaultHeaders()), apiKey = this.apiClient.getApiKey(), url = `${websocketBaseUrl}/ws/google.ai.generativelanguage.${apiVersion}.GenerativeService.BidiGenerateMusic?key=${apiKey}`, onopenResolve = () => {
-        }, onopenPromise = new Promise((resolve22) => {
-          onopenResolve = resolve22;
+        }, onopenPromise = new Promise((resolve23) => {
+          onopenResolve = resolve23;
         }), callbacks = params.callbacks, onopenAwaitedCallback = function() {
           onopenResolve({});
         }, apiClient = this.apiClient, websocketCallbacks = {
@@ -113867,14 +113871,14 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           apiKey?.startsWith("auth_tokens/") && (console.warn("Warning: Ephemeral token support is experimental and may change in future versions."), apiVersion !== "v1alpha" && console.warn("Warning: The SDK's ephemeral token support is in v1alpha only. Please use const ai = new GoogleGenAI({apiKey: token.name, httpOptions: { apiVersion: 'v1alpha' }}); before session connection."), method = "BidiGenerateContentConstrained", keyName = "access_token"), url = `${websocketBaseUrl}/ws/google.ai.generativelanguage.${apiVersion}.GenerativeService.${method}?${keyName}=${apiKey}`;
         }
         let onopenResolve = () => {
-        }, onopenPromise = new Promise((resolve22) => {
-          onopenResolve = resolve22;
+        }, onopenPromise = new Promise((resolve23) => {
+          onopenResolve = resolve23;
         }), callbacks = params.callbacks, onopenAwaitedCallback = function() {
           var _a9;
           (_a9 = callbacks?.onopen) === null || _a9 === void 0 || _a9.call(callbacks), onopenResolve({});
         }, apiClient = this.apiClient, sessionResolved = !1, messageQueue = [], setupCompleteResolve = () => {
-        }, setupCompletePromise = new Promise((resolve22) => {
-          setupCompleteResolve = resolve22;
+        }, setupCompletePromise = new Promise((resolve23) => {
+          setupCompleteResolve = resolve23;
         }), websocketCallbacks = {
           onopen: onopenAwaitedCallback,
           onmessage: (event) => {
@@ -114315,11 +114319,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async generateContentInternal(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = generateContentParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}:generateContent", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:generateContent", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114336,8 +114340,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = generateContentParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{model}:generateContent", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:generateContent", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114356,11 +114360,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async generateContentStreamInternal(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = generateContentParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}:streamGenerateContent?alt=sse", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.requestStream({
-            path: path23,
+          return path28 = formatMap("{model}:streamGenerateContent?alt=sse", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.requestStream({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114392,8 +114396,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = generateContentParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{model}:streamGenerateContent?alt=sse", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.requestStream({
-            path: path23,
+          return path28 = formatMap("{model}:streamGenerateContent?alt=sse", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.requestStream({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114448,11 +114452,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async embedContentInternal(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = embedContentParametersPrivateToVertex(this.apiClient, params, params), endpointUrl = tIsVertexEmbedContentModel(params.model) ? "{model}:embedContent" : "{model}:predict";
-          return path23 = formatMap(endpointUrl, body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap(endpointUrl, body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114469,8 +114473,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = embedContentParametersPrivateToMldev(this.apiClient, params);
-          return path23 = formatMap("{model}:batchEmbedContents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:batchEmbedContents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114492,11 +114496,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async generateImagesInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = generateImagesParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}:predict", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:predict", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114519,11 +114523,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async editImageInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = editImageParametersInternalToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}:predict", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:predict", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114546,11 +114550,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async upscaleImageInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = upscaleImageAPIParametersInternalToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}:predict", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:predict", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114594,11 +114598,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async recontextImage(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = recontextImageParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}:predict", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:predict", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114633,11 +114637,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async segmentImage(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = segmentImageParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}:predict", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:predict", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114660,11 +114664,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async get(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = getModelParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -114673,8 +114677,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           }).then((httpResponse) => httpResponse.json()), response.then((apiResponse) => modelFromVertex(apiResponse));
         } else {
           let body = getModelParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -114685,11 +114689,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async listInternal(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = listModelsParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{models_url}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{models_url}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -114706,8 +114710,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = listModelsParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{models_url}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{models_url}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -114743,11 +114747,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async update(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = updateModelParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "PATCH",
@@ -114756,8 +114760,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           }).then((httpResponse) => httpResponse.json()), response.then((apiResponse) => modelFromVertex(apiResponse));
         } else {
           let body = updateModelParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "PATCH",
@@ -114779,11 +114783,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async delete(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = deleteModelParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "DELETE",
@@ -114800,8 +114804,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = deleteModelParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "DELETE",
@@ -114836,11 +114840,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async countTokens(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = countTokensParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}:countTokens", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:countTokens", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114857,8 +114861,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = countTokensParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{model}:countTokens", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:countTokens", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114895,11 +114899,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async computeTokens(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = computeTokensParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}:computeTokens", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:computeTokens", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114922,11 +114926,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async generateVideosInternal(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = generateVideosParametersToVertex(this.apiClient, params);
-          return path23 = formatMap("{model}:predictLongRunning", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:predictLongRunning", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -114938,8 +114942,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = generateVideosParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("{model}:predictLongRunning", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{model}:predictLongRunning", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -115027,11 +115031,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async getVideosOperationInternal(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = getOperationParametersToVertex(params);
-          return path23 = formatMap("{operationName}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{operationName}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -115040,8 +115044,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           }).then((httpResponse) => httpResponse.json()), response;
         } else {
           let body = getOperationParametersToMldev(params);
-          return path23 = formatMap("{operationName}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{operationName}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -115052,11 +115056,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async fetchPredictVideosOperationInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = fetchPredictOperationParametersToVertex(params);
-          return path23 = formatMap("{resourceName}:fetchPredictOperation", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{resourceName}:fetchPredictOperation", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -115156,15 +115160,15 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async create(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("The client.tokens.create method is only supported by the Gemini Developer API.");
         {
           let body = createAuthTokenParametersToMldev(this.apiClient, params);
-          path23 = formatMap("auth_tokens", body._url), queryParams = body._query, delete body.config, delete body._url, delete body._query;
+          path28 = formatMap("auth_tokens", body._url), queryParams = body._query, delete body.config, delete body._url, delete body._query;
           let transformedBody = convertBidiSetupToTokenSetup(body, params.config);
           return response = this.apiClient.request({
-            path: path23,
+            path: path28,
             queryParams,
             body: JSON.stringify(transformedBody),
             httpMethod: "POST",
@@ -115186,13 +115190,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async get(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = getDocumentParametersToMldev(params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -115208,13 +115212,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async delete(params) {
         var _a8, _b;
-        let path23 = "", queryParams = {};
+        let path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = deleteDocumentParametersToMldev(params);
-          path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, await this.apiClient.request({
-            path: path23,
+          path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, await this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "DELETE",
@@ -115225,13 +115229,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async listInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = listDocumentsParametersToMldev(params);
-          return path23 = formatMap("{parent}/documents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{parent}/documents", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -115327,13 +115331,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async create(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = createFileSearchStoreParametersToMldev(this.apiClient, params);
-          return path23 = formatMap("fileSearchStores", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("fileSearchStores", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -115350,13 +115354,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async get(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = getFileSearchStoreParametersToMldev(params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -115372,13 +115376,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async delete(params) {
         var _a8, _b;
-        let path23 = "", queryParams = {};
+        let path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = deleteFileSearchStoreParametersToMldev(params);
-          path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, await this.apiClient.request({
-            path: path23,
+          path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, await this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "DELETE",
@@ -115389,13 +115393,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async listInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = listFileSearchStoresParametersToMldev(params);
-          return path23 = formatMap("fileSearchStores", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("fileSearchStores", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -115409,13 +115413,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async uploadToFileSearchStoreInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = uploadToFileSearchStoreParametersToMldev(params);
-          return path23 = formatMap("upload/v1beta/{file_search_store_name}:uploadToFileSearchStore", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("upload/v1beta/{file_search_store_name}:uploadToFileSearchStore", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -115437,13 +115441,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async importFile(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = importFileParametersToMldev(params);
-          return path23 = formatMap("{file_search_store_name}:importFile", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{file_search_store_name}:importFile", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -115711,11 +115715,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       _createRequest(context, conf, options) {
         var _a8, _b, _c, _d, _e2;
-        let { method, path: path23, query, headers: opHeaders, security } = conf, base = (_a8 = conf.baseURL) !== null && _a8 !== void 0 ? _a8 : this._baseURL;
+        let { method, path: path28, query, headers: opHeaders, security } = conf, base = (_a8 = conf.baseURL) !== null && _a8 !== void 0 ? _a8 : this._baseURL;
         if (!base)
           return ERR(new InvalidRequestError("No base URL provided for operation"));
         let baseURL = new URL(base), reqURL;
-        path23 ? (baseURL.pathname = baseURL.pathname.replace(/\/+$/, "") + "/", reqURL = new URL(path23, baseURL), !reqURL.search && baseURL.search && (reqURL.search = baseURL.search)) : reqURL = baseURL, reqURL.hash = "";
+        path28 ? (baseURL.pathname = baseURL.pathname.replace(/\/+$/, "") + "/", reqURL = new URL(path28, baseURL), !reqURL.search && baseURL.search && (reqURL.search = baseURL.search)) : reqURL = baseURL, reqURL.hash = "";
         let mergeQuery = (current, additions) => {
           if (!additions)
             return current;
@@ -116035,8 +116039,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       /**
        * Retrieves file metadata or directory contents from an environment's snapshot. To download file contents directly, pass ?alt=media or use the files.download helper.
        */
-      list(environment, path23, params, options) {
-        return unwrapAsAPIPromise(environmentsFilesList(this, environment, path23, params?.api_version, params?.page_size, params?.page_token, params?.recursive, options));
+      list(environment, path28, params, options) {
+        return unwrapAsAPIPromise(environmentsFilesList(this, environment, path28, params?.api_version, params?.page_size, params?.page_token, params?.recursive, options));
       }
     };
     Environments3 = class extends ClientSDK {
@@ -116399,8 +116403,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
         this.resolveClient = resolveClient;
       }
       async list(params, options) {
-        let { environment, path: path23, page_size, page_token, recursive, api_version } = params;
-        return unwrapWithSdkHttpResponse(environmentsFilesList(this.resolveClient(api_version), environment, path23, api_version, page_size, page_token, recursive, toGoogleGenAIRequestOptions(options)));
+        let { environment, path: path28, page_size, page_token, recursive, api_version } = params;
+        return unwrapWithSdkHttpResponse(environmentsFilesList(this.resolveClient(api_version), environment, path28, api_version, page_size, page_token, recursive, toGoogleGenAIRequestOptions(options)));
       }
     }, GeminiNextGenEnvironments = class {
       constructor(parentClient) {
@@ -116527,11 +116531,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async getInternal(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = getTuningJobParametersToVertex(params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -116545,8 +116549,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           })), response.then((apiResponse) => tuningJobFromVertex(apiResponse));
         } else {
           let body = getTuningJobParametersToMldev(params);
-          return path23 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -116562,11 +116566,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async listInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = listTuningJobsParametersToVertex(params);
-          return path23 = formatMap("tuningJobs", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("tuningJobs", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "GET",
@@ -116597,11 +116601,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
        */
       async cancel(params) {
         var _a8, _b, _c, _d;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = cancelTuningJobParametersToVertex(params);
-          return path23 = formatMap("{name}:cancel", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}:cancel", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -116618,8 +116622,8 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
           });
         } else {
           let body = cancelTuningJobParametersToMldev(params);
-          return path23 = formatMap("{name}:cancel", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{name}:cancel", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -116638,11 +116642,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async tuneInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = createTuningJobParametersPrivateToVertex(params, params);
-          return path23 = formatMap("tuningJobs", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("tuningJobs", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -116659,13 +116663,13 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async tuneMldevInternal(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI())
           throw new Error("This method is only supported by the Gemini Developer API.");
         {
           let body = createTuningJobParametersPrivateToMldev(params);
-          return path23 = formatMap("tunedModels", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("tunedModels", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -116681,11 +116685,11 @@ var import_p_retry, import_google_auth_library, _defaultBaseGeminiUrl, _defaultB
       }
       async validateReward(params) {
         var _a8, _b;
-        let response, path23 = "", queryParams = {};
+        let response, path28 = "", queryParams = {};
         if (this.apiClient.isVertexAI()) {
           let body = validateRewardParametersToVertex(params);
-          return path23 = formatMap("{parent}/tuningJobs:validateReinforcementTuningReward", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
-            path: path23,
+          return path28 = formatMap("{parent}/tuningJobs:validateReinforcementTuningReward", body._url), queryParams = body._query, delete body._url, delete body._query, response = this.apiClient.request({
+            path: path28,
             queryParams,
             body: JSON.stringify(body),
             httpMethod: "POST",
@@ -118981,12 +118985,12 @@ function validateRetryDelayMs(delayMs, options) {
   return delayMs;
 }
 function sleep5(ms, signal) {
-  return new Promise((resolve22, reject) => {
+  return new Promise((resolve23, reject) => {
     if (signal?.aborted) {
       reject(new Error("Request was aborted"));
       return;
     }
-    let timeout = setTimeout(resolve22, ms);
+    let timeout = setTimeout(resolve23, ms);
     signal?.addEventListener("abort", () => {
       clearTimeout(timeout), reject(new Error("Request was aborted"));
     });
@@ -119299,7 +119303,7 @@ async function connectWebSocket(url, headers, signal, connectTimeoutMs = DEFAULT
   if (!WebSocketCtor)
     throw new Error("WebSocket transport is not available in this runtime");
   let wsHeaders = headersToRecord(headers);
-  return delete wsHeaders["OpenAI-Beta"], new Promise((resolve22, reject) => {
+  return delete wsHeaders["OpenAI-Beta"], new Promise((resolve23, reject) => {
     let settled = !1, timeout, socket;
     try {
       socket = new WebSocketCtor(url, { headers: wsHeaders });
@@ -119312,7 +119316,7 @@ async function connectWebSocket(url, headers, signal, connectTimeoutMs = DEFAULT
     }, fail2 = (error, closeReason) => {
       settled || (settled = !0, cleanup(), closeReason && closeWebSocketSilently(socket, 1e3, closeReason), reject(error));
     }, onOpen = () => {
-      settled || (settled = !0, cleanup(), resolve22(socket));
+      settled || (settled = !0, cleanup(), resolve23(socket));
     }, onError = (event) => {
       fail2(extractWebSocketError(event));
     }, onClose = (event) => {
@@ -119425,8 +119429,8 @@ async function decodeWebSocketData(data) {
 async function* parseWebSocket(socket, signal, idleTimeoutMs) {
   let queue = [], pending = null, done = !1, failed = null, sawCompletion = !1, wake = () => {
     if (!pending) return;
-    let resolve22 = pending;
-    pending = null, resolve22();
+    let resolve23 = pending;
+    pending = null, resolve23();
   }, onMessage = (event) => {
     (async () => {
       let text = null;
@@ -119463,8 +119467,8 @@ async function* parseWebSocket(socket, signal, idleTimeoutMs) {
       }
       if (done) break;
       let timeout;
-      await new Promise((resolve22, reject) => {
-        pending = resolve22, idleTimeoutMs !== void 0 && idleTimeoutMs > 0 && (timeout = setTimeout(() => {
+      await new Promise((resolve23, reject) => {
+        pending = resolve23, idleTimeoutMs !== void 0 && idleTimeoutMs > 0 && (timeout = setTimeout(() => {
           let error = new Error(`WebSocket idle timeout after ${idleTimeoutMs}ms`);
           failed = error, done = !0, pending = null, closeWebSocketSilently(socket, 1e3, "idle_timeout"), reject(error);
         }, idleTimeoutMs));
@@ -121048,13 +121052,13 @@ function operationSignal2(signal) {
 }
 function raceWithAbortSignal2(operation, signal) {
   return signal ? signal.aborted ? (operation.catch(() => {
-  }), Promise.reject(abortReason2(signal))) : new Promise((resolve22, reject) => {
+  }), Promise.reject(abortReason2(signal))) : new Promise((resolve23, reject) => {
     let settled = !1, cleanup = () => signal.removeEventListener("abort", onAbort), onAbort = () => {
       settled || (settled = !0, cleanup(), reject(abortReason2(signal)));
     };
     signal.addEventListener("abort", onAbort, { once: !0 }), operation.then(
       (value) => {
-        settled || (settled = !0, cleanup(), resolve22(value));
+        settled || (settled = !0, cleanup(), resolve23(value));
       },
       (error) => {
         settled || (settled = !0, cleanup(), reject(error));
@@ -121072,8 +121076,8 @@ var init_abort4 = __esm({
 import { existsSync as existsSync3 } from "node:fs";
 import { delimiter as delimiter2, join as join10 } from "node:path";
 import { spawn as spawn3, spawnSync } from "child_process";
-function isLegacyWslBashPath(path23) {
-  let normalized = path23.replace(/\//g, "\\").toLowerCase();
+function isLegacyWslBashPath(path28) {
+  let normalized = path28.replace(/\//g, "\\").toLowerCase();
   return /^[a-z]:\\windows\\(?:system32|sysnative)\\bash\.exe$/.test(normalized);
 }
 function getBashShellConfig(shell) {
@@ -121118,9 +121122,9 @@ function getShellConfig(customShellPath) {
     programFiles && paths.push(`${programFiles}\\Git\\bin\\bash.exe`);
     let programFilesX86 = process.env["ProgramFiles(x86)"];
     programFilesX86 && paths.push(`${programFilesX86}\\Git\\bin\\bash.exe`);
-    for (let path23 of paths)
-      if (existsSync3(path23))
-        return getBashShellConfig(path23);
+    for (let path28 of paths)
+      if (existsSync3(path28))
+        return getBashShellConfig(path28);
     let bashOnPath2 = findExecutableOnPath("bash.exe");
     if (bashOnPath2)
       return getBashShellConfig(bashOnPath2);
@@ -121395,11 +121399,11 @@ var import_proper_lockfile2, AUTH_FILE_WRITE_OPTIONS, sharedAuthFileReadState, F
       ensureFileExists() {
         existsSync4(this.authPath) || writeFileSync3(this.authPath, "{}", AUTH_FILE_WRITE_OPTIONS);
       }
-      acquireLockSyncWithRetry(path23) {
+      acquireLockSyncWithRetry(path28) {
         let lastError;
         for (let attempt2 = 1; attempt2 <= 10; attempt2++)
           try {
-            return import_proper_lockfile2.default.lockSync(path23, { realpath: !1 });
+            return import_proper_lockfile2.default.lockSync(path28, { realpath: !1 });
           } catch (error) {
             if ((typeof error == "object" && error !== null && "code" in error ? String(error.code) : void 0) !== "ELOCKED" || attempt2 === 10)
               throw error;
@@ -122305,15 +122309,15 @@ var SamplingParamsSchema, SamplingParamsByThinkingLevelSchema, PositiveTokenCoun
       }
       static async load(modelsJsonPath) {
         if (!modelsJsonPath) return new _ModelConfig(/* @__PURE__ */ new Map());
-        let path23 = normalizePath(modelsJsonPath), content;
+        let path28 = normalizePath(modelsJsonPath), content;
         try {
-          content = await readFile2(path23, "utf-8");
+          content = await readFile2(path28, "utf-8");
         } catch (error) {
           return error.code === "ENOENT" ? new _ModelConfig(/* @__PURE__ */ new Map()) : new _ModelConfig(
             /* @__PURE__ */ new Map(),
             `Failed to load models.json: ${error instanceof Error ? error.message : error}
 
-File: ${path23}`
+File: ${path28}`
           );
         }
         let parsed;
@@ -122324,7 +122328,7 @@ File: ${path23}`
             /* @__PURE__ */ new Map(),
             `Failed to parse models.json: ${error instanceof Error ? error.message : error}
 
-File: ${path23}`
+File: ${path28}`
           );
         }
         if (!validateModelsConfig.Check(parsed)) {
@@ -122333,7 +122337,7 @@ File: ${path23}`
           return new _ModelConfig(/* @__PURE__ */ new Map(), `Invalid models.json schema:
 ${errors}
 
-File: ${path23}`);
+File: ${path28}`);
         }
         let providers = /* @__PURE__ */ new Map();
         for (let [providerId, provider] of Object.entries(parsed.providers))
@@ -122380,8 +122384,8 @@ var sharedModelsFileReadState, InMemoryCodingAgentModelsStore, FileModelsStore, 
       storage;
       path;
       readState;
-      constructor(path23 = join12(getAgentDir(), "models-store.json")) {
-        this.path = normalizePath(path23), this.storage = new FileAuthStorageBackend(this.path), this.readState = sharedModelsFileReadState?.path === this.path ? sharedModelsFileReadState.readState : { data: {} }, sharedModelsFileReadState || (sharedModelsFileReadState = { path: this.path, readState: this.readState });
+      constructor(path28 = join12(getAgentDir(), "models-store.json")) {
+        this.path = normalizePath(path28), this.storage = new FileAuthStorageBackend(this.path), this.readState = sharedModelsFileReadState?.path === this.path ? sharedModelsFileReadState.readState : { data: {} }, sharedModelsFileReadState || (sharedModelsFileReadState = { path: this.path, readState: this.readState });
       }
       parse(content) {
         return content ? JSON.parse(stripBom(content)) : {};
@@ -123815,8 +123819,8 @@ var CredentialSynchronizationError, ModelRuntime, init_model_runtime = __esm({
         };
       }
       enqueueCredentialOperation(providerId, signal, task) {
-        let previous = this.credentialOperations.get(providerId) ?? Promise.resolve(), markStarted, started = new Promise((resolve22) => {
-          markStarted = resolve22;
+        let previous = this.credentialOperations.get(providerId) ?? Promise.resolve(), markStarted, started = new Promise((resolve23) => {
+          markStarted = resolve23;
         }), operation = (async () => (await previous.catch(() => {
         }), signal.throwIfAborted(), markStarted?.(), task()))(), tail = operation.catch(() => {
         });
@@ -124663,9 +124667,9 @@ async function resizeImageInWorker(workerSpecifier, inputBytes, mimeType, option
   let worker = createResizeWorker(workerSpecifier);
   try {
     let inputBytesForWorker = toTransferableBytes(inputBytes);
-    return await new Promise((resolve22, reject) => {
+    return await new Promise((resolve23, reject) => {
       let settled = !1, settle = (result) => {
-        settled || (settled = !0, resolve22(result));
+        settled || (settled = !0, resolve23(result));
       }, fail2 = (error) => {
         settled || (settled = !0, reject(error));
       };
@@ -125112,10 +125116,10 @@ function orderKeybindingsConfig(config) {
     ordered[key] = config[key];
   return ordered;
 }
-function loadRawConfig(path23) {
-  if (existsSync5(path23))
+function loadRawConfig(path28) {
+  if (existsSync5(path28))
     try {
-      let parsed = JSON.parse(stripBom(readFileSync4(path23, "utf-8")));
+      let parsed = JSON.parse(stripBom(readFileSync4(path28, "utf-8")));
       return typeof parsed != "object" || parsed === null ? void 0 : parsed;
     } catch {
       return;
@@ -125371,8 +125375,8 @@ var windowsKeybindings, APP_KEYBINDINGS, KEYBINDINGS, KEYBINDING_NAME_MIGRATIONS
       getEffectiveConfig() {
         return this.getResolvedBindings();
       }
-      static loadFromFile(path23) {
-        let rawConfig = loadRawConfig(path23);
+      static loadFromFile(path28) {
+        let rawConfig = loadRawConfig(path28);
         return rawConfig ? toKeybindingsConfig(migrateKeybindingsConfig(rawConfig).config) : {};
       }
     };
@@ -125730,22 +125734,22 @@ var require_ignore = __commonJS({
     }, matchesBasename = (body) => {
       let index3 = body.indexOf(SLASH);
       return index3 < 0 || index3 === body.length - 1;
-    }, basenameOf = (path23) => {
-      let end = path23.length - 1, index3 = path23.lastIndexOf(
+    }, basenameOf = (path28) => {
+      let end = path28.length - 1, index3 = path28.lastIndexOf(
         SLASH,
-        path23[end] === SLASH ? end - 1 : end
+        path28[end] === SLASH ? end - 1 : end
       );
-      return index3 < 0 ? path23 : path23.slice(index3 + 1);
-    }, parentOf = (path23) => {
-      if (path23.charCodeAt(0) === SLASH_CODE || path23.indexOf(DOUBLE_SLASH) >= 0) {
-        let slices = path23.split(SLASH).filter(Boolean);
+      return index3 < 0 ? path28 : path28.slice(index3 + 1);
+    }, parentOf = (path28) => {
+      if (path28.charCodeAt(0) === SLASH_CODE || path28.indexOf(DOUBLE_SLASH) >= 0) {
+        let slices = path28.split(SLASH).filter(Boolean);
         return slices.pop(), slices.length ? slices.join(SLASH) + SLASH : EMPTY3;
       }
-      let end = path23.length - 1, cut = path23.lastIndexOf(
+      let end = path28.length - 1, cut = path28.lastIndexOf(
         SLASH,
-        path23.charCodeAt(end) === SLASH_CODE ? end - 1 : end
+        path28.charCodeAt(end) === SLASH_CODE ? end - 1 : end
       );
-      return cut < 0 ? EMPTY3 : path23.slice(0, cut + 1);
+      return cut < 0 ? EMPTY3 : path28.slice(0, cut + 1);
     }, isString = (subject) => typeof subject == "string", checkPattern = (pattern) => pattern && isString(pattern) && !REGEX_TEST_BLANK_LINE.test(pattern) && !REGEX_INVALID_TRAILING_BACKSLASH.test(pattern) && pattern.indexOf("#") !== 0, splitPattern = (pattern) => pattern.split(REGEX_SPLITALL_CRLF).filter(Boolean), IgnoreRule = class {
       constructor(pattern, mark, body, ignoreCase, negative, prefix) {
         this.pattern = pattern, this.mark = mark, this.negative = negative, define2(this, "body", body), define2(this, "ignoreCase", ignoreCase), define2(this, "regexPrefix", prefix);
@@ -125818,12 +125822,12 @@ var require_ignore = __commonJS({
       //   path matching.
       // - check `string` either `MODE_IGNORE` or `MODE_CHECK_IGNORE`
       // @returns {TestResult} true if a file is ignored
-      test(path23, checkUnignored, mode) {
-        let ignored = !1, unignored = !1, matchedRule, rules = this._rules, { length } = rules, shortcut = this._basenameCount * 2 >= length, basename19 = shortcut ? basenameOf(path23) : path23;
+      test(path28, checkUnignored, mode) {
+        let ignored = !1, unignored = !1, matchedRule, rules = this._rules, { length } = rules, shortcut = this._basenameCount * 2 >= length, basename21 = shortcut ? basenameOf(path28) : path28;
         for (let index3 = 0; index3 < length; index3++) {
           let rule = rules[index3], { negative } = rule;
           !(unignored === negative && ignored !== unignored || negative && !ignored && !unignored && !checkUnignored) && rule[mode].test(
-            shortcut && rule._basenameOnly ? basename19 : path23
+            shortcut && rule._basenameOnly ? basename21 : path28
           ) && (ignored = !negative, unignored = negative, matchedRule = negative ? UNDEFINED : rule);
         }
         let ret = {
@@ -125834,22 +125838,22 @@ var require_ignore = __commonJS({
       }
     }, throwError = (message, Ctor) => {
       throw new Ctor(message);
-    }, checkPath = (path23, originalPath, doThrow) => isString(path23) ? path23 ? checkPath.isNotRelative(path23) ? doThrow(
+    }, checkPath = (path28, originalPath, doThrow) => isString(path28) ? path28 ? checkPath.isNotRelative(path28) ? doThrow(
       `path should be a \`path.relative()\`d string, but got "${originalPath}"`,
       RangeError
     ) : !0 : doThrow("path must not be empty", TypeError) : doThrow(
       `path must be a string, but got \`${originalPath}\``,
       TypeError
-    ), isNotRelative = (path23) => {
-      let first = path23.charCodeAt(0);
+    ), isNotRelative = (path28) => {
+      let first = path28.charCodeAt(0);
       if (first === SLASH_CODE)
         return !0;
       if (first !== DOT_CODE)
         return !1;
-      if (path23.length === 1)
+      if (path28.length === 1)
         return !0;
-      let second = path23.charCodeAt(1);
-      return second === SLASH_CODE ? !0 : second !== DOT_CODE ? !1 : path23.length === 2 || path23.charCodeAt(2) === SLASH_CODE;
+      let second = path28.charCodeAt(1);
+      return second === SLASH_CODE ? !0 : second !== DOT_CODE ? !1 : path28.length === 2 || path28.charCodeAt(2) === SLASH_CODE;
     };
     checkPath.isNotRelative = isNotRelative;
     checkPath.convert = (p) => p;
@@ -125873,48 +125877,48 @@ var require_ignore = __commonJS({
       }
       // @returns {TestResult}
       _test(originalPath, cache, checkUnignored) {
-        let path23 = originalPath && checkPath.convert(originalPath);
+        let path28 = originalPath && checkPath.convert(originalPath);
         return checkPath(
-          path23,
+          path28,
           originalPath,
           this._strictPathCheck ? throwError : RETURN_FALSE
-        ), this._t(path23, cache, checkUnignored);
+        ), this._t(path28, cache, checkUnignored);
       }
-      checkIgnore(path23) {
-        if (path23.charCodeAt(path23.length - 1) !== SLASH_CODE)
-          return this.test(path23);
-        let parentPath = parentOf(path23);
+      checkIgnore(path28) {
+        if (path28.charCodeAt(path28.length - 1) !== SLASH_CODE)
+          return this.test(path28);
+        let parentPath = parentOf(path28);
         if (parentPath) {
           let parent = this._t(parentPath, this._testCache, !0);
           if (parent.ignored)
             return parent;
         }
-        return this._rules.test(path23, !1, MODE_CHECK_IGNORE);
+        return this._rules.test(path28, !1, MODE_CHECK_IGNORE);
       }
-      _t(path23, cache, checkUnignored) {
-        if (path23 in cache)
-          return cache[path23];
-        let parentPath = parentOf(path23), parent = parentPath ? this._t(parentPath, cache, checkUnignored) : UNDEFINED;
-        return cache[path23] = parent && parent.ignored ? parent : this._rules.test(path23, checkUnignored, MODE_IGNORE);
+      _t(path28, cache, checkUnignored) {
+        if (path28 in cache)
+          return cache[path28];
+        let parentPath = parentOf(path28), parent = parentPath ? this._t(parentPath, cache, checkUnignored) : UNDEFINED;
+        return cache[path28] = parent && parent.ignored ? parent : this._rules.test(path28, checkUnignored, MODE_IGNORE);
       }
-      ignores(path23) {
-        return this._test(path23, this._ignoreCache, !1).ignored;
+      ignores(path28) {
+        return this._test(path28, this._ignoreCache, !1).ignored;
       }
       createFilter() {
-        return (path23) => !this.ignores(path23);
+        return (path28) => !this.ignores(path28);
       }
       filter(paths) {
         return makeArray(paths).filter(this.createFilter());
       }
       // @returns {TestResult}
-      test(path23) {
-        return this._test(path23, this._testCache, !0);
+      test(path28) {
+        return this._test(path28, this._testCache, !0);
       }
-    }, factory = (options) => new Ignore(options), isPathValid = (path23) => checkPath(path23 && checkPath.convert(path23), path23, RETURN_FALSE), setupWindows = () => {
+    }, factory = (options) => new Ignore(options), isPathValid = (path28) => checkPath(path28 && checkPath.convert(path28), path28, RETURN_FALSE), setupWindows = () => {
       let makePosix = (str2) => /^\\\\\?\\/.test(str2) || /["<>|\u0000-\u001F]+/u.test(str2) ? str2 : str2.replace(/\\/g, "/");
       checkPath.convert = makePosix;
       let REGEX_TEST_WINDOWS_PATH_ABSOLUTE = /^[a-z]:\//i;
-      checkPath.isNotRelative = (path23) => REGEX_TEST_WINDOWS_PATH_ABSOLUTE.test(path23) || isNotRelative(path23);
+      checkPath.isNotRelative = (path28) => REGEX_TEST_WINDOWS_PATH_ABSOLUTE.test(path28) || isNotRelative(path28);
     };
     // Detect `process` so that it can run in browsers.
     typeof process < "u" && process.platform === "win32" && setupWindows();
@@ -127702,13 +127706,13 @@ var require_hosts = __commonJS({
     var maybeJoin = (...args) => args.every((arg) => arg) ? args.join("") : "", maybeEncode = (arg) => arg ? encodeURIComponent(arg) : "", formatHashFragment = (f4) => f4.toLowerCase().replace(/^\W+/g, "").replace(/(?<!\W)\W+$/, "").replace(/\//g, "").replace(/\W+/g, "-"), defaults4 = {
       sshtemplate: ({ domain, user, project, committish }) => `git@${domain}:${user}/${project}.git${maybeJoin("#", committish)}`,
       sshurltemplate: ({ domain, user, project, committish }) => `git+ssh://git@${domain}/${user}/${project}.git${maybeJoin("#", committish)}`,
-      edittemplate: ({ domain, user, project, committish, editpath, path: path23 }) => `https://${domain}/${user}/${project}${maybeJoin("/", editpath, "/", maybeEncode(committish || "HEAD"), "/", path23)}`,
+      edittemplate: ({ domain, user, project, committish, editpath, path: path28 }) => `https://${domain}/${user}/${project}${maybeJoin("/", editpath, "/", maybeEncode(committish || "HEAD"), "/", path28)}`,
       browsetemplate: ({ domain, user, project, committish, treepath }) => `https://${domain}/${user}/${project}${maybeJoin("/", treepath, "/", maybeEncode(committish))}`,
-      browsetreetemplate: ({ domain, user, project, committish, treepath, path: path23, fragment, hashformat }) => `https://${domain}/${user}/${project}/${treepath}/${maybeEncode(committish || "HEAD")}/${path23}${maybeJoin("#", hashformat(fragment || ""))}`,
-      browseblobtemplate: ({ domain, user, project, committish, blobpath, path: path23, fragment, hashformat }) => `https://${domain}/${user}/${project}/${blobpath}/${maybeEncode(committish || "HEAD")}/${path23}${maybeJoin("#", hashformat(fragment || ""))}`,
+      browsetreetemplate: ({ domain, user, project, committish, treepath, path: path28, fragment, hashformat }) => `https://${domain}/${user}/${project}/${treepath}/${maybeEncode(committish || "HEAD")}/${path28}${maybeJoin("#", hashformat(fragment || ""))}`,
+      browseblobtemplate: ({ domain, user, project, committish, blobpath, path: path28, fragment, hashformat }) => `https://${domain}/${user}/${project}/${blobpath}/${maybeEncode(committish || "HEAD")}/${path28}${maybeJoin("#", hashformat(fragment || ""))}`,
       docstemplate: ({ domain, user, project, treepath, committish }) => `https://${domain}/${user}/${project}${maybeJoin("/", treepath, "/", maybeEncode(committish))}#readme`,
       httpstemplate: ({ auth, domain, user, project, committish }) => `git+https://${maybeJoin(auth, "@")}${domain}/${user}/${project}.git${maybeJoin("#", committish)}`,
-      filetemplate: ({ domain, user, project, committish, path: path23 }) => `https://${domain}/${user}/${project}/raw/${maybeEncode(committish || "HEAD")}/${path23}`,
+      filetemplate: ({ domain, user, project, committish, path: path28 }) => `https://${domain}/${user}/${project}/raw/${maybeEncode(committish || "HEAD")}/${path28}`,
       shortcuttemplate: ({ type, user, project, committish }) => `${type}:${user}/${project}${maybeJoin("#", committish)}`,
       pathtemplate: ({ user, project, committish }) => `${user}/${project}${maybeJoin("#", committish)}`,
       bugstemplate: ({ domain, user, project }) => `https://${domain}/${user}/${project}/issues`,
@@ -127722,7 +127726,7 @@ var require_hosts = __commonJS({
       treepath: "tree",
       blobpath: "blob",
       editpath: "edit",
-      filetemplate: ({ auth, user, project, committish, path: path23 }) => `https://${maybeJoin(auth, "@")}raw.githubusercontent.com/${user}/${project}/${maybeEncode(committish || "HEAD")}/${path23}`,
+      filetemplate: ({ auth, user, project, committish, path: path28 }) => `https://${maybeJoin(auth, "@")}raw.githubusercontent.com/${user}/${project}/${maybeEncode(committish || "HEAD")}/${path28}`,
       gittemplate: ({ auth, domain, user, project, committish }) => `git://${maybeJoin(auth, "@")}${domain}/${user}/${project}.git${maybeJoin("#", committish)}`,
       tarballtemplate: ({ domain, user, project, committish }) => `https://codeload.${domain}/${user}/${project}/tar.gz/${maybeEncode(committish || "HEAD")}`,
       extract: (url) => {
@@ -127737,7 +127741,7 @@ var require_hosts = __commonJS({
       treepath: "src",
       blobpath: "src",
       editpath: "?mode=edit",
-      edittemplate: ({ domain, user, project, committish, treepath, path: path23, editpath }) => `https://${domain}/${user}/${project}${maybeJoin("/", treepath, "/", maybeEncode(committish || "HEAD"), "/", path23, editpath)}`,
+      edittemplate: ({ domain, user, project, committish, treepath, path: path28, editpath }) => `https://${domain}/${user}/${project}${maybeJoin("/", treepath, "/", maybeEncode(committish || "HEAD"), "/", path28, editpath)}`,
       tarballtemplate: ({ domain, user, project, committish }) => `https://${domain}/${user}/${project}/get/${maybeEncode(committish || "HEAD")}.tar.gz`,
       extract: (url) => {
         let [, user, project, aux] = url.pathname.split("/", 4);
@@ -127753,10 +127757,10 @@ var require_hosts = __commonJS({
       editpath: "-/edit",
       tarballtemplate: ({ domain, user, project, committish }) => `https://${domain}/api/v4/projects/${maybeEncode(user + "/" + project)}/repository/archive.tar.gz?sha=${maybeEncode(committish || "HEAD")}`,
       extract: (url) => {
-        let path23 = url.pathname.slice(1);
-        if (path23.includes("/-/") || path23.includes("/archive.tar.gz"))
+        let path28 = url.pathname.slice(1);
+        if (path28.includes("/-/") || path28.includes("/archive.tar.gz"))
           return;
-        let segments = path23.split("/"), project = segments.pop();
+        let segments = path28.split("/"), project = segments.pop();
         project.endsWith(".git") && (project = project.slice(0, -4));
         let user = segments.join("/");
         if (!(!user || !project))
@@ -127771,11 +127775,11 @@ var require_hosts = __commonJS({
       sshurltemplate: ({ domain, project, committish }) => `git+ssh://git@${domain}/${project}.git${maybeJoin("#", committish)}`,
       edittemplate: ({ domain, user, project, committish, editpath }) => `https://${domain}/${user}/${project}${maybeJoin("/", maybeEncode(committish))}/${editpath}`,
       browsetemplate: ({ domain, project, committish }) => `https://${domain}/${project}${maybeJoin("/", maybeEncode(committish))}`,
-      browsetreetemplate: ({ domain, project, committish, path: path23, hashformat }) => `https://${domain}/${project}${maybeJoin("/", maybeEncode(committish))}${maybeJoin("#", hashformat(path23))}`,
-      browseblobtemplate: ({ domain, project, committish, path: path23, hashformat }) => `https://${domain}/${project}${maybeJoin("/", maybeEncode(committish))}${maybeJoin("#", hashformat(path23))}`,
+      browsetreetemplate: ({ domain, project, committish, path: path28, hashformat }) => `https://${domain}/${project}${maybeJoin("/", maybeEncode(committish))}${maybeJoin("#", hashformat(path28))}`,
+      browseblobtemplate: ({ domain, project, committish, path: path28, hashformat }) => `https://${domain}/${project}${maybeJoin("/", maybeEncode(committish))}${maybeJoin("#", hashformat(path28))}`,
       docstemplate: ({ domain, project, committish }) => `https://${domain}/${project}${maybeJoin("/", maybeEncode(committish))}`,
       httpstemplate: ({ domain, project, committish }) => `git+https://${domain}/${project}.git${maybeJoin("#", committish)}`,
-      filetemplate: ({ user, project, committish, path: path23 }) => `https://gist.githubusercontent.com/${user}/${project}/raw${maybeJoin("/", maybeEncode(committish))}/${path23}`,
+      filetemplate: ({ user, project, committish, path: path28 }) => `https://gist.githubusercontent.com/${user}/${project}/raw${maybeJoin("/", maybeEncode(committish))}/${path28}`,
       shortcuttemplate: ({ type, project, committish }) => `${type}:${project}${maybeJoin("#", committish)}`,
       pathtemplate: ({ project, committish }) => `${project}${maybeJoin("#", committish)}`,
       bugstemplate: ({ domain, project }) => `https://${domain}/${project}`,
@@ -127801,7 +127805,7 @@ var require_hosts = __commonJS({
       domain: "git.sr.ht",
       treepath: "tree",
       blobpath: "tree",
-      filetemplate: ({ domain, user, project, committish, path: path23 }) => `https://${domain}/${user}/${project}/blob/${maybeEncode(committish) || "HEAD"}/${path23}`,
+      filetemplate: ({ domain, user, project, committish, path: path28 }) => `https://${domain}/${user}/${project}/blob/${maybeEncode(committish) || "HEAD"}/${path28}`,
       httpstemplate: ({ domain, user, project, committish }) => `https://${domain}/${user}/${project}${maybeJoin("#", committish)}`,
       tarballtemplate: ({ domain, user, project, committish }) => `https://${domain}/${user}/${project}/archive/${maybeEncode(committish) || "HEAD"}.tar.gz`,
       bugstemplate: () => null,
@@ -127903,8 +127907,8 @@ var require_lib = __commonJS({
         } = new URL(url);
         if (!hostname)
           return null;
-        let proto2 = /(?:git\+)http:$/.test(protocol) ? "http:" : "https:", path23 = pathname.replace(/\.git$/, "");
-        return `${proto2}//${hostname}${path23}`;
+        let proto2 = /(?:git\+)http:$/.test(protocol) ? "http:" : "https:", path28 = pathname.replace(/\.git$/, "");
+        return `${proto2}//${hostname}${path28}`;
       } catch {
         return null;
       }
@@ -127979,16 +127983,16 @@ var require_lib = __commonJS({
       sshurl(opts) {
         return this.#fill(this.sshurltemplate, opts);
       }
-      browse(path23, ...args) {
-        return typeof path23 != "string" ? this.#fill(this.browsetemplate, path23) : typeof args[0] != "string" ? this.#fill(this.browsetreetemplate, { ...args[0], path: path23 }) : this.#fill(this.browsetreetemplate, { ...args[1], fragment: args[0], path: path23 });
+      browse(path28, ...args) {
+        return typeof path28 != "string" ? this.#fill(this.browsetemplate, path28) : typeof args[0] != "string" ? this.#fill(this.browsetreetemplate, { ...args[0], path: path28 }) : this.#fill(this.browsetreetemplate, { ...args[1], fragment: args[0], path: path28 });
       }
       // If the path is known to be a file, then browseFile should be used. For some hosts
       // the url is the same as browse, but for others like GitHub a file can use both `/tree/`
       // and `/blob/` in the path. When using a default committish of `HEAD` then the `/tree/`
       // path will redirect to a specific commit. Using the `/blob/` path avoids this and
       // does not redirect to a different commit.
-      browseFile(path23, ...args) {
-        return typeof args[0] != "string" ? this.#fill(this.browseblobtemplate, { ...args[0], path: path23 }) : this.#fill(this.browseblobtemplate, { ...args[1], fragment: args[0], path: path23 });
+      browseFile(path28, ...args) {
+        return typeof args[0] != "string" ? this.#fill(this.browseblobtemplate, { ...args[0], path: path28 }) : this.#fill(this.browseblobtemplate, { ...args[1], fragment: args[0], path: path28 });
       }
       docs(opts) {
         return this.#fill(this.docstemplate, opts);
@@ -128011,11 +128015,11 @@ var require_lib = __commonJS({
       tarball(opts) {
         return this.#fill(this.tarballtemplate, { ...opts, noCommittish: !1 });
       }
-      file(path23, opts) {
-        return this.#fill(this.filetemplate, { ...opts, path: path23 });
+      file(path28, opts) {
+        return this.#fill(this.filetemplate, { ...opts, path: path28 });
       }
-      edit(path23, opts) {
-        return this.#fill(this.edittemplate, { ...opts, path: path23 });
+      edit(path28, opts) {
+        return this.#fill(this.edittemplate, { ...opts, path: path28 });
       }
       getDefaultRepresentation() {
         return this.default;
@@ -128097,23 +128101,23 @@ function buildGitSource(args) {
   };
 }
 function parseGenericGitUrl(url) {
-  let { repo: repoWithoutRef, ref } = splitRef(url), repo = repoWithoutRef, host = "", path23 = "", scpLikeMatch = repoWithoutRef.match(/^git@([^:]+):(.+)$/);
+  let { repo: repoWithoutRef, ref } = splitRef(url), repo = repoWithoutRef, host = "", path28 = "", scpLikeMatch = repoWithoutRef.match(/^git@([^:]+):(.+)$/);
   if (scpLikeMatch)
-    host = scpLikeMatch[1] ?? "", path23 = scpLikeMatch[2] ?? "";
+    host = scpLikeMatch[1] ?? "", path28 = scpLikeMatch[2] ?? "";
   else if (repoWithoutRef.startsWith("https://") || repoWithoutRef.startsWith("http://") || repoWithoutRef.startsWith("ssh://") || repoWithoutRef.startsWith("git://"))
     try {
       let parsed = new URL(repoWithoutRef);
-      host = parsed.hostname, path23 = parsed.pathname.replace(/^\/+/, "");
+      host = parsed.hostname, path28 = parsed.pathname.replace(/^\/+/, "");
     } catch {
       return null;
     }
   else {
     let slashIndex = repoWithoutRef.indexOf("/");
-    if (slashIndex < 0 || (host = repoWithoutRef.slice(0, slashIndex), path23 = repoWithoutRef.slice(slashIndex + 1), !host.includes(".") && host !== "localhost"))
+    if (slashIndex < 0 || (host = repoWithoutRef.slice(0, slashIndex), path28 = repoWithoutRef.slice(slashIndex + 1), !host.includes(".") && host !== "localhost"))
       return null;
     repo = `https://${repoWithoutRef}`;
   }
-  return buildGitSource({ repo, host, path: path23, ref });
+  return buildGitSource({ repo, host, path: path28, ref });
 }
 function parseGitUrl(source) {
   let trimmed = source.trim(), hasGitPrefix = trimmed.startsWith("git:"), url = hasGitPrefix ? trimmed.slice(4).trim() : trimmed;
@@ -128168,10 +128172,10 @@ function getRawStdoutWrite() {
 async function writeRawStdoutChunk(text) {
   for (; ; )
     try {
-      await new Promise((resolve22, reject) => {
+      await new Promise((resolve23, reject) => {
         try {
           getRawStdoutWrite()(text, (error) => {
-            error ? reject(error) : resolve22();
+            error ? reject(error) : resolve23();
           });
         } catch (error) {
           reject(error instanceof Error ? error : new Error(String(error)));
@@ -128182,7 +128186,7 @@ async function writeRawStdoutChunk(text) {
       let writeError = error instanceof Error ? error : new Error(String(error)), code = writeError.code;
       if (code !== "ENOBUFS" && code !== "EAGAIN" && code !== "EWOULDBLOCK")
         throw writeError;
-      await new Promise((resolve22) => setTimeout(resolve22, 10));
+      await new Promise((resolve23) => setTimeout(resolve23, 10));
     }
 }
 function takeOverStdout() {
@@ -128252,25 +128256,25 @@ var RESOURCE_FIELDS, init_pi_manifest = __esm({
 });
 
 // packages/coding-agent/src/core/source-info.ts
-function getSyntheticPathSource(path23) {
-  if (path23.startsWith(BUILTIN_PATH_PREFIX)) return "builtin";
-  if (path23.startsWith("<") && path23.endsWith(">")) return path23.slice(1, -1).split(":")[0] || "temporary";
+function getSyntheticPathSource(path28) {
+  if (path28.startsWith(BUILTIN_PATH_PREFIX)) return "builtin";
+  if (path28.startsWith("<") && path28.endsWith(">")) return path28.slice(1, -1).split(":")[0] || "temporary";
 }
-function isSyntheticPath(path23) {
-  return path23.startsWith(BUILTIN_PATH_PREFIX) || path23.startsWith("<");
+function isSyntheticPath(path28) {
+  return path28.startsWith(BUILTIN_PATH_PREFIX) || path28.startsWith("<");
 }
-function createSourceInfo(path23, metadata) {
+function createSourceInfo(path28, metadata) {
   return {
-    path: path23,
+    path: path28,
     source: metadata.source,
     scope: metadata.scope,
     origin: metadata.origin,
     baseDir: metadata.baseDir
   };
 }
-function createSyntheticSourceInfo(path23, options) {
+function createSyntheticSourceInfo(path28, options) {
   return {
-    path: path23,
+    path: path28,
     source: options.source,
     scope: options.scope ?? "temporary",
     origin: options.origin ?? "top-level",
@@ -128367,7 +128371,7 @@ function hasGlobPattern(s2) {
 }
 function expandPackageGlob(pattern, root) {
   return globSync(pattern, { cwd: root }).map((match3) => resolve4(root, match3)).filter(
-    (path23) => relative2(root, path23).split(sep4).every((segment2) => segment2 === ".." || !segment2.startsWith("."))
+    (path28) => relative2(root, path28).split(sep4).every((segment2) => segment2 === ".." || !segment2.startsWith("."))
   ).sort((a, b2) => a < b2 ? -1 : a > b2 ? 1 : 0);
 }
 function splitPatterns(entries) {
@@ -128667,16 +128671,16 @@ var import_ignore, import_semver, NETWORK_TIMEOUT_MS, UPDATE_CHECK_CONCURRENCY, 
       getInstalledPath(source, scope) {
         let parsed = this.parseSource(source);
         if (parsed.type === "npm") {
-          let path23 = this.getNpmInstallPath(parsed, scope);
-          return existsSync6(path23) ? path23 : void 0;
+          let path28 = this.getNpmInstallPath(parsed, scope);
+          return existsSync6(path28) ? path28 : void 0;
         }
         if (parsed.type === "git") {
-          let path23 = this.getGitInstallPath(parsed, scope);
-          return existsSync6(path23) ? path23 : void 0;
+          let path28 = this.getGitInstallPath(parsed, scope);
+          return existsSync6(path28) ? path28 : void 0;
         }
         if (parsed.type === "local") {
-          let baseDir = this.getBaseDirForScope(scope), path23 = this.resolvePathFromBase(parsed.path, baseDir);
-          return existsSync6(path23) ? path23 : void 0;
+          let baseDir = this.getBaseDirForScope(scope), path28 = this.resolvePathFromBase(parsed.path, baseDir);
+          return existsSync6(path28) ? path28 : void 0;
         }
       }
       emitProgress(event) {
@@ -128726,16 +128730,16 @@ var import_ignore, import_semver, NETWORK_TIMEOUT_MS, UPDATE_CHECK_CONCURRENCY, 
         }
         this.addAutoDiscoveredResources(accumulator, globalSettings, projectSettings, globalBaseDir, projectBaseDir);
         for (let name of this.builtinExtensions) {
-          let path23 = `${BUILTIN_PATH_PREFIX}${name}`, projectEnabled = applyAutoloadDisabledPatterns(
-            [path23],
+          let path28 = `${BUILTIN_PATH_PREFIX}${name}`, projectEnabled = applyAutoloadDisabledPatterns(
+            [path28],
             getOverridePatterns(projectSettings.extensions ?? []),
             projectBaseDir
-          ).get(path23);
+          ).get(path28);
           this.addResource(
             accumulator.extensions,
-            path23,
+            path28,
             { source: "builtin", scope: projectEnabled === void 0 ? "user" : "project", origin: "top-level" },
-            projectEnabled ?? isEnabledByOverrides(path23, globalSettings.extensions ?? [], globalBaseDir)
+            projectEnabled ?? isEnabledByOverrides(path28, globalSettings.extensions ?? [], globalBaseDir)
           );
         }
         return this.toResolvedPaths(accumulator);
@@ -129466,8 +129470,8 @@ var import_ignore, import_semver, NETWORK_TIMEOUT_MS, UPDATE_CHECK_CONCURRENCY, 
           return;
         let output = this.runNpmCommandSync(["list", "-g", "--depth", "0", "--json"]), entries = JSON.parse(output);
         for (let entry of entries) {
-          let path23 = entry.dependencies?.[packageName]?.path;
-          if (path23) return path23;
+          let path28 = entry.dependencies?.[packageName]?.path;
+          if (path28) return path28;
         }
       }
       getManagedNpmInstallPath(source, scope) {
@@ -129651,9 +129655,9 @@ var import_ignore, import_semver, NETWORK_TIMEOUT_MS, UPDATE_CHECK_CONCURRENCY, 
           themes: join17(projectBaseDir, "themes")
         }, userAgentsSkillsDir = join17(getHomeDir(), ".agents", "skills"), projectTrusted = this.settingsManager.isProjectTrusted(), projectAgentsSkillDirs = projectTrusted ? collectAncestorAgentsSkillDirs(this.cwd).filter((dir) => resolve4(dir) !== resolve4(userAgentsSkillsDir)) : [], addResources = (resourceType, paths, metadata, overrides, baseDir) => {
           let target = this.getTargetMap(accumulator, resourceType);
-          for (let path23 of paths) {
-            let enabled = isEnabledByOverrides(path23, overrides, baseDir);
-            this.addResource(target, path23, metadata, enabled);
+          for (let path28 of paths) {
+            let enabled = isEnabledByOverrides(path28, overrides, baseDir);
+            this.addResource(target, path28, metadata, enabled);
           }
         };
         projectTrusted && (addResources(
@@ -129756,8 +129760,8 @@ var import_ignore, import_semver, NETWORK_TIMEOUT_MS, UPDATE_CHECK_CONCURRENCY, 
             throw new Error(`Unknown resource type: ${resourceType}`);
         }
       }
-      addResource(map, path23, metadata, enabled) {
-        path23 && (map.has(path23) || map.set(path23, { metadata, enabled }));
+      addResource(map, path28, metadata, enabled) {
+        path28 && (map.has(path28) || map.set(path28, { metadata, enabled }));
       }
       createAccumulator() {
         return {
@@ -129769,8 +129773,8 @@ var import_ignore, import_semver, NETWORK_TIMEOUT_MS, UPDATE_CHECK_CONCURRENCY, 
       }
       toResolvedPaths(accumulator) {
         let mapToResolved = (entries) => {
-          let resolved = Array.from(entries.entries()).map(([path23, { metadata, enabled }]) => ({
-            path: path23,
+          let resolved = Array.from(entries.entries()).map(([path28, { metadata, enabled }]) => ({
+            path: path28,
             enabled,
             metadata
           }));
@@ -129862,9 +129866,9 @@ function closeWatcher(watcher) {
     } catch {
     }
 }
-function watchWithErrorHandler(path23, listener, onError) {
+function watchWithErrorHandler(path28, listener, onError) {
   try {
-    let watcher = watch(path23, listener);
+    let watcher = watch(path28, listener);
     return watcher.on("error", onError), watcher;
   } catch {
     return onError(), null;
@@ -130069,7 +130073,7 @@ var require_core = __commonJS({
       return match3 && match3.index === 0;
     }
     var BACKREF_RE = /\[(?:[^\\\]]|\\.)*\]|\(\??|\\([1-9][0-9]*)|\\./;
-    function join52(regexps, separator = "|") {
+    function join59(regexps, separator = "|") {
       let numCaptures = 0;
       return regexps.map((regex) => {
         numCaptures += 1;
@@ -130300,7 +130304,7 @@ var require_core = __commonJS({
         compile() {
           this.regexes.length === 0 && (this.exec = () => null);
           let terminators = this.regexes.map((el) => el[1]);
-          this.matcherRe = langRe(join52(terminators), !0), this.lastIndex = 0;
+          this.matcherRe = langRe(join59(terminators), !0), this.lastIndex = 0;
         }
         /** @param {string} s */
         exec(s2) {
@@ -162793,12 +162797,12 @@ var require_lib2 = __commonJS({
 
 // packages/coding-agent/src/utils/syntax-highlight.ts
 function loadAllHighlightLanguages() {
-  return allLanguagesPromise || (allLanguagesPromise = new Promise((resolve22) => {
+  return allLanguagesPromise || (allLanguagesPromise = new Promise((resolve23) => {
     setImmediate(() => {
       Promise.resolve().then(() => __toESM(require_lib2(), 1)).then(
-        () => resolve22(),
+        () => resolve23(),
         () => {
-          resolve22();
+          resolve23();
         }
       );
     });
@@ -163731,7 +163735,7 @@ function getThemeExportColors(themeName) {
   try {
     let themeJson = loadThemeJson(name), exportSection = themeJson.export;
     if (!exportSection) return {};
-    let vars = themeJson.vars ?? {}, resolve22 = (value) => {
+    let vars = themeJson.vars ?? {}, resolve23 = (value) => {
       if (value === void 0) return;
       let resolved = resolveVarRefs(value, vars);
       if (typeof resolved == "number") return colorToHex(indexedColor(resolved));
@@ -163739,9 +163743,9 @@ function getThemeExportColors(themeName) {
         return /^okhsl\(/i.test(resolved) ? colorToHex(parseColor(resolved)) : resolved;
     };
     return {
-      pageBg: resolve22(exportSection.pageBg),
-      cardBg: resolve22(exportSection.cardBg),
-      infoBg: resolve22(exportSection.infoBg)
+      pageBg: resolve23(exportSection.pageBg),
+      cardBg: resolve23(exportSection.cardBg),
+      infoBg: resolve23(exportSection.infoBg)
     };
   } catch {
     return {};
@@ -164670,7 +164674,7 @@ function queryStartupTerminalColors(ui, onColors) {
   });
 }
 async function clearStartupTui(ui) {
-  ui.clear(), ui.requestRender(), await new Promise((resolve22) => setTimeout(resolve22, 25));
+  ui.clear(), ui.requestRender(), await new Promise((resolve23) => setTimeout(resolve23, 25));
 }
 function shouldRunFirstTimeSetup(settingsPath = getSettingsPath()) {
   return !isOfficialDistribution({
@@ -164681,9 +164685,9 @@ function shouldRunFirstTimeSetup(settingsPath = getSettingsPath()) {
 }
 async function showStartupSelector(settingsManager, title, options) {
   let ui = await createStartupTui(settingsManager);
-  return new Promise((resolve22) => {
+  return new Promise((resolve23) => {
     let settled = !1, finish = async (result) => {
-      settled || (settled = !0, await clearStartupTui(ui), ui.stop(), resolve22(result));
+      settled || (settled = !0, await clearStartupTui(ui), ui.stop(), resolve23(result));
     }, selector = new ExtensionSelectorComponent(
       title,
       options.map((option) => option.label),
@@ -164700,9 +164704,9 @@ async function showStartupSelector(settingsManager, title, options) {
 }
 async function showFirstTimeSetup(settingsManager) {
   let ui = await createStartupTui(settingsManager);
-  return new Promise((resolve22) => {
+  return new Promise((resolve23) => {
     let settled = !1, finish = async (result) => {
-      settled || (settled = !0, result && (settingsManager.setTheme(result.theme), settingsManager.setEnableAnalytics(!1), await settingsManager.flush()), await clearStartupTui(ui), ui.stop(), resolve22());
+      settled || (settled = !0, result && (settingsManager.setTheme(result.theme), settingsManager.setEnableAnalytics(!1), await settingsManager.flush()), await clearStartupTui(ui), ui.stop(), resolve23());
     };
     ui.start();
     let previewTheme = SYSTEM_THEME_NAME;
@@ -164723,9 +164727,9 @@ async function showFirstTimeSetup(settingsManager) {
 }
 async function showStartupInput(settingsManager, title, placeholder) {
   let ui = await createStartupTui(settingsManager);
-  return new Promise((resolve22) => {
+  return new Promise((resolve23) => {
     let settled = !1, finish = async (result) => {
-      settled || (settled = !0, input2.dispose(), await clearStartupTui(ui), ui.stop(), resolve22(result));
+      settled || (settled = !0, input2.dispose(), await clearStartupTui(ui), ui.stop(), resolve23(result));
     }, input2 = new ExtensionInputComponent(
       title,
       placeholder,
@@ -164909,16 +164913,16 @@ import { spawnSync as spawnSync3 } from "node:child_process";
 import { existsSync as existsSync9 } from "node:fs";
 import { unlink } from "node:fs/promises";
 import * as os4 from "node:os";
-function shortenPath(path23) {
+function shortenPath(path28) {
   let home = os4.homedir();
-  return path23 && (path23.startsWith(home) ? `~${path23.slice(home.length)}` : path23);
+  return path28 && (path28.startsWith(home) ? `~${path28.slice(home.length)}` : path28);
 }
 function formatSessionDate(date) {
   let diffMs = (/* @__PURE__ */ new Date()).getTime() - date.getTime(), diffMins = Math.floor(diffMs / 6e4), diffHours = Math.floor(diffMs / 36e5), diffDays = Math.floor(diffMs / 864e5);
   return diffMins < 1 ? "now" : diffMins < 60 ? `${diffMins}m` : diffHours < 24 ? `${diffHours}h` : diffDays < 7 ? `${diffDays}d` : diffDays < 30 ? `${Math.floor(diffDays / 7)}w` : diffDays < 365 ? `${Math.floor(diffDays / 30)}mo` : `${Math.floor(diffDays / 365)}y`;
 }
-function canonicalizePath2(path23) {
-  return path23 && canonicalizePath(path23);
+function canonicalizePath2(path28) {
+  return path28 && canonicalizePath(path28);
 }
 function buildSessionTree(sessions) {
   let byPath = /* @__PURE__ */ new Map();
@@ -165021,8 +165025,8 @@ var SessionSelectorHeader, SessionList, SessionSelectorComponent, init_session_s
       setShowRenameHint(show) {
         this.showRenameHint = show;
       }
-      setConfirmingDeletePath(path23) {
-        this.confirmingDeletePath = path23;
+      setConfirmingDeletePath(path28) {
+        this.confirmingDeletePath = path28;
       }
       clearStatusTimeout() {
         this.statusTimeout && (clearTimeout(this.statusTimeout), this.statusTimeout = null);
@@ -165138,8 +165142,8 @@ var SessionSelectorHeader, SessionList, SessionSelectorComponent, init_session_s
         }
         this.selectedIndex = Math.min(this.selectedIndex, Math.max(0, this.filteredSessions.length - 1));
       }
-      setConfirmingDeletePath(path23) {
-        this.confirmingDeletePath = path23, this.onDeleteConfirmationChange?.(path23);
+      setConfirmingDeletePath(path28) {
+        this.confirmingDeletePath = path28, this.onDeleteConfirmationChange?.(path28);
       }
       startDeleteConfirmationForSelectedSession() {
         let selected = this.filteredSessions[this.selectedIndex];
@@ -165151,8 +165155,8 @@ var SessionSelectorHeader, SessionList, SessionSelectorComponent, init_session_s
           this.setConfirmingDeletePath(selected.session.path);
         }
       }
-      isCurrentSessionPath(path23) {
-        return this.currentSessionCanonicalPath ? (canonicalizePath2(path23) ?? path23) === this.currentSessionCanonicalPath : !1;
+      isCurrentSessionPath(path28) {
+        return this.currentSessionCanonicalPath ? (canonicalizePath2(path28) ?? path28) === this.currentSessionCanonicalPath : !1;
       }
       invalidate() {
       }
@@ -165320,8 +165324,8 @@ var SessionSelectorHeader, SessionList, SessionSelectorComponent, init_session_s
           this.enterRenameMode(sessionPath, session?.name);
         }, this.sessionList.onTogglePath = (showPath) => {
           this.header.setShowPath(showPath), this.requestRender();
-        }, this.sessionList.onDeleteConfirmationChange = (path23) => {
-          this.header.setConfirmingDeletePath(path23), this.requestRender();
+        }, this.sessionList.onDeleteConfirmationChange = (path28) => {
+          this.header.setConfirmingDeletePath(path28), this.requestRender();
         }, this.sessionList.onError = (msg) => {
           this.header.setStatusMessage({ type: "error", message: msg }, 3e3), this.requestRender();
         }, this.sessionList.onDeleteSession = async (sessionPath) => {
@@ -165422,17 +165426,17 @@ var SessionSelectorHeader, SessionList, SessionSelectorComponent, init_session_s
 // packages/coding-agent/src/cli/session-picker.ts
 async function selectSession(currentSessionsLoader, allSessionsLoader, settingsManager) {
   let ui = await createStartupTui(settingsManager);
-  return new Promise((resolve22) => {
+  return new Promise((resolve23) => {
     let keybindings = KeybindingsManager2.create();
     setKeybindings(keybindings);
     let resolved = !1, selector = new SessionSelectorComponent(
       currentSessionsLoader,
       allSessionsLoader,
-      (path23) => {
-        resolved || (resolved = !0, ui.stop(), resolve22(path23));
+      (path28) => {
+        resolved || (resolved = !0, ui.stop(), resolve23(path28));
       },
       () => {
-        resolved || (resolved = !0, ui.stop(), resolve22(null));
+        resolved || (resolved = !0, ui.stop(), resolve23(null));
       },
       () => {
         ui.stop(), process.exit(0);
@@ -165510,15 +165514,15 @@ var require_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    function visit_(key, node, visitor, path23) {
-      let ctrl = callVisitor(key, node, visitor, path23);
+    function visit_(key, node, visitor, path28) {
+      let ctrl = callVisitor(key, node, visitor, path28);
       if (identity.isNode(ctrl) || identity.isPair(ctrl))
-        return replaceNode(key, path23, ctrl), visit_(key, ctrl, visitor, path23);
+        return replaceNode(key, path28, ctrl), visit_(key, ctrl, visitor, path28);
       if (typeof ctrl != "symbol") {
         if (identity.isCollection(node)) {
-          path23 = Object.freeze(path23.concat(node));
+          path28 = Object.freeze(path28.concat(node));
           for (let i2 = 0; i2 < node.items.length; ++i2) {
-            let ci = visit_(i2, node.items[i2], visitor, path23);
+            let ci = visit_(i2, node.items[i2], visitor, path28);
             if (typeof ci == "number")
               i2 = ci - 1;
             else {
@@ -165528,12 +165532,12 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path23 = Object.freeze(path23.concat(node));
-          let ck = visit_("key", node.key, visitor, path23);
+          path28 = Object.freeze(path28.concat(node));
+          let ck = visit_("key", node.key, visitor, path28);
           if (ck === BREAK)
             return BREAK;
           ck === REMOVE && (node.key = null);
-          let cv = visit_("value", node.value, visitor, path23);
+          let cv = visit_("value", node.value, visitor, path28);
           if (cv === BREAK)
             return BREAK;
           cv === REMOVE && (node.value = null);
@@ -165548,15 +165552,15 @@ var require_visit = __commonJS({
     visitAsync.BREAK = BREAK;
     visitAsync.SKIP = SKIP;
     visitAsync.REMOVE = REMOVE;
-    async function visitAsync_(key, node, visitor, path23) {
-      let ctrl = await callVisitor(key, node, visitor, path23);
+    async function visitAsync_(key, node, visitor, path28) {
+      let ctrl = await callVisitor(key, node, visitor, path28);
       if (identity.isNode(ctrl) || identity.isPair(ctrl))
-        return replaceNode(key, path23, ctrl), visitAsync_(key, ctrl, visitor, path23);
+        return replaceNode(key, path28, ctrl), visitAsync_(key, ctrl, visitor, path28);
       if (typeof ctrl != "symbol") {
         if (identity.isCollection(node)) {
-          path23 = Object.freeze(path23.concat(node));
+          path28 = Object.freeze(path28.concat(node));
           for (let i2 = 0; i2 < node.items.length; ++i2) {
-            let ci = await visitAsync_(i2, node.items[i2], visitor, path23);
+            let ci = await visitAsync_(i2, node.items[i2], visitor, path28);
             if (typeof ci == "number")
               i2 = ci - 1;
             else {
@@ -165566,12 +165570,12 @@ var require_visit = __commonJS({
             }
           }
         } else if (identity.isPair(node)) {
-          path23 = Object.freeze(path23.concat(node));
-          let ck = await visitAsync_("key", node.key, visitor, path23);
+          path28 = Object.freeze(path28.concat(node));
+          let ck = await visitAsync_("key", node.key, visitor, path28);
           if (ck === BREAK)
             return BREAK;
           ck === REMOVE && (node.key = null);
-          let cv = await visitAsync_("value", node.value, visitor, path23);
+          let cv = await visitAsync_("value", node.value, visitor, path28);
           if (cv === BREAK)
             return BREAK;
           cv === REMOVE && (node.value = null);
@@ -165594,22 +165598,22 @@ var require_visit = __commonJS({
         Seq: visitor.Collection
       }, visitor) : visitor;
     }
-    function callVisitor(key, node, visitor, path23) {
+    function callVisitor(key, node, visitor, path28) {
       if (typeof visitor == "function")
-        return visitor(key, node, path23);
+        return visitor(key, node, path28);
       if (identity.isMap(node))
-        return visitor.Map?.(key, node, path23);
+        return visitor.Map?.(key, node, path28);
       if (identity.isSeq(node))
-        return visitor.Seq?.(key, node, path23);
+        return visitor.Seq?.(key, node, path28);
       if (identity.isPair(node))
-        return visitor.Pair?.(key, node, path23);
+        return visitor.Pair?.(key, node, path28);
       if (identity.isScalar(node))
-        return visitor.Scalar?.(key, node, path23);
+        return visitor.Scalar?.(key, node, path28);
       if (identity.isAlias(node))
-        return visitor.Alias?.(key, node, path23);
+        return visitor.Alias?.(key, node, path28);
     }
-    function replaceNode(key, path23, node) {
-      let parent = path23[path23.length - 1];
+    function replaceNode(key, path28, node) {
+      let parent = path28[path28.length - 1];
       if (identity.isCollection(parent))
         parent.items[key] = node;
       else if (identity.isPair(parent))
@@ -166063,10 +166067,10 @@ var require_Collection = __commonJS({
   "node_modules/yaml/dist/nodes/Collection.js"(exports) {
     "use strict";
     var createNode = require_createNode(), identity = require_identity(), Node = require_Node();
-    function collectionFromPath(schema, path23, value) {
+    function collectionFromPath(schema, path28, value) {
       let v2 = value;
-      for (let i2 = path23.length - 1; i2 >= 0; --i2) {
-        let k2 = path23[i2];
+      for (let i2 = path28.length - 1; i2 >= 0; --i2) {
+        let k2 = path28[i2];
         if (typeof k2 == "number" && Number.isInteger(k2) && k2 >= 0) {
           let a = [];
           a[k2] = v2, v2 = a;
@@ -166083,7 +166087,7 @@ var require_Collection = __commonJS({
         sourceObjects: /* @__PURE__ */ new Map()
       });
     }
-    var isEmptyPath = (path23) => path23 == null || typeof path23 == "object" && !!path23[Symbol.iterator]().next().done, Collection = class extends Node.NodeBase {
+    var isEmptyPath = (path28) => path28 == null || typeof path28 == "object" && !!path28[Symbol.iterator]().next().done, Collection = class extends Node.NodeBase {
       constructor(type, schema) {
         super(type), Object.defineProperty(this, "schema", {
           value: schema,
@@ -166106,11 +166110,11 @@ var require_Collection = __commonJS({
        * be a Pair instance or a `{ key, value }` object, which may not have a key
        * that already exists in the map.
        */
-      addIn(path23, value) {
-        if (isEmptyPath(path23))
+      addIn(path28, value) {
+        if (isEmptyPath(path28))
           this.add(value);
         else {
-          let [key, ...rest] = path23, node = this.get(key, !0);
+          let [key, ...rest] = path28, node = this.get(key, !0);
           if (identity.isCollection(node))
             node.addIn(rest, value);
           else if (node === void 0 && this.schema)
@@ -166123,8 +166127,8 @@ var require_Collection = __commonJS({
        * Removes a value from the collection.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path23) {
-        let [key, ...rest] = path23;
+      deleteIn(path28) {
+        let [key, ...rest] = path28;
         if (rest.length === 0)
           return this.delete(key);
         let node = this.get(key, !0);
@@ -166137,8 +166141,8 @@ var require_Collection = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path23, keepScalar) {
-        let [key, ...rest] = path23, node = this.get(key, !0);
+      getIn(path28, keepScalar) {
+        let [key, ...rest] = path28, node = this.get(key, !0);
         return rest.length === 0 ? !keepScalar && identity.isScalar(node) ? node.value : node : identity.isCollection(node) ? node.getIn(rest, keepScalar) : void 0;
       }
       hasAllNullValues(allowScalar) {
@@ -166152,8 +166156,8 @@ var require_Collection = __commonJS({
       /**
        * Checks if the collection includes a value with the key `key`.
        */
-      hasIn(path23) {
-        let [key, ...rest] = path23;
+      hasIn(path28) {
+        let [key, ...rest] = path28;
         if (rest.length === 0)
           return this.has(key);
         let node = this.get(key, !0);
@@ -166163,8 +166167,8 @@ var require_Collection = __commonJS({
        * Sets a value in this collection. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path23, value) {
-        let [key, ...rest] = path23;
+      setIn(path28, value) {
+        let [key, ...rest] = path28;
         if (rest.length === 0)
           this.set(key, value);
         else {
@@ -168037,8 +168041,8 @@ var require_Document = __commonJS({
         assertCollection(this.contents) && this.contents.add(value);
       }
       /** Adds a value to the document. */
-      addIn(path23, value) {
-        assertCollection(this.contents) && this.contents.addIn(path23, value);
+      addIn(path28, value) {
+        assertCollection(this.contents) && this.contents.addIn(path28, value);
       }
       /**
        * Create a new `Alias` node, ensuring that the target `node` has the required anchor.
@@ -168099,8 +168103,8 @@ var require_Document = __commonJS({
        * Removes a value from the document.
        * @returns `true` if the item was found and removed.
        */
-      deleteIn(path23) {
-        return Collection.isEmptyPath(path23) ? this.contents == null ? !1 : (this.contents = null, !0) : assertCollection(this.contents) ? this.contents.deleteIn(path23) : !1;
+      deleteIn(path28) {
+        return Collection.isEmptyPath(path28) ? this.contents == null ? !1 : (this.contents = null, !0) : assertCollection(this.contents) ? this.contents.deleteIn(path28) : !1;
       }
       /**
        * Returns item at `key`, or `undefined` if not found. By default unwraps
@@ -168115,8 +168119,8 @@ var require_Document = __commonJS({
        * scalar values from their surrounding node; to disable set `keepScalar` to
        * `true` (collections are always returned intact).
        */
-      getIn(path23, keepScalar) {
-        return Collection.isEmptyPath(path23) ? !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents : identity.isCollection(this.contents) ? this.contents.getIn(path23, keepScalar) : void 0;
+      getIn(path28, keepScalar) {
+        return Collection.isEmptyPath(path28) ? !keepScalar && identity.isScalar(this.contents) ? this.contents.value : this.contents : identity.isCollection(this.contents) ? this.contents.getIn(path28, keepScalar) : void 0;
       }
       /**
        * Checks if the document includes a value with the key `key`.
@@ -168127,8 +168131,8 @@ var require_Document = __commonJS({
       /**
        * Checks if the document includes a value at `path`.
        */
-      hasIn(path23) {
-        return Collection.isEmptyPath(path23) ? this.contents !== void 0 : identity.isCollection(this.contents) ? this.contents.hasIn(path23) : !1;
+      hasIn(path28) {
+        return Collection.isEmptyPath(path28) ? this.contents !== void 0 : identity.isCollection(this.contents) ? this.contents.hasIn(path28) : !1;
       }
       /**
        * Sets a value in this document. For `!!set`, `value` needs to be a
@@ -168141,8 +168145,8 @@ var require_Document = __commonJS({
        * Sets a value in this document. For `!!set`, `value` needs to be a
        * boolean to add/remove the item from the set.
        */
-      setIn(path23, value) {
-        Collection.isEmptyPath(path23) ? this.contents = value : this.contents == null ? this.contents = Collection.collectionFromPath(this.schema, Array.from(path23), value) : assertCollection(this.contents) && this.contents.setIn(path23, value);
+      setIn(path28, value) {
+        Collection.isEmptyPath(path28) ? this.contents = value : this.contents == null ? this.contents = Collection.collectionFromPath(this.schema, Array.from(path28), value) : assertCollection(this.contents) && this.contents.setIn(path28, value);
       }
       /**
        * Change the YAML version and schema used by the document.
@@ -169537,9 +169541,9 @@ var require_cst_visit = __commonJS({
     visit.BREAK = BREAK;
     visit.SKIP = SKIP;
     visit.REMOVE = REMOVE;
-    visit.itemAtPath = (cst, path23) => {
+    visit.itemAtPath = (cst, path28) => {
       let item = cst;
-      for (let [field2, index3] of path23) {
+      for (let [field2, index3] of path28) {
         let tok = item?.[field2];
         if (tok && "items" in tok)
           item = tok.items[index3];
@@ -169548,21 +169552,21 @@ var require_cst_visit = __commonJS({
       }
       return item;
     };
-    visit.parentCollection = (cst, path23) => {
-      let parent = visit.itemAtPath(cst, path23.slice(0, -1)), field2 = path23[path23.length - 1][0], coll = parent?.[field2];
+    visit.parentCollection = (cst, path28) => {
+      let parent = visit.itemAtPath(cst, path28.slice(0, -1)), field2 = path28[path28.length - 1][0], coll = parent?.[field2];
       if (coll && "items" in coll)
         return coll;
       throw new Error("Parent collection not found");
     };
-    function _visit(path23, item, visitor) {
-      let ctrl = visitor(item, path23);
+    function _visit(path28, item, visitor) {
+      let ctrl = visitor(item, path28);
       if (typeof ctrl == "symbol")
         return ctrl;
       for (let field2 of ["key", "value"]) {
         let token = item[field2];
         if (token && "items" in token) {
           for (let i2 = 0; i2 < token.items.length; ++i2) {
-            let ci = _visit(Object.freeze(path23.concat([[field2, i2]])), token.items[i2], visitor);
+            let ci = _visit(Object.freeze(path28.concat([[field2, i2]])), token.items[i2], visitor);
             if (typeof ci == "number")
               i2 = ci - 1;
             else {
@@ -169571,10 +169575,10 @@ var require_cst_visit = __commonJS({
               ci === REMOVE && (token.items.splice(i2, 1), i2 -= 1);
             }
           }
-          typeof ctrl == "function" && field2 === "key" && (ctrl = ctrl(item, path23));
+          typeof ctrl == "function" && field2 === "key" && (ctrl = ctrl(item, path28));
         }
       }
-      return typeof ctrl == "function" ? ctrl(item, path23) : ctrl;
+      return typeof ctrl == "function" ? ctrl(item, path28) : ctrl;
     }
     exports.visit = visit;
   }
@@ -170577,8 +170581,8 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              let fs22 = this.flowScalar(this.type);
-              atNextItem || it2.value ? (map.items.push({ start, key: fs22, sep: [] }), this.onKeyLine = !0) : it2.sep ? this.stack.push(fs22) : (Object.assign(it2, { key: fs22, sep: [] }), this.onKeyLine = !0);
+              let fs26 = this.flowScalar(this.type);
+              atNextItem || it2.value ? (map.items.push({ start, key: fs26, sep: [] }), this.onKeyLine = !0) : it2.sep ? this.stack.push(fs26) : (Object.assign(it2, { key: fs26, sep: [] }), this.onKeyLine = !0);
               return;
             }
             default: {
@@ -170676,8 +170680,8 @@ var require_parser = __commonJS({
             case "scalar":
             case "single-quoted-scalar":
             case "double-quoted-scalar": {
-              let fs22 = this.flowScalar(this.type);
-              !it2 || it2.value ? fc.items.push({ start: [], key: fs22, sep: [] }) : it2.sep ? this.stack.push(fs22) : Object.assign(it2, { key: fs22, sep: [] });
+              let fs26 = this.flowScalar(this.type);
+              !it2 || it2.value ? fc.items.push({ start: [], key: fs26, sep: [] }) : it2.sep ? this.stack.push(fs26) : Object.assign(it2, { key: fs26, sep: [] });
               return;
             }
             case "flow-map-end":
@@ -171195,7 +171199,7 @@ function renderProjectContext(contextFiles) {
   return [
     "Project-specific instructions and guidelines:",
     ...contextFiles.map(
-      ({ path: path23, content }) => `<project_instructions path="${path23}">
+      ({ path: path28, content }) => `<project_instructions path="${path28}">
 ${content}
 </project_instructions>`
     )
@@ -171240,7 +171244,7 @@ function buildSystemPromptSections(input2) {
 
 \u0412\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0438 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0430 \u041F\u0435\u0440\u0423\u041D:
 - \u0424\u043E\u043D\u043E\u0432\u044B\u0439 LSP-\u0441\u0435\u0440\u0432\u0435\u0440 bsl-analyzer \u0443\u0436\u0435 \u0438\u043D\u0442\u0435\u0433\u0440\u0438\u0440\u043E\u0432\u0430\u043D \u0432 \u044F\u0434\u0440\u043E \u0430\u0433\u0435\u043D\u0442\u0430. \u041F\u0440\u0438 \u043A\u0430\u0436\u0434\u043E\u043C \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0438 \u0438\u043B\u0438 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0438 \u0444\u0430\u0439\u043B\u043E\u0432 .bsl \u0438 .os \u0447\u0435\u0440\u0435\u0437 write \u0438\u043B\u0438 edit \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u044B \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0439 \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441\u0430 \u0438 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u044E\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043F\u0440\u044F\u043C\u043E \u0432 \u043E\u0442\u0432\u0435\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430 (inline LSP feedback). \u041D\u0435 \u043F\u044B\u0442\u0430\u0439\u0441\u044F \u0438\u0441\u043A\u0430\u0442\u044C \u0438\u043B\u0438 \u0437\u0430\u043F\u0443\u0441\u043A\u0430\u0442\u044C bsl-analyzer \u0447\u0435\u0440\u0435\u0437 bash (which, find, whereis).
-- \u0421\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B 1\u0421: bsl_fix_standards (\u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u043D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u0439 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421), 1c_call_hierarchy (\u0430\u043D\u0430\u043B\u0438\u0437 \u0433\u0440\u0430\u0444\u0430 \u0432\u044B\u0437\u043E\u0432\u043E\u0432), 1c_impact_analysis (\u0430\u043D\u0430\u043B\u0438\u0437 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043D\u0430 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 \u0438 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B), 1c_ast_symbols (\u0438\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0435 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440, \u0444\u0443\u043D\u043A\u0446\u0438\u0439, \u0434\u0438\u0440\u0435\u043A\u0442\u0438\u0432 &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435/&\u041D\u0430\u041A\u043B\u0438\u0435\u043D\u0442\u0435), 1c_subagent (\u0434\u0435\u043B\u0435\u0433\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0437\u0430\u0434\u0430\u0447 \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u0430\u043C).
+- \u0421\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B 1\u0421: 1c_vanessa (\u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0418\u0411, \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0430/\u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0430 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 XML/EDT, \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u0411\u0414 \u0438 BDD-\u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0447\u0435\u0440\u0435\u0437 Vanessa Automation / vrunner), bsl_fix_standards (\u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u043D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u0439 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421), 1c_call_hierarchy (\u0430\u043D\u0430\u043B\u0438\u0437 \u0433\u0440\u0430\u0444\u0430 \u0432\u044B\u0437\u043E\u0432\u043E\u0432), 1c_impact_analysis (\u0430\u043D\u0430\u043B\u0438\u0437 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043D\u0430 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 \u0438 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B), 1c_ast_symbols (\u0438\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0435 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440, \u0444\u0443\u043D\u043A\u0446\u0438\u0439, \u0434\u0438\u0440\u0435\u043A\u0442\u0438\u0432 &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435/&\u041D\u0430\u041A\u043B\u0438\u0435\u043D\u0442\u0435), 1c_subagent (\u0434\u0435\u043B\u0435\u0433\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0437\u0430\u0434\u0430\u0447 \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u0430\u043C).
 - \u0424\u043E\u0440\u043C\u0430\u0442 \u043F\u0440\u043E\u0435\u043A\u0442\u0430: \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0435 \u043A\u043E\u0434\u044B 1C:EDT (Configuration.mdo, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 .mdo, \u043C\u043E\u0434\u0443\u043B\u0438 .bsl, \u0444\u0430\u0439\u043B .project). \u0420\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0430 \u0432\u0435\u0434\u0435\u0442\u0441\u044F \u043F\u0440\u044F\u043C\u043E \u0432 \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0445 \u043A\u043E\u0434\u0430\u0445 EDT \u0431\u0435\u0437 \u043D\u0435\u043E\u0431\u0445\u043E\u0434\u0438\u043C\u043E\u0441\u0442\u0438 \u0432\u043D\u0435\u0448\u043D\u0435\u0433\u043E GUI \u041A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0442\u043E\u0440\u0430.`;
     let visibleTools = declaredTools.filter((name) => !!toolSnippets[name]), tools = visibleTools.length > 0 ? visibleTools.map((name) => `- ${name}: ${toolSnippets[name]}`).join(`
 `) : "(none)";
@@ -171721,8 +171725,8 @@ var RESERVED_KEYBINDINGS_FOR_EXTENSION_CONFLICTS, buildBuiltinKeybindings, noOpU
       }
       /** Renderers of calls to `toolName`: extension resolvers in load order, then `base`. */
       resolveToolRenderers(toolName2, base) {
-        let resolvers = this.extensions.flatMap((ext2) => ext2.toolRenderers ?? []), resolve22 = (index3) => index3 < resolvers.length ? resolvers[index3](toolName2, () => resolve22(index3 + 1)) : base();
-        return resolve22(0);
+        let resolvers = this.extensions.flatMap((ext2) => ext2.toolRenderers ?? []), resolve23 = (index3) => index3 < resolvers.length ? resolvers[index3](toolName2, () => resolve23(index3 + 1)) : base();
+        return resolve23(0);
       }
       getEntryRenderer(customType) {
         for (let ext2 of this.extensions) {
@@ -172140,7 +172144,7 @@ var RESERVED_KEYBINDINGS_FOR_EXTENSION_CONFLICTS, buildBuiltinKeybindings, noOpU
           for (let handler of handlers)
             try {
               let result = await handler({ type: "resources_discover", cwd, reason }, ctx);
-              result?.skillPaths?.length && skillPaths.push(...result.skillPaths.map((path23) => ({ path: path23, extensionPath: ext2.path }))), result?.promptPaths?.length && promptPaths.push(...result.promptPaths.map((path23) => ({ path: path23, extensionPath: ext2.path }))), result?.themePaths?.length && themePaths.push(...result.themePaths.map((path23) => ({ path: path23, extensionPath: ext2.path })));
+              result?.skillPaths?.length && skillPaths.push(...result.skillPaths.map((path28) => ({ path: path28, extensionPath: ext2.path }))), result?.promptPaths?.length && promptPaths.push(...result.promptPaths.map((path28) => ({ path: path28, extensionPath: ext2.path }))), result?.themePaths?.length && themePaths.push(...result.themePaths.map((path28) => ({ path: path28, extensionPath: ext2.path })));
             } catch (err) {
               let message = err instanceof Error ? err.message : String(err), stack = err instanceof Error ? err.stack : void 0;
               this.emitError({
@@ -172419,14 +172423,14 @@ function buildSessionPath(entries, leafId, byId) {
     return [];
   if (leafId && (leaf = index3.get(leafId)), leaf ??= entries[entries.length - 1], !leaf)
     return [];
-  let path23 = [], current = leaf;
+  let path28 = [], current = leaf;
   for (; current; )
-    path23.push(current), current = current.parentId ? index3.get(current.parentId) : void 0;
-  return path23.reverse(), path23;
+    path28.push(current), current = current.parentId ? index3.get(current.parentId) : void 0;
+  return path28.reverse(), path28;
 }
-function getSessionContextSettings(path23) {
+function getSessionContextSettings(path28) {
   let thinkingLevel = "off", model = null;
-  for (let entry of path23)
+  for (let entry of path28)
     entry.type === "thinking_level_change" ? thinkingLevel = entry.thinkingLevel : entry.type === "model_change" ? model = { provider: entry.provider, modelId: entry.modelId } : entry.type === "message" && entry.message.role === "assistant" && (model = { provider: entry.message.provider, modelId: entry.message.model });
   return { thinkingLevel, model };
 }
@@ -172448,20 +172452,20 @@ function sessionEntryToContextMessages(entry) {
   return [];
 }
 function buildContextEntries(entries, leafId, byId) {
-  let path23 = buildSessionPath(entries, leafId, byId), compaction = null;
-  for (let entry of path23)
+  let path28 = buildSessionPath(entries, leafId, byId), compaction = null;
+  for (let entry of path28)
     entry.type === "compaction" && (compaction = entry);
   if (!compaction)
-    return path23;
-  let compactionIdx = path23.findIndex((entry) => entry.id === compaction.id);
+    return path28;
+  let compactionIdx = path28.findIndex((entry) => entry.id === compaction.id);
   if (compactionIdx < 0)
-    return path23;
+    return path28;
   let contextEntries = [compaction], foundFirstKept = !1;
   for (let i2 = 0; i2 < compactionIdx; i2++) {
-    let entry = path23[i2];
+    let entry = path28[i2];
     entry.id === compaction.firstKeptEntryId && (foundFirstKept = !0), foundFirstKept && !(entry.type === "message" && entry.message.role === "system") && contextEntries.push(entry);
   }
-  return contextEntries.push(...path23.slice(compactionIdx + 1)), contextEntries;
+  return contextEntries.push(...path28.slice(compactionIdx + 1)), contextEntries;
 }
 function projectContextEntry(entry, edit) {
   let messages = sessionEntryToContextMessages(entry);
@@ -172475,7 +172479,7 @@ function projectContextEntry(entry, edit) {
   });
 }
 function buildSessionProjection(entries, leafId, byId) {
-  let path23 = buildSessionPath(entries, leafId, byId), { thinkingLevel, model } = getSessionContextSettings(path23), contextEntries = buildContextEntries(entries, leafId, byId), edits = /* @__PURE__ */ new Map();
+  let path28 = buildSessionPath(entries, leafId, byId), { thinkingLevel, model } = getSessionContextSettings(path28), contextEntries = buildContextEntries(entries, leafId, byId), edits = /* @__PURE__ */ new Map();
   for (let entry of contextEntries)
     entry.type === "context_edit" && edits.set(entry.targetId, entry);
   let projectedEntries = contextEntries.map(
@@ -172595,10 +172599,10 @@ function sessionCwdMatches(cwd, resolvedCwd) {
 function findMostRecentSession(sessionDir, cwd) {
   let resolvedSessionDir = normalizePath(sessionDir), resolvedCwd = cwd ? resolvePath(cwd) : void 0;
   try {
-    let files = readdirSync5(resolvedSessionDir).filter((file) => file.endsWith(".jsonl")).map((file) => join20(resolvedSessionDir, file)).map((path23) => ({ path: path23, mtime: statSync7(path23).mtimeMs })).sort((a, b2) => b2.mtime - a.mtime);
-    for (let { path: path23 } of files) {
-      let header = readSessionHeaderForDiscovery(path23);
-      if (header && (!resolvedCwd || sessionCwdMatches(getSessionHeaderCwd(header), resolvedCwd))) return path23;
+    let files = readdirSync5(resolvedSessionDir).filter((file) => file.endsWith(".jsonl")).map((file) => join20(resolvedSessionDir, file)).map((path28) => ({ path: path28, mtime: statSync7(path28).mtimeMs })).sort((a, b2) => b2.mtime - a.mtime);
+    for (let { path: path28 } of files) {
+      let header = readSessionHeaderForDiscovery(path28);
+      if (header && (!resolvedCwd || sessionCwdMatches(getSessionHeaderCwd(header), resolvedCwd))) return path28;
     }
     return null;
   } catch {
@@ -173031,10 +173035,10 @@ var CURRENT_SESSION_VERSION, SESSION_READ_BUFFER_SIZE, SESSION_HEADER_READ_BUFFE
        * Use buildSessionContext() to get the resolved messages for the LLM.
        */
       getBranch(fromId) {
-        let path23 = [], startId = fromId ?? this.leafId, current = startId ? this.byId.get(startId) : void 0;
+        let path28 = [], startId = fromId ?? this.leafId, current = startId ? this.byId.get(startId) : void 0;
         for (; current; )
-          path23.push(current), current = current.parentId ? this.byId.get(current.parentId) : void 0;
-        return path23.reverse(), path23;
+          path28.push(current), current = current.parentId ? this.byId.get(current.parentId) : void 0;
+        return path28.reverse(), path28;
       }
       /**
        * Build the active, compaction-aware entry list for context/rendering.
@@ -173151,11 +173155,11 @@ var CURRENT_SESSION_VERSION, SESSION_READ_BUFFER_SIZE, SESSION_HEADER_READ_BUFFE
        * Returns the new session file path, or undefined if not persisting.
        */
       createBranchedSession(leafId) {
-        let previousSessionFile = this.sessionFile, path23 = this.getBranch(leafId);
-        if (path23.length === 0)
+        let previousSessionFile = this.sessionFile, path28 = this.getBranch(leafId);
+        if (path28.length === 0)
           throw new Error(`Entry ${leafId} not found`);
         let pathWithoutLabels = [], replacementByLabelId = /* @__PURE__ */ new Map(), pendingLabelIds = [], pathParentId = null;
-        for (let entry of path23) {
+        for (let entry of path28) {
           if (entry.type === "label") {
             pendingLabelIds.push(entry.id);
             continue;
@@ -173224,8 +173228,8 @@ var CURRENT_SESSION_VERSION, SESSION_READ_BUFFER_SIZE, SESSION_HEADER_READ_BUFFE
        * @param sessionDir Optional session directory for /new or /branch. If omitted, derives from file's parent.
        * @param cwdOverride Optional cwd override instead of the session header cwd.
        */
-      static open(path23, sessionDir, cwdOverride) {
-        let resolvedPath = resolvePath(path23), header = null, preloadedFileEntries;
+      static open(path28, sessionDir, cwdOverride) {
+        let resolvedPath = resolvePath(path28), header = null, preloadedFileEntries;
         if (cwdOverride === void 0 && existsSync12(resolvedPath))
           try {
             header = readSessionHeader(resolvedPath);
@@ -173292,9 +173296,9 @@ var CURRENT_SESSION_VERSION, SESSION_READ_BUFFER_SIZE, SESSION_HEADER_READ_BUFFE
         try {
           for (let file of readdirSync5(dir)) {
             if (!file.endsWith(".jsonl")) continue;
-            let path23 = join20(dir, file), header = readSessionHeaderForDiscovery(path23);
+            let path28 = join20(dir, file), header = readSessionHeaderForDiscovery(path28);
             if (header?.id === id && !(filterCwd && !sessionCwdMatches(getSessionHeaderCwd(header), resolvedCwd)))
-              return path23;
+              return path28;
           }
         } catch {
         }
@@ -173330,11 +173334,11 @@ var CURRENT_SESSION_VERSION, SESSION_READ_BUFFER_SIZE, SESSION_HEADER_READ_BUFFE
           )).flat(), candidates = await mapWithConcurrency(
             allFiles,
             MAX_CONCURRENT_SESSION_DISCOVERY_LOADS,
-            async (path23) => {
+            async (path28) => {
               try {
-                return { path: path23, stats: await stat5(path23) };
+                return { path: path28, stats: await stat5(path28) };
               } catch {
-                return { path: path23 };
+                return { path: path28 };
               }
             },
             abortSignal
@@ -173392,7 +173396,7 @@ var init_event_bus = __esm({
 // packages/coding-agent/src/core/exec.ts
 import { spawn as spawn4 } from "node:child_process";
 async function execCommand(command, args, cwd, options) {
-  return new Promise((resolve22) => {
+  return new Promise((resolve23) => {
     let proc = spawn4(command, args, {
       cwd,
       shell: !1,
@@ -173409,9 +173413,9 @@ async function execCommand(command, args, cwd, options) {
     }), proc.stderr?.on("data", (data) => {
       stderr += data.toString();
     }), waitForChildProcess(proc).then((code) => {
-      timeoutId && clearTimeout(timeoutId), options?.signal && options.signal.removeEventListener("abort", killProcess), resolve22({ stdout, stderr, code: code ?? 0, killed });
+      timeoutId && clearTimeout(timeoutId), options?.signal && options.signal.removeEventListener("abort", killProcess), resolve23({ stdout, stderr, code: code ?? 0, killed });
     }).catch((_err) => {
-      timeoutId && clearTimeout(timeoutId), options?.signal && options.signal.removeEventListener("abort", killProcess), resolve22({ stdout, stderr, code: 1, killed });
+      timeoutId && clearTimeout(timeoutId), options?.signal && options.signal.removeEventListener("abort", killProcess), resolve23({ stdout, stderr, code: 1, killed });
     });
   });
 }
@@ -174438,8 +174442,8 @@ var EMPTY_USAGE, DEFAULT_MODEL, PendingMessageQueue, Agent, init_agent = __esm({
         if (this.activeRun)
           throw new Error("Agent is already processing.");
         let abortController = new AbortController(), resolvePromise = () => {
-        }, promise = new Promise((resolve22) => {
-          resolvePromise = resolve22;
+        }, promise = new Promise((resolve23) => {
+          resolvePromise = resolve23;
         });
         this.activeRun = { promise, resolve: resolvePromise, abortController }, this._state.isStreaming = !0, this._state.streamingMessage = void 0, this._state.errorMessage = void 0;
         try {
@@ -174752,12 +174756,12 @@ var init_oauth = __esm({
 
 // packages/coding-agent/src/utils/sleep.ts
 function sleep7(ms, signal) {
-  return new Promise((resolve22, reject) => {
+  return new Promise((resolve23, reject) => {
     if (signal?.aborted) {
       reject(new Error("Aborted"));
       return;
     }
-    let timeout = setTimeout(resolve22, ms);
+    let timeout = setTimeout(resolve23, ms);
     signal?.addEventListener("abort", () => {
       clearTimeout(timeout), reject(new Error("Aborted"));
     });
@@ -174837,12 +174841,12 @@ function createOutputFilePath(prefix, extension2) {
   return join21(tmpdir2(), `${prefix}-${randomBytes(8).toString("hex")}${extension2}`);
 }
 async function writeOutputFile(prefix, extension2, data) {
-  let path23 = createOutputFilePath(prefix, extension2);
-  return await writeFile2(path23, data, { mode: OUTPUT_FILE_MODE, flag: "wx" }), path23;
+  let path28 = createOutputFilePath(prefix, extension2);
+  return await writeFile2(path28, data, { mode: OUTPUT_FILE_MODE, flag: "wx" }), path28;
 }
 function createOutputFileStream(prefix, extension2) {
-  let path23 = createOutputFilePath(prefix, extension2);
-  return { path: path23, stream: createWriteStream2(path23, { mode: OUTPUT_FILE_MODE, flags: "wx" }) };
+  let path28 = createOutputFilePath(prefix, extension2);
+  return { path: path28, stream: createWriteStream2(path28, { mode: OUTPUT_FILE_MODE, flags: "wx" }) };
 }
 var OUTPUT_FILE_MODE, init_output_files = __esm({
   "packages/coding-agent/src/utils/output-files.ts"() {
@@ -175151,17 +175155,17 @@ function extractFileOpsFromMessage(message, fileOps) {
       typeof block != "object" || block === null || !("type" in block) || block.type !== "toolCall" || !("arguments" in block) || !("name" in block) || addFileOp(block.name, block.arguments, fileOps);
 }
 function addFileOp(toolName2, args, fileOps) {
-  let path23 = typeof args?.path == "string" ? args.path : void 0;
-  if (path23)
+  let path28 = typeof args?.path == "string" ? args.path : void 0;
+  if (path28)
     switch (toolName2) {
       case "read":
-        fileOps.read.add(path23);
+        fileOps.read.add(path28);
         break;
       case "write":
-        fileOps.written.add(path23);
+        fileOps.written.add(path28);
         break;
       case "edit":
-        fileOps.edited.add(path23);
+        fileOps.edited.add(path28);
         break;
     }
 }
@@ -175910,7 +175914,7 @@ function collectBugReportMetadata(options) {
     provider: provider ? describeProvider(options.modelRuntime, provider) : null,
     thinkingLevel: options.thinkingLevel,
     extensions: options.extensions.map(describeExtension),
-    extensionErrors: options.extensionErrors.map(({ path: path23, error }) => ({ path: path23, error })),
+    extensionErrors: options.extensionErrors.map(({ path: path28, error }) => ({ path: path28, error })),
     settings: {
       global: redactSettings(options.globalSettings),
       project: redactSettings(options.projectSettings)
@@ -176893,8 +176897,8 @@ var NESTED_CALL_LIMITS, encoder2, NestedCallRecorder, NestedToolCallRunner, init
         let exclusive = !scope.holdsQueue && (this.host.isSequential() || this.host.getTools().find((tool) => tool.name === name)?.executionMode === "sequential"), release2;
         if (exclusive) {
           let previous = this.queueTail;
-          this.queueTail = new Promise((resolve22) => {
-            release2 = resolve22;
+          this.queueTail = new Promise((resolve23) => {
+            release2 = resolve23;
           }), await previous;
         }
         this.scopes.set(toolCall.id, {
@@ -177189,11 +177193,11 @@ var OutputAccumulator, init_output_accumulator = __esm({
         if (!this.tempFileStream)
           return;
         let stream12 = this.tempFileStream;
-        this.tempFileStream = void 0, await new Promise((resolve22, reject) => {
+        this.tempFileStream = void 0, await new Promise((resolve23, reject) => {
           let onError = (error) => {
             stream12.off("finish", onFinish), reject(error);
           }, onFinish = () => {
-            stream12.off("error", onError), resolve22();
+            stream12.off("error", onError), resolve23();
           };
           stream12.once("error", onError), stream12.once("finish", onFinish), stream12.end();
         });
@@ -177271,8 +177275,8 @@ ${tailText}`, truncated: !0 };
       ensureTempFile() {
         if (this.tempFilePath)
           return;
-        let { path: path23, stream: stream12 } = createOutputFileStream(this.tempFilePrefix, ".log");
-        this.tempFilePath = path23, this.tempFileStream = stream12;
+        let { path: path28, stream: stream12 } = createOutputFileStream(this.tempFilePrefix, ".log");
+        this.tempFilePath = path28, this.tempFileStream = stream12;
         for (let chunk of this.rawChunks)
           this.tempFileStream.write(chunk);
         this.rawChunks = [];
@@ -177324,10 +177328,10 @@ var VisualLinePreview, init_visual_truncate = __esm({
 // packages/coding-agent/src/core/tools/render-utils.ts
 import * as os6 from "node:os";
 import { pathToFileURL as pathToFileURL2 } from "node:url";
-function shortenPath2(path23) {
-  if (typeof path23 != "string") return "";
+function shortenPath2(path28) {
+  if (typeof path28 != "string") return "";
   let home = os6.homedir();
-  return path23.startsWith(home) ? `~${path23.slice(home.length)}` : path23;
+  return path28.startsWith(home) ? `~${path28.slice(home.length)}` : path28;
 }
 function linkPath(styledText, rawPath, cwd) {
   if (!getCapabilities().hyperlinks) return styledText;
@@ -177772,13 +177776,13 @@ var Diff2, init_base2 = __esm({
               return ret;
           }
       }
-      addToPath(path23, added, removed, oldPosInc, options) {
-        let last = path23.lastComponent;
+      addToPath(path28, added, removed, oldPosInc, options) {
+        let last = path28.lastComponent;
         return last && !options.oneChangePerToken && last.added === added && last.removed === removed ? {
-          oldPos: path23.oldPos + oldPosInc,
+          oldPos: path28.oldPos + oldPosInc,
           lastComponent: { count: last.count + 1, added, removed, previousComponent: last.previousComponent }
         } : {
-          oldPos: path23.oldPos + oldPosInc,
+          oldPos: path28.oldPos + oldPosInc,
           lastComponent: { count: 1, added, removed, previousComponent: last }
         };
       }
@@ -178298,44 +178302,44 @@ function countOccurrences(content, oldText) {
   let fuzzyContent = normalizeForFuzzyMatch(content), fuzzyOldText = normalizeForFuzzyMatch(oldText);
   return fuzzyContent.split(fuzzyOldText).length - 1;
 }
-function getNotFoundError(path23, editIndex, totalEdits) {
+function getNotFoundError(path28, editIndex, totalEdits) {
   return totalEdits === 1 ? new Error(
-    `Could not find the exact text in ${path23}. The old text must match exactly including all whitespace and newlines.`
+    `Could not find the exact text in ${path28}. The old text must match exactly including all whitespace and newlines.`
   ) : new Error(
-    `Could not find edits[${editIndex}] in ${path23}. The oldText must match exactly including all whitespace and newlines.`
+    `Could not find edits[${editIndex}] in ${path28}. The oldText must match exactly including all whitespace and newlines.`
   );
 }
-function getDuplicateError(path23, editIndex, totalEdits, occurrences) {
+function getDuplicateError(path28, editIndex, totalEdits, occurrences) {
   return totalEdits === 1 ? new Error(
-    `Found ${occurrences} occurrences of the text in ${path23}. The text must be unique. Please provide more context to make it unique.`
+    `Found ${occurrences} occurrences of the text in ${path28}. The text must be unique. Please provide more context to make it unique.`
   ) : new Error(
-    `Found ${occurrences} occurrences of edits[${editIndex}] in ${path23}. Each oldText must be unique. Please provide more context to make it unique.`
+    `Found ${occurrences} occurrences of edits[${editIndex}] in ${path28}. Each oldText must be unique. Please provide more context to make it unique.`
   );
 }
-function getEmptyOldTextError(path23, editIndex, totalEdits) {
-  return totalEdits === 1 ? new Error(`oldText must not be empty in ${path23}.`) : new Error(`edits[${editIndex}].oldText must not be empty in ${path23}.`);
+function getEmptyOldTextError(path28, editIndex, totalEdits) {
+  return totalEdits === 1 ? new Error(`oldText must not be empty in ${path28}.`) : new Error(`edits[${editIndex}].oldText must not be empty in ${path28}.`);
 }
-function getNoChangeError(path23, totalEdits) {
+function getNoChangeError(path28, totalEdits) {
   return totalEdits === 1 ? new Error(
-    `No changes made to ${path23}. The replacement produced identical content. This might indicate an issue with special characters or the text not existing as expected.`
-  ) : new Error(`No changes made to ${path23}. The replacements produced identical content.`);
+    `No changes made to ${path28}. The replacement produced identical content. This might indicate an issue with special characters or the text not existing as expected.`
+  ) : new Error(`No changes made to ${path28}. The replacements produced identical content.`);
 }
-function applyEditsToNormalizedContent(normalizedContent, edits, path23) {
+function applyEditsToNormalizedContent(normalizedContent, edits, path28) {
   let normalizedEdits = edits.map((edit) => ({
     oldText: normalizeToLF(edit.oldText),
     newText: normalizeToLF(edit.newText)
   }));
   for (let i2 = 0; i2 < normalizedEdits.length; i2++)
     if (normalizedEdits[i2].oldText.length === 0)
-      throw getEmptyOldTextError(path23, i2, normalizedEdits.length);
+      throw getEmptyOldTextError(path28, i2, normalizedEdits.length);
   let usedFuzzyMatch = normalizedEdits.map((edit) => fuzzyFindText(normalizedContent, edit.oldText)).some((match3) => match3.usedFuzzyMatch), replacementBaseContent = usedFuzzyMatch ? normalizeForFuzzyMatch(normalizedContent) : normalizedContent, matchedEdits = [];
   for (let i2 = 0; i2 < normalizedEdits.length; i2++) {
     let edit = normalizedEdits[i2], matchResult = fuzzyFindText(replacementBaseContent, edit.oldText);
     if (!matchResult.found)
-      throw getNotFoundError(path23, i2, normalizedEdits.length);
+      throw getNotFoundError(path28, i2, normalizedEdits.length);
     let occurrences = countOccurrences(replacementBaseContent, edit.oldText);
     if (occurrences > 1)
-      throw getDuplicateError(path23, i2, normalizedEdits.length, occurrences);
+      throw getDuplicateError(path28, i2, normalizedEdits.length, occurrences);
     matchedEdits.push({
       editIndex: i2,
       matchIndex: matchResult.index,
@@ -178348,16 +178352,16 @@ function applyEditsToNormalizedContent(normalizedContent, edits, path23) {
     let previous = matchedEdits[i2 - 1], current = matchedEdits[i2];
     if (previous.matchIndex + previous.matchLength > current.matchIndex)
       throw new Error(
-        `edits[${previous.editIndex}] and edits[${current.editIndex}] overlap in ${path23}. Merge them into one edit or target disjoint regions.`
+        `edits[${previous.editIndex}] and edits[${current.editIndex}] overlap in ${path28}. Merge them into one edit or target disjoint regions.`
       );
   }
   let baseContent = normalizedContent, newContent = usedFuzzyMatch ? applyReplacementsPreservingUnchangedLines(normalizedContent, replacementBaseContent, matchedEdits) : applyReplacements(replacementBaseContent, matchedEdits);
   if (baseContent === newContent)
-    throw getNoChangeError(path23, normalizedEdits.length);
+    throw getNoChangeError(path28, normalizedEdits.length);
   return { baseContent, newContent };
 }
-function generateUnifiedPatch(path23, oldContent, newContent, contextLines = 4) {
-  return createTwoFilesPatch(path23, path23, oldContent, newContent, void 0, void 0, {
+function generateUnifiedPatch(path28, oldContent, newContent, contextLines = 4) {
+  return createTwoFilesPatch(path28, path28, oldContent, newContent, void 0, void 0, {
     context: contextLines,
     headerOptions: FILE_HEADERS_ONLY
   });
@@ -178422,16 +178426,16 @@ function generateDiffString(oldContent, newContent, contextLines = 4) {
   return { diff: output.join(`
 `), firstChangedLine };
 }
-async function computeEditsDiff(path23, edits, cwd) {
-  let absolutePath = resolveToCwd(path23, cwd);
+async function computeEditsDiff(path28, edits, cwd) {
+  let absolutePath = resolveToCwd(path28, cwd);
   try {
     try {
       await access4(absolutePath, constants5.R_OK);
     } catch (error) {
       let errorMessage9 = error instanceof Error && "code" in error ? `Error code: ${error.code}` : String(error);
-      return { error: `Could not edit file: ${path23}. ${errorMessage9}.` };
+      return { error: `Could not edit file: ${path28}. ${errorMessage9}.` };
     }
-    let rawContent = await readFile4(absolutePath, "utf-8"), { text: content } = splitBom(rawContent), normalizedContent = normalizeToLF(content), { baseContent, newContent } = applyEditsToNormalizedContent(normalizedContent, edits, path23);
+    let rawContent = await readFile4(absolutePath, "utf-8"), { text: content } = splitBom(rawContent), normalizedContent = normalizeToLF(content), { baseContent, newContent } = applyEditsToNormalizedContent(normalizedContent, edits, path28);
     return generateDiffString(baseContent, newContent);
   } catch (err) {
     return { error: err instanceof Error ? err.message : String(err) };
@@ -178588,8 +178592,8 @@ function getEditCallRenderComponent(state3, lastComponent) {
 function getRenderablePreviewInput(args) {
   if (!args)
     return null;
-  let path23 = typeof args.path == "string" ? args.path : typeof args.file_path == "string" ? args.file_path : null;
-  return path23 ? Array.isArray(args.edits) && args.edits.length > 0 && args.edits.every((edit) => typeof edit?.oldText == "string" && typeof edit?.newText == "string") ? { path: path23, edits: args.edits } : typeof args.oldText == "string" && typeof args.newText == "string" ? { path: path23, edits: [{ oldText: args.oldText, newText: args.newText }] } : null : null;
+  let path28 = typeof args.path == "string" ? args.path : typeof args.file_path == "string" ? args.file_path : null;
+  return path28 ? Array.isArray(args.edits) && args.edits.length > 0 && args.edits.every((edit) => typeof edit?.oldText == "string" && typeof edit?.newText == "string") ? { path: path28, edits: args.edits } : typeof args.oldText == "string" && typeof args.newText == "string" ? { path: path28, edits: [{ oldText: args.oldText, newText: args.newText }] } : null : null;
 }
 function formatEditCall(args, theme2, cwd) {
   let pathDisplay = renderToolPath(str(args?.file_path ?? args?.path), theme2, cwd);
@@ -178716,7 +178720,7 @@ function createEditToolDefinition(cwd, options) {
     renderShell: "self",
     prepareArguments: prepareEditArguments,
     async execute(_toolCallId, input2, signal, _onUpdate, ctx) {
-      let { path: path23, edits } = validateEditInput(input2), absolutePath = resolveToCwd(path23, ctx?.cwd || cwd);
+      let { path: path28, edits } = validateEditInput(input2), absolutePath = resolveToCwd(path28, ctx?.cwd || cwd);
       return withFileMutationQueue(absolutePath, async () => {
         let throwIfAborted = () => {
           if (signal?.aborted) throw new Error("Operation aborted");
@@ -178727,21 +178731,21 @@ function createEditToolDefinition(cwd, options) {
         } catch (error) {
           throwIfAborted();
           let errorMessage9 = error instanceof Error && "code" in error ? `Error code: ${error.code}` : String(error);
-          throw new Error(`Could not edit file: ${path23}. ${errorMessage9}.`);
+          throw new Error(`Could not edit file: ${path28}. ${errorMessage9}.`);
         }
         throwIfAborted();
         let rawContent = (await ops.readFile(absolutePath)).toString("utf-8");
         throwIfAborted();
-        let { bom, text: content } = splitBom(rawContent), originalEnding = detectLineEnding(content), normalizedContent = normalizeToLF(content), { baseContent, newContent } = applyEditsToNormalizedContent(normalizedContent, edits, path23);
+        let { bom, text: content } = splitBom(rawContent), originalEnding = detectLineEnding(content), normalizedContent = normalizeToLF(content), { baseContent, newContent } = applyEditsToNormalizedContent(normalizedContent, edits, path28);
         throwIfAborted();
         let finalContent = bom + restoreLineEndings(newContent, originalEnding);
         await ops.writeFile(absolutePath, finalContent), throwIfAborted();
-        let diffResult = generateDiffString(baseContent, newContent), patch = generateUnifiedPatch(path23, baseContent, newContent);
+        let diffResult = generateDiffString(baseContent, newContent), patch = generateUnifiedPatch(path28, baseContent, newContent);
         return {
           content: [
             {
               type: "text",
-              text: `Successfully replaced ${edits.length} block(s) in ${path23}.`
+              text: `Successfully replaced ${edits.length} block(s) in ${path28}.`
             }
           ],
           details: { diff: diffResult.diff, patch, firstChangedLine: diffResult.firstChangedLine }
@@ -178790,9 +178794,9 @@ var replaceEditSchema, editSchema, editToolSystemPromptContribution, defaultEdit
       ]
     };
     defaultEditOperations = {
-      readFile: (path23) => fsReadFile(path23),
-      writeFile: (path23, content) => fsWriteFile(path23, content, "utf-8"),
-      access: (path23) => fsAccess2(path23, constants6.R_OK | constants6.W_OK)
+      readFile: (path28) => fsReadFile(path28),
+      writeFile: (path28, content) => fsWriteFile(path28, content, "utf-8"),
+      access: (path28) => fsAccess2(path28, constants6.R_OK | constants6.W_OK)
     };
   }
 });
@@ -178978,8 +178982,8 @@ async function ensureTool(tool, onStatus) {
     }
     onStatus?.({ type: "info", message: `${config.name} not found. Downloading...` });
     try {
-      let path23 = await downloadTool(tool);
-      return onStatus?.({ type: "info", message: `${config.name} installed to ${path23}` }), path23;
+      let path28 = await downloadTool(tool);
+      return onStatus?.({ type: "info", message: `${config.name} installed to ${path28}` }), path28;
     } catch (e2) {
       let messages = [];
       for (let current = e2, depth = 0; current instanceof Error && depth < 5; current = current.cause, depth++)
@@ -179024,7 +179028,7 @@ var TOOLS_DIR, NETWORK_TIMEOUT_MS2, DOWNLOAD_TIMEOUT_MS, TOOLS, TERMUX_PACKAGES,
 
 // packages/coding-agent/src/core/tools/renderers/find.ts
 function formatFindCall(args, theme2) {
-  let pattern = str(args?.pattern), rawPath = str(args?.path), path23 = rawPath !== null ? shortenPath2(rawPath || ".") : null, limit3 = args?.limit, invalidArg = invalidArgText(theme2), text = theme2.fg("toolTitle", theme2.bold("find")) + " " + (pattern === null ? invalidArg : theme2.fg("accent", pattern || "")) + theme2.fg("toolOutput", ` in ${path23 === null ? invalidArg : path23}`);
+  let pattern = str(args?.pattern), rawPath = str(args?.path), path28 = rawPath !== null ? shortenPath2(rawPath || ".") : null, limit3 = args?.limit, invalidArg = invalidArgText(theme2), text = theme2.fg("toolTitle", theme2.bold("find")) + " " + (pattern === null ? invalidArg : theme2.fg("accent", pattern || "")) + theme2.fg("toolOutput", ` in ${path28 === null ? invalidArg : path28}`);
   return limit3 !== void 0 && (text += theme2.fg("toolOutput", ` (limit ${limit3})`)), text;
 }
 function formatFindResult(result, options, theme2, showImages) {
@@ -179082,7 +179086,7 @@ function createFindToolDefinition(cwd, options) {
     promptSnippet: findToolSystemPromptContribution.snippet,
     parameters: findSchema,
     async execute(_toolCallId, { pattern, path: searchDir, limit: limit3 }, signal, _onUpdate, ctx) {
-      return new Promise((resolve22, reject) => {
+      return new Promise((resolve23, reject) => {
         if (signal?.aborted) {
           reject(new Error("Operation aborted"));
           return;
@@ -179114,7 +179118,7 @@ function createFindToolDefinition(cwd, options) {
               }
               if (results.length === 0) {
                 settle(
-                  () => resolve22({
+                  () => resolve23({
                     content: [{ type: "text", text: "No files found matching pattern" }],
                     details: void 0
                   })
@@ -179126,7 +179130,7 @@ function createFindToolDefinition(cwd, options) {
               resultLimitReached && (notices.push(`${effectiveLimit} results limit reached`), details.resultLimitReached = effectiveLimit), truncation.truncated && (notices.push(`${formatSize(51200)} limit reached`), details.truncation = truncation), notices.length > 0 && (resultOutput += `
 
 [${notices.join(". ")}]`), settle(
-                () => resolve22({
+                () => resolve23({
                   content: [{ type: "text", text: resultOutput }],
                   details: Object.keys(details).length > 0 ? details : void 0
                 })
@@ -179184,7 +179188,7 @@ function createFindToolDefinition(cwd, options) {
               }
               if (!output) {
                 settle(
-                  () => resolve22({
+                  () => resolve23({
                     content: [{ type: "text", text: "No files found matching pattern" }],
                     details: void 0
                   })
@@ -179203,7 +179207,7 @@ function createFindToolDefinition(cwd, options) {
               ), details.resultLimitReached = effectiveLimit), truncation.truncated && (notices.push(`${formatSize(51200)} limit reached`), details.truncation = truncation), notices.length > 0 && (resultOutput += `
 
 [${notices.join(". ")}]`), settle(
-                () => resolve22({
+                () => resolve23({
                   content: [{ type: "text", text: resultOutput }],
                   details: Object.keys(details).length > 0 ? details : void 0
                 })
@@ -179254,7 +179258,7 @@ var findSchema, findToolSystemPromptContribution, DEFAULT_LIMIT, defaultFindOper
 
 // packages/coding-agent/src/core/tools/renderers/grep.ts
 function formatGrepCall(args, theme2) {
-  let pattern = str(args?.pattern), rawPath = str(args?.path), path23 = rawPath !== null ? shortenPath2(rawPath || ".") : null, glob2 = str(args?.glob), limit3 = args?.limit, invalidArg = invalidArgText(theme2), text = theme2.fg("toolTitle", theme2.bold("grep")) + " " + (pattern === null ? invalidArg : theme2.fg("accent", `/${pattern || ""}/`)) + theme2.fg("toolOutput", ` in ${path23 === null ? invalidArg : path23}`);
+  let pattern = str(args?.pattern), rawPath = str(args?.path), path28 = rawPath !== null ? shortenPath2(rawPath || ".") : null, glob2 = str(args?.glob), limit3 = args?.limit, invalidArg = invalidArgText(theme2), text = theme2.fg("toolTitle", theme2.bold("grep")) + " " + (pattern === null ? invalidArg : theme2.fg("accent", `/${pattern || ""}/`)) + theme2.fg("toolOutput", ` in ${path28 === null ? invalidArg : path28}`);
   return glob2 && (text += theme2.fg("toolOutput", ` (${glob2})`)), limit3 !== void 0 && (text += theme2.fg("toolOutput", ` limit ${limit3}`)), text;
 }
 function formatGrepResult(result, options, theme2, showImages) {
@@ -179317,7 +179321,7 @@ function createGrepToolDefinition(cwd, options) {
       context,
       limit: limit3
     }, signal, _onUpdate, ctx) {
-      return new Promise((resolve22, reject) => {
+      return new Promise((resolve23, reject) => {
         if (signal?.aborted) {
           reject(new Error("Operation aborted"));
           return;
@@ -179409,7 +179413,7 @@ function createGrepToolDefinition(cwd, options) {
               }
               if (matchCount === 0) {
                 settle(
-                  () => resolve22({ content: [{ type: "text", text: "No matches found" }], details: void 0 })
+                  () => resolve23({ content: [{ type: "text", text: "No matches found" }], details: void 0 })
                 );
                 return;
               }
@@ -179431,7 +179435,7 @@ function createGrepToolDefinition(cwd, options) {
               ), details.linesTruncated = !0), notices.length > 0 && (output += `
 
 [${notices.join(". ")}]`), settle(
-                () => resolve22({
+                () => resolve23({
                   content: [{ type: "text", text: output }],
                   details: Object.keys(details).length > 0 ? details : void 0
                 })
@@ -179534,8 +179538,8 @@ function createLsToolDefinition(cwd, options) {
     description: `List directory contents. Returns entries sorted alphabetically, with '/' suffix for directories. Includes dotfiles. Output is truncated to ${DEFAULT_LIMIT3} entries or ${51200 / 1024}KB (whichever is hit first).`,
     promptSnippet: lsToolSystemPromptContribution.snippet,
     parameters: lsSchema,
-    async execute(_toolCallId, { path: path23, limit: limit3 }, signal, _onUpdate, ctx) {
-      return new Promise((resolve22, reject) => {
+    async execute(_toolCallId, { path: path28, limit: limit3 }, signal, _onUpdate, ctx) {
+      return new Promise((resolve23, reject) => {
         if (signal?.aborted) {
           reject(new Error("Operation aborted"));
           return;
@@ -179543,7 +179547,7 @@ function createLsToolDefinition(cwd, options) {
         let onAbort = () => reject(new Error("Operation aborted"));
         signal?.addEventListener("abort", onAbort, { once: !0 }), (async () => {
           try {
-            let dirPath = resolveToCwd(path23 || ".", ctx?.cwd || cwd), effectiveLimit = limit3 ?? DEFAULT_LIMIT3;
+            let dirPath = resolveToCwd(path28 || ".", ctx?.cwd || cwd), effectiveLimit = limit3 ?? DEFAULT_LIMIT3;
             if (!await ops.exists(dirPath)) {
               reject(new Error(`Path not found: ${dirPath}`));
               return;
@@ -179575,14 +179579,14 @@ function createLsToolDefinition(cwd, options) {
               results.push(entry + suffix);
             }
             if (signal?.removeEventListener("abort", onAbort), results.length === 0) {
-              resolve22({ content: [{ type: "text", text: "(empty directory)" }], details: void 0 });
+              resolve23({ content: [{ type: "text", text: "(empty directory)" }], details: void 0 });
               return;
             }
             let rawOutput = results.join(`
 `), truncation = truncateHead(rawOutput, { maxLines: Number.MAX_SAFE_INTEGER }), output = truncation.content, details = {}, notices = [];
             entryLimitReached && (notices.push(`${effectiveLimit} entries limit reached. Use limit=${effectiveLimit * 2} for more`), details.entryLimitReached = effectiveLimit), truncation.truncated && (notices.push(`${formatSize(51200)} limit reached`), details.truncation = truncation), notices.length > 0 && (output += `
 
-[${notices.join(". ")}]`), resolve22({
+[${notices.join(". ")}]`), resolve23({
               content: [{ type: "text", text: output }],
               details: Object.keys(details).length > 0 ? details : void 0
             });
@@ -179780,9 +179784,9 @@ function createReadToolDefinition(cwd, options) {
     parameters: readSchema,
     outputSchema: readOutputSchema,
     constrainedSampling: { type: "json_schema", strict: "prefer" },
-    async execute(_toolCallId, { path: path23, offset, limit: limit3 }, signal, _onUpdate, ctx) {
+    async execute(_toolCallId, { path: path28, offset, limit: limit3 }, signal, _onUpdate, ctx) {
       return new Promise(
-        (resolve22, reject) => {
+        (resolve23, reject) => {
           if (signal?.aborted) {
             reject(new Error("Operation aborted"));
             return;
@@ -179792,7 +179796,7 @@ function createReadToolDefinition(cwd, options) {
           };
           signal?.addEventListener("abort", onAbort, { once: !0 }), (async () => {
             try {
-              let absolutePath = await resolveReadPathAsync(path23, ctx?.cwd || cwd);
+              let absolutePath = await resolveReadPathAsync(path28, ctx?.cwd || cwd);
               if (aborted || (await ops.access(absolutePath), aborted)) return;
               let mimeType = ops.detectImageMimeType ? await ops.detectImageMimeType(absolutePath) : void 0, content, details, nonVisionImageNote = getNonVisionImageNote(ctx?.model);
               if (mimeType) {
@@ -179831,7 +179835,7 @@ ${nonVisionImageNote}`), content = [{ type: "text", text: textNote }];
                 let truncation = truncateHead(selectedContent), outputText;
                 if (truncation.firstLineExceedsLimit) {
                   let firstLineSize = formatSize(Buffer.byteLength(allLines[startLine], "utf-8"));
-                  outputText = `[Line ${startLineDisplay} is ${firstLineSize}, exceeds ${formatSize(51200)} limit. Use bash: sed -n '${startLineDisplay}p' ${path23} | head -c ${51200}]`, details = { truncation };
+                  outputText = `[Line ${startLineDisplay} is ${firstLineSize}, exceeds ${formatSize(51200)} limit. Use bash: sed -n '${startLineDisplay}p' ${path28} | head -c ${51200}]`, details = { truncation };
                 } else if (truncation.truncated) {
                   let endLineDisplay = startLineDisplay + truncation.outputLines - 1, nextOffset = endLineDisplay + 1;
                   outputText = truncation.content, truncation.truncatedBy === "lines" ? outputText += `
@@ -179849,7 +179853,7 @@ ${nonVisionImageNote}`), content = [{ type: "text", text: textNote }];
                 content = [{ type: "text", text: outputText }];
               }
               if (aborted) return;
-              signal?.removeEventListener("abort", onAbort), resolve22({ content, details });
+              signal?.removeEventListener("abort", onAbort), resolve23({ content, details });
             } catch (error) {
               signal?.removeEventListener("abort", onAbort), aborted || reject(error);
             }
@@ -179884,8 +179888,8 @@ var readSchema, readToolSystemPromptContribution, readOutputSchema, defaultReadO
       typebox_exports.String(),
       typebox_exports.Object({ type: typebox_exports.Literal("image"), data: typebox_exports.String(), mimeType: typebox_exports.String(), note: typebox_exports.String() })
     ]), defaultReadOperations = {
-      readFile: (path23) => fsReadFile3(path23),
-      access: (path23) => fsAccess3(path23, constants7.R_OK),
+      readFile: (path28) => fsReadFile3(path28),
+      access: (path28) => fsAccess3(path28, constants7.R_OK),
       detectImageMimeType: detectSupportedImageMimeTypeFromFile
     };
   }
@@ -180014,14 +180018,14 @@ function createWriteToolDefinition(cwd, options) {
     promptGuidelines: [...writeToolSystemPromptContribution.guidelines],
     parameters: writeSchema,
     constrainedSampling: { type: "json_schema", strict: "prefer" },
-    async execute(_toolCallId, { path: path23, content }, signal, _onUpdate, ctx) {
-      let absolutePath = resolveToCwd(path23, ctx?.cwd || cwd), dir = dirname15(absolutePath);
+    async execute(_toolCallId, { path: path28, content }, signal, _onUpdate, ctx) {
+      let absolutePath = resolveToCwd(path28, ctx?.cwd || cwd), dir = dirname15(absolutePath);
       return withFileMutationQueue(absolutePath, async () => {
         let throwIfAborted = () => {
           if (signal?.aborted) throw new Error("Operation aborted");
         };
         return throwIfAborted(), await ops.mkdir(dir), throwIfAborted(), await ops.writeFile(absolutePath, content), throwIfAborted(), {
-          content: [{ type: "text", text: `Successfully wrote to ${path23}` }],
+          content: [{ type: "text", text: `Successfully wrote to ${path28}` }],
           details: void 0
         };
       });
@@ -180047,7 +180051,7 @@ var writeSchema, writeToolSystemPromptContribution, defaultWriteOperations, init
       snippet: "Create or overwrite files",
       guidelines: ["Use write only for new files or complete rewrites."]
     }, defaultWriteOperations = {
-      writeFile: (path23, content) => fsWriteFile2(path23, content, "utf-8"),
+      writeFile: (path28, content) => fsWriteFile2(path28, content, "utf-8"),
       mkdir: (dir) => fsMkdir(dir, { recursive: !0 }).then(() => {
       })
     };
@@ -180620,15 +180624,15 @@ var AgentSession, init_agent_session = __esm({
         this._extensionRunner.hasHandlers("session_compact_failed") && await this._extensionRunner.emit({ type: "session_compact_failed", ...event });
       }
       _getIdleWaitPromise() {
-        return this._idleWaitPromise || (this._idleWaitPromise = new Promise((resolve22) => {
-          this._resolveIdleWait = resolve22;
+        return this._idleWaitPromise || (this._idleWaitPromise = new Promise((resolve23) => {
+          this._resolveIdleWait = resolve23;
         })), this._idleWaitPromise;
       }
       _resolveIdleWaitIfIdle() {
         if (!this.isIdle || !this._resolveIdleWait)
           return;
-        let resolve22 = this._resolveIdleWait;
-        this._idleWaitPromise = void 0, this._resolveIdleWait = void 0, resolve22();
+        let resolve23 = this._resolveIdleWait;
+        this._idleWaitPromise = void 0, this._resolveIdleWait = void 0, resolve23();
       }
       async _emitAgentSettled() {
         this._cacheWarmer?.onAgentSettled(), this._isAgentRunActive = !1, this._isEmittingAgentSettled = !0;
@@ -183255,42 +183259,42 @@ function getProjectTrustOptions(cwd, options) {
     savedPath: trustPath
   }), options?.includeSessionOnly && trustOptions.push({ label: "\u041D\u0435 \u0434\u043E\u0432\u0435\u0440\u044F\u0442\u044C (\u0442\u043E\u043B\u044C\u043A\u043E \u0434\u043B\u044F \u044D\u0442\u043E\u0439 \u0441\u0435\u0441\u0441\u0438\u0438)", trusted: !1, updates: [] }), trustOptions;
 }
-function readTrustFile(path23) {
-  if (!existsSync17(path23))
+function readTrustFile(path28) {
+  if (!existsSync17(path28))
     return {};
   let parsed;
   try {
-    parsed = JSON.parse(stripBom(readFileSync12(path23, "utf-8")));
+    parsed = JSON.parse(stripBom(readFileSync12(path28, "utf-8")));
   } catch (error) {
     let message = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to read trust store ${path23}: ${message}`);
+    throw new Error(`Failed to read trust store ${path28}: ${message}`);
   }
   if (typeof parsed != "object" || parsed === null || Array.isArray(parsed))
-    throw new Error(`Invalid trust store ${path23}: expected an object`);
+    throw new Error(`Invalid trust store ${path28}: expected an object`);
   let data = {};
   for (let [key, value] of Object.entries(parsed)) {
     if (value !== !0 && value !== !1 && value !== null)
-      throw new Error(`Invalid trust store ${path23}: value for ${JSON.stringify(key)} must be true, false, or null`);
+      throw new Error(`Invalid trust store ${path28}: value for ${JSON.stringify(key)} must be true, false, or null`);
     data[key] = value;
   }
   return data;
 }
-function writeTrustFile(path23, data) {
+function writeTrustFile(path28, data) {
   let sorted = {};
   for (let key of Object.keys(data).sort()) {
     let value = data[key];
     (value === !0 || value === !1 || value === null) && (sorted[key] = value);
   }
-  mkdirSync8(dirname17(path23), { recursive: !0 }), writeFileSync8(path23, `${JSON.stringify(sorted, null, 2)}
+  mkdirSync8(dirname17(path28), { recursive: !0 }), writeFileSync8(path28, `${JSON.stringify(sorted, null, 2)}
 `, "utf-8");
 }
-function acquireTrustLockSync(path23) {
-  let trustDir = dirname17(path23);
+function acquireTrustLockSync(path28) {
+  let trustDir = dirname17(path28);
   mkdirSync8(trustDir, { recursive: !0 });
   let maxAttempts = 10, delayMs = 20, lastError;
   for (let attempt2 = 1; attempt2 <= maxAttempts; attempt2++)
     try {
-      return import_proper_lockfile3.default.lockSync(trustDir, { realpath: !1, lockfilePath: `${path23}.lock` });
+      return import_proper_lockfile3.default.lockSync(trustDir, { realpath: !1, lockfilePath: `${path28}.lock` });
     } catch (error) {
       if ((typeof error == "object" && error !== null && "code" in error ? String(error.code) : void 0) !== "ELOCKED" || attempt2 === maxAttempts)
         throw error;
@@ -183301,8 +183305,8 @@ function acquireTrustLockSync(path23) {
     }
   throw lastError instanceof Error ? lastError : new Error("Failed to acquire trust store lock");
 }
-function withTrustFileLock(path23, fn) {
-  let release2 = acquireTrustLockSync(path23);
+function withTrustFileLock(path28, fn) {
+  let release2 = acquireTrustLockSync(path28);
   try {
     return fn();
   } finally {
@@ -183360,8 +183364,8 @@ var import_proper_lockfile3, TRUST_REQUIRING_PROJECT_CONFIG_RESOURCES, ProjectTr
       setMany(decisions) {
         withTrustFileLock(this.trustPath, () => {
           let data = readTrustFile(this.trustPath);
-          for (let { path: path23, decision } of decisions) {
-            let key = normalizeCwd(path23);
+          for (let { path: path28, decision } of decisions) {
+            let key = normalizeCwd(path28);
             decision === null ? delete data[key] : data[key] = decision;
           }
           writeTrustFile(this.trustPath, data);
@@ -183719,8 +183723,8 @@ var DEFAULT_TIMEOUT_MS, IDENTIFIER2, RESERVED_GLOBALS, BridgeError, Execution, C
       /** Whether the execution has its outcome. */
       finished = !1;
       constructor(options) {
-        if (this.promise = new Promise((resolve22) => {
-          this.resolveResult = resolve22;
+        if (this.promise = new Promise((resolve23) => {
+          this.resolveResult = resolve23;
         }), this.executors = options.executors, this.control = options.control, this.signal = options.signal, Number.isFinite(options.timeoutMs) && (this.timer = setTimeout(() => {
           this.finish({ kind: "timeout", message: `Execution timed out after ${options.timeoutMs} ms` });
         }, options.timeoutMs)), options.signal && (options.signal.aborted ? this.onAbort() : options.signal.addEventListener("abort", this.onAbort, { once: !0 })), this.finished) return;
@@ -183739,7 +183743,7 @@ var DEFAULT_TIMEOUT_MS, IDENTIFIER2, RESERVED_GLOBALS, BridgeError, Execution, C
           message: (message) => this.receive(message),
           failure: (error) => this.finish(error)
         };
-        new Promise((resolve22) => resolve22(options.launch(data, events))).then(
+        new Promise((resolve23) => resolve23(options.launch(data, events))).then(
           (channel) => {
             if (this.finished) {
               channel.stop().catch(() => {
@@ -183979,8 +183983,8 @@ var DEFAULT_TIMEOUT_MS, IDENTIFIER2, RESERVED_GLOBALS, BridgeError, Execution, C
 // packages/codemode/src/wasm.ts
 import { readFile as readFile5 } from "node:fs/promises";
 import { createRequire as createRequire5 } from "node:module";
-function loadQuickJSWasm(path23) {
-  let resolved = path23 ?? createRequire5(import.meta.url).resolve("quickjs-wasi/quickjs.wasm"), module = modules.get(resolved);
+function loadQuickJSWasm(path28) {
+  let resolved = path28 ?? createRequire5(import.meta.url).resolve("quickjs-wasi/quickjs.wasm"), module = modules.get(resolved);
   if (!module) {
     let { WebAssembly: WebAssembly2 } = globalThis;
     module = readFile5(resolved).then((bytes) => WebAssembly2.compile(bytes)).catch((error) => {
@@ -184844,7 +184848,7 @@ function checkImagesContext(context) {
 function createLimiter(limit3) {
   let active = 0, waiting = [];
   return async (run) => {
-    active >= limit3 && await new Promise((resolve22) => waiting.push(resolve22)), active++;
+    active >= limit3 && await new Promise((resolve23) => waiting.push(resolve23)), active++;
     try {
       return await run();
     } finally {
@@ -185498,49 +185502,49 @@ function isOverride(value) {
 function isRecord3(value) {
   return typeof value == "object" && value !== null && !Array.isArray(value);
 }
-function readConfigFile(path23, scope, state3) {
+function readConfigFile(path28, scope, state3) {
   let { servers, errors } = state3;
-  if (!existsSync18(path23)) return;
+  if (!existsSync18(path28)) return;
   let parsed;
   try {
-    parsed = JSON.parse(readFileSync13(path23, "utf8"));
+    parsed = JSON.parse(readFileSync13(path28, "utf8"));
   } catch (error) {
-    errors.push(`${path23}: ${error instanceof Error ? error.message : String(error)}`);
+    errors.push(`${path28}: ${error instanceof Error ? error.message : String(error)}`);
     return;
   }
   if (!isRecord3(parsed) || parsed.mcpServers !== void 0 && !isRecord3(parsed.mcpServers)) {
-    errors.push(`${path23}: expected an object with an "mcpServers" object`);
+    errors.push(`${path28}: expected an object with an "mcpServers" object`);
     return;
   }
-  typeof parsed.autoEnableCodemode == "boolean" ? state3.autoEnableCodemode = parsed.autoEnableCodemode : parsed.autoEnableCodemode !== void 0 && errors.push(`${path23}: autoEnableCodemode must be a boolean`);
+  typeof parsed.autoEnableCodemode == "boolean" ? state3.autoEnableCodemode = parsed.autoEnableCodemode : parsed.autoEnableCodemode !== void 0 && errors.push(`${path28}: autoEnableCodemode must be a boolean`);
   for (let [name, value] of Object.entries(parsed.mcpServers ?? {})) {
     if (scope === "project" && isRecord3(value) && isOverride(value)) {
       let base = servers.get(name), extra = Object.keys(value).filter((key) => !OVERRIDE_KEYS.includes(key));
       if (!base)
-        errors.push(`${path23}: server "${name}" needs "command" or "url", or a global server to override`);
+        errors.push(`${path28}: server "${name}" needs "command" or "url", or a global server to override`);
       else if (extra.length > 0)
-        errors.push(`${path23}: server "${name}": an override can only set ${OVERRIDE_KEYS.join(", ")}`);
+        errors.push(`${path28}: server "${name}": an override can only set ${OVERRIDE_KEYS.join(", ")}`);
       else {
         let config2 = validateMcpServerConfig(name, { ...base.config, ...value });
-        typeof config2 == "string" ? errors.push(`${path23}: ${config2}`) : servers.set(name, { ...base, config: config2, override: path23 });
+        typeof config2 == "string" ? errors.push(`${path28}: ${config2}`) : servers.set(name, { ...base, config: config2, override: path28 });
       }
       continue;
     }
     let config = validateMcpServerConfig(name, value);
     if (typeof config == "string") {
-      errors.push(`${path23}: ${config}`);
+      errors.push(`${path28}: ${config}`);
       continue;
     }
     let clash = [...servers.keys()].find((other) => other !== name && mcpNamespace(other) === mcpNamespace(name));
     if (clash) {
-      errors.push(`${path23}: server "${name}" conflicts with "${clash}"`);
+      errors.push(`${path28}: server "${name}" conflicts with "${clash}"`);
       continue;
     }
     if (scope === "project" && "url" in config && config.auth) {
-      errors.push(`${path23}: server "${name}": auth is only allowed in the global mcp.json`);
+      errors.push(`${path28}: server "${name}": auth is only allowed in the global mcp.json`);
       continue;
     }
-    servers.set(name, { name, config, source: path23, scope });
+    servers.set(name, { name, config, source: path28, scope });
   }
 }
 function loadMcpConfig(options) {
@@ -185554,34 +185558,34 @@ function loadMcpConfig(options) {
     ...projectConfig ? { projectConfig } : {}
   };
 }
-function updateMcpServerConfig(path23, name, patch, options = {}) {
-  editMcpServers(path23, (servers, parsed) => {
+function updateMcpServerConfig(path28, name, patch, options = {}) {
+  editMcpServers(path28, (servers, parsed) => {
     let server = servers?.[name];
-    if (server === void 0 && options.override && (server = {}, parsed.mcpServers = { ...servers, [name]: server }), !isRecord3(server)) throw new Error(`${path23} does not define MCP server "${name}"`);
+    if (server === void 0 && options.override && (server = {}, parsed.mcpServers = { ...servers, [name]: server }), !isRecord3(server)) throw new Error(`${path28} does not define MCP server "${name}"`);
     let keepDefaults = isOverride(server);
     return patch.enabled !== void 0 && (patch.enabled && !keepDefaults ? delete server.enabled : server.enabled = patch.enabled), patch.exposure !== void 0 && (patch.exposure === "codemode" && !keepDefaults ? delete server.exposure : server.exposure = patch.exposure), !0;
   });
 }
-function addMcpServerConfig(path23, name, config) {
+function addMcpServerConfig(path28, name, config) {
   let replaced = !1;
-  return editMcpServers(path23, (servers, parsed) => {
+  return editMcpServers(path28, (servers, parsed) => {
     let target = servers ?? {};
     return replaced = target[name] !== void 0, target[name] = config, parsed.mcpServers = target, !0;
   }), replaced;
 }
-function removeMcpServerConfig(path23, name) {
-  if (!existsSync18(path23)) return !1;
+function removeMcpServerConfig(path28, name) {
+  if (!existsSync18(path28)) return !1;
   let removed = !1;
-  return editMcpServers(path23, (servers) => !servers || servers[name] === void 0 ? !1 : (delete servers[name], removed = !0, !0)), removed;
+  return editMcpServers(path28, (servers) => !servers || servers[name] === void 0 ? !1 : (delete servers[name], removed = !0, !0)), removed;
 }
-function editMcpServers(path23, edit) {
-  let text = existsSync18(path23) ? readFileSync13(path23, "utf8") : void 0, parsed = text === void 0 ? {} : JSON.parse(text);
+function editMcpServers(path28, edit) {
+  let text = existsSync18(path28) ? readFileSync13(path28, "utf8") : void 0, parsed = text === void 0 ? {} : JSON.parse(text);
   if (!isRecord3(parsed) || parsed.mcpServers !== void 0 && !isRecord3(parsed.mcpServers))
-    throw new Error(`${path23}: expected an object with an "mcpServers" object`);
+    throw new Error(`${path28}: expected an object with an "mcpServers" object`);
   let servers = isRecord3(parsed.mcpServers) ? parsed.mcpServers : void 0;
   if (!edit(servers, parsed)) return;
   let indent = text && /^([ \t]+)\S/m.exec(text)?.[1] || "  ";
-  mkdirSync9(dirname18(path23), { recursive: !0 }), writeFileSync9(path23, `${JSON.stringify(parsed, null, indent)}
+  mkdirSync9(dirname18(path28), { recursive: !0 }), writeFileSync9(path28, `${JSON.stringify(parsed, null, indent)}
 `);
 }
 var OVERRIDE_KEYS, init_config3 = __esm({
@@ -185880,9 +185884,9 @@ var DEFAULT_REQUEST_TIMEOUT_MS, MAX_LIST_PAGES, isTool, isResource, isResourceTe
           method,
           ...requestParams === void 0 ? {} : { params: requestParams }
         };
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           let entry = {
-            resolve: resolve22,
+            resolve: resolve23,
             reject,
             timeoutMs: options.timeoutMs ?? this.options.requestTimeoutMs ?? DEFAULT_REQUEST_TIMEOUT_MS,
             timer: void 0,
@@ -186174,9 +186178,9 @@ var import_cross_spawn2, DEFAULT_MAX_STDERR_BYTES, DEFAULT_CLOSE_TIMEOUT_MS, STD
           this.closed || this.emitError(error);
         }), child.stderr?.on("data", (chunk) => this.handleStderr(chunk)), child.stderr?.on("error", (error) => this.emitError(error)), child.on("close", () => {
           this.child = void 0, this.stdoutBuffer.toString("utf8").trim() && this.emitError(new Error("MCP stdio server closed with an incomplete JSON-RPC message")), this.stdoutBuffer = Buffer.alloc(0), this.emitClose();
-        }), await new Promise((resolve22, reject) => {
+        }), await new Promise((resolve23, reject) => {
           let onSpawn = () => {
-            child.off("error", onError), resolve22();
+            child.off("error", onError), resolve23();
           }, onError = (error) => {
             child.off("spawn", onSpawn), reject(error);
           };
@@ -186190,8 +186194,8 @@ var import_cross_spawn2, DEFAULT_MAX_STDERR_BYTES, DEFAULT_CLOSE_TIMEOUT_MS, STD
         if (!this.started || this.closed || !stdin?.writable) throw new McpConnectionClosedError();
         let payload = `${JSON.stringify(message)}
 `;
-        await new Promise((resolve22, reject) => {
-          stdin.write(payload, (error) => error ? reject(error) : resolve22());
+        await new Promise((resolve23, reject) => {
+          stdin.write(payload, (error) => error ? reject(error) : resolve23());
         });
       }
       async close() {
@@ -186207,11 +186211,11 @@ var import_cross_spawn2, DEFAULT_MAX_STDERR_BYTES, DEFAULT_CLOSE_TIMEOUT_MS, STD
           return;
         }
         let closeTimeoutMs = this.options.closeTimeoutMs ?? DEFAULT_CLOSE_TIMEOUT_MS;
-        await new Promise((resolve22) => {
+        await new Promise((resolve23) => {
           let timers = [];
           child.once("close", () => {
             for (let timer of timers) clearTimeout(timer);
-            killProcessTree2(child, "SIGTERM"), resolve22();
+            killProcessTree2(child, "SIGTERM"), resolve23();
           });
           let grace = Math.min(STDIN_CLOSE_GRACE_MS, closeTimeoutMs);
           timers.push(setTimeout(() => killProcessTree2(child, "SIGTERM"), grace)), timers.push(setTimeout(() => killProcessTree2(child, "SIGKILL"), grace + closeTimeoutMs)), child.stdin?.end();
@@ -186558,11 +186562,11 @@ var MAX_ERROR_BODY_BYTES, ERROR_MESSAGE_BODY_CHARS, DEFAULT_RECONNECT_INITIAL_DE
       /** Resolves false when the transport closed while waiting. */
       sleep(ms) {
         let signal = this.controller.signal;
-        return signal.aborted ? Promise.resolve(!1) : new Promise((resolve22) => {
+        return signal.aborted ? Promise.resolve(!1) : new Promise((resolve23) => {
           let onAbort = () => {
-            clearTimeout(timer), resolve22(!1);
+            clearTimeout(timer), resolve23(!1);
           }, timer = setTimeout(() => {
-            signal.removeEventListener("abort", onAbort), resolve22(!0);
+            signal.removeEventListener("abort", onAbort), resolve23(!0);
           }, ms);
           timer.unref?.(), signal.addEventListener("abort", onAbort, { once: !0 });
         });
@@ -186645,8 +186649,8 @@ ${where}` }, ...content.filter((block) => block.type === "image")],
   };
 }
 function extensionOf(uri) {
-  let path23 = URL.canParse(uri) ? new URL(uri).pathname : uri;
-  return /\.[A-Za-z0-9]{1,8}$/.exec(path23)?.[0] ?? ".bin";
+  let path28 = URL.canParse(uri) ? new URL(uri).pathname : uri;
+  return /\.[A-Za-z0-9]{1,8}$/.exec(path28)?.[0] ?? ".bin";
 }
 function isTextMimeType(mimeType) {
   if (!mimeType) return !1;
@@ -186668,8 +186672,8 @@ async function blockToContent(server, block, options) {
     if (isTextMimeType(mimeType)) return [{ type: "text", text: data.toString("utf8") }];
     let kind = `${mimeType ?? "unknown type"}, ${formatSize(data.length)}`;
     try {
-      let path23 = await (options.saveOutput ?? saveToTempFile)(data, extensionOf(uri));
-      return [{ type: "text", text: `[Binary resource ${uri} (${kind}) saved to ${path23}]` }];
+      let path28 = await (options.saveOutput ?? saveToTempFile)(data, extensionOf(uri));
+      return [{ type: "text", text: `[Binary resource ${uri} (${kind}) saved to ${path28}]` }];
     } catch (error) {
       let reason = error instanceof Error ? error.message : String(error);
       return [{ type: "text", text: `[Binary resource ${uri} (${kind}) could not be saved: ${reason}]` }];
@@ -187049,18 +187053,18 @@ var OAuthCallbackServer, init_callback2 = __esm({
         this.server = server, this.redirectUrl = redirectUrl, this.paths = paths, this.timeoutMs = timeoutMs, this.renderPage = renderPage2;
       }
       static async listen(options = {}) {
-        let host = options.host ?? "127.0.0.1", redirectHost = options.redirectHost ?? host, path23 = options.path ?? "/callback", instance, server = createServer((request, response) => instance?.handle(request.url ?? "/", response));
-        await new Promise((resolve22, reject) => {
+        let host = options.host ?? "127.0.0.1", redirectHost = options.redirectHost ?? host, path28 = options.path ?? "/callback", instance, server = createServer((request, response) => instance?.handle(request.url ?? "/", response));
+        await new Promise((resolve23, reject) => {
           server.once("error", reject), server.listen(options.port ?? 0, host, () => {
-            server.off("error", reject), resolve22();
+            server.off("error", reject), resolve23();
           });
         });
         let address = server.address();
         if (!address || typeof address == "string") throw new Error("OAuth callback server did not bind to TCP");
         return instance = new _OAuthCallbackServer(
           server,
-          `http://${redirectHost.includes(":") ? `[${redirectHost}]` : redirectHost}:${address.port}${path23}`,
-          [path23, ...options.extraPaths ?? []],
+          `http://${redirectHost.includes(":") ? `[${redirectHost}]` : redirectHost}:${address.port}${path28}`,
+          [path28, ...options.extraPaths ?? []],
           options.timeoutMs ?? 5 * 6e4,
           options.renderPage
         ), instance;
@@ -187069,20 +187073,20 @@ var OAuthCallbackServer, init_callback2 = __esm({
        * Wait for the authorization response with `state`. With `path`, a response on another path fails, so
        * a server-specific redirect URI can tell authorization servers apart (RFC 9700 section 4.4.2.2).
        */
-      waitForCallback(state3, path23) {
+      waitForCallback(state3, path28) {
         if (this.pending.has(state3)) throw new Error("OAuth state is already pending");
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           let timer = setTimeout(() => {
             this.pending.delete(state3), reject(new Error("OAuth callback timed out"));
           }, this.timeoutMs);
-          this.pending.set(state3, { resolve: resolve22, reject, timer, path: path23 });
+          this.pending.set(state3, { resolve: resolve23, reject, timer, path: path28 });
         });
       }
       async close() {
         for (let pending of this.pending.values())
           clearTimeout(pending.timer), pending.reject(new Error("OAuth callback server closed"));
-        this.pending.clear(), await new Promise((resolve22, reject) => {
-          this.server.close((error) => error ? reject(error) : resolve22());
+        this.pending.clear(), await new Promise((resolve23, reject) => {
+          this.server.close((error) => error ? reject(error) : resolve23());
         });
       }
       reply(response, status, page) {
@@ -187318,11 +187322,11 @@ async function discoverProtectedResourceMetadata(serverUrl, options = {}) {
   return parseProtectedResourceMetadata(await response.json());
 }
 function buildAuthorizationServerDiscoveryUrls(authorizationServerUrl) {
-  let issuer = new URL(authorizationServerUrl), path23 = pathSuffix(issuer.pathname), urls = [
-    { url: new URL(`/.well-known/oauth-authorization-server${path23}`, issuer.origin), type: "oauth" },
-    { url: new URL(`/.well-known/openid-configuration${path23}`, issuer.origin), type: "oidc" }
+  let issuer = new URL(authorizationServerUrl), path28 = pathSuffix(issuer.pathname), urls = [
+    { url: new URL(`/.well-known/oauth-authorization-server${path28}`, issuer.origin), type: "oauth" },
+    { url: new URL(`/.well-known/openid-configuration${path28}`, issuer.origin), type: "oidc" }
   ];
-  return path23 && urls.push({ url: new URL(`${path23}/.well-known/openid-configuration`, issuer.origin), type: "oidc" }), urls;
+  return path28 && urls.push({ url: new URL(`${path28}/.well-known/openid-configuration`, issuer.origin), type: "oidc" }), urls;
 }
 async function discoverAuthorizationServerMetadata(authorizationServerUrl, options = {}) {
   let fetch3 = options.fetch ?? globalThis.fetch;
@@ -188136,8 +188140,8 @@ var MAX_LOG_BYTES, McpServerLog, init_log3 = __esm({
     McpServerLog = class {
       path;
       size;
-      constructor(path23) {
-        this.path = path23;
+      constructor(path28) {
+        this.path = path28;
       }
       write(server, params) {
         let line = formatMcpLogMessage(server, params);
@@ -188347,7 +188351,7 @@ var DEFAULT_TIMEOUT_SECONDS, STDERR_TAIL_CHARS, CONNECT_RETRY_DELAYS_MS, McpServ
             return await run(client);
           } catch (error) {
             if (readOnly && attempt2 === 1 && error instanceof McpHttpError && isTransientError(error)) {
-              await new Promise((resolve22) => setTimeout(resolve22, CONNECT_RETRY_DELAYS_MS[0]));
+              await new Promise((resolve23) => setTimeout(resolve23, CONNECT_RETRY_DELAYS_MS[0]));
               continue;
             }
             if (error instanceof McpSessionExpiredError && attempt2 === 1) {
@@ -188480,12 +188484,12 @@ var loadMcpRuntime, init_runtime_lazy = __esm({
 // packages/coding-agent/src/utils/clipboard-command.ts
 import { spawn as spawn10 } from "node:child_process";
 function runClipboardCommand(command, args, options) {
-  return new Promise((resolve22) => {
+  return new Promise((resolve23) => {
     let child = spawn10(command, args, {
       stdio: ["pipe", options?.input === void 0 ? "pipe" : "ignore", "ignore"],
       windowsHide: !0
     }), chunks = [], length = 0, settled = !1, finish = (result) => {
-      settled || (settled = !0, clearTimeout(timer), resolve22(result));
+      settled || (settled = !0, clearTimeout(timer), resolve23(result));
     }, abort = () => {
       child.kill("SIGKILL"), child.stdout?.destroy(), child.stdin?.destroy(), finish(void 0);
     }, timer = setTimeout(abort, options?.timeoutMs ?? 3e3);
@@ -188689,9 +188693,9 @@ var MAX_VISIBLE_ITEMS, McpManagerView, init_ui = __esm({
         this.inputTarget && (this.inputTarget.focused = !1), this.content = content, this.inputHandler = inputHandler, this.inputTarget = inputTarget, this.inputTarget && (this.inputTarget.focused = this._focused), this.tui.requestRender();
       }
       menu(build, subscribe) {
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           let unsubscribe, settled = !1, finish = (value) => {
-            settled || (settled = !0, unsubscribe?.(), resolve22(value));
+            settled || (settled = !0, unsubscribe?.(), resolve23(value));
           }, selected, render2 = () => {
             let menu = build(), wanted = selected ?? menu.selected, body = [];
             menu.details && body.push(new Text(this.theme.fg("muted", menu.details), 1, 0)), menu.error && body.push(new Text(this.theme.fg("error", menu.error), 1, 0)), body.push(new Spacer(1));
@@ -188730,9 +188734,9 @@ var MAX_VISIBLE_ITEMS, McpManagerView, init_ui = __esm({
         });
       }
       redirectUrl(title, authorizationUrl, signal) {
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           let settled = !1, finish = (value) => {
-            settled || (settled = !0, signal.removeEventListener("abort", onAbort), resolve22(value));
+            settled || (settled = !0, signal.removeEventListener("abort", onAbort), resolve23(value));
           }, onAbort = () => finish(void 0);
           if (signal.aborted) {
             finish(void 0);
@@ -189051,8 +189055,8 @@ function createMcpExtension(options = {}) {
         let onAbort;
         if (await Promise.race([
           Promise.all(ready.map((attempt2) => attempt2.ready)),
-          new Promise((resolve22) => {
-            onAbort = () => resolve22(), signal?.addEventListener("abort", onAbort, { once: !0 });
+          new Promise((resolve23) => {
+            onAbort = () => resolve23(), signal?.addEventListener("abort", onAbort, { once: !0 });
           })
         ]), onAbort && signal?.removeEventListener("abort", onAbort), signal?.aborted || ready.every(
           (attempt2) => !isEnabled(attempt2.server) || !servers.includes(attempt2.server) || attempt2.ready === attempt2.server.ready
@@ -189369,7 +189373,7 @@ ${url.href}`, "info"), openUrl(url.href);
         reportProblems(ctx);
         return;
       }
-      let runtime = new Promise((resolve22) => setImmediate(resolve22)).then(() => loadMcpRuntime());
+      let runtime = new Promise((resolve23) => setImmediate(resolve23)).then(() => loadMcpRuntime());
       pending = Promise.all(enabled.map((server) => startConnection(server, runtime))).then(() => {
         signal.aborted || reportProblems(ctx);
       }).catch((error) => {
@@ -189388,8 +189392,8 @@ ${url.href}`, "info"), openUrl(url.href);
       if (ready.length === 0) return;
       let timer, finished2 = await Promise.race([
         Promise.all(ready).then(() => !0),
-        new Promise((resolve22) => {
-          timer = setTimeout(() => resolve22(!1), startupWaitMs);
+        new Promise((resolve23) => {
+          timer = setTimeout(() => resolve23(!1), startupWaitMs);
         })
       ]);
       clearTimeout(timer), finished2 || ctx.ui.notify("MCP servers are still connecting; their tools become available once connected.", "info");
@@ -189621,9 +189625,9 @@ import { dirname as dirname20, join as join33 } from "node:path";
 function crashLogPath(agentDir = getAgentDir()) {
   return join33(agentDir, "crashes.json");
 }
-function readCrashLog(path23 = crashLogPath()) {
+function readCrashLog(path28 = crashLogPath()) {
   try {
-    let records = JSON.parse(readFileSync15(path23, "utf8"));
+    let records = JSON.parse(readFileSync15(path28, "utf8"));
     return Array.isArray(records) ? records.filter(
       (record) => typeof record == "object" && record !== null && typeof record.timestamp == "string" && typeof record.message == "string"
     ) : [];
@@ -189631,8 +189635,8 @@ function readCrashLog(path23 = crashLogPath()) {
     return [];
   }
 }
-function writeCrashLog(records, path23) {
-  mkdirSync12(dirname20(path23), { recursive: !0 }), writeFileSync11(path23, `${JSON.stringify(records, null, 2)}
+function writeCrashLog(records, path28) {
+  mkdirSync12(dirname20(path28), { recursive: !0 }), writeFileSync11(path28, `${JSON.stringify(records, null, 2)}
 `);
 }
 function normalizeStackPath(value) {
@@ -189670,7 +189674,7 @@ function findExtensionStackMatches(stack, extensions) {
   }
   return matches;
 }
-function recordCrash(crash, path23 = crashLogPath()) {
+function recordCrash(crash, path28 = crashLogPath()) {
   try {
     let { error } = crash, record = {
       timestamp: (/* @__PURE__ */ new Date()).toISOString(),
@@ -189681,27 +189685,27 @@ function recordCrash(crash, path23 = crashLogPath()) {
       sessionFile: crash.sessionFile ?? null,
       cwd: crash.cwd
     };
-    return writeCrashLog([...readCrashLog(path23), record].slice(-MAX_CRASH_RECORDS), path23), record;
+    return writeCrashLog([...readCrashLog(path28), record].slice(-MAX_CRASH_RECORDS), path28), record;
   } catch {
     return;
   }
 }
-function takeUnnotifiedCrash(path23 = crashLogPath(), now = Date.now()) {
-  let records = readCrashLog(path23), crash = [...records].reverse().find((record) => !record.notified && now - Date.parse(record.timestamp) <= MAX_AGE);
+function takeUnnotifiedCrash(path28 = crashLogPath(), now = Date.now()) {
+  let records = readCrashLog(path28), crash = [...records].reverse().find((record) => !record.notified && now - Date.parse(record.timestamp) <= MAX_AGE);
   if (crash) {
     try {
       writeCrashLog(
         records.map((record) => record.notified ? record : { ...record, notified: !0 }),
-        path23
+        path28
       );
     } catch {
     }
     return crash;
   }
 }
-function clearCrashLog(path23 = crashLogPath()) {
+function clearCrashLog(path28 = crashLogPath()) {
   try {
-    rmSync3(path23, { force: !0 });
+    rmSync3(path28, { force: !0 });
   } catch {
   }
 }
@@ -190356,12 +190360,12 @@ async function editInExternalEditor(options) {
     let [editor, ...editorArgs] = options.command.split(" ");
     return process.stdout.write(`Launching external editor: ${options.command}
 Pi will resume when the editor exits.
-`), await new Promise((resolve22) => {
+`), await new Promise((resolve23) => {
       let child = spawn11(editor, [...editorArgs, filePath], {
         stdio: "inherit",
         shell: process.platform === "win32"
       });
-      child.on("error", () => resolve22(null)), child.on("close", (code) => resolve22(code));
+      child.on("error", () => resolve23(null)), child.on("close", (code) => resolve23(code));
     }) !== 0 ? { status: "failed" } : { status: "complete", content: stripBom(readFileSync19(filePath, "utf-8")).replace(/\n$/, "") };
   } finally {
     try {
@@ -190548,14 +190552,14 @@ async function shareViaGist(tmpFile, context) {
     proc?.kill(), restoreEditor(loader, context), context.showStatus("Share cancelled");
   };
   try {
-    let result = await new Promise((resolve22) => {
+    let result = await new Promise((resolve23) => {
       proc = spawn12("gh", ["gist", "create", "--public=false", tmpFile]);
       let stdout = "", stderr = "";
       proc.stdout?.on("data", (data) => {
         stdout += data.toString();
       }), proc.stderr?.on("data", (data) => {
         stderr += data.toString();
-      }), proc.on("close", (code) => resolve22({ stdout, stderr, code }));
+      }), proc.on("close", (code) => resolve23({ stdout, stderr, code }));
     });
     if (loader.signal.aborted) return;
     if (restoreEditor(loader, context), result.code !== 0) {
@@ -190748,9 +190752,9 @@ function recordInSession(session, bundle, delivery) {
   }), bundle.diagnostics.crashes.length > 0 && clearCrashLog();
 }
 function input(context, title, description, initialValue) {
-  return new Promise((resolve22) => {
+  return new Promise((resolve23) => {
     let component, finish = (value) => {
-      restoreEditor2(context, component), resolve22(value);
+      restoreEditor2(context, component), resolve23(value);
     };
     component = new ExtensionEditorComponent(
       context.ui,
@@ -190765,9 +190769,9 @@ function input(context, title, description, initialValue) {
   });
 }
 function choose(context, title, options, description) {
-  return new Promise((resolve22) => {
+  return new Promise((resolve23) => {
     let component, finish = (value) => {
-      restoreEditor2(context, component), resolve22(value);
+      restoreEditor2(context, component), resolve23(value);
     };
     component = new ExtensionSelectorComponent(title, options, finish, () => finish(), {
       tui: context.ui,
@@ -191762,8 +191766,8 @@ function createModel(columns, rows, pixel, options) {
     origin: options.origin
   };
 }
-function piLogoModel(origin) {
-  return createModel(4, 4, (column, row) => PI_LOGO_COLORS[PI_LOGO_PIXELS[row][column]], {
+function perunLogoModel(origin) {
+  return createModel(4, 4, (column, row) => PERUN_P_COLORS[PERUN_CYRILLIC_P_PIXELS[row][column]], {
     cameraDistance: 10,
     widthShare: 0.35,
     puzzleMoves: (random) => random < 0.4 ? 2 : 1,
@@ -191928,11 +191932,11 @@ async function playEasterEgg3d(tui, screen, egg) {
     playing = !1;
     return;
   }
-  let model = egg.kind === "armin" ? arminModel(toRgb(theme.colors.accent)) : piLogoModel({ column: egg.column, row: egg.row }), animation = new EasterEgg3dAnimation(tui, screen, model, colors, () => {
+  let model = egg.kind === "armin" ? arminModel(toRgb(theme.colors.accent)) : perunLogoModel({ column: egg.column, row: egg.row }), animation = new EasterEgg3dAnimation(tui, screen, model, colors, () => {
     playing = !1, overlay.hide();
   }), overlay = tui.showOverlay(animation, { anchor: "top-left", width: "100%", maxHeight: "100%" });
 }
-var DEPTH, FLY_START, FLY_DURATION, START_SCALE, CORAL, BLUE, YELLOW, PI_LOGO_PIXELS, PI_LOGO_COLORS, PUZZLE_START, PUZZLE_STEP, PUZZLE_STEPS, PUZZLE_RETURN, PUZZLE_HOLD, PUZZLE_CYCLE, PUZZLE_MOVES, FRAME_MS, DUST_DURATION, WAVE_SPREAD, WAVE_JITTER, DISSOLVE_END, BACKGROUND_FADE, EXIT_DURATION, STARS_START, STARS_FADE, STAR_DENSITY, STAR_TINTS, LOGO_COLOR_STEP, LIGHT_HALO_STRENGTH, HALO_RADIUS_X, HALO_RADIUS_Y, HALO_LEVELS, STAR_ALPHA_LEVELS, STAR_FLICKER_LEVELS, HINT_FADE, DOT_BITS, BRAILLE, LIGHT, HALF_VECTOR, segmenter3, SPIN_RAMP, SPIN_SPEED, SPIN_LINGER, FIRST_FRONT_VIEW, SPIN_ALIGNMENT, BlockRaster, playing, EasterEgg3dAnimation, init_easter_egg_3d = __esm({
+var DEPTH, FLY_START, FLY_DURATION, START_SCALE, CORAL, YELLOW, PERUN_CYRILLIC_P_PIXELS, PERUN_P_COLORS, PUZZLE_START, PUZZLE_STEP, PUZZLE_STEPS, PUZZLE_RETURN, PUZZLE_HOLD, PUZZLE_CYCLE, PUZZLE_MOVES, FRAME_MS, DUST_DURATION, WAVE_SPREAD, WAVE_JITTER, DISSOLVE_END, BACKGROUND_FADE, EXIT_DURATION, STARS_START, STARS_FADE, STAR_DENSITY, STAR_TINTS, LOGO_COLOR_STEP, LIGHT_HALO_STRENGTH, HALO_RADIUS_X, HALO_RADIUS_Y, HALO_LEVELS, STAR_ALPHA_LEVELS, STAR_FLICKER_LEVELS, HINT_FADE, DOT_BITS, BRAILLE, LIGHT, HALF_VECTOR, segmenter3, SPIN_RAMP, SPIN_SPEED, SPIN_LINGER, FIRST_FRONT_VIEW, SPIN_ALIGNMENT, BlockRaster, playing, EasterEgg3dAnimation, init_easter_egg_3d = __esm({
   "packages/coding-agent/src/modes/interactive/components/easter-egg-3d.ts"() {
     "use strict";
     init_src2();
@@ -191940,7 +191944,7 @@ var DEPTH, FLY_START, FLY_DURATION, START_SCALE, CORAL, BLUE, YELLOW, PI_LOGO_PI
     init_armin();
     init_keybinding_hints();
     DEPTH = 0.7, FLY_START = 0.1, FLY_DURATION = 1.3, START_SCALE = 0.1;
-    CORAL = [228, 138, 122], BLUE = [79, 142, 179], YELLOW = [234, 182, 93], PI_LOGO_PIXELS = ["ccc.", "b.c.", "bb.y", "b..y"], PI_LOGO_COLORS = { c: CORAL, b: BLUE, y: YELLOW };
+    CORAL = [228, 138, 122], YELLOW = [234, 182, 93], PERUN_CYRILLIC_P_PIXELS = ["ccyy", "c..y", "c..y", "c..y"], PERUN_P_COLORS = { c: CORAL, y: YELLOW };
     PUZZLE_START = FLY_START + FLY_DURATION + 3, PUZZLE_STEP = 0.3, PUZZLE_STEPS = 12, PUZZLE_RETURN = 1, PUZZLE_HOLD = 0.6, PUZZLE_CYCLE = PUZZLE_STEP * PUZZLE_STEPS + PUZZLE_RETURN + PUZZLE_HOLD, PUZZLE_MOVES = [
       [1, 0, 0],
       [-1, 0, 0],
@@ -192398,8 +192402,8 @@ function playEasterEgg3d2(tui, egg) {
     }
   ), !0;
 }
-function playPiLogo3d(tui, column, row) {
-  playEasterEgg3d2(tui, { kind: "pi-logo", column, row });
+function playPerunLogo3d(tui, column, row) {
+  playEasterEgg3d2(tui, { kind: "perun-logo", column, row });
 }
 function playArmin3d(tui) {
   return playEasterEgg3d2(tui, { kind: "armin" });
@@ -192609,8 +192613,8 @@ var LoginDialogComponent, init_login_dialog = __esm({
        * Show input for manual code/URL entry (for callback server providers)
        */
       showManualInput(prompt) {
-        return this.input.setValue(""), this.contentContainer.addChild(new Spacer(1)), this.contentContainer.addChild(new Text(theme.fg("dim", prompt), 1, 0)), this.contentContainer.addChild(this.input), this.contentContainer.addChild(new Text(`(${keyHint("tui.select.cancel", "to cancel")})`, 1, 0)), this.tui.requestRender(), new Promise((resolve22, reject) => {
-          this.inputResolver = resolve22, this.inputRejecter = reject;
+        return this.input.setValue(""), this.contentContainer.addChild(new Spacer(1)), this.contentContainer.addChild(new Text(theme.fg("dim", prompt), 1, 0)), this.contentContainer.addChild(this.input), this.contentContainer.addChild(new Text(`(${keyHint("tui.select.cancel", "to cancel")})`, 1, 0)), this.tui.requestRender(), new Promise((resolve23, reject) => {
+          this.inputResolver = resolve23, this.inputRejecter = reject;
         });
       }
       /**
@@ -192624,8 +192628,8 @@ var LoginDialogComponent, init_login_dialog = __esm({
             1,
             0
           )
-        ), this.input.setValue(""), this.tui.requestRender(), new Promise((resolve22, reject) => {
-          this.inputResolver = resolve22, this.inputRejecter = reject;
+        ), this.input.setValue(""), this.tui.requestRender(), new Promise((resolve23, reject) => {
+          this.inputResolver = resolve23, this.inputRejecter = reject;
         });
       }
       /** Show informational text before another login step. */
@@ -198095,7 +198099,7 @@ var TREE_GUTTER_WIDTH, MIN_VISIBLE_ANCHOR_CONTENT_WIDTH, MAX_VISIBLE_ANCHOR_CONT
         };
         switch (name) {
           case "read": {
-            let path23 = shortenPath3(String(args.path || args.file_path || "")), offset = args.offset, limit3 = args.limit, display = path23;
+            let path28 = shortenPath3(String(args.path || args.file_path || "")), offset = args.offset, limit3 = args.limit, display = path28;
             if (offset !== void 0 || limit3 !== void 0) {
               let start = offset ?? 1, end = limit3 !== void 0 ? start + limit3 - 1 : "";
               display += `:${start}${end ? `-${end}` : ""}`;
@@ -198111,12 +198115,12 @@ var TREE_GUTTER_WIDTH, MIN_VISIBLE_ANCHOR_CONTENT_WIDTH, MAX_VISIBLE_ANCHOR_CONT
             return `[bash: ${rawCmd.replace(/[\n\t]/g, " ").trim().slice(0, 50)}${rawCmd.length > 50 ? "..." : ""}]`;
           }
           case "grep": {
-            let pattern = String(args.pattern || ""), path23 = shortenPath3(String(args.path || "."));
-            return `[grep: /${pattern}/ in ${path23}]`;
+            let pattern = String(args.pattern || ""), path28 = shortenPath3(String(args.path || "."));
+            return `[grep: /${pattern}/ in ${path28}]`;
           }
           case "find": {
-            let pattern = String(args.pattern || ""), path23 = shortenPath3(String(args.path || "."));
-            return `[find: ${pattern} in ${path23}]`;
+            let pattern = String(args.pattern || ""), path28 = shortenPath3(String(args.path || "."));
+            return `[find: ${pattern} in ${path28}]`;
           }
           case "ls":
             return `[ls: ${shortenPath3(String(args.path || "."))}]`;
@@ -199230,7 +199234,7 @@ ${onboarding()}`,
             1,
             0
           );
-          showLogo && (header.onLogoClick = (column, row) => playPiLogo3d(this.renderer, column, row)), this.builtInHeader = header, this.headerContainer.addChild(new Spacer(1)), this.headerContainer.addChild(this.builtInHeader), this.headerContainer.addChild(new Spacer(1));
+          showLogo && (header.onLogoClick = (column, row) => playPerunLogo3d(this.renderer, column, row)), this.builtInHeader = header, this.headerContainer.addChild(new Spacer(1)), this.headerContainer.addChild(this.builtInHeader), this.headerContainer.addChild(new Spacer(1));
         } else
           this.builtInHeader = new Text("", 0, 0), this.headerContainer.addChild(this.builtInHeader);
         this.ui.requestRender();
@@ -199308,18 +199312,18 @@ ${onboarding()}`,
       }
       async checkTmuxKeyboardSetup() {
         if (!process.env.TMUX) return;
-        let runTmuxShow = (option) => new Promise((resolve22) => {
+        let runTmuxShow = (option) => new Promise((resolve23) => {
           let proc = spawn13("tmux", ["show", "-gv", option], {
             stdio: ["ignore", "pipe", "ignore"]
           }), stdout = "", timer = setTimeout(() => {
-            proc.kill(), resolve22(void 0);
+            proc.kill(), resolve23(void 0);
           }, 2e3);
           proc.stdout?.on("data", (data) => {
             stdout += data.toString();
           }), proc.on("error", () => {
-            clearTimeout(timer), resolve22(void 0);
+            clearTimeout(timer), resolve23(void 0);
           }), proc.on("close", (code) => {
-            clearTimeout(timer), resolve22(code === 0 ? stdout.trim() : void 0);
+            clearTimeout(timer), resolve23(code === 0 ? stdout.trim() : void 0);
           });
         }), [extendedKeys, extendedKeysFormat] = await Promise.all([
           runTmuxShow("extended-keys"),
@@ -199363,8 +199367,8 @@ ${onboarding()}`,
         let home = os8.homedir(), result = p;
         return result.startsWith(home) && (result = `~${result.slice(home.length)}`), result;
       }
-      formatExtensionDisplayPath(path23) {
-        let result = this.formatDisplayPath(path23);
+      formatExtensionDisplayPath(path28) {
+        let result = this.formatDisplayPath(path28);
         return result = result.replace(/\/index\.ts$/, "").replace(/\/index\.js$/, ""), result;
       }
       formatContextPath(p) {
@@ -200067,22 +200071,22 @@ ${warningLines()}`, 0, 0)
        * Show a selector for extensions.
        */
       showExtensionSelector(title, options, opts, blocked = { kind: "question", message: title }) {
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           if (opts?.signal?.aborted) {
-            resolve22(void 0);
+            resolve23(void 0);
             return;
           }
           let onAbort = () => {
-            this.hideExtensionSelector(), resolve22(void 0);
+            this.hideExtensionSelector(), resolve23(void 0);
           };
           opts?.signal?.addEventListener("abort", onAbort, { once: !0 }), this.extensionSelector = new ExtensionSelectorComponent(
             title,
             options,
             (option) => {
-              opts?.signal?.removeEventListener("abort", onAbort), this.hideExtensionSelector(), resolve22(option);
+              opts?.signal?.removeEventListener("abort", onAbort), this.hideExtensionSelector(), resolve23(option);
             },
             () => {
-              opts?.signal?.removeEventListener("abort", onAbort), this.hideExtensionSelector(), resolve22(void 0);
+              opts?.signal?.removeEventListener("abort", onAbort), this.hideExtensionSelector(), resolve23(void 0);
             },
             { tui: this.ui, timeout: opts?.timeout, onToggleToolsExpanded: () => this.toggleToolOutputExpansion() }
           ), this.disposeActiveSelector(), this.editorContainer.clear(), this.editorContainer.addChild(this.extensionSelector), this.ui.setFocus(this.extensionSelector), this.programStatus.setBlocked("extension-dialog", blocked), this.ui.requestRender();
@@ -200114,22 +200118,22 @@ ${message}`, ["Yes", "No"], opts, {
        * Show a text input for extensions.
        */
       showExtensionInput(title, placeholder, opts) {
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           if (opts?.signal?.aborted) {
-            resolve22(void 0);
+            resolve23(void 0);
             return;
           }
           let onAbort = () => {
-            this.hideExtensionInput(), resolve22(void 0);
+            this.hideExtensionInput(), resolve23(void 0);
           };
           opts?.signal?.addEventListener("abort", onAbort, { once: !0 }), this.extensionInput = new ExtensionInputComponent(
             title,
             placeholder,
             (value) => {
-              opts?.signal?.removeEventListener("abort", onAbort), this.hideExtensionInput(), resolve22(value);
+              opts?.signal?.removeEventListener("abort", onAbort), this.hideExtensionInput(), resolve23(value);
             },
             () => {
-              opts?.signal?.removeEventListener("abort", onAbort), this.hideExtensionInput(), resolve22(void 0);
+              opts?.signal?.removeEventListener("abort", onAbort), this.hideExtensionInput(), resolve23(void 0);
             },
             { tui: this.ui, timeout: opts?.timeout }
           ), this.disposeActiveSelector(), this.editorContainer.clear(), this.editorContainer.addChild(this.extensionInput), this.ui.setFocus(this.extensionInput), this.programStatus.setBlocked("extension-dialog", { kind: "question", message: title }), this.ui.requestRender();
@@ -200145,17 +200149,17 @@ ${message}`, ["Yes", "No"], opts, {
        * Show a multi-line editor for extensions (with Ctrl+G support).
        */
       showExtensionEditor(title, prefill) {
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           this.extensionEditor = new ExtensionEditorComponent(
             this.ui,
             this.keybindings,
             title,
             prefill,
             (value) => {
-              this.hideExtensionEditor(), resolve22(value);
+              this.hideExtensionEditor(), resolve23(value);
             },
             () => {
-              this.hideExtensionEditor(), resolve22(void 0);
+              this.hideExtensionEditor(), resolve23(void 0);
             },
             void 0,
             this.settingsManager.getExternalEditorCommand()
@@ -200200,10 +200204,10 @@ ${message}`, ["Yes", "No"], opts, {
         let savedText = this.editor.getText(), isOverlay = options?.overlay ?? !1, restoreEditor3 = () => {
           this.editorContainer.clear(), this.editorContainer.addChild(this.editor), this.editor.setText(savedText), this.ui.setFocus(this.editor), this.ui.requestRender();
         };
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           let component, closed = !1, close = (result) => {
             if (!closed) {
-              closed = !0, isOverlay ? this.ui.hideOverlay() : restoreEditor3(), resolve22(result);
+              closed = !0, isOverlay ? this.ui.hideOverlay() : restoreEditor3(), resolve23(result);
               try {
                 component?.dispose?.();
               } catch {
@@ -200994,9 +200998,9 @@ ${message}`, ["Yes", "No"], opts, {
       }
       async getUserInput() {
         let queuedInput = this.pendingUserInputs.shift();
-        return queuedInput !== void 0 ? queuedInput : new Promise((resolve22) => {
+        return queuedInput !== void 0 ? queuedInput : new Promise((resolve23) => {
           this.onInputCallback = (text) => {
-            this.onInputCallback = void 0, resolve22(text);
+            this.onInputCallback = void 0, resolve23(text);
           };
         });
       }
@@ -202157,7 +202161,7 @@ ${this.crashReportInstructions()}`), process.exit(1);
         }
       }
       showAuthSelect(dialog, prompt, providerId) {
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           let restoreDialog = () => {
             this.editorContainer.clear(), this.editorContainer.addChild(dialog), this.ui.setFocus(dialog), this.ui.requestRender();
           }, labels = prompt.options.map((option) => option.label), selector = new ExtensionSelectorComponent(
@@ -202166,7 +202170,7 @@ ${this.crashReportInstructions()}`), process.exit(1);
             (optionLabel) => {
               restoreDialog();
               let id = prompt.options.find((option) => option.label === optionLabel)?.id;
-              id ? resolve22(id) : reject(new Error("Login cancelled"));
+              id ? resolve23(id) : reject(new Error("Login cancelled"));
             },
             () => {
               restoreDialog(), reject(new Error("Login cancelled"));
@@ -202288,7 +202292,7 @@ ${this.crashReportInstructions()}`), process.exit(1);
           )
         ), reloadBox.addChild(new Spacer(1)), reloadBox.addChild(new DynamicBorder(borderColor));
         let previousEditor = this.editor;
-        this.editorContainer.clear(), this.editorContainer.addChild(reloadBox), this.ui.setFocus(reloadBox), this.ui.requestRender(!0), await new Promise((resolve22) => process.nextTick(resolve22));
+        this.editorContainer.clear(), this.editorContainer.addChild(reloadBox), this.ui.setFocus(reloadBox), this.ui.requestRender(!0), await new Promise((resolve23) => process.nextTick(resolve23));
         let dismissReloadBox = (editor) => {
           this.editorContainer.clear(), this.editorContainer.addChild(editor), this.ui.setFocus(editor), this.ui.requestRender();
         }, chatRestoredBeforeSessionStart = !1, reloadBoxDismissed = !1, restoreChatBeforeSessionStart = () => {
@@ -202855,7 +202859,7 @@ var RpcClient, init_rpc_client = __esm({
           this.exitError = stdinError, this.rejectPendingRequests(stdinError);
         }), this.stopReadingStdout = attachJsonlLineReader(childProcess.stdout, (line) => {
           this.handleLine(line);
-        }), await new Promise((resolve22) => setTimeout(resolve22, 100)), this.process.exitCode !== null) {
+        }), await new Promise((resolve23) => setTimeout(resolve23, 100)), this.process.exitCode !== null) {
           let error = this.exitError ?? this.createProcessExitError(this.process.exitCode, this.process.signalCode);
           throw this.exitError = error, error;
         }
@@ -202864,12 +202868,12 @@ var RpcClient, init_rpc_client = __esm({
        * Stop the RPC agent process.
        */
       async stop() {
-        this.process && (this.stopReadingStdout?.(), this.stopReadingStdout = null, this.process.kill("SIGTERM"), await new Promise((resolve22) => {
+        this.process && (this.stopReadingStdout?.(), this.stopReadingStdout = null, this.process.kill("SIGTERM"), await new Promise((resolve23) => {
           let timeout = setTimeout(() => {
-            this.process?.kill("SIGKILL"), resolve22();
+            this.process?.kill("SIGKILL"), resolve23();
           }, 1e3);
           this.process?.on("exit", () => {
-            clearTimeout(timeout), resolve22();
+            clearTimeout(timeout), resolve23();
           });
         }), this.process = null, this.pendingRequests.clear());
       }
@@ -203128,11 +203132,11 @@ var RpcClient, init_rpc_client = __esm({
        * Resolves when agent_settled event is received.
        */
       waitForIdle(timeout = 6e4) {
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           let timer = setTimeout(() => {
             unsubscribe(), reject(new Error(`Timeout waiting for agent to become idle. Stderr: ${this.stderr}`));
           }, timeout), unsubscribe = this.onEvent((event) => {
-            event.type === "agent_settled" && (clearTimeout(timer), unsubscribe(), resolve22());
+            event.type === "agent_settled" && (clearTimeout(timer), unsubscribe(), resolve23());
           });
         });
       }
@@ -203140,11 +203144,11 @@ var RpcClient, init_rpc_client = __esm({
        * Collect events until agent becomes idle.
        */
       collectEvents(timeout = 6e4) {
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           let events = [], timer = setTimeout(() => {
             unsubscribe(), reject(new Error(`Timeout collecting events. Stderr: ${this.stderr}`));
           }, timeout), unsubscribe = this.onEvent((event) => {
-            events.push(event), event.type === "agent_settled" && (clearTimeout(timer), unsubscribe(), resolve22(events));
+            events.push(event), event.type === "agent_settled" && (clearTimeout(timer), unsubscribe(), resolve23(events));
           });
         });
       }
@@ -203194,13 +203198,13 @@ var RpcClient, init_rpc_client = __esm({
           throw this.exitError = error, error;
         }
         let id = `req_${++this.requestId}`, fullCommand = { ...command, id };
-        return new Promise((resolve22, reject) => {
+        return new Promise((resolve23, reject) => {
           let timeout = setTimeout(() => {
             this.pendingRequests.delete(id), reject(new Error(`Timeout waiting for response to ${command.type}. Stderr: ${this.stderr}`));
           }, 3e4);
           this.pendingRequests.set(id, {
             resolve: (response) => {
-              clearTimeout(timeout), resolve22(response);
+              clearTimeout(timeout), resolve23(response);
             },
             reject: (error) => {
               clearTimeout(timeout), reject(error);
@@ -203235,17 +203239,17 @@ async function runRpcMode(runtimeHost) {
   function createDialogPromise(opts, defaultValue, request, parseResponse2) {
     if (opts?.signal?.aborted) return Promise.resolve(defaultValue);
     let id = crypto6.randomUUID();
-    return new Promise((resolve22, reject) => {
+    return new Promise((resolve23, reject) => {
       let timeoutId, cleanup = () => {
         timeoutId && clearTimeout(timeoutId), opts?.signal?.removeEventListener("abort", onAbort), pendingExtensionRequests.delete(id);
       }, onAbort = () => {
-        cleanup(), resolve22(defaultValue);
+        cleanup(), resolve23(defaultValue);
       };
       opts?.signal?.addEventListener("abort", onAbort, { once: !0 }), opts?.timeout && (timeoutId = setTimeout(() => {
-        cleanup(), resolve22(defaultValue);
+        cleanup(), resolve23(defaultValue);
       }, opts.timeout)), pendingExtensionRequests.set(id, {
         resolve: (response) => {
-          cleanup(), resolve22(parseResponse2(response));
+          cleanup(), resolve23(parseResponse2(response));
         },
         reject
       }), output({ type: "extension_ui_request", id, ...request });
@@ -203340,10 +203344,10 @@ async function runRpcMode(runtimeHost) {
     },
     async editor(title, prefill) {
       let id = crypto6.randomUUID();
-      return new Promise((resolve22, reject) => {
+      return new Promise((resolve23, reject) => {
         pendingExtensionRequests.set(id, {
           resolve: (response) => {
-            "cancelled" in response && response.cancelled ? resolve22(void 0) : "value" in response ? resolve22(response.value) : resolve22(void 0);
+            "cancelled" in response && response.cancelled ? resolve23(void 0) : "value" in response ? resolve23(response.value) : resolve23(void 0);
           },
           reject
         }), output({ type: "extension_ui_request", id, method: "editor", title, prefill });
@@ -203554,8 +203558,8 @@ async function runRpcMode(runtimeHost) {
         return success(id, "get_session_stats", stats);
       }
       case "export_html": {
-        let path23 = await session.exportToHtml(command.outputPath);
-        return success(id, "export_html", { path: path23 });
+        let path28 = await session.exportToHtml(command.outputPath);
+        return success(id, "export_html", { path: path28 });
       }
       case "switch_session": {
         let result = await runtimeHost.switchSession(command.sessionPath);
@@ -204755,7 +204759,7 @@ var HOST_PROVIDED_EXTENSION_PACKAGES, DefaultResourceLoader, init_resource_loade
         return this.appendSystemPrompt;
       }
       getAppendSystemPromptSources() {
-        return this.appendSystemPromptSourcePaths.map((path23) => ({ path: path23 }));
+        return this.appendSystemPromptSourcePaths.map((path28) => ({ path: path28 }));
       }
       extendResources(paths) {
         let skillPaths = this.normalizeExtensionPaths(paths.skillPaths ?? []), promptPaths = this.normalizeExtensionPaths(paths.promptPaths ?? []), themePaths = this.normalizeExtensionPaths(paths.themePaths ?? []);
@@ -204804,7 +204808,7 @@ var HOST_PROVIDED_EXTENSION_PACKAGES, DefaultResourceLoader, init_resource_loade
         for (let r2 of cliExtensionPaths.skills)
           metadataByPath.has(r2.path) || metadataByPath.set(r2.path, { source: "cli", scope: "temporary", origin: "top-level" });
         let cliEnabledExtensions = getEnabledPaths(cliExtensionPaths.extensions), cliEnabledSkills = getEnabledPaths(cliExtensionPaths.skills), cliEnabledPrompts = getEnabledPaths(cliExtensionPaths.prompts), cliEnabledThemes = getEnabledPaths(cliExtensionPaths.themes), extensionPaths = (this.noExtensions ? cliEnabledExtensions : this.mergePaths(cliEnabledExtensions, enabledExtensions)).filter(
-          (path23) => !path23.startsWith(BUILTIN_PATH_PREFIX) || !this.disabledBuiltinExtensions.has(path23.slice(BUILTIN_PATH_PREFIX.length))
+          (path28) => !path28.startsWith(BUILTIN_PATH_PREFIX) || !this.disabledBuiltinExtensions.has(path28.slice(BUILTIN_PATH_PREFIX.length))
         ), packageWarnings = collectExtensionPackageWarnings(extensionPaths, metadataByPath), extensionsResult = await this.loadFinalExtensionSet(extensionPaths, preTrustExtensions);
         mergeExtensionWarnings(extensionsResult, packageWarnings);
         for (let p of this.additionalExtensionPaths)
@@ -204857,7 +204861,7 @@ var HOST_PROVIDED_EXTENSION_PACKAGES, DefaultResourceLoader, init_resource_loade
       async loadCurrentExtensionSet(options) {
         let resolvedPaths = await this.packageManager.resolve(), cliExtensionPaths = await this.packageManager.resolveExtensionSources(this.additionalExtensionPaths, {
           temporary: !0
-        }), enabledExtensions = resolvedPaths.extensions.filter((r2) => r2.enabled).map((r2) => r2.path), cliEnabledExtensions = cliExtensionPaths.extensions.filter((r2) => r2.enabled).map((r2) => r2.path), extensionPaths = (this.noExtensions ? cliEnabledExtensions : this.mergePaths(cliEnabledExtensions, enabledExtensions)).filter((path23) => !path23.startsWith(BUILTIN_PATH_PREFIX)), metadataByPath = new Map(
+        }), enabledExtensions = resolvedPaths.extensions.filter((r2) => r2.enabled).map((r2) => r2.path), cliEnabledExtensions = cliExtensionPaths.extensions.filter((r2) => r2.enabled).map((r2) => r2.path), extensionPaths = (this.noExtensions ? cliEnabledExtensions : this.mergePaths(cliEnabledExtensions, enabledExtensions)).filter((path28) => !path28.startsWith(BUILTIN_PATH_PREFIX)), metadataByPath = new Map(
           [...resolvedPaths.extensions, ...cliExtensionPaths.extensions].map((resource) => [
             resource.path,
             resource.metadata
@@ -204870,21 +204874,21 @@ var HOST_PROVIDED_EXTENSION_PACKAGES, DefaultResourceLoader, init_resource_loade
         let replacementWarnings = [];
         return extensionsResult.extensions = omitReplacedExtensions(extensionsResult.extensions, replacementWarnings), mergeExtensionWarnings(extensionsResult, replacementWarnings), extensionsResult;
       }
-      resolveExtensionLoadPath(path23) {
-        return isSyntheticPath(path23) ? path23 : resolvePath(path23, this.cwd, { normalizeUnicodeSpaces: !0 });
+      resolveExtensionLoadPath(path28) {
+        return isSyntheticPath(path28) ? path28 : resolvePath(path28, this.cwd, { normalizeUnicodeSpaces: !0 });
       }
       /** Load extension paths: files from disk and `builtin:<name>` paths from the built-in extensions. */
       async loadExtensionPaths(paths, runtime) {
-        let isBuiltinPath = (path23) => path23.startsWith(BUILTIN_PATH_PREFIX), result = await loadExtensionsCached(
-          paths.filter((path23) => !isBuiltinPath(path23)),
+        let isBuiltinPath = (path28) => path28.startsWith(BUILTIN_PATH_PREFIX), result = await loadExtensionsCached(
+          paths.filter((path28) => !isBuiltinPath(path28)),
           this.cwd,
           this.eventBus,
           runtime
         );
-        for (let path23 of paths.filter(isBuiltinPath)) {
-          let builtin = this.builtinExtensions.get(path23.slice(BUILTIN_PATH_PREFIX.length));
+        for (let path28 of paths.filter(isBuiltinPath)) {
+          let builtin = this.builtinExtensions.get(path28.slice(BUILTIN_PATH_PREFIX.length));
           if (!builtin) {
-            result.errors.push({ path: path23, error: `Unknown built-in extension: ${path23}` });
+            result.errors.push({ path: path28, error: `Unknown built-in extension: ${path28}` });
             continue;
           }
           try {
@@ -204893,11 +204897,11 @@ var HOST_PROVIDED_EXTENSION_PACKAGES, DefaultResourceLoader, init_resource_loade
               this.cwd,
               this.eventBus,
               result.runtime,
-              path23
+              path28
             );
             extension2.hidden = !0, extension2.replaceable = builtin.replaceable === !0, result.extensions.push(extension2);
           } catch (error) {
-            result.errors.push({ path: path23, error: error instanceof Error ? error.message : "failed to load extension" });
+            result.errors.push({ path: path28, error: error instanceof Error ? error.message : "failed to load extension" });
           }
         }
         return result;
@@ -204907,13 +204911,13 @@ var HOST_PROVIDED_EXTENSION_PACKAGES, DefaultResourceLoader, init_resource_loade
           preloaded.filter((extension2) => !extension2.path.startsWith("<inline:")).map((extension2) => [extension2.resolvedPath, extension2])
         ), failedPreloadPaths = new Set(
           (preTrustExtensions?.errors ?? []).map((error) => this.resolveExtensionLoadPath(error.path))
-        ), remainingPaths = extensionPaths.filter((path23) => {
-          let resolvedPath = this.resolveExtensionLoadPath(path23);
+        ), remainingPaths = extensionPaths.filter((path28) => {
+          let resolvedPath = this.resolveExtensionLoadPath(path28);
           return !preloadedByPath.has(resolvedPath) && !failedPreloadPaths.has(resolvedPath);
         }), remainingExtensions = await this.loadExtensionPaths(remainingPaths, preTrustExtensions?.runtime), loadedByPath = new Map(preloadedByPath);
         for (let extension2 of remainingExtensions.extensions)
           loadedByPath.set(extension2.resolvedPath, extension2);
-        let inlineExtensions = preTrustExtensions ? { extensions: preloaded.filter((extension2) => extension2.path.startsWith("<inline:")), errors: [] } : await this.loadExtensionFactories(remainingExtensions.runtime), orderedExtensions = extensionPaths.map((path23) => loadedByPath.get(this.resolveExtensionLoadPath(path23))).filter((extension2) => extension2 !== void 0);
+        let inlineExtensions = preTrustExtensions ? { extensions: preloaded.filter((extension2) => extension2.path.startsWith("<inline:")), errors: [] } : await this.loadExtensionFactories(remainingExtensions.runtime), orderedExtensions = extensionPaths.map((path28) => loadedByPath.get(this.resolveExtensionLoadPath(path28))).filter((extension2) => extension2 !== void 0);
         orderedExtensions.push(...inlineExtensions.extensions);
         let replacementWarnings = [], extensionsResult = {
           extensions: omitReplacedExtensions(orderedExtensions, replacementWarnings),
@@ -205635,9 +205639,9 @@ var init_project_trust2 = __esm({
 
 // packages/coding-agent/src/core/settings-diagnostics.ts
 function collectSettingsDiagnostics(settingsManager) {
-  return settingsManager.drainErrors().map(({ scope, path: path23, error }) => ({
+  return settingsManager.drainErrors().map(({ scope, path: path28, error }) => ({
     type: "warning",
-    message: path23 ? `Invalid settings file ${path23}: ${error.message}` : `Invalid ${scope} settings: ${error.message}`
+    message: path28 ? `Invalid settings file ${path28}: ${error.message}` : `Invalid ${scope} settings: ${error.message}`
   }));
 }
 function deduplicateDiagnostics(diagnostics) {
@@ -205676,7 +205680,7 @@ function linkSignal(source, target) {
   return source.addEventListener("abort", abort, { once: !0 }), () => source.removeEventListener("abort", abort);
 }
 function sleep9(ms, signal) {
-  return new Promise((resolve22, reject) => {
+  return new Promise((resolve23, reject) => {
     if (signal?.aborted) {
       reject(signal.reason ?? new Error("Cancelled"));
       return;
@@ -205684,7 +205688,7 @@ function sleep9(ms, signal) {
     let abort = () => {
       clearTimeout(timeout), reject(signal?.reason ?? new Error("Cancelled"));
     }, timeout = setTimeout(() => {
-      signal?.removeEventListener("abort", abort), resolve22();
+      signal?.removeEventListener("abort", abort), resolve23();
     }, ms);
     signal?.addEventListener("abort", abort, { once: !0 });
   });
@@ -205743,10 +205747,10 @@ var LlamaClient, init_client4 = __esm({
       constructor(serverUrl, apiKey) {
         this.serverUrl = normalizeLlamaServerUrl(serverUrl), this.apiKey = apiKey;
       }
-      async request(path23, init = {}) {
+      async request(path28, init = {}) {
         let headers = new Headers(init.headers);
         init.body !== void 0 && headers.set("Content-Type", "application/json"), this.apiKey && headers.set("Authorization", `Bearer ${this.apiKey}`);
-        let timeout = AbortSignal.timeout(15e3), signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout, response = await fetch(`${this.serverUrl}${path23}`, { ...init, headers, signal }), payload;
+        let timeout = AbortSignal.timeout(15e3), signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout, response = await fetch(`${this.serverUrl}${path28}`, { ...init, headers, signal }), payload;
         try {
           payload = await response.json();
         } catch {
@@ -205893,9 +205897,9 @@ function parseRateLimitDelay(value) {
   let match3 = value?.match(/(?:^|;)t=(\d+)/u);
   return match3 ? Number(match3[1]) : void 0;
 }
-async function readToken(path23) {
+async function readToken(path28) {
   try {
-    return (await readFile6(path23, "utf8")).trim() || void 0;
+    return (await readFile6(path28, "utf8")).trim() || void 0;
   } catch {
     return;
   }
@@ -205908,9 +205912,9 @@ async function findHuggingFaceToken(env3 = process.env) {
     env3.HF_HOME ? join44(env3.HF_HOME, "token") : void 0,
     env3.XDG_CACHE_HOME ? join44(env3.XDG_CACHE_HOME, "huggingface", "token") : void 0,
     join44(homedir11(), ".cache", "huggingface", "token")
-  ].filter((path23) => !!path23);
-  for (let path23 of new Set(paths)) {
-    let token = await readToken(path23);
+  ].filter((path28) => !!path28);
+  for (let path28 of new Set(paths)) {
+    let token = await readToken(path28);
     if (token) return token;
   }
 }
@@ -205924,10 +205928,10 @@ var DEFAULT_HUGGING_FACE_URL, QUANTIZATION_PATTERN, SHARD_SUFFIX_PATTERN, Huggin
       constructor(token, baseUrl = DEFAULT_HUGGING_FACE_URL) {
         this.token = token, this.baseUrl = baseUrl.replace(/\/+$/u, "");
       }
-      async request(path23, signal) {
+      async request(path28, signal) {
         let headers = new Headers();
         this.token && headers.set("Authorization", `Bearer ${this.token}`);
-        let timeout = AbortSignal.timeout(15e3), response = await fetch(`${this.baseUrl}${path23}`, {
+        let timeout = AbortSignal.timeout(15e3), response = await fetch(`${this.baseUrl}${path28}`, {
           headers,
           signal: signal ? AbortSignal.any([signal, timeout]) : timeout
         }), payload;
@@ -206108,7 +206112,7 @@ function answerFromProbabilities(question, keys, probabilities2) {
     confidence
   };
 }
-async function post(request, path23, body, observe) {
+async function post(request, path28, body, observe) {
   let { model, root, options } = request, payload = body;
   if (observe) {
     let transformed = await options?.onPayload?.(payload, model);
@@ -206125,7 +206129,7 @@ async function post(request, path23, body, observe) {
     async () => {
       let timeoutSignal = options?.timeoutMs !== void 0 ? AbortSignal.timeout(options.timeoutMs) : void 0, signal = options?.signal && timeoutSignal ? AbortSignal.any([options.signal, timeoutSignal]) : options?.signal ?? timeoutSignal;
       try {
-        let next = await requestFetch(`${root}${path23}`, {
+        let next = await requestFetch(`${root}${path28}`, {
           method: "POST",
           headers,
           body: JSON.stringify(payload),
@@ -206694,18 +206698,18 @@ var DOWNLOAD_VALUE, HuggingFaceSearch, LlamaView, init_ui2 = __esm({
           })),
           { value: DOWNLOAD_VALUE, label: "Download model\u2026", description: "Hugging Face owner/repository[:quant]" }
         ];
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           let list2 = new SelectList(items, Math.min(items.length, 12), selectTheme(this.theme), {
             minPrimaryColumnWidth: 36,
             maxPrimaryColumnWidth: 56
           });
           list2.onSelect = (item) => {
-            if (item.value === DOWNLOAD_VALUE) resolve22({ type: "download" });
+            if (item.value === DOWNLOAD_VALUE) resolve23({ type: "download" });
             else {
               let model = byId.get(item.value);
-              model && resolve22({ type: "model", model });
+              model && resolve23({ type: "model", model });
             }
-          }, list2.onCancel = () => resolve22({ type: "close" }), this.setContent(
+          }, list2.onCancel = () => resolve23({ type: "close" }), this.setContent(
             frame2(
               this.theme,
               "llama.cpp models",
@@ -206717,13 +206721,13 @@ var DOWNLOAD_VALUE, HuggingFaceSearch, LlamaView, init_ui2 = __esm({
         });
       }
       select(title, options) {
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           let list2 = new SelectList(
             options.map((option) => ({ value: option, label: option })),
             Math.min(options.length, 12),
             selectTheme(this.theme)
           );
-          list2.onSelect = (item) => resolve22(item.value), list2.onCancel = () => resolve22(void 0), this.setContent(
+          list2.onSelect = (item) => resolve23(item.value), list2.onCancel = () => resolve23(void 0), this.setContent(
             frame2(
               this.theme,
               title,
@@ -206745,14 +206749,14 @@ ${serverUrl}
 ${message}`, ["Retry", "Close"]) === "Retry" ? "retry" : "close";
       }
       searchModels(search) {
-        return new Promise((resolve22) => {
+        return new Promise((resolve23) => {
           let component = new HuggingFaceSearch(
             this.tui,
             this.theme,
             this.keybindings,
             search,
             this.searchCache,
-            resolve22
+            resolve23
           );
           this.setContent(
             frame2(
@@ -206770,8 +206774,8 @@ ${message}`, ["Retry", "Close"]) === "Retry" ? "retry" : "close";
         this.setContent(frame2(this.theme, title, [new Spacer(1), new Text(this.theme.fg("muted", message), 1, 0)]));
       }
       progress(state3) {
-        return this.progressPromise || (this.progressPromise = new Promise((resolve22) => {
-          this.progressResolver = resolve22;
+        return this.progressPromise || (this.progressPromise = new Promise((resolve23) => {
+          this.progressResolver = resolve23;
         })), this.showingProgress = !0, this.updateProgress(state3), this.progressPromise;
       }
       updateProgress(state3) {
@@ -206798,8 +206802,8 @@ ${message}`, ["Retry", "Close"]) === "Retry" ? "retry" : "close";
       }
       handleInput(data) {
         if (this.progressResolver && this.keybindings.matches(data, "tui.select.cancel")) {
-          let resolve22 = this.progressResolver;
-          this.progressPromise = void 0, this.progressResolver = void 0, resolve22();
+          let resolve23 = this.progressResolver;
+          this.progressPromise = void 0, this.progressResolver = void 0, resolve23();
           return;
         }
         this.inputHandler?.handleInput?.(data), this.tui.requestRender();
@@ -207202,13 +207206,13 @@ ${HELP_HINT}`, parsed = parseOptions2(
   let validated = validateMcpServerConfig(name, config);
   if (typeof validated == "string")
     return error(validated), 1;
-  let project = values.has("local"), path23 = project ? projectConfig : join45(options.agentDir, "mcp.json"), scope = project ? "project" : "global", replaced;
+  let project = values.has("local"), path28 = project ? projectConfig : join45(options.agentDir, "mcp.json"), scope = project ? "project" : "global", replaced;
   try {
-    replaced = addMcpServerConfig(path23, name, validated);
+    replaced = addMcpServerConfig(path28, name, validated);
   } catch (addError) {
-    return error(`Could not update ${path23}: ${errorMessage8(addError)}`), 1;
+    return error(`Could not update ${path28}: ${errorMessage8(addError)}`), 1;
   }
-  log(`${replaced ? "Replaced" : "Added"} ${scope} MCP server "${name}" in ${path23}.`), project && new ProjectTrustStore(options.agentDir).get(options.cwd) !== !0 && log(`The project is not trusted, so ${path23} is ignored until you start ${APP_NAME} in the project and trust it.`);
+  log(`${replaced ? "Replaced" : "Added"} ${scope} MCP server "${name}" in ${path28}.`), project && new ProjectTrustStore(options.agentDir).get(options.cwd) !== !0 && log(`The project is not trusted, so ${path28} is ignored until you start ${APP_NAME} in the project and trust it.`);
   let mayNeedSignIn = "url" in validated && !Object.keys(validated.headers ?? {}).some((header) => header.toLowerCase() === "authorization");
   return log(
     `Check it with: ${APP_NAME} mcp list${mayNeedSignIn ? `. If it requires sign-in: ${APP_NAME} mcp login ${name}` : ""}`
@@ -207221,19 +207225,19 @@ function remove(args, projectConfig, options, log, error) {
   if (!name || extra.length > 0)
     return error(`Usage: ${APP_NAME} mcp remove <server> [-l]
 ${HELP_HINT}`), 1;
-  let project = parsed.values.has("local"), globalConfig = join45(options.agentDir, "mcp.json"), path23 = project ? projectConfig : globalConfig, scope = project ? "project" : "global", removed;
+  let project = parsed.values.has("local"), globalConfig = join45(options.agentDir, "mcp.json"), path28 = project ? projectConfig : globalConfig, scope = project ? "project" : "global", removed;
   try {
-    removed = removeMcpServerConfig(path23, name);
+    removed = removeMcpServerConfig(path28, name);
   } catch (removeError) {
-    return error(`Could not update ${path23}: ${errorMessage8(removeError)}`), 1;
+    return error(`Could not update ${path28}: ${errorMessage8(removeError)}`), 1;
   }
   if (removed)
-    return log(`Removed ${scope} MCP server "${name}" from ${path23}.`), 0;
+    return log(`Removed ${scope} MCP server "${name}" from ${path28}.`), 0;
   let other = loadMcpConfig({ agentDir: options.agentDir, cwd: options.cwd, projectTrusted: !0 }).servers.find(
     (server) => server.name === name && server.scope !== scope
   );
   return error(
-    `No ${scope} MCP server named "${name}" in ${path23}.${other ? ` It is defined in ${other.source}${other.scope === "project" ? "; use --local" : "; omit --local"}.` : ""}`
+    `No ${scope} MCP server named "${name}" in ${path28}.${other ? ` It is defined in ${other.source}${other.scope === "project" ? "; use --local" : "; omit --local"}.` : ""}`
   ), 1;
 }
 async function list(loaded, json3, untrustedNote, options, credentials, log) {
@@ -207328,7 +207332,7 @@ ${authorizationUrl.href}`), openUrl(authorizationUrl.href);
 }
 async function waitForRedirectUrl(signal, interactive) {
   if (!interactive) {
-    signal.aborted || await new Promise((resolve22) => signal.addEventListener("abort", resolve22, { once: !0 }));
+    signal.aborted || await new Promise((resolve23) => signal.addEventListener("abort", resolve23, { once: !0 }));
     return;
   }
   let readline2 = createInterface5({ input: process.stdin, output: process.stderr });
@@ -207530,9 +207534,9 @@ async function showDeprecationWarnings(warnings) {
       console.log(source_default.yellow(`Warning: ${warning}`));
     console.log(source_default.yellow(`
 Move your extensions to the extensions/ directory.`)), console.log(source_default.yellow(`Migration guide: ${MIGRATION_GUIDE_URL}`)), console.log(source_default.yellow(`Documentation: ${EXTENSIONS_DOC_URL}`)), console.log(source_default.dim(`
-Press any key to continue...`)), await new Promise((resolve22) => {
+Press any key to continue...`)), await new Promise((resolve23) => {
       process.stdin.setRawMode?.(!0), process.stdin.resume(), process.stdin.once("data", () => {
-        process.stdin.setRawMode?.(!1), process.stdin.pause(), resolve22();
+        process.stdin.setRawMode?.(!1), process.stdin.pause(), resolve23();
       });
     }), console.log();
   }
@@ -207592,8 +207596,8 @@ function validateThemeJson(label, json3) {
           missingColors.add(requiredProperty);
         continue;
       }
-      let path23 = error.instancePath || "/";
-      otherErrors.push(`  - ${path23}: ${error.message}`);
+      let path28 = error.instancePath || "/";
+      otherErrors.push(`  - ${path28}: ${error.message}`);
     }
     let errorMessage9 = `Invalid theme "${label}":
 `;
@@ -207677,7 +207681,7 @@ function getGroupLabel(metadata, agentDir) {
 function buildGroups(resolved, agentDir) {
   let groupMap = /* @__PURE__ */ new Map(), addToGroup = (resources, resourceType) => {
     for (let res of resources) {
-      let { path: path23, enabled, metadata } = res, groupKey2 = `${metadata.origin}:${metadata.scope}:${metadata.source}:${metadata.baseDir ?? ""}`;
+      let { path: path28, enabled, metadata } = res, groupKey2 = `${metadata.origin}:${metadata.scope}:${metadata.source}:${metadata.baseDir ?? ""}`;
       groupMap.has(groupKey2) || groupMap.set(groupKey2, {
         key: groupKey2,
         label: getGroupLabel(metadata, agentDir),
@@ -207692,9 +207696,9 @@ function buildGroups(resolved, agentDir) {
         label: RESOURCE_TYPE_LABELS[resourceType],
         items: []
       }, group.subgroups.push(subgroup));
-      let fileName = basename17(path23), parentFolder = basename17(dirname26(path23)), displayName;
-      metadata.source === "builtin" ? displayName = path23.slice(BUILTIN_PATH_PREFIX.length) : resourceType === "extensions" && parentFolder !== "extensions" ? displayName = `${parentFolder}/${fileName}` : resourceType === "skills" && fileName === "SKILL.md" ? displayName = parentFolder : displayName = fileName, subgroup.items.push({
-        path: path23,
+      let fileName = basename17(path28), parentFolder = basename17(dirname26(path28)), displayName;
+      metadata.source === "builtin" ? displayName = path28.slice(BUILTIN_PATH_PREFIX.length) : resourceType === "extensions" && parentFolder !== "extensions" ? displayName = `${parentFolder}/${fileName}` : resourceType === "skills" && fileName === "SKILL.md" ? displayName = parentFolder : displayName = fileName, subgroup.items.push({
+        path: path28,
         enabled,
         metadata,
         resourceType,
@@ -208130,7 +208134,7 @@ var RESOURCE_TYPES2, RESOURCE_TYPE_LABELS, ConfigSelectorHeader, ResourceList, C
 
 // packages/coding-agent/src/cli/config-selector.ts
 async function selectConfig(options) {
-  return initTheme(options.settingsManager.getTheme(), !0), new Promise((resolve22) => {
+  return initTheme(options.settingsManager.getTheme(), !0), new Promise((resolve23) => {
     let ui = new TuiMainScreen(
       new ProcessTerminal(),
       options.settingsManager.getShowHardwareCursor(),
@@ -208143,7 +208147,7 @@ async function selectConfig(options) {
       options.cwd,
       options.agentDir,
       () => {
-        resolved || (resolved = !0, ui.stop(), stopThemeWatcher(), resolve22());
+        resolved || (resolved = !0, ui.stop(), stopThemeWatcher(), resolve23());
       },
       () => {
         ui.stop(), stopThemeWatcher(), process.exit(0);
@@ -208225,8 +208229,8 @@ var import_semver2, LATEST_VERSION_URL, DEFAULT_VERSION_CHECK_TIMEOUT_MS, init_v
 import { randomUUID as randomUUID9 } from "node:crypto";
 import { copyFileSync as copyFileSync2, existsSync as existsSync27, mkdirSync as mkdirSync16, renameSync as renameSync4, rmSync as rmSync7 } from "node:fs";
 import { basename as basename18, dirname as dirname27, join as join48, relative as relative8, resolve as resolve17, toNamespacedPath } from "node:path";
-function normalizePath2(path23) {
-  return toNamespacedPath(resolve17(path23));
+function normalizePath2(path28) {
+  return toNamespacedPath(resolve17(path28));
 }
 function getQuarantineRoot(packageDir) {
   let current = resolve17(packageDir);
@@ -208688,14 +208692,14 @@ async function getSelfUpdatePlan(force) {
 async function runSelfUpdate(command) {
   console.log(source_default.dim(`Updating ${APP_NAME} with ${command.display}...`));
   for (let step of command.steps ?? [command])
-    await new Promise((resolve22, reject) => {
+    await new Promise((resolve23, reject) => {
       let child = spawnProcess(step.command, step.args, {
         stdio: "inherit"
       });
       child.on("error", (error) => {
         reject(error);
       }), child.on("close", (code, signal) => {
-        code === 0 ? resolve22() : reject(signal ? new Error(`${step.display} terminated by signal ${signal}`) : new Error(`${step.display} exited with code ${code ?? "unknown"}`));
+        code === 0 ? resolve23() : reject(signal ? new Error(`${step.display} terminated by signal ${signal}`) : new Error(`${step.display} exited with code ${code ?? "unknown"}`));
       });
     });
 }
@@ -208953,12 +208957,12 @@ var import_proper_lockfile5, DEFAULT_INSTALLER_API_BASE, MANAGED_INSTALL_MARKER,
 import { createInterface as createInterface6 } from "node:readline";
 async function readPipedStdin() {
   if (!process.stdin.isTTY)
-    return new Promise((resolve22) => {
+    return new Promise((resolve23) => {
       let data = "";
       process.stdin.setEncoding("utf8"), process.stdin.on("data", (chunk) => {
         data += chunk;
       }), process.stdin.on("end", () => {
-        resolve22(data.trim() || void 0);
+        resolve23(data.trim() || void 0);
       }), process.stdin.resume();
     });
 }
@@ -209045,8 +209049,8 @@ async function prepareInitialMessage(parsed, stdinContent) {
   });
 }
 function findLocalSessionByExactId(sessionId, cwd, sessionDir) {
-  let path23 = SessionManager.findById(cwd, sessionId, sessionDir);
-  return path23 ? { type: "local", path: path23 } : void 0;
+  let path28 = SessionManager.findById(cwd, sessionId, sessionDir);
+  return path28 ? { type: "local", path: path28 } : void 0;
 }
 async function resolveSessionPath(sessionArg, cwd, sessionDir) {
   if (sessionArg.includes("/") || sessionArg.includes("\\") || sessionArg.endsWith(".jsonl"))
@@ -209061,13 +209065,13 @@ async function resolveSessionPath(sessionArg, cwd, sessionDir) {
   return globalMatch ? { type: "global", path: globalMatch.path, cwd: globalMatch.cwd } : { type: "not_found", arg: sessionArg };
 }
 async function promptConfirm(message) {
-  return new Promise((resolve22) => {
+  return new Promise((resolve23) => {
     let rl = createInterface6({
       input: process.stdin,
       output: process.stdout
     });
     rl.question(`${message} [y/N] `, (answer) => {
-      rl.close(), resolve22(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes");
+      rl.close(), resolve23(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes");
     });
   });
 }
@@ -209096,9 +209100,9 @@ function validateSessionIdFlags(parsed) {
     console.error(source_default.red(`Error: ${message}`)), process.exit(1);
   }
 }
-function openSessionOrExit(path23, sessionDir) {
+function openSessionOrExit(path28, sessionDir) {
   try {
-    return SessionManager.open(path23, sessionDir);
+    return SessionManager.open(path28, sessionDir);
   } catch (error) {
     let message = error instanceof Error ? error.message : String(error);
     console.error(source_default.red(`Error: ${message}`)), process.exit(1);
@@ -209305,13 +209309,13 @@ async function main(args, options) {
       ...projectTrustDiagnostics,
       ...services2.diagnostics,
       ...collectSettingsDiagnostics(settingsManager2),
-      ...resourceLoader2.getExtensions().errors.map(({ path: path23, error }) => ({
+      ...resourceLoader2.getExtensions().errors.map(({ path: path28, error }) => ({
         type: "error",
-        message: `Failed to load extension "${path23}": ${error}`
+        message: `Failed to load extension "${path28}": ${error}`
       })),
-      ...(resourceLoader2.getExtensions().warnings ?? []).map(({ path: path23, warning }) => ({
+      ...(resourceLoader2.getExtensions().warnings ?? []).map(({ path: path28, warning }) => ({
         type: "warning",
-        message: `Extension package "${path23}": ${warning}`
+        message: `Extension package "${path28}": ${warning}`
       }))
     ], modelPatterns = parsed.models ?? settingsManager2.getEnabledModels(), scopedModels = modelPatterns && modelPatterns.length > 0 ? await resolveModelScope(modelPatterns, modelRuntime2, { signal: AbortSignal.timeout(15e3) }) : [], {
       options: sessionOptions,
@@ -209392,7 +209396,7 @@ async function main(args, options) {
       initialThemeSetting: parsed.useTheme
     });
     if (startupBenchmark) {
-      await interactiveMode.init(), time("interactiveMode.init"), await new Promise((resolve22) => setTimeout(resolve22, 150)), interactiveMode.stop(), stopThemeWatcher(), printTimings(), process.stdout.writableLength > 0 && await new Promise((resolve22) => process.stdout.once("drain", resolve22)), process.stderr.writableLength > 0 && await new Promise((resolve22) => process.stderr.once("drain", resolve22));
+      await interactiveMode.init(), time("interactiveMode.init"), await new Promise((resolve23) => setTimeout(resolve23, 150)), interactiveMode.stop(), stopThemeWatcher(), printTimings(), process.stdout.writableLength > 0 && await new Promise((resolve23) => process.stdout.once("drain", resolve23)), process.stderr.writableLength > 0 && await new Promise((resolve23) => process.stderr.once("drain", resolve23));
       return;
     }
     printTimings(), await interactiveMode.run();
@@ -209454,6 +209458,11 @@ var EXTENSION_LOAD_FAILURE_HINT, init_main = __esm({
   }
 });
 
+// packages/1c-agent/src/cli.ts
+import * as fs25 from "node:fs";
+import { dirname as dirname30, join as join58 } from "node:path";
+import { fileURLToPath as fileURLToPath7 } from "node:url";
+
 // packages/coding-agent/src/cli/setup.ts
 init_config();
 init_http_dispatcher();
@@ -209465,112 +209474,480 @@ function setupCli() {
 // packages/1c-agent/src/cli.ts
 init_main();
 
-// packages/1c-agent/src/index.ts
-import * as fs21 from "node:fs";
+// packages/1c-agent/src/doctor/index.ts
+import { spawnSync as spawnSync7 } from "node:child_process";
+import * as fs15 from "node:fs";
+import * as path20 from "node:path";
 
-// packages/1c-agent/src/autofix/patcher.ts
-function generateUnifiedDiff(filePath, original, modified, contextLines = 3) {
-  if (original === modified) return "";
-  let origLines = original.split(`
-`), modLines = modified.split(`
-`), start = 0;
-  for (; start < origLines.length && start < modLines.length && origLines[start] === modLines[start]; )
-    start++;
-  let origEnd = origLines.length - 1, modEnd = modLines.length - 1;
-  for (; origEnd >= start && modEnd >= start && origLines[origEnd] === modLines[modEnd]; )
-    origEnd--, modEnd--;
-  let contextBeforeStart = Math.max(0, start - contextLines), contextAfterEndOrig = Math.min(origLines.length - 1, origEnd + contextLines), contextAfterEndMod = Math.min(modLines.length - 1, modEnd + contextLines), origHunkStart = contextBeforeStart + 1, origHunkCount = origLines.length === 0 ? 0 : contextAfterEndOrig - contextBeforeStart + 1, modHunkStart = contextBeforeStart + 1, modHunkCount = modLines.length === 0 ? 0 : contextAfterEndMod - contextBeforeStart + 1, diffLines2 = [
-    `--- a/${filePath}`,
-    `+++ b/${filePath}`,
-    `@@ -${origHunkStart},${origHunkCount} +${modHunkStart},${modHunkCount} @@`
-  ];
-  for (let i2 = contextBeforeStart; i2 < start; i2++)
-    diffLines2.push(` ${origLines[i2]}`);
-  for (let i2 = start; i2 <= origEnd; i2++)
-    diffLines2.push(`-${origLines[i2]}`);
-  for (let i2 = start; i2 <= modEnd; i2++)
-    diffLines2.push(`+${modLines[i2]}`);
-  for (let i2 = origEnd + 1; i2 <= contextAfterEndOrig; i2++)
-    diffLines2.push(` ${origLines[i2]}`);
-  return diffLines2.join(`
-`);
+// packages/1c-agent/src/toolchain/resolver.ts
+import { execSync as execSync3 } from "node:child_process";
+import * as fs14 from "node:fs";
+import * as path19 from "node:path";
+function findPerunPackageDir(startDir) {
+  let dir = path19.resolve(startDir);
+  for (; dir !== path19.dirname(dir); ) {
+    let pkgJson = path19.join(dir, "package.json");
+    if (fs14.existsSync(pkgJson))
+      try {
+        if (fs14.readFileSync(pkgJson, "utf8").includes("@earendil-works/pi-1c-agent"))
+          return dir;
+      } catch {
+      }
+    dir = path19.dirname(dir);
+  }
+  return path19.resolve(startDir, "..", "..");
 }
-function generatePatches(filePath, sourceCode, violations) {
-  let content = sourceCode, patches = [], appliedCount = 0, sortedViolations = [...violations].sort((a, b2) => b2.line - a.line);
-  for (let v2 of sortedViolations) {
-    if (!v2.canAutoFix) continue;
-    let lines = content.split(`
-`), targetIndex = v2.line - 1;
-    if (!(targetIndex < 0 || targetIndex >= lines.length)) {
-      if (v2.ruleId === "EmptyExcept") {
-        let exceptLine = lines[targetIndex], indentMatch = /^\s*/.exec(exceptLine), fixLine = `${indentMatch ? indentMatch[0] : "	"}	\u0417\u0430\u043F\u0438\u0441\u044C\u0416\u0443\u0440\u043D\u0430\u043B\u0430\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438("\u041E\u0448\u0438\u0431\u043A\u0430", \u0423\u0440\u043E\u0432\u0435\u043D\u044C\u0416\u0443\u0440\u043D\u0430\u043B\u0430\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438.\u041E\u0448\u0438\u0431\u043A\u0430, , , \u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435\u041E\u0448\u0438\u0431\u043A\u0438());`;
-        lines.splice(targetIndex + 1, 0, fixLine);
-        let newContent = lines.join(`
-`);
-        patches.push({
-          filePath,
-          startLine: v2.line,
-          endLine: v2.line + 1,
-          originalText: exceptLine,
-          replacementText: `${exceptLine}
-${fixLine}`,
-          description: "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u0430 \u0437\u0430\u043F\u0438\u0441\u044C \u043E\u0448\u0438\u0431\u043A\u0438 \u0432 \u0436\u0443\u0440\u043D\u0430\u043B \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438 \u0432 \u043F\u0443\u0441\u0442\u043E\u043C \u0431\u043B\u043E\u043A\u0435 \u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435"
-        }), content = newContent, appliedCount++;
-      } else if (v2.ruleId === "UnusedVariable") {
-        let line = lines[targetIndex], nameMatch = /'([^']+)'/.exec(v2.message), varName = nameMatch ? nameMatch[1] : "";
-        if (varName && /^\s*(?:перем|var)\s+/i.test(line)) {
-          let updatedLine = "", varDeclMatch = /^\s*(?:перем|var)\s+([^;]+);/i.exec(line);
-          if (varDeclMatch) {
-            let remainingVars = varDeclMatch[1].split(",").map((s2) => s2.trim()).filter((vName) => vName.toLowerCase() !== varName.toLowerCase());
-            if (remainingVars.length === 0)
-              lines.splice(targetIndex, 1), updatedLine = "";
-            else {
-              let indentMatch = /^\s*/.exec(line), indent = indentMatch ? indentMatch[0] : "", kw = /^\s*var\b/i.test(line) ? "Var" : "\u041F\u0435\u0440\u0435\u043C";
-              updatedLine = `${indent}${kw} ${remainingVars.join(", ")};`, lines[targetIndex] = updatedLine;
-            }
-          } else
-            lines.splice(targetIndex, 1), updatedLine = "";
-          let newContent = lines.join(`
-`);
-          patches.push({
-            filePath,
-            startLine: v2.line,
-            endLine: v2.line,
-            originalText: line,
-            replacementText: updatedLine,
-            description: `\u0423\u0434\u0430\u043B\u0435\u043D\u0430 \u043D\u0435\u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u043C\u0430\u044F \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u0430\u044F '${varName}'`
-          }), content = newContent, appliedCount++;
-        }
-      } else if (v2.ruleId === "MissingBSLDoc") {
-        let insertIndex = targetIndex;
-        for (; insertIndex > 0 && lines[insertIndex - 1].trim().startsWith("&"); )
-          insertIndex--;
-        let procLine = lines[targetIndex], nameMatch = /(?:процедура|функция|procedure|function)\s+([А-Яа-яA-Za-z0-9_]+)/i.exec(procLine), routineName = nameMatch ? nameMatch[1] : "\u041C\u0435\u0442\u043E\u0434", indentMatch = /^\s*/.exec(lines[insertIndex]), indent = indentMatch ? indentMatch[0] : "", bslDocBlock = [
-          `${indent}// \u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435:`,
-          `${indent}//   \u0412\u044B\u043F\u043E\u043B\u043D\u044F\u0435\u0442 ${routineName}`,
-          `${indent}//`,
-          `${indent}// \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:`,
-          `${indent}//   (\u0441\u043C. \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u043C\u0435\u0442\u043E\u0434\u0430)`,
-          `${indent}//`
-        ].join(`
-`);
-        lines.splice(insertIndex, 0, bslDocBlock);
-        let newContent = lines.join(`
-`);
-        patches.push({
-          filePath,
-          startLine: insertIndex + 1,
-          endLine: insertIndex + 1,
-          originalText: lines[insertIndex],
-          replacementText: `${bslDocBlock}
-${lines[insertIndex]}`,
-          description: `\u0421\u0433\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u043D BSLDoc \u0448\u0430\u0431\u043B\u043E\u043D \u0434\u043B\u044F \u044D\u043A\u0441\u043F\u043E\u0440\u0442\u043D\u043E\u0433\u043E \u043C\u0435\u0442\u043E\u0434\u0430 '${routineName}'`
-        }), content = newContent, appliedCount++;
+var ToolchainResolver = class {
+  toolsDir;
+  constructor(customToolsDir) {
+    if (customToolsDir)
+      this.toolsDir = customToolsDir;
+    else if (process.env.PERUN_TOOLS_DIR)
+      this.toolsDir = process.env.PERUN_TOOLS_DIR;
+    else {
+      let execDir = path19.dirname(process.execPath), localToolsDir = path19.join(execDir, "tools");
+      if (fs14.existsSync(localToolsDir))
+        this.toolsDir = localToolsDir;
+      else {
+        let pkgDir = getPerunPackageDir(), pkgBinToolsDir = path19.join(pkgDir, "bin", "tools");
+        this.toolsDir = fs14.existsSync(pkgBinToolsDir) ? pkgBinToolsDir : path19.join(pkgDir, "tools");
       }
     }
   }
-  return { patches, fixedContent: content, appliedCount };
+  getToolsDir() {
+    return process.env.PERUN_TOOLS_DIR ? process.env.PERUN_TOOLS_DIR : this.toolsDir;
+  }
+  getCandidateToolsDirs() {
+    let candidates = [];
+    this.toolsDir && candidates.push(this.toolsDir);
+    let pkgDir = getPerunPackageDir();
+    candidates.push(path19.join(pkgDir, "bin", "tools")), candidates.push(path19.join(pkgDir, "tools"));
+    let execDir = path19.dirname(process.execPath);
+    return candidates.push(path19.join(execDir, "tools")), candidates.push(path19.join(execDir, "..", "tools")), candidates.push(path19.join(execDir, "..", "bin", "tools")), Array.from(new Set(candidates.filter((d) => !!d && fs14.existsSync(d))));
+  }
+  resolveBslAnalyzer() {
+    if (process.env.BSL_ANALYZER_PATH)
+      return process.env.BSL_ANALYZER_PATH;
+    let ext2 = process.platform === "win32" ? ".exe" : "";
+    for (let dir of this.getCandidateToolsDirs()) {
+      let candidateFiles = [path19.join(dir, `bsl-analyzer${ext2}`), path19.join(dir, "bin", `bsl-analyzer${ext2}`)];
+      for (let c2 of candidateFiles)
+        if (fs14.existsSync(c2))
+          return c2;
+    }
+    let systemLocations = process.platform === "win32" ? ["C:\\tools\\bsl-analyzer\\bsl-analyzer.exe"] : [
+      "/usr/local/bin/bsl-analyzer",
+      "/usr/bin/bsl-analyzer",
+      path19.join(process.env.HOME || "", ".local/bin/bsl-analyzer")
+    ];
+    for (let loc of systemLocations)
+      if (fs14.existsSync(loc))
+        return loc;
+    return this.which("bsl-analyzer");
+  }
+  resolveVrunner() {
+    return process.env.VRUNNER_PATH ? process.env.VRUNNER_PATH : this.which("vrunner");
+  }
+  resolveVrunnerVersion(vrunnerPath) {
+    if (process.env.VRUNNER_VERSION)
+      return process.env.VRUNNER_VERSION;
+    let bin = vrunnerPath || this.resolveVrunner();
+    if (bin)
+      try {
+        let cmd = `"${bin}" --version`, match3 = execSync3(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], timeout: 3e3 }).trim().match(/(\d+\.\d+(?:\.\d+)?)/);
+        return match3 ? match3[1] : void 0;
+      } catch {
+        return;
+      }
+  }
+  resolveOscript() {
+    return process.env.OSCRIPT_PATH ? process.env.OSCRIPT_PATH : this.which("oscript");
+  }
+  resolveVanessaAutomationEpf() {
+    if (process.env.VANESSA_AUTOMATION_EPF)
+      return process.env.VANESSA_AUTOMATION_EPF;
+    for (let dir of this.getCandidateToolsDirs()) {
+      let candidateFiles = [
+        path19.join(dir, "vanessa", "vanessa-automation.epf"),
+        path19.join(dir, "vanessa-automation", "vanessa-automation.epf"),
+        path19.join(dir, "vanessa-automation.epf")
+      ];
+      for (let c2 of candidateFiles)
+        if (fs14.existsSync(c2))
+          return c2;
+    }
+  }
+  resolveOnecEnterprise() {
+    if (process.env.ONEC_PATH && fs14.existsSync(process.env.ONEC_PATH))
+      return process.env.ONEC_PATH;
+    if (process.platform === "darwin") {
+      let searchRoots = ["/Applications/1cv8t.localized", "/Applications/1cv8.localized", "/Applications"];
+      for (let root of searchRoots)
+        if (fs14.existsSync(root))
+          try {
+            let entries = fs14.readdirSync(root);
+            entries.sort((a, b2) => compareVersionStrings(b2, a));
+            for (let entry of entries) {
+              let candidateDir = path19.join(root, entry);
+              if (entry.endsWith(".app")) {
+                let directBin = path19.join(candidateDir, "Contents", "MacOS", "1cv8t");
+                if (fs14.existsSync(directBin)) return directBin;
+                let directAlt = path19.join(candidateDir, "Contents", "MacOS", "1cv8");
+                if (fs14.existsSync(directAlt)) return directAlt;
+              }
+              let subApps = ["1cv8t.app", "1cv8.app", "1cv8ct.app", "1cv8c.app"];
+              for (let app of subApps) {
+                let binPath = path19.join(candidateDir, app, "Contents", "MacOS", "1cv8t");
+                if (fs14.existsSync(binPath))
+                  return binPath;
+                let altBinPath = path19.join(candidateDir, app, "Contents", "MacOS", "1cv8");
+                if (fs14.existsSync(altBinPath))
+                  return altBinPath;
+              }
+            }
+          } catch {
+          }
+    } else if (process.platform === "win32") {
+      let programFiles = [process.env.ProgramFiles, process.env["ProgramFiles(x86)"]].filter(Boolean);
+      for (let pf of programFiles) {
+        let onecRoot = path19.join(pf, "1cv8");
+        if (fs14.existsSync(onecRoot))
+          try {
+            let entries = fs14.readdirSync(onecRoot).sort((a, b2) => compareVersionStrings(b2, a));
+            for (let entry of entries) {
+              let bin = path19.join(onecRoot, entry, "bin", "1cv8.exe");
+              if (fs14.existsSync(bin)) return bin;
+            }
+          } catch {
+          }
+      }
+    } else {
+      let linuxRoots = ["/opt/1cv8/x86_64", "/opt/1cv8/i386", "/opt/1cv8/current"];
+      for (let root of linuxRoots)
+        if (fs14.existsSync(root))
+          try {
+            let entries = fs14.readdirSync(root).sort((a, b2) => compareVersionStrings(b2, a));
+            for (let entry of entries) {
+              let bin = path19.join(root, entry, "1cv8");
+              if (fs14.existsSync(bin)) return bin;
+            }
+          } catch {
+          }
+    }
+    return this.which("1cv8");
+  }
+  resolveIbcmd() {
+    if (process.env.IBCMD_PATH && fs14.existsSync(process.env.IBCMD_PATH))
+      return process.env.IBCMD_PATH;
+    let onec = this.resolveOnecEnterprise();
+    if (onec) {
+      let dir = path19.dirname(onec), ext2 = process.platform === "win32" ? ".exe" : "", candidateInSameDir = path19.join(dir, `ibcmd${ext2}`);
+      if (fs14.existsSync(candidateInSameDir))
+        return candidateInSameDir;
+      let candidateParent = path19.resolve(dir, "..", ".."), candidateInParent = path19.join(candidateParent, `ibcmd${ext2}`);
+      if (fs14.existsSync(candidateInParent))
+        return candidateInParent;
+    }
+    if (process.platform === "darwin") {
+      let searchRoots = ["/Applications/1cv8t.localized", "/Applications/1cv8.localized", "/Applications"];
+      for (let root of searchRoots)
+        if (fs14.existsSync(root))
+          try {
+            let entries = fs14.readdirSync(root);
+            entries.sort((a, b2) => compareVersionStrings(b2, a));
+            for (let entry of entries) {
+              let candidateDir = path19.join(root, entry), subApps = ["1cv8t.app", "1cv8.app", "1cv8ct.app", "1cv8c.app"];
+              for (let app of subApps) {
+                let binPath = path19.join(candidateDir, app, "Contents", "MacOS", "ibcmd");
+                if (fs14.existsSync(binPath))
+                  return binPath;
+              }
+              let directIbcmd = path19.join(candidateDir, "ibcmd");
+              if (fs14.existsSync(directIbcmd))
+                return directIbcmd;
+            }
+          } catch {
+          }
+    }
+    return this.which("ibcmd");
+  }
+  resolveAll() {
+    return {
+      bslAnalyzer: this.resolveBslAnalyzer(),
+      vrunner: this.resolveVrunner(),
+      oscript: this.resolveOscript(),
+      vanessaAutomationEpf: this.resolveVanessaAutomationEpf(),
+      onecEnterprise: this.resolveOnecEnterprise(),
+      ibcmd: this.resolveIbcmd(),
+      toolsDir: this.toolsDir
+    };
+  }
+  which(binary) {
+    try {
+      let cmd = process.platform === "win32" ? `where ${binary}` : `which ${binary}`, first = execSync3(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim().split(/\r?\n/)[0];
+      if (first && fs14.existsSync(first))
+        return first;
+    } catch {
+    }
+  }
+}, defaultToolchainResolver = new ToolchainResolver();
+function getPerunPackageDir() {
+  if (process.env.PERUN_PACKAGE_DIR)
+    return process.env.PERUN_PACKAGE_DIR;
+  let modulePath = new URL(import.meta.url).pathname;
+  return findPerunPackageDir(path19.dirname(modulePath));
 }
+function resolveSkillsDir() {
+  if (process.env.PERUN_SKILLS_DIR)
+    return process.env.PERUN_SKILLS_DIR;
+  let execDir = path19.dirname(process.execPath), localSkills = path19.join(execDir, "skills");
+  if (fs14.existsSync(localSkills)) return localSkills;
+  let pkgDir = getPerunPackageDir(), pkgSkills = path19.join(pkgDir, "skills");
+  if (fs14.existsSync(pkgSkills)) return pkgSkills;
+  let binSkills = path19.join(pkgDir, "bin", "skills");
+  return fs14.existsSync(binSkills) ? binSkills : pkgSkills;
+}
+function resolveBslAnalyzerPath(customPath) {
+  return customPath || (process.env.BSL_ANALYZER_PATH ? process.env.BSL_ANALYZER_PATH : new ToolchainResolver().resolveBslAnalyzer());
+}
+function resolveOscriptPath(customPath) {
+  return customPath || (process.env.OSCRIPT_PATH ? process.env.OSCRIPT_PATH : new ToolchainResolver().resolveOscript());
+}
+function resolveVrunnerPath(customPath) {
+  return customPath || (process.env.VRUNNER_PATH ? process.env.VRUNNER_PATH : new ToolchainResolver().resolveVrunner());
+}
+function resolveVanessaAutomationPath(customPath, projectRoot) {
+  if (customPath) return customPath;
+  if (process.env.VANESSA_AUTOMATION_PATH) return process.env.VANESSA_AUTOMATION_PATH;
+  if (process.env.VANESSA_AUTOMATION_EPF) return process.env.VANESSA_AUTOMATION_EPF;
+  if (projectRoot) {
+    let candidate = path19.join(projectRoot, "tools", "vanessa", "vanessa-automation.epf");
+    if (fs14.existsSync(candidate)) return candidate;
+  }
+  return new ToolchainResolver().resolveVanessaAutomationEpf();
+}
+function extractOnecVersion(onecPath) {
+  let match3 = onecPath.match(/(8\.\d+\.\d+(?:\.\d+)?)/);
+  return match3 ? match3[1] : void 0;
+}
+function compareVersionStrings(a, b2) {
+  let aParts = a.match(/\d+/g)?.map(Number) ?? [], bParts = b2.match(/\d+/g)?.map(Number) ?? [], len = Math.max(aParts.length, bParts.length);
+  for (let i2 = 0; i2 < len; i2++) {
+    let partA = aParts[i2] ?? 0, partB = bParts[i2] ?? 0;
+    if (partA !== partB)
+      return partA - partB;
+  }
+  return a.localeCompare(b2);
+}
+
+// packages/1c-agent/src/doctor/index.ts
+function tryGetBinaryVersion(binaryPath, args = ["--version"]) {
+  try {
+    let res = spawnSync7(binaryPath, args, {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+      timeout: 1e4
+    });
+    if (res.error || res.status !== 0 && !res.stdout) return;
+    let out = (res.stdout || "").trim();
+    return out ? out.split(/\r?\n/)[0]?.trim() : void 0;
+  } catch {
+    return;
+  }
+}
+async function checkDoctorToolchain(resolver = defaultToolchainResolver) {
+  let items = [], onec = resolver.resolveOnecEnterprise();
+  if (onec) {
+    let version2 = extractOnecVersion(onec) || tryGetBinaryVersion(onec), details = "\u041F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u0430 \u0438 \u0433\u043E\u0442\u043E\u0432\u0430 \u0434\u043B\u044F \u0440\u0430\u0431\u043E\u0442\u044B \u0441 \u0438\u043D\u0444\u043E\u0431\u0430\u0437\u0430\u043C\u0438 \u0438 vrunner.", recommendation;
+    process.platform === "darwin" && !fs15.existsSync("/opt/1cv8") && (recommendation = "\u0421\u043E\u0432\u0435\u0442 \u0434\u043B\u044F macOS: \u0431\u0438\u0431\u043B\u0438\u043E\u0442\u0435\u043A\u0430 vrunner (v8find) \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u0438\u0449\u0435\u0442 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0443 1\u0421 \u0432 /opt/1cv8. \u0414\u043B\u044F \u0431\u0435\u0441\u0448\u043E\u0432\u043D\u043E\u0439 \u0440\u0430\u0431\u043E\u0442\u044B vrunner \u0441 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u043E\u0439 \u0438\u0437 /Applications \u0440\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0443\u0435\u0442\u0441\u044F \u0441\u043E\u0437\u0434\u0430\u0442\u044C \u0441\u0438\u043C\u043B\u0438\u043D\u043A: sudo mkdir -p /opt/1cv8 && sudo ln -s /Applications/1cv8t.localized /opt/1cv8/current"), items.push({
+      name: "onecEnterprise",
+      title: "\u041F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (1cv8 / 1cv8t)",
+      required: !0,
+      status: "ok",
+      path: onec,
+      version: version2,
+      details,
+      recommendation
+    });
+  } else
+    items.push({
+      name: "onecEnterprise",
+      title: "\u041F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (1cv8 / 1cv8t)",
+      required: !0,
+      status: "missing",
+      recommendation: "\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0443 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (\u043D\u0430 macOS \u0432 /Applications/1cv8t.localized/ \u0438\u043B\u0438 /Applications/1cv8.localized/, \u043D\u0430 Linux \u0432 /opt/1cv8/) \u0438\u043B\u0438 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 \u043F\u0443\u0442\u044C \u0447\u0435\u0440\u0435\u0437 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u0443\u044E \u043E\u043A\u0440\u0443\u0436\u0435\u043D\u0438\u044F ONEC_PATH."
+    });
+  let bslAnalyzer = resolver.resolveBslAnalyzer();
+  if (bslAnalyzer) {
+    let version2 = tryGetBinaryVersion(bslAnalyzer);
+    items.push({
+      name: "bslAnalyzer",
+      title: "bsl-analyzer (LSP \u0438 \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u043D\u0430\u043B\u0438\u0437 BSL)",
+      required: !0,
+      status: "ok",
+      path: bslAnalyzer,
+      version: version2,
+      details: "\u041D\u0430\u0442\u0438\u0432\u043D\u044B\u0439 \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A bsl-analyzer \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D (\u043F\u043E\u0434\u0434\u0435\u0440\u0436\u043A\u0430 LSP \u0438 \u0430\u0432\u0442\u043E\u0444\u0438\u043A\u0441\u0430 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421)."
+    });
+  } else
+    items.push({
+      name: "bslAnalyzer",
+      title: "bsl-analyzer (LSP \u0438 \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u043D\u0430\u043B\u0438\u0437 BSL)",
+      required: !0,
+      status: "missing",
+      recommendation: "\u041F\u043E\u043C\u0435\u0441\u0442\u0438\u0442\u0435 \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A bsl-analyzer \u0432 bin/tools/ \u0438\u043B\u0438 $PATH (https://github.com/1c-syntax/bsl-analyzer), \u043B\u0438\u0431\u043E \u0437\u0430\u0434\u0430\u0439\u0442\u0435 BSL_ANALYZER_PATH."
+    });
+  let vrunner = resolver.resolveVrunner();
+  if (vrunner) {
+    let version2 = tryGetBinaryVersion(vrunner);
+    items.push({
+      name: "vrunner",
+      title: "vrunner (Vanessa Runner)",
+      required: !0,
+      status: "ok",
+      path: vrunner,
+      version: version2,
+      details: "\u0423\u0442\u0438\u043B\u0438\u0442\u0430 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0430\u0446\u0438\u0438 vrunner \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u0430."
+    });
+  } else
+    items.push({
+      name: "vrunner",
+      title: "vrunner (Vanessa Runner)",
+      required: !0,
+      status: "missing",
+      recommendation: "\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435 vanessa-runner \u0447\u0435\u0440\u0435\u0437 \u043F\u0430\u043A\u0435\u0442\u043D\u044B\u0439 \u043C\u0435\u043D\u0435\u0434\u0436\u0435\u0440 OneScript ('opm install vanessa-runner') \u0438\u043B\u0438 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 \u043F\u0443\u0442\u044C \u0447\u0435\u0440\u0435\u0437 VRUNNER_PATH."
+    });
+  let oscript = resolver.resolveOscript();
+  if (oscript) {
+    let version2 = tryGetBinaryVersion(oscript, ["-v"]) || tryGetBinaryVersion(oscript);
+    items.push({
+      name: "oscript",
+      title: "oscript (\u0418\u043D\u0442\u0435\u0440\u043F\u0440\u0435\u0442\u0430\u0442\u043E\u0440 OneScript)",
+      required: !0,
+      status: "ok",
+      path: oscript,
+      version: version2,
+      details: "\u0418\u043D\u0442\u0435\u0440\u043F\u0440\u0435\u0442\u0430\u0442\u043E\u0440 OneScript \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D."
+    });
+  } else
+    items.push({
+      name: "oscript",
+      title: "oscript (\u0418\u043D\u0442\u0435\u0440\u043F\u0440\u0435\u0442\u0430\u0442\u043E\u0440 OneScript)",
+      required: !0,
+      status: "missing",
+      recommendation: "\u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435 OneScript 2.0+ \u0441 \u043E\u0444\u0438\u0446\u0438\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u0441\u0430\u0439\u0442\u0430 (https://oscript.io/) \u0438\u043B\u0438 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 \u043F\u0443\u0442\u044C \u0447\u0435\u0440\u0435\u0437 OSCRIPT_PATH."
+    });
+  let vanessaEpf = resolver.resolveVanessaAutomationEpf();
+  vanessaEpf ? items.push({
+    name: "vanessaAutomationEpf",
+    title: "vanessa-automation.epf (BDD-\u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435)",
+    required: !1,
+    status: "ok",
+    path: vanessaEpf,
+    details: "\u0412\u043D\u0435\u0448\u043D\u044F\u044F \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430 Vanessa Automation \u043D\u0430\u0439\u0434\u0435\u043D\u0430."
+  }) : items.push({
+    name: "vanessaAutomationEpf",
+    title: "vanessa-automation.epf (BDD-\u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435)",
+    required: !1,
+    status: "warning",
+    recommendation: "\u041F\u043E\u043C\u0435\u0441\u0442\u0438\u0442\u0435 vanessa-automation.epf \u0432 \u043A\u0430\u0442\u0430\u043B\u043E\u0433 tools/vanessa/ \u0438\u043B\u0438 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 \u043F\u0443\u0442\u044C \u0447\u0435\u0440\u0435\u0437 VANESSA_AUTOMATION_EPF / VANESSA_AUTOMATION_PATH."
+  });
+  let ibcmd = resolver.resolveIbcmd();
+  ibcmd ? items.push({
+    name: "ibcmd",
+    title: "ibcmd (\u0423\u0442\u0438\u043B\u0438\u0442\u0430 \u043A\u043E\u043C\u0430\u043D\u0434\u043D\u043E\u0439 \u0441\u0442\u0440\u043E\u043A\u0438 1\u0421)",
+    required: !1,
+    status: "ok",
+    path: ibcmd,
+    details: "\u0423\u0442\u0438\u043B\u0438\u0442\u0430 \u043A\u043E\u043C\u0430\u043D\u0434\u043D\u043E\u0439 \u0441\u0442\u0440\u043E\u043A\u0438 ibcmd \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u0430."
+  }) : items.push({
+    name: "ibcmd",
+    title: "ibcmd (\u0423\u0442\u0438\u043B\u0438\u0442\u0430 \u043A\u043E\u043C\u0430\u043D\u0434\u043D\u043E\u0439 \u0441\u0442\u0440\u043E\u043A\u0438 1\u0421)",
+    required: !1,
+    status: "info",
+    details: "\u041D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430 (\u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E, \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \u0432 \u0441\u043E\u0441\u0442\u0430\u0432\u0435 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 8.3.14+)."
+  });
+  let skillsDir = resolveSkillsDir(), skillsCount = 0;
+  if (fs15.existsSync(skillsDir))
+    try {
+      skillsCount = fs15.readdirSync(skillsDir, { withFileTypes: !0 }).filter(
+        (e2) => e2.isDirectory() && fs15.existsSync(path20.join(skillsDir, e2.name, "SKILL.md"))
+      ).length;
+    } catch {
+    }
+  skillsCount > 0 ? items.push({
+    name: "skills",
+    title: "\u0412\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0435 \u043D\u0430\u0432\u044B\u043A\u0438 1\u0421 (CC-1C-SKILLS)",
+    required: !0,
+    status: "ok",
+    path: skillsDir,
+    details: `\u041A\u0430\u0442\u0430\u043B\u043E\u0433 \u043D\u0430\u0432\u044B\u043A\u043E\u0432 \u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D (\u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u043E \u043D\u0430\u0432\u044B\u043A\u043E\u0432: ${skillsCount}).`
+  }) : fs15.existsSync(skillsDir) ? items.push({
+    name: "skills",
+    title: "\u0412\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0435 \u043D\u0430\u0432\u044B\u043A\u0438 1\u0421 (CC-1C-SKILLS)",
+    required: !0,
+    status: "warning",
+    path: skillsDir,
+    details: "\u041A\u0430\u0442\u0430\u043B\u043E\u0433 \u043D\u0430\u0432\u044B\u043A\u043E\u0432 \u043D\u0430\u0439\u0434\u0435\u043D, \u043D\u043E \u043D\u0430\u0432\u044B\u043A\u0438 \u0441 SKILL.md \u043D\u0435 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u044B."
+  }) : items.push({
+    name: "skills",
+    title: "\u0412\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0435 \u043D\u0430\u0432\u044B\u043A\u0438 1\u0421 (CC-1C-SKILLS)",
+    required: !0,
+    status: "missing",
+    recommendation: "\u041A\u0430\u0442\u0430\u043B\u043E\u0433 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0445 \u043D\u0430\u0432\u044B\u043A\u043E\u0432 \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 PERUN_SKILLS_DIR \u0438\u043B\u0438 \u0441\u0431\u043E\u0440\u043A\u0443 \u0434\u0438\u0441\u0442\u0440\u0438\u0431\u0443\u0442\u0438\u0432\u0430."
+  });
+  let toolsDir = resolver.getToolsDir();
+  fs15.existsSync(toolsDir) ? items.push({
+    name: "toolsDir",
+    title: "\u041A\u0430\u0442\u0430\u043B\u043E\u0433 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0445 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (tools)",
+    required: !1,
+    status: "ok",
+    path: toolsDir,
+    details: "\u041A\u0430\u0442\u0430\u043B\u043E\u0433 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0445 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432 \u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D."
+  }) : items.push({
+    name: "toolsDir",
+    title: "\u041A\u0430\u0442\u0430\u043B\u043E\u0433 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0445 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (tools)",
+    required: !1,
+    status: "info",
+    details: `\u041A\u0430\u0442\u0430\u043B\u043E\u0433 ${toolsDir} \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442 (\u043D\u0435 \u043A\u0440\u0438\u0442\u0438\u0447\u043D\u043E, \u0435\u0441\u043B\u0438 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B \u0432 $PATH).`
+  });
+  let missingRequired = items.filter((i2) => i2.required && i2.status === "missing"), requiredOk = missingRequired.length === 0, allOk = items.every((i2) => i2.status === "ok"), summary = "";
+  return requiredOk ? summary = "\u0412\u0441\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u044B \u0438 \u0433\u043E\u0442\u043E\u0432\u044B \u043A \u0440\u0430\u0431\u043E\u0442\u0435." : summary = `\u041E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u044B \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0435 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B: ${missingRequired.map((i2) => i2.name).join(", ")}.`, {
+    allOk,
+    requiredOk,
+    items,
+    summary
+  };
+}
+function formatDoctorReport(report) {
+  let lines = ["=== \u041F\u0435\u0440\u0423\u041D Doctor: \u0414\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0430 \u0442\u0443\u043B\u0447\u0435\u0439\u043D\u0430 1\u0421 ===", ""];
+  for (let i2 = 0; i2 < report.items.length; i2++) {
+    let item = report.items[i2], statusTag = `[${item.status.toUpperCase()}]`;
+    lines.push(`${i2 + 1}. ${item.title}`), lines.push(`   \u0421\u0442\u0430\u0442\u0443\u0441: ${statusTag}`), item.path && lines.push(`   \u041F\u0443\u0442\u044C:   ${item.path}`), item.version && lines.push(`   \u0412\u0435\u0440\u0441\u0438\u044F: ${item.version}`), item.details && lines.push(`   \u0418\u043D\u0444\u043E:   ${item.details}`), item.recommendation && lines.push(`   \u0421\u043E\u0432\u0435\u0442:  ${item.recommendation}`), lines.push("");
+  }
+  return lines.push("------------------------------------------------------------"), lines.push(`\u0418\u0422\u041E\u0413: ${report.summary}`), report.requiredOk || lines.push("\u0414\u043B\u044F \u043F\u043E\u043B\u043D\u043E\u0439 \u0444\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u041F\u0435\u0440\u0423\u041D \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435 \u043D\u0435\u0434\u043E\u0441\u0442\u0430\u044E\u0449\u0438\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B."), lines.join(`
+`);
+}
+async function runDoctor(resolver = defaultToolchainResolver) {
+  let report = await checkDoctorToolchain(resolver), output = formatDoctorReport(report);
+  return {
+    exitCode: report.requiredOk ? 0 : 1,
+    output,
+    report
+  };
+}
+async function handleDoctorCli(args, options, resolver = defaultToolchainResolver) {
+  if (args.includes("--doctor") || args.includes("doctor")) {
+    let result = await runDoctor(resolver);
+    return (options?.stdout || ((msg) => process.stdout.write(`${msg}
+`)))(result.output), (options?.exit || ((code) => process.exit(code)))(result.exitCode), !0;
+  }
+  return !1;
+}
+
+// packages/1c-agent/src/index.ts
+import * as fs24 from "node:fs";
+import * as path27 from "node:path";
 
 // packages/1c-agent/src/autofix/rules.ts
 function parseBslAnalyzerJsonOutput(jsonString, defaultFilePath) {
@@ -209592,11 +209969,220 @@ function parseBslAnalyzerJsonOutput(jsonString, defaultFilePath) {
     return [];
   }
 }
+var RULE_ALIASES = {
+  CreateQueryInCycle: "QueryInLoop",
+  QueryInLoop: "CreateQueryInCycle",
+  MissingCodeTryCatchEx: "EmptyExcept",
+  EmptyExcept: "MissingCodeTryCatchEx",
+  UnusedLocalVariable: "UnusedVariable",
+  UnusedVariable: "UnusedLocalVariable",
+  MissingBSLDocComments: "MissingBSLDoc",
+  MissingBSLDocMethod: "MissingBSLDoc",
+  MissingBSLDoc: "MissingBSLDocMethod"
+}, NORMALIZED_RULES = {
+  CreateQueryInCycle: "QueryInLoop",
+  QueryInLoop: "QueryInLoop",
+  MissingCodeTryCatchEx: "EmptyExcept",
+  EmptyExcept: "EmptyExcept",
+  UnusedLocalVariable: "UnusedVariable",
+  UnusedVariable: "UnusedVariable",
+  MissingBSLDocComments: "MissingBSLDoc",
+  MissingBSLDocMethod: "MissingBSLDoc",
+  MissingBSLDoc: "MissingBSLDoc",
+  QueryVirtualTableParameterArity: "QueryVirtualTableParameterArity"
+};
+function normalizeRuleId(ruleId) {
+  return NORMALIZED_RULES[ruleId] ?? ruleId;
+}
+function matchesRuleId(candidate, target) {
+  if (candidate === target) return !0;
+  let normCandidate = normalizeRuleId(candidate), normTarget = normalizeRuleId(target);
+  return normCandidate === normTarget ? !0 : RULE_ALIASES[candidate] === target || RULE_ALIASES[target] === candidate;
+}
+var AUTO_FIXABLE_RULES = /* @__PURE__ */ new Set([
+  "EmptyExcept",
+  "MissingCodeTryCatchEx",
+  "UnusedVariable",
+  "UnusedLocalVariable",
+  "MissingBSLDoc",
+  "MissingBSLDocComments",
+  "MissingBSLDocMethod"
+]);
 function isRuleAutoFixable(ruleId) {
-  return (/* @__PURE__ */ new Set(["EmptyExcept", "UnusedVariable", "MissingBSLDoc"])).has(ruleId);
+  let normalized = normalizeRuleId(ruleId);
+  return AUTO_FIXABLE_RULES.has(ruleId) || AUTO_FIXABLE_RULES.has(normalized);
+}
+var VIRTUAL_TABLE_PARAM_LIMITS = {
+  \u043E\u0441\u0442\u0430\u0442\u043A\u0438: { max: 2, canonicalName: "\u041E\u0441\u0442\u0430\u0442\u043A\u0438" },
+  balance: { max: 2, canonicalName: "Balance" },
+  \u043E\u0431\u043E\u0440\u043E\u0442\u044B: { max: 4, canonicalName: "\u041E\u0431\u043E\u0440\u043E\u0442\u044B" },
+  turnovers: { max: 4, canonicalName: "Turnovers" },
+  \u043E\u0441\u0442\u0430\u0442\u043A\u0438\u0438\u043E\u0431\u043E\u0440\u043E\u0442\u044B: { max: 5, canonicalName: "\u041E\u0441\u0442\u0430\u0442\u043A\u0438\u0418\u041E\u0431\u043E\u0440\u043E\u0442\u044B" },
+  balanceandturnovers: { max: 5, canonicalName: "BalanceAndTurnovers" },
+  \u0441\u0440\u0435\u0437\u043F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445: { max: 2, canonicalName: "\u0421\u0440\u0435\u0437\u041F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445" },
+  slicelast: { max: 2, canonicalName: "SliceLast" },
+  \u0441\u0440\u0435\u0437\u043F\u0435\u0440\u0432\u044B\u0445: { max: 2, canonicalName: "\u0421\u0440\u0435\u0437\u041F\u0435\u0440\u0432\u044B\u0445" },
+  slicefirst: { max: 2, canonicalName: "SliceFirst" },
+  \u043E\u0431\u043E\u0440\u043E\u0442\u044B\u0434\u0442\u043A\u0442: { max: 9, canonicalName: "\u041E\u0431\u043E\u0440\u043E\u0442\u044B\u0414\u0442\u041A\u0442" },
+  turnoversdrcr: { max: 9, canonicalName: "TurnoversDrCr" },
+  \u0441\u0443\u0431\u043A\u043E\u043D\u0442\u043E: { max: 5, canonicalName: "\u0421\u0443\u0431\u043A\u043E\u043D\u0442\u043E" },
+  subconto: { max: 5, canonicalName: "Subconto" }
+}, VT_NAMES_PATTERN = "(?:\u041E\u0441\u0442\u0430\u0442\u043A\u0438\u0418\u041E\u0431\u043E\u0440\u043E\u0442\u044B|BalanceAndTurnovers|\u041E\u0431\u043E\u0440\u043E\u0442\u044B\u0414\u0442\u041A\u0442|TurnoversDrCr|\u0421\u0440\u0435\u0437\u041F\u043E\u0441\u043B\u0435\u0434\u043D\u0438\u0445|SliceLast|\u0421\u0440\u0435\u0437\u041F\u0435\u0440\u0432\u044B\u0445|SliceFirst|\u041E\u0441\u0442\u0430\u0442\u043A\u0438|Balance|\u041E\u0431\u043E\u0440\u043E\u0442\u044B|Turnovers|\u0421\u0443\u0431\u043A\u043E\u043D\u0442\u043E|Subconto)", VT_CALL_REGEX = new RegExp(`(?<![\u0410-\u042F\u0430-\u044FA-Za-z0-9_])(${VT_NAMES_PATTERN})(?![\u0410-\u042F\u0430-\u044FA-Za-z0-9_])\\s*\\(`, "gi");
+function parseVirtualTableArgs(text, openParenIndex) {
+  let depth = 1, inDoubleQuoteString = !1, isDoubledQuote = !1, inSingleQuoteString = !1, inComment = !1, inXmlComment = !1, commasAtDepth1 = 0, hasNonWhitespaceContent = !1, i2 = openParenIndex + 1, len = text.length;
+  for (; i2 < len && depth > 0; ) {
+    let ch = text[i2], next = text[i2 + 1];
+    if (inXmlComment) {
+      if (ch === "-" && next === "-" && text[i2 + 2] === ">") {
+        inXmlComment = !1, i2 += 3;
+        continue;
+      }
+      i2++;
+      continue;
+    }
+    if (inComment) {
+      (ch === `
+` || ch === "\r") && (inComment = !1), i2++;
+      continue;
+    }
+    if (!inDoubleQuoteString && !inSingleQuoteString) {
+      if (ch === "<" && next === "!" && text.slice(i2, i2 + 4) === "<!--") {
+        inXmlComment = !0, i2 += 4;
+        continue;
+      }
+      if (ch === "/" && next === "/") {
+        inComment = !0, i2 += 2;
+        continue;
+      }
+    }
+    if (inDoubleQuoteString) {
+      if (isDoubledQuote) {
+        if (ch === '"' && next === '"') {
+          if (text[i2 + 2] === '"' && text[i2 + 3] === '"') {
+            i2 += 4;
+            continue;
+          }
+          inDoubleQuoteString = !1, isDoubledQuote = !1, i2 += 2;
+          continue;
+        }
+      } else if (ch === '"') {
+        if (next === '"') {
+          i2 += 2;
+          continue;
+        }
+        inDoubleQuoteString = !1, i2++;
+        continue;
+      }
+      i2++;
+      continue;
+    }
+    if (inSingleQuoteString) {
+      if (ch === "'") {
+        if (next === "'") {
+          i2 += 2;
+          continue;
+        }
+        inSingleQuoteString = !1, i2++;
+        continue;
+      }
+      i2++;
+      continue;
+    }
+    if (ch === '"') {
+      if (next === '"') {
+        inDoubleQuoteString = !0, isDoubledQuote = !0, i2 += 2;
+        continue;
+      }
+      inDoubleQuoteString = !0, isDoubledQuote = !1, i2++;
+      continue;
+    }
+    if (ch === "'") {
+      inSingleQuoteString = !0, i2++;
+      continue;
+    }
+    if (ch === "(") {
+      depth++, hasNonWhitespaceContent = !0, i2++;
+      continue;
+    }
+    if (ch === ")") {
+      if (depth--, depth === 0) {
+        i2++;
+        break;
+      }
+      i2++;
+      continue;
+    }
+    if (ch === "," && depth === 1) {
+      commasAtDepth1++, i2++;
+      continue;
+    }
+    ch !== " " && ch !== "	" && ch !== "\r" && ch !== `
+` && ch !== "|" && (hasNonWhitespaceContent = !0), i2++;
+  }
+  let argCount = 0;
+  return commasAtDepth1 > 0 ? argCount = commasAtDepth1 + 1 : hasNonWhitespaceContent && (argCount = 1), { argCount, endIndex: i2 };
+}
+function checkVirtualTableArity(filePath, code, baseOffset = 0, fullDocument = code) {
+  let violations = [], regex = new RegExp(VT_CALL_REGEX.source, VT_CALL_REGEX.flags), match3 = regex.exec(code);
+  for (; match3 !== null; ) {
+    let vtToken = match3[1], matchIndex = match3.index, openParenIndex = code.indexOf("(", matchIndex + vtToken.length);
+    if (openParenIndex === -1) {
+      match3 = regex.exec(code);
+      continue;
+    }
+    let lastNewline = code.lastIndexOf(`
+`, matchIndex), lineStart = lastNewline === -1 ? 0 : lastNewline + 1, linePrefix = code.slice(lineStart, matchIndex);
+    if (linePrefix.includes("//")) {
+      match3 = regex.exec(code);
+      continue;
+    }
+    if (/(?:процедура|функция|procedure|function)\s+$/i.test(linePrefix.trim())) {
+      match3 = regex.exec(code);
+      continue;
+    }
+    let limits = VIRTUAL_TABLE_PARAM_LIMITS[vtToken.toLowerCase()];
+    if (!limits) {
+      match3 = regex.exec(code);
+      continue;
+    }
+    let { argCount } = parseVirtualTableArgs(code, openParenIndex);
+    if (argCount > limits.max) {
+      let absIndex = baseOffset + matchIndex, line = (fullDocument.slice(0, absIndex).match(/\n/g)?.length ?? 0) + 1, docLastNewline = fullDocument.lastIndexOf(`
+`, absIndex), column = docLastNewline === -1 ? absIndex + 1 : absIndex - docLastNewline;
+      violations.push({
+        ruleId: "QueryVirtualTableParameterArity",
+        ruleName: "\u041D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432 \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u043E\u0439 \u0442\u0430\u0431\u043B\u0438\u0446\u044B",
+        message: `\u041D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u043E\u0435 \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432 \u0432 \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u043E\u0439 \u0442\u0430\u0431\u043B\u0438\u0446\u0435 '${limits.canonicalName}': \u043F\u0435\u0440\u0435\u0434\u0430\u043D\u043E ${argCount}, \u043C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u043E \u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u043E ${limits.max}. \u041F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 1\u0421 \u043E\u0442\u043A\u043B\u043E\u043D\u0438\u0442 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u0437\u0430\u043F\u0440\u043E\u0441\u0430.`,
+        filePath,
+        line,
+        column,
+        severity: "error",
+        canAutoFix: !1
+      });
+    }
+    regex.lastIndex = openParenIndex + 1, match3 = regex.exec(code);
+  }
+  return violations;
+}
+function extractQueriesFromXml(xmlContent) {
+  let queries = [], queryTagRegex = /<query(?:\s[^>]*)?>([\s\S]*?)<\/query>/gi;
+  for (let match3 of xmlContent.matchAll(queryTagRegex)) {
+    let fullTag = match3[0], innerContent = match3[1], innerStartIndex = match3.index + fullTag.indexOf(innerContent);
+    queries.push({
+      queryText: innerContent,
+      startIndex: innerStartIndex
+    });
+  }
+  return queries;
 }
 function analyzeCodeForItsRules(filePath, sourceCode) {
-  let violations = [], lines = sourceCode.split(`
+  if (filePath.toLowerCase().endsWith(".xml")) {
+    let xmlQueries = extractQueriesFromXml(sourceCode), violations2 = [];
+    for (let q2 of xmlQueries)
+      violations2.push(...checkVirtualTableArity(filePath, q2.queryText, q2.startIndex, sourceCode));
+    return violations2.sort((a, b2) => a.line - b2.line || a.column - b2.column), violations2;
+  }
+  let violations = [...checkVirtualTableArity(filePath, sourceCode)], lines = sourceCode.split(`
 `), inLoop = !1, loopStartLine = 0, loopDepth = 0, inExceptBlock = !1, exceptStartLine = 0, exceptStatementsCount = 0, currentDirective;
   for (let i2 = 0; i2 < lines.length; i2++) {
     let line = lines[i2], trimmed = line.trim(), lineNum = i2 + 1;
@@ -209639,8 +210225,10 @@ function analyzeCodeForItsRules(filePath, sourceCode) {
         }
       }
     }
-    if (currentDirective?.includes("\u043D\u0430\u0441\u0435\u0440\u0432\u0435\u0440\u0435") && /\b(предупреждение|вопрос|ввестичисло|ввестистроку|ввестидату|ввестизначение)\s*\(/i.test(trimmed)) {
-      let funcMatch = /\b(предупреждение|вопрос|ввестичисло|ввестистроку|ввестидату|ввестизначение)\b/i.exec(
+    if (currentDirective?.includes("\u043D\u0430\u0441\u0435\u0440\u0432\u0435\u0440\u0435") && /(?<![А-Яа-яA-Za-z0-9_])(предупреждение|вопрос|ввестичисло|ввестистроку|ввестидату|ввестизначение)\s*\(/i.test(
+      trimmed
+    )) {
+      let funcMatch = /(?<![А-Яа-яA-Za-z0-9_])(предупреждение|вопрос|ввестичисло|ввестистроку|ввестидату|ввестизначение)(?![А-Яа-яA-Za-z0-9_])/i.exec(
         trimmed
       );
       violations.push({
@@ -209677,15 +210265,178 @@ function analyzeCodeForItsRules(filePath, sourceCode) {
       });
     }
   }
-  return violations;
+  return violations.sort((a, b2) => a.line - b2.line || a.column - b2.column), violations;
+}
+
+// packages/1c-agent/src/autofix/patcher.ts
+function generateUnifiedDiff(filePath, original, modified, contextLines = 3) {
+  if (original === modified) return "";
+  let origLines = original.split(`
+`), modLines = modified.split(`
+`), start = 0;
+  for (; start < origLines.length && start < modLines.length && origLines[start] === modLines[start]; )
+    start++;
+  let origEnd = origLines.length - 1, modEnd = modLines.length - 1;
+  for (; origEnd >= start && modEnd >= start && origLines[origEnd] === modLines[modEnd]; )
+    origEnd--, modEnd--;
+  let contextBeforeStart = Math.max(0, start - contextLines), contextAfterEndOrig = Math.min(origLines.length - 1, origEnd + contextLines), contextAfterEndMod = Math.min(modLines.length - 1, modEnd + contextLines), origHunkStart = contextBeforeStart + 1, origHunkCount = origLines.length === 0 ? 0 : contextAfterEndOrig - contextBeforeStart + 1, modHunkStart = contextBeforeStart + 1, modHunkCount = modLines.length === 0 ? 0 : contextAfterEndMod - contextBeforeStart + 1, diffLines2 = [
+    `--- a/${filePath}`,
+    `+++ b/${filePath}`,
+    `@@ -${origHunkStart},${origHunkCount} +${modHunkStart},${modHunkCount} @@`
+  ];
+  for (let i2 = contextBeforeStart; i2 < start; i2++)
+    diffLines2.push(` ${origLines[i2]}`);
+  for (let i2 = start; i2 <= origEnd; i2++)
+    diffLines2.push(`-${origLines[i2]}`);
+  for (let i2 = start; i2 <= modEnd; i2++)
+    diffLines2.push(`+${modLines[i2]}`);
+  for (let i2 = origEnd + 1; i2 <= contextAfterEndOrig; i2++)
+    diffLines2.push(` ${origLines[i2]}`);
+  return diffLines2.join(`
+`);
+}
+function generatePatches(filePath, sourceCode, violations) {
+  let content = sourceCode, patches = [], appliedCount = 0, sortedViolations = [...violations].sort((a, b2) => b2.line - a.line);
+  for (let v2 of sortedViolations) {
+    if (!v2.canAutoFix) continue;
+    let lines = content.split(`
+`), targetIndex = v2.line - 1;
+    if (!(targetIndex < 0 || targetIndex >= lines.length)) {
+      if (matchesRuleId(v2.ruleId, "EmptyExcept")) {
+        let exceptLine = lines[targetIndex], indentMatch = /^\s*/.exec(exceptLine), fixLine = `${indentMatch ? indentMatch[0] : "	"}	\u0417\u0430\u043F\u0438\u0441\u044C\u0416\u0443\u0440\u043D\u0430\u043B\u0430\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438("\u041E\u0448\u0438\u0431\u043A\u0430", \u0423\u0440\u043E\u0432\u0435\u043D\u044C\u0416\u0443\u0440\u043D\u0430\u043B\u0430\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438.\u041E\u0448\u0438\u0431\u043A\u0430, , , \u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435\u041E\u0448\u0438\u0431\u043A\u0438());`;
+        lines.splice(targetIndex + 1, 0, fixLine);
+        let newContent = lines.join(`
+`);
+        patches.push({
+          filePath,
+          startLine: v2.line,
+          endLine: v2.line + 1,
+          originalText: exceptLine,
+          replacementText: `${exceptLine}
+${fixLine}`,
+          description: "\u0414\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u0430 \u0437\u0430\u043F\u0438\u0441\u044C \u043E\u0448\u0438\u0431\u043A\u0438 \u0432 \u0436\u0443\u0440\u043D\u0430\u043B \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438 \u0432 \u043F\u0443\u0441\u0442\u043E\u043C \u0431\u043B\u043E\u043A\u0435 \u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435"
+        }), content = newContent, appliedCount++;
+      } else if (matchesRuleId(v2.ruleId, "UnusedVariable")) {
+        let line = lines[targetIndex], nameMatch = /'([^']+)'/.exec(v2.message), varName = nameMatch ? nameMatch[1] : "";
+        if (varName && /^\s*(?:перем|var)\s+/i.test(line)) {
+          let updatedLine = "", varDeclMatch = /^\s*(?:перем|var)\s+([^;]+);/i.exec(line);
+          if (varDeclMatch) {
+            let remainingVars = varDeclMatch[1].split(",").map((s2) => s2.trim()).filter((vName) => vName.toLowerCase() !== varName.toLowerCase());
+            if (remainingVars.length === 0)
+              lines.splice(targetIndex, 1), updatedLine = "";
+            else {
+              let indentMatch = /^\s*/.exec(line), indent = indentMatch ? indentMatch[0] : "", kw = /^\s*var\b/i.test(line) ? "Var" : "\u041F\u0435\u0440\u0435\u043C";
+              updatedLine = `${indent}${kw} ${remainingVars.join(", ")};`, lines[targetIndex] = updatedLine;
+            }
+          } else
+            lines.splice(targetIndex, 1), updatedLine = "";
+          let newContent = lines.join(`
+`);
+          patches.push({
+            filePath,
+            startLine: v2.line,
+            endLine: v2.line,
+            originalText: line,
+            replacementText: updatedLine,
+            description: `\u0423\u0434\u0430\u043B\u0435\u043D\u0430 \u043D\u0435\u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u043C\u0430\u044F \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u0430\u044F '${varName}'`
+          }), content = newContent, appliedCount++;
+        }
+      } else if (matchesRuleId(v2.ruleId, "MissingBSLDoc")) {
+        let insertIndex = targetIndex;
+        for (; insertIndex > 0 && lines[insertIndex - 1].trim().startsWith("&"); )
+          insertIndex--;
+        let procLine = lines[targetIndex], nameMatch = /(?:процедура|функция|procedure|function)\s+([А-Яа-яA-Za-z0-9_]+)/i.exec(procLine), routineName = nameMatch ? nameMatch[1] : "\u041C\u0435\u0442\u043E\u0434", indentMatch = /^\s*/.exec(lines[insertIndex]), indent = indentMatch ? indentMatch[0] : "", bslDocBlock = [
+          `${indent}// \u041E\u043F\u0438\u0441\u0430\u043D\u0438\u0435:`,
+          `${indent}//   \u0412\u044B\u043F\u043E\u043B\u043D\u044F\u0435\u0442 ${routineName}`,
+          `${indent}//`,
+          `${indent}// \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:`,
+          `${indent}//   (\u0441\u043C. \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u043C\u0435\u0442\u043E\u0434\u0430)`,
+          `${indent}//`
+        ].join(`
+`);
+        lines.splice(insertIndex, 0, bslDocBlock);
+        let newContent = lines.join(`
+`);
+        patches.push({
+          filePath,
+          startLine: insertIndex + 1,
+          endLine: insertIndex + 1,
+          originalText: lines[insertIndex],
+          replacementText: `${bslDocBlock}
+${lines[insertIndex]}`,
+          description: `\u0421\u0433\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u043D BSLDoc \u0448\u0430\u0431\u043B\u043E\u043D \u0434\u043B\u044F \u044D\u043A\u0441\u043F\u043E\u0440\u0442\u043D\u043E\u0433\u043E \u043C\u0435\u0442\u043E\u0434\u0430 '${routineName}'`
+        }), content = newContent, appliedCount++;
+      }
+    }
+  }
+  return { patches, fixedContent: content, appliedCount };
 }
 
 // packages/1c-agent/src/autofix/tools.ts
 init_build();
 import { exec } from "node:child_process";
-import * as fs14 from "node:fs";
+import * as fs16 from "node:fs";
+import * as path21 from "node:path";
 import { promisify as promisify2 } from "node:util";
-var execAsync = promisify2(exec);
+var execAsync = promisify2(exec), EXCLUDED_DIRS = /* @__PURE__ */ new Set([".git", "node_modules", "build", "bin", "dist", ".idea", ".vscode"]);
+async function collectTargetFiles(dirPath) {
+  let files = [];
+  async function walk3(currentDir) {
+    let entries;
+    try {
+      entries = await fs16.promises.readdir(currentDir, { withFileTypes: !0 });
+    } catch {
+      return;
+    }
+    for (let entry of entries)
+      if (entry.isDirectory())
+        EXCLUDED_DIRS.has(entry.name) || await walk3(path21.join(currentDir, entry.name));
+      else if (entry.isFile()) {
+        let lower2 = entry.name.toLowerCase();
+        (lower2.endsWith(".bsl") || lower2.endsWith(".os") || lower2 === "template.xml") && files.push(path21.join(currentDir, entry.name));
+      }
+  }
+  return await walk3(dirPath), files.sort();
+}
+async function processFile(filePath, dryRun, useCli, analyzerBin, ruleIds) {
+  let sourceCode = "";
+  try {
+    sourceCode = await fs16.promises.readFile(filePath, "utf8");
+  } catch (err) {
+    let msg = err instanceof Error ? err.message : String(err);
+    return { error: `\u041E\u0448\u0438\u0431\u043A\u0430 \u043E\u0442\u043A\u0440\u044B\u0442\u0438\u044F \u0444\u0430\u0439\u043B\u0430 '${filePath}': ${msg}` };
+  }
+  let violations = [...analyzeCodeForItsRules(filePath, sourceCode)], isXml = filePath.toLowerCase().endsWith(".xml");
+  if (useCli && !isXml)
+    try {
+      let { stdout } = await execAsync(`"${analyzerBin}" analyze --format json "${filePath}"`, {
+        timeout: 3e3
+      });
+      if (stdout.trim()) {
+        let externalViolations = parseBslAnalyzerJsonOutput(stdout, filePath);
+        for (let ext2 of externalViolations)
+          violations.some((v2) => v2.line === ext2.line && matchesRuleId(v2.ruleId, ext2.ruleId)) || violations.push(ext2);
+      }
+    } catch {
+    }
+  if (ruleIds && ruleIds.length > 0 && (violations = violations.filter((v2) => ruleIds.some((targetRule) => matchesRuleId(v2.ruleId, targetRule)))), violations.length === 0)
+    return {
+      filePath,
+      violations: [],
+      appliedCount: 0,
+      remainingViolations: []
+    };
+  let { fixedContent, appliedCount } = generatePatches(filePath, sourceCode, violations), diff = generateUnifiedDiff(filePath, sourceCode, fixedContent);
+  !dryRun && appliedCount > 0 && await fs16.promises.writeFile(filePath, fixedContent, "utf8");
+  let remainingViolations = violations.filter((v2) => !v2.canAutoFix);
+  return {
+    filePath,
+    violations,
+    appliedCount,
+    diff: appliedCount > 0 && diff ? diff : void 0,
+    remainingViolations
+  };
+}
 function registerAutofixTools(pi) {
   pi.registerTool({
     name: "bsl_fix_standards",
@@ -209693,7 +210444,7 @@ function registerAutofixTools(pi) {
     description: "\u0421\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u043D\u0430\u043B\u0438\u0437 \u043A\u043E\u0434\u0430 1\u0421 \u043D\u0430 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0430\u043C \u0418\u0422\u0421 \u0438 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u044B\u0445 diff-\u043F\u0430\u0442\u0447\u0435\u0439 (\u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u043F\u0443\u0441\u0442\u044B\u0445 \u043F\u043E\u043F\u044B\u0442\u043E\u043A, \u043D\u0435\u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u043C\u044B\u0445 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445, BSLDoc \u0438 \u0434\u0440.).",
     promptSnippet: "bsl_fix_standards: \u0430\u0443\u0434\u0438\u0442 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 1\u0421:\u0418\u0422\u0421 \u0438 \u0430\u0432\u0442\u043E-\u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439",
     parameters: typebox_exports.Object({
-      target: typebox_exports.String({ description: "\u041F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443 .bsl \u0438\u043B\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0434\u043B\u044F \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438" }),
+      target: typebox_exports.String({ description: "\u041F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443 .bsl, .os, Template.xml \u0438\u043B\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0434\u043B\u044F \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438" }),
       dryRun: typebox_exports.Optional(
         typebox_exports.Boolean({
           description: "\u0422\u043E\u043B\u044C\u043A\u043E \u043F\u043E\u043A\u0430\u0437\u0430\u0442\u044C \u043D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u044F \u0438 \u043F\u0440\u0435\u0434\u043B\u0430\u0433\u0430\u0435\u043C\u044B\u0439 diff \u0431\u0435\u0437 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0444\u0430\u0439\u043B\u0430 (\u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E false)"
@@ -209711,9 +210462,9 @@ function registerAutofixTools(pi) {
       )
     }),
     execute: async (_toolCallId, params, _signal, _onUpdate, _ctx) => {
-      let dryRun = params.dryRun ?? !1, targetPath = params.target, sourceCode = "";
+      let dryRun = params.dryRun ?? !1, targetPath = params.target, stat6;
       try {
-        sourceCode = await fs14.promises.readFile(targetPath, "utf8");
+        stat6 = await fs16.promises.stat(targetPath);
       } catch (err) {
         let msg = err instanceof Error ? err.message : String(err);
         return {
@@ -209722,24 +210473,87 @@ function registerAutofixTools(pi) {
           details: void 0
         };
       }
-      let violations = [...analyzeCodeForItsRules(targetPath, sourceCode)];
-      if (params.useCli ?? process.env.BSL_ANALYZER_CLI === "1")
-        try {
-          let { stdout } = await execAsync(`bsl-analyzer analyze --format json "${targetPath}"`, {
-            timeout: 3e3
-          });
-          if (stdout.trim()) {
-            let externalViolations = parseBslAnalyzerJsonOutput(stdout, targetPath);
-            for (let ext2 of externalViolations)
-              violations.some((v2) => v2.line === ext2.line && v2.ruleId === ext2.ruleId) || violations.push(ext2);
-          }
-        } catch {
+      let useCli = params.useCli ?? process.env.BSL_ANALYZER_CLI === "1", analyzerBin = resolveBslAnalyzerPath() || "bsl-analyzer";
+      if (stat6.isDirectory()) {
+        let files = await collectTargetFiles(targetPath);
+        if (files.length === 0)
+          return {
+            content: [
+              {
+                type: "text",
+                text: `[bsl_fix_standards]: \u0412 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0435 '${targetPath}' \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u043E \u0444\u0430\u0439\u043B\u043E\u0432 \u0434\u043B\u044F \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438 (.bsl, .os, Template.xml).`
+              }
+            ],
+            details: {
+              filePath: targetPath,
+              totalViolations: 0,
+              appliedFixes: 0,
+              remainingViolations: []
+            }
+          };
+        let totalViolations = 0, totalAppliedFixes = 0, allRemainingViolations = [], diffs = [], fileSummaries = [];
+        for (let file of files) {
+          let res = await processFile(file, dryRun, useCli, analyzerBin, params.ruleIds);
+          "error" in res || res.violations.length > 0 && (totalViolations += res.violations.length, totalAppliedFixes += res.appliedCount, allRemainingViolations.push(...res.remainingViolations), res.diff && diffs.push(res.diff), fileSummaries.push(res));
         }
-      if (params.ruleIds && params.ruleIds.length > 0) {
-        let allowedSet = new Set(params.ruleIds);
-        violations = violations.filter((v2) => allowedSet.has(v2.ruleId));
+        if (totalViolations === 0)
+          return {
+            content: [
+              {
+                type: "text",
+                text: `[bsl_fix_standards]: \u041F\u0440\u043E\u0432\u0435\u0440\u0435\u043D\u043E \u0444\u0430\u0439\u043B\u043E\u0432: ${files.length} \u0432 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0435 '${targetPath}'. \u041D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u0439 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 1\u0421:\u0418\u0422\u0421 \u043D\u0435 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u043E. \u041A\u043E\u0434 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0443\u0435\u0442 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0443.`
+              }
+            ],
+            details: {
+              filePath: targetPath,
+              totalViolations: 0,
+              appliedFixes: 0,
+              remainingViolations: []
+            }
+          };
+        let lines2 = [
+          `[bsl_fix_standards: \u0410\u043D\u0430\u043B\u0438\u0437 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 '${targetPath}']`,
+          `\u041F\u0440\u043E\u0432\u0435\u0440\u0435\u043D\u043E \u0444\u0430\u0439\u043B\u043E\u0432: ${files.length}`,
+          `\u0412\u0441\u0435\u0433\u043E \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u043E \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439: ${totalViolations}`,
+          `\u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 ${dryRun ? "\u0441\u0433\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u043D\u043E \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0439 (dry-run)" : "\u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u043E"}: ${totalAppliedFixes}`,
+          `\u0422\u0440\u0435\u0431\u0443\u0435\u0442 \u0440\u0443\u0447\u043D\u043E\u0433\u043E \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u0447\u0438\u043A\u043E\u043C: ${allRemainingViolations.length}`
+        ];
+        lines2.push(`
+\u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u044B \u043F\u043E \u0444\u0430\u0439\u043B\u0430\u043C:`);
+        for (let summary of fileSummaries)
+          if (lines2.push(`
+\u0424\u0430\u0439\u043B: ${summary.filePath}`), lines2.push(`  \u041E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u043E \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439: ${summary.violations.length}, \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u043E: ${summary.appliedCount}`), summary.remainingViolations.length > 0)
+            for (let rem of summary.remainingViolations)
+              lines2.push(
+                `  - [\u0421\u0442\u0440\u043E\u043A\u0430 ${rem.line}, \u041A\u043E\u043B ${rem.column}] ${rem.severity.toUpperCase()} (${rem.ruleId}): ${rem.message}`
+              );
+        totalAppliedFixes > 0 && diffs.length > 0 && (lines2.push(`
+\u0421\u0444\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u043F\u0430\u0442\u0447:`), lines2.push("```diff"), lines2.push(diffs.join(`
+
+`)), lines2.push("```"));
+        let combinedDiff = diffs.length > 0 ? diffs.join(`
+
+`) : void 0, resultDetails2 = {
+          filePath: targetPath,
+          totalViolations,
+          appliedFixes: totalAppliedFixes,
+          remainingViolations: allRemainingViolations,
+          diff: combinedDiff
+        };
+        return {
+          content: [{ type: "text", text: lines2.join(`
+`) }],
+          details: resultDetails2
+        };
       }
-      if (violations.length === 0)
+      let result = await processFile(targetPath, dryRun, useCli, analyzerBin, params.ruleIds);
+      if ("error" in result)
+        return {
+          content: [{ type: "text", text: result.error }],
+          isError: !0,
+          details: void 0
+        };
+      if (result.violations.length === 0)
         return {
           content: [
             {
@@ -209754,29 +210568,27 @@ function registerAutofixTools(pi) {
             remainingViolations: []
           }
         };
-      let { fixedContent, appliedCount } = generatePatches(targetPath, sourceCode, violations), diff = generateUnifiedDiff(targetPath, sourceCode, fixedContent);
-      !dryRun && appliedCount > 0 && await fs14.promises.writeFile(targetPath, fixedContent, "utf8");
-      let remainingViolations = violations.filter((v2) => !v2.canAutoFix), lines = [
+      let lines = [
         `[bsl_fix_standards: \u0410\u043D\u0430\u043B\u0438\u0437 \u0444\u0430\u0439\u043B\u0430 '${targetPath}']`,
-        `\u0412\u0441\u0435\u0433\u043E \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u043E \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439: ${violations.length}`,
-        `\u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 ${dryRun ? "\u0441\u0433\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u043D\u043E \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0439 (dry-run)" : "\u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u043E"}: ${appliedCount}`,
-        `\u0422\u0440\u0435\u0431\u0443\u0435\u0442 \u0440\u0443\u0447\u043D\u043E\u0433\u043E \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u0447\u0438\u043A\u043E\u043C: ${remainingViolations.length}`
+        `\u0412\u0441\u0435\u0433\u043E \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u043E \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439: ${result.violations.length}`,
+        `\u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 ${dryRun ? "\u0441\u0433\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u043D\u043E \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0439 (dry-run)" : "\u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u043E"}: ${result.appliedCount}`,
+        `\u0422\u0440\u0435\u0431\u0443\u0435\u0442 \u0440\u0443\u0447\u043D\u043E\u0433\u043E \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u0447\u0438\u043A\u043E\u043C: ${result.remainingViolations.length}`
       ];
-      if (appliedCount > 0 && diff && (lines.push(`
-\u0421\u0444\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u043F\u0430\u0442\u0447:`), lines.push("```diff"), lines.push(diff), lines.push("```")), remainingViolations.length > 0) {
+      if (result.appliedCount > 0 && result.diff && (lines.push(`
+\u0421\u0444\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u043F\u0430\u0442\u0447:`), lines.push("```diff"), lines.push(result.diff), lines.push("```")), result.remainingViolations.length > 0) {
         lines.push(`
 \u041E\u0441\u0442\u0430\u0432\u0448\u0438\u0435\u0441\u044F \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u044F, \u0442\u0440\u0435\u0431\u0443\u044E\u0449\u0438\u0435 \u0432\u043D\u0438\u043C\u0430\u043D\u0438\u044F:`);
-        for (let rem of remainingViolations)
+        for (let rem of result.remainingViolations)
           lines.push(
             `- [\u0421\u0442\u0440\u043E\u043A\u0430 ${rem.line}, \u041A\u043E\u043B ${rem.column}] ${rem.severity.toUpperCase()} (${rem.ruleId}): ${rem.message}`
           );
       }
       let resultDetails = {
         filePath: targetPath,
-        totalViolations: violations.length,
-        appliedFixes: appliedCount,
-        remainingViolations,
-        diff
+        totalViolations: result.violations.length,
+        appliedFixes: result.appliedCount,
+        remainingViolations: result.remainingViolations,
+        diff: result.diff
       };
       return {
         content: [{ type: "text", text: lines.join(`
@@ -209789,14 +210601,15 @@ function registerAutofixTools(pi) {
 
 // packages/1c-agent/src/lsp/client.ts
 import { spawn as spawn15 } from "node:child_process";
-import * as fs15 from "node:fs";
-import * as path19 from "node:path";
+import * as fs17 from "node:fs";
+import * as path22 from "node:path";
 import { fileURLToPath as fileURLToPath6, pathToFileURL as pathToFileURL4 } from "node:url";
 var BslLspClient = class {
   executablePath;
   projectPath;
   defaultTimeoutMs;
   process = null;
+  startingPromise = null;
   nextRequestId = 1;
   pendingRequests = /* @__PURE__ */ new Map();
   diagnosticsCache = /* @__PURE__ */ new Map();
@@ -209805,7 +210618,10 @@ var BslLspClient = class {
   buffer = Buffer.alloc(0);
   isInitialized = !1;
   constructor(options = {}) {
-    this.executablePath = options.executablePath || process.env.BSL_ANALYZER_PATH || "bsl-analyzer", this.projectPath = options.projectPath || process.cwd(), this.defaultTimeoutMs = options.timeoutMs ?? 1e4;
+    this.executablePath = options.executablePath, this.projectPath = options.projectPath || process.cwd(), this.defaultTimeoutMs = options.timeoutMs ?? 1e4;
+  }
+  getExecutablePath() {
+    return this.executablePath;
   }
   isRunning() {
     return this.process !== null && !this.process.killed;
@@ -209816,6 +210632,18 @@ var BslLspClient = class {
   async start(projectPath) {
     if (this.isRunning())
       return !0;
+    if (this.startingPromise)
+      return this.startingPromise;
+    this.startingPromise = this.doStart(projectPath);
+    try {
+      return await this.startingPromise;
+    } finally {
+      this.startingPromise = null;
+    }
+  }
+  async doStart(projectPath) {
+    if (this.executablePath ??= resolveBslAnalyzerPath(this.executablePath), !this.executablePath)
+      return !1;
     projectPath && (this.projectPath = projectPath);
     try {
       let child = spawn15(this.executablePath, ["lsp"], {
@@ -209850,7 +210678,7 @@ var BslLspClient = class {
     this.pendingRequests.clear();
   }
   filePathToUri(filePath) {
-    let absolutePath = path19.isAbsolute(filePath) ? filePath : path19.resolve(this.projectPath, filePath);
+    let absolutePath = path22.isAbsolute(filePath) ? filePath : path22.resolve(this.projectPath, filePath);
     return pathToFileURL4(absolutePath).toString();
   }
   uriToFilePath(uri) {
@@ -209867,7 +210695,7 @@ var BslLspClient = class {
     let uri = this.filePathToUri(filePath), text = content;
     if (text === void 0)
       try {
-        text = await fs15.promises.readFile(this.uriToFilePath(uri), "utf8");
+        text = await fs17.promises.readFile(this.uriToFilePath(uri), "utf8");
       } catch {
         return;
       }
@@ -209900,18 +210728,18 @@ var BslLspClient = class {
     let uri = this.filePathToUri(filePath);
     return this.diagnosticsCache.get(uri) ?? [];
   }
-  async waitForDiagnostics(filePath, timeoutMs = 300) {
+  async waitForDiagnostics(filePath, timeoutMs = 1500) {
     let uri = this.filePathToUri(filePath);
-    return new Promise((resolve22) => {
+    return new Promise((resolve23) => {
       let timer = null, onDiagnostics = (diagnostics) => {
-        timer && clearTimeout(timer), resolve22(diagnostics);
+        timer && clearTimeout(timer), resolve23({ timedOut: !1, diagnostics });
       }, waiters = this.diagnosticWaiters.get(uri) ?? [];
       waiters.push(onDiagnostics), this.diagnosticWaiters.set(uri, waiters), timer = setTimeout(() => {
         let currentWaiters = this.diagnosticWaiters.get(uri) ?? [];
         this.diagnosticWaiters.set(
           uri,
           currentWaiters.filter((w) => w !== onDiagnostics)
-        ), resolve22(this.getDiagnostics(filePath));
+        ), resolve23({ timedOut: !0, diagnostics: this.getDiagnostics(filePath) });
       }, timeoutMs);
     });
   }
@@ -209977,7 +210805,7 @@ var BslLspClient = class {
     }
   }
   sendRequest(method, params, timeoutMs = this.defaultTimeoutMs) {
-    return new Promise((resolve22, reject) => {
+    return new Promise((resolve23, reject) => {
       if (!this.process?.stdin) {
         reject(new Error("LSP server not running"));
         return;
@@ -209990,7 +210818,7 @@ var BslLspClient = class {
       }, timer = setTimeout(() => {
         this.pendingRequests.delete(id), reject(new Error(`LSP request '${method}' timed out after ${timeoutMs}ms`));
       }, timeoutMs);
-      this.pendingRequests.set(id, { resolve: resolve22, reject, timer }), this.writeMessage(JSON.stringify(request));
+      this.pendingRequests.set(id, { resolve: resolve23, reject, timer }), this.writeMessage(JSON.stringify(request));
     });
   }
   sendNotification(method, params) {
@@ -210060,7 +210888,29 @@ var BslLspClient = class {
 };
 
 // packages/1c-agent/src/lsp/feedback.ts
-import * as fs16 from "node:fs";
+import { execFile as execFile2 } from "node:child_process";
+import * as fs18 from "node:fs";
+import { promisify as promisify3 } from "node:util";
+var execFileAsync2 = promisify3(execFile2);
+function parseSeverity(severity) {
+  if (typeof severity == "number")
+    return severity >= 1 && severity <= 4 ? severity : 2;
+  if (!severity) return 2;
+  switch (severity.toLowerCase()) {
+    case "critical":
+    case "error":
+      return 1;
+    case "warning":
+      return 2;
+    case "info":
+    case "information":
+      return 3;
+    case "hint":
+      return 4;
+    default:
+      return 2;
+  }
+}
 function formatSeverity(severity) {
   switch (severity) {
     case 1:
@@ -210075,12 +210925,13 @@ function formatSeverity(severity) {
       return "\u0417\u0410\u041C\u0415\u0427\u0410\u041D\u0418\u0415";
   }
 }
-function formatDiagnostics(filePath, diagnostics) {
+function formatDiagnostics(filePath, diagnostics, source = "LSP") {
+  let prefix = source === "LSP" ? "[bsl-analyzer LSP]" : "[bsl-analyzer]";
   if (diagnostics.length === 0)
     return `
-[bsl-analyzer LSP]: \u0424\u0430\u0439\u043B ${filePath} \u043F\u0440\u043E\u0432\u0435\u0440\u0435\u043D. \u041E\u0448\u0438\u0431\u043E\u043A \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441\u0430 \u0438 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u043D\u0435 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u043E.`;
+${prefix}: \u0424\u0430\u0439\u043B ${filePath} \u043F\u0440\u043E\u0432\u0435\u0440\u0435\u043D. \u041E\u0448\u0438\u0431\u043E\u043A \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441\u0430 \u0438 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u043D\u0435 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u043E.`;
   let lines = [`
-[bsl-analyzer LSP]: \u0412 \u0444\u0430\u0439\u043B\u0435 ${filePath} \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u044B \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u044F (${diagnostics.length}):`];
+${prefix}: \u0412 \u0444\u0430\u0439\u043B\u0435 ${filePath} \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u044B \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u044F (${diagnostics.length}):`];
   for (let diag of diagnostics) {
     let line = diag.range.start.line + 1, col = diag.range.start.character + 1, sev = formatSeverity(diag.severity), code = diag.code ? ` (${diag.code})` : "";
     lines.push(`- [\u0421\u0442\u0440\u043E\u043A\u0430 ${line}, \u041A\u043E\u043B ${col}] ${sev}${code}: ${diag.message}`);
@@ -210094,13 +210945,102 @@ var InlineFeedbackHandler = class {
   options;
   constructor(client, options = {}) {
     this.client = client, this.options = {
-      waitForDiagnosticsTimeoutMs: options.waitForDiagnosticsTimeoutMs ?? 250,
-      alwaysShowCleanNotice: options.alwaysShowCleanNotice ?? !1
+      waitForDiagnosticsTimeoutMs: options.waitForDiagnosticsTimeoutMs ?? 1500,
+      alwaysShowCleanNotice: options.alwaysShowCleanNotice ?? !0,
+      bslAnalyzerPath: options.bslAnalyzerPath
     };
   }
   isBslFile(filePath) {
     let lower2 = filePath.toLowerCase();
     return lower2.endsWith(".bsl") || lower2.endsWith(".os");
+  }
+  parseCliDiagnostics(output) {
+    let diagnostics = [], trimmedOutput = output.trim();
+    if (!trimmedOutput) return diagnostics;
+    if (trimmedOutput.startsWith("[") || trimmedOutput.startsWith("{") && !trimmedOutput.includes(`
+{`))
+      try {
+        let parsed = JSON.parse(trimmedOutput), items = Array.isArray(parsed) ? parsed : Array.isArray(parsed.diagnostics) ? parsed.diagnostics : [];
+        for (let item of items) {
+          let d = item, startLine = d.start_line ?? (d.line !== void 0 ? Math.max(0, d.line - 1) : 0), startCol = d.start_column ?? (d.column !== void 0 ? Math.max(0, d.column - 1) : 0), endLine = d.end_line ?? (d.line !== void 0 ? Math.max(0, d.line - 1) : startLine), endCol = d.end_column ?? (d.column !== void 0 ? Math.max(0, d.column - 1) : startCol);
+          diagnostics.push({
+            range: {
+              start: { line: startLine, character: startCol },
+              end: { line: endLine, character: endCol }
+            },
+            severity: parseSeverity(d.severity),
+            code: d.code,
+            message: d.message || "\u0417\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0435 bsl-analyzer"
+          });
+        }
+        if (diagnostics.length > 0)
+          return diagnostics;
+      } catch {
+      }
+    let lines = output.split(/\r?\n/);
+    for (let line of lines) {
+      let trimmed = line.trim();
+      if (trimmed)
+        if (trimmed.startsWith("{"))
+          try {
+            let parsed = JSON.parse(trimmed);
+            if (parsed.type === "file" && Array.isArray(parsed.diagnostics))
+              for (let d of parsed.diagnostics)
+                diagnostics.push({
+                  range: {
+                    start: { line: d.start_line ?? 0, character: d.start_column ?? 0 },
+                    end: {
+                      line: d.end_line ?? d.start_line ?? 0,
+                      character: d.end_column ?? d.start_column ?? 0
+                    }
+                  },
+                  severity: parseSeverity(d.severity),
+                  code: d.code,
+                  message: d.message || "\u0417\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0435 bsl-analyzer"
+                });
+          } catch {
+          }
+        else {
+          let match3 = /(?:^|\s)(?:.+?):(\d+):(\d+):\s*(error|warning|info|hint)\s*(?:\(([^)]+)\))?:\s*(.+)$/i.exec(
+            trimmed
+          );
+          if (match3) {
+            let lineNum = Math.max(0, Number.parseInt(match3[1], 10) - 1), colNum = Math.max(0, Number.parseInt(match3[2], 10) - 1);
+            diagnostics.push({
+              range: {
+                start: { line: lineNum, character: colNum },
+                end: { line: lineNum, character: colNum }
+              },
+              severity: parseSeverity(match3[3]),
+              code: match3[4],
+              message: match3[5].trim()
+            });
+          }
+        }
+    }
+    return diagnostics;
+  }
+  async runCliAnalysis(executablePath, filePath) {
+    try {
+      let res = await execFileAsync2(executablePath, ["analyze", "-s", filePath, "--format", "jsonl"], {
+        timeout: 1e4,
+        maxBuffer: 10485760
+      }).catch((err) => ({
+        stdout: err.stdout ?? "",
+        stderr: err.stderr ?? ""
+      }));
+      !res.stdout && (res.stderr.includes("--format") || res.stderr.includes("unexpected")) && (res = await execFileAsync2(executablePath, ["analyze", "-s", filePath], {
+        timeout: 1e4,
+        maxBuffer: 10 * 1024 * 1024
+      }).catch((err) => ({
+        stdout: err.stdout ?? "",
+        stderr: err.stderr ?? ""
+      })));
+      let output = res.stdout || res.stderr;
+      return this.parseCliDiagnostics(output);
+    } catch {
+      return [];
+    }
   }
   async handleToolResult(event) {
     if (event.toolName !== "write" && event.toolName !== "edit")
@@ -210110,17 +211050,49 @@ var InlineFeedbackHandler = class {
       return;
     let updatedContent = "";
     try {
-      updatedContent = await fs16.promises.readFile(rawPath, "utf8");
+      updatedContent = await fs18.promises.readFile(rawPath, "utf8");
     } catch {
       return;
     }
-    await this.client.openDocument(rawPath, updatedContent), await this.client.changeDocument(rawPath, updatedContent);
-    let diagnostics = await this.client.waitForDiagnostics(rawPath, this.options.waitForDiagnosticsTimeoutMs);
-    if (diagnostics.length === 0 && !this.options.alwaysShowCleanNotice)
+    if (this.client.isReady()) {
+      await this.client.openDocument(rawPath, updatedContent), await this.client.changeDocument(rawPath, updatedContent);
+      let result = await this.client.waitForDiagnostics(rawPath, this.options.waitForDiagnosticsTimeoutMs);
+      if (!result.timedOut) {
+        if (result.diagnostics.length === 0 && !this.options.alwaysShowCleanNotice)
+          return;
+        let feedbackText3 = formatDiagnostics(rawPath, result.diagnostics, "LSP");
+        return {
+          content: [...event.content ?? [], { type: "text", text: feedbackText3 }]
+        };
+      }
+      let bslAnalyzer2 = resolveBslAnalyzerPath(this.options.bslAnalyzerPath ?? this.client.getExecutablePath());
+      if (!bslAnalyzer2) {
+        let feedbackText3 = `
+[bsl-analyzer]: \u0421\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u043D\u0430\u043B\u0438\u0437 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D (LSP \u043D\u0435 \u043E\u0442\u0432\u0435\u0442\u0438\u043B \u0437\u0430 ${this.options.waitForDiagnosticsTimeoutMs}ms, CLI \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D)`;
+        return {
+          content: [...event.content ?? [], { type: "text", text: feedbackText3 }]
+        };
+      }
+      let cliDiagnostics2 = await this.runCliAnalysis(bslAnalyzer2, rawPath);
+      if (cliDiagnostics2.length === 0 && !this.options.alwaysShowCleanNotice)
+        return;
+      let feedbackText2 = formatDiagnostics(rawPath, cliDiagnostics2, "CLI");
+      return {
+        content: [...event.content ?? [], { type: "text", text: feedbackText2 }]
+      };
+    }
+    let bslAnalyzer = resolveBslAnalyzerPath(this.options.bslAnalyzerPath ?? this.client.getExecutablePath());
+    if (!bslAnalyzer)
+      return {
+        content: [...event.content ?? [], { type: "text", text: `
+[bsl-analyzer]: \u0421\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u043D\u0430\u043B\u0438\u0437 \u043D\u0435\u0434\u043E\u0441\u0442\u0443\u043F\u0435\u043D (bsl-analyzer \u043D\u0435 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D)` }]
+      };
+    let cliDiagnostics = await this.runCliAnalysis(bslAnalyzer, rawPath);
+    if (cliDiagnostics.length === 0 && !this.options.alwaysShowCleanNotice)
       return;
-    let feedbackText = formatDiagnostics(rawPath, diagnostics);
+    let feedbackText = formatDiagnostics(rawPath, cliDiagnostics, "CLI");
     return {
-      content: [...event.content, { type: "text", text: feedbackText }]
+      content: [...event.content ?? [], { type: "text", text: feedbackText }]
     };
   }
 };
@@ -210128,43 +211100,444 @@ var InlineFeedbackHandler = class {
 // packages/1c-agent/src/modes/prompts.ts
 var MODE_PROMPTS = {
   find: `[\u0420\u0415\u0416\u0418\u041C: \u041D\u0410\u0419\u0422\u0418 (EXPLORE)]
-\u0412\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u0440\u0435\u0436\u0438\u043C\u0435 \u0438\u0441\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u043D\u0438\u044F \u0438 \u043F\u043E\u0438\u0441\u043A\u0430 \u043F\u043E \u043A\u043E\u0434\u043E\u0432\u043E\u0439 \u0431\u0430\u0437\u0435 1\u0421.
-\u0412\u0430\u0448\u0430 \u0437\u0430\u0434\u0430\u0447\u0430:
-- \u0410\u043D\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0443 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 1C:EDT, \u043C\u043E\u0434\u0443\u043B\u0438 BSL, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 \u0438 \u0441\u0432\u044F\u0437\u0438 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432.
-- \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u043D\u0430\u0432\u0438\u0433\u0430\u0446\u0438\u0438: 1c_call_hierarchy (\u0433\u0440\u0430\u0444 \u0432\u044B\u0437\u043E\u0432\u043E\u0432), 1c_impact_analysis (\u0441\u0432\u044F\u0437\u0430\u043D\u043D\u043E\u0441\u0442\u044C \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445), 1c_ast_symbols (\u0441\u0438\u043C\u0432\u043E\u043B\u044B \u043C\u043E\u0434\u0443\u043B\u044F), \u0430 \u0442\u0430\u043A\u0436\u0435 grep, find, read.
-- \u041E\u0442\u0432\u0435\u0447\u0430\u0442\u044C \u043D\u0430 \u0432\u043E\u043F\u0440\u043E\u0441\u044B \u043E\u0431 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0435 \u0438 \u0440\u0430\u0441\u043F\u043E\u043B\u043E\u0436\u0435\u043D\u0438\u0438 \u043B\u043E\u0433\u0438\u043A\u0438.
-\u0412\u041D\u0418\u041C\u0410\u041D\u0418\u0415: \u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0444\u0430\u0439\u043B\u043E\u0432 (edit, write, bash \u0441 \u043C\u0443\u0442\u0430\u0446\u0438\u044F\u043C\u0438) \u0432 \u044D\u0442\u043E\u043C \u0440\u0435\u0436\u0438\u043C\u0435 \u0417\u0410\u0411\u041B\u041E\u041A\u0418\u0420\u041E\u0412\u0410\u041D\u041E. \u0414\u043B\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u043A\u043E\u0434\u0430 \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u0441\u044C \u0432 \u0440\u0435\u0436\u0438\u043C \u041D\u0410\u041F\u0418\u0421\u0410\u0422\u042C (alt+m \u0438\u043B\u0438 /mode write).`,
+\u0412\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u0440\u0435\u0436\u0438\u043C\u0435 \u0438\u0441\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u043D\u0438\u044F, \u043D\u0430\u0432\u0438\u0433\u0430\u0446\u0438\u0438 \u0438 \u043F\u043E\u0438\u0441\u043A\u0430 \u043F\u043E \u043A\u043E\u0434\u043E\u0432\u043E\u0439 \u0431\u0430\u0437\u0435 \u0438 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u043C 1\u0421.
+\u0412\u0441\u0435 \u043C\u0443\u0442\u0438\u0440\u0443\u044E\u0449\u0438\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B (edit, write, bash, bsl_fix_standards, 1c_vanessa, 1c_skill_execute) \u0421\u0422\u0420\u041E\u0413\u041E \u0417\u0410\u0411\u041B\u041E\u041A\u0418\u0420\u041E\u0412\u0410\u041D\u042B.
+\u0420\u0435\u0436\u0438\u043C \u043F\u0440\u0435\u0434\u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D \u0438\u0441\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E \u0434\u043B\u044F \u043F\u043E\u0438\u0441\u043A\u0430 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u0438\u0439, \u0441\u0432\u044F\u0437\u0435\u0439 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432, \u0430\u043D\u0430\u043B\u0438\u0437\u0430 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0438 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 1C:EDT.
+
+# 1. ACTION BIAS \u0418 \u0421\u0422\u0418\u041B\u042C \u0420\u0410\u0411\u041E\u0422\u042B (OPENCODE MENTALITY)
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u0427\u0415\u0420\u041D\u041E\u0412\u0418\u041A\u041E\u0412 \u0412 COT: \u041D\u0435 \u0440\u0430\u0441\u0441\u0443\u0436\u0434\u0430\u0439\u0442\u0435 \u043E \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0435 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u0438 \u043D\u0435 \u043C\u043E\u0434\u0435\u043B\u0438\u0440\u0443\u0439\u0442\u0435 \u043F\u0440\u0435\u0434\u043F\u043E\u043B\u043E\u0436\u0435\u043D\u0438\u044F \u0432 \u043C\u044B\u0441\u043B\u044F\u0445 (<think>). \u0421\u0444\u043E\u0440\u043C\u0443\u043B\u0438\u0440\u0443\u0439\u0442\u0435 \u043A\u0440\u0430\u0442\u043A\u0443\u044E \u0433\u0438\u043F\u043E\u0442\u0435\u0437\u0443 \u0432 1 \u0441\u0442\u0440\u043E\u043A\u0443 \u0438 \u043D\u0435\u043C\u0435\u0434\u043B\u0435\u043D\u043D\u043E \u0432\u044B\u0437\u044B\u0432\u0430\u0439\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u043F\u043E\u0438\u0441\u043A\u0430.
+- \u041D\u0435 \u0433\u0430\u0434\u0430\u0439\u0442\u0435: \u043F\u0440\u043E\u0432\u0435\u0440\u044F\u0439\u0442\u0435 \u0444\u0430\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u043D\u0430\u043B\u0438\u0447\u0438\u0435 \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u043E\u0432, \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440 \u0438 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0447\u0435\u0440\u0435\u0437 grep, find, read \u0438 1c_ast_symbols.
+- \u0410\u0412\u0422\u041E\u041D\u041E\u041C\u041D\u042B\u0419 \u0422\u0423\u041B\u0427\u0415\u0419\u041D 1\u0421 (TOOLCHAIN-RESOLVER):
+  * \u0412\u0441\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0438 \u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u044B \u0438 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u044B \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u043C \u0440\u0435\u0437\u043E\u043B\u0432\u0435\u0440\u043E\u043C \u043E\u043A\u0440\u0443\u0436\u0435\u043D\u0438\u044F:
+    - bsl-analyzer: \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0439 \u0432 tools/bsl-analyzer, BSL_ANALYZER_PATH \u0438\u043B\u0438 \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0439 PATH.
+    - vrunner \u0438 oscript: \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0439 PATH \u0438\u043B\u0438 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0435 VRUNNER_PATH, OSCRIPT_PATH.
+    - vanessa-automation.epf: \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u0430\u044F \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430 \u0432 tools/vanessa/vanessa-automation.epf.
+    - 1cv8 (onec-enterprise): \u0430\u0432\u0442\u043E\u0434\u0435\u0442\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (macOS /Applications/1cv8*.app, Linux /opt/1cv8, Windows Program Files).
+  * \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u0442\u0440\u0430\u0442\u0438\u0442\u044C \u0448\u0430\u0433\u0438 \u043D\u0430 \u043F\u043E\u0438\u0441\u043A \u0438\u043B\u0438 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0443 \u0443\u0442\u0438\u043B\u0438\u0442 \u0447\u0435\u0440\u0435\u0437 bash (which, find, whereis), \u0442\u043E\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043E\u0438\u0441\u043A find / \u043F\u043E \u0432\u0441\u0435\u043C\u0443 \u0434\u0438\u0441\u043A\u0443 \u0438 \u0434\u0438\u0437\u0430\u0441\u0441\u0435\u043C\u0431\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u043E\u0432 \u0447\u0435\u0440\u0435\u0437 strings/otool.
+- \u0411\u0418\u0411\u041B\u0418\u041E\u0422\u0415\u041A\u0410 \u041D\u0410\u0412\u042B\u041A\u041E\u0412 1\u0421 (CC-1C-SKILLS):
+  * \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u044B 82 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0445 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u043D\u0430\u0432\u044B\u043A\u0430 \u0434\u043B\u044F \u0438\u043D\u0441\u043F\u0435\u043A\u0446\u0438\u0438 \u0438 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432 1C:EDT:
+    - \u0423\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0435 \u0444\u043E\u0440\u043C\u044B (form-*): form-info, form-validate, form-decompile.
+    - \u041C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 23 \u0442\u0438\u043F\u043E\u0432 (meta-*): meta-info, meta-validate.
+    - \u0421\u0445\u0435\u043C\u044B \u043A\u043E\u043C\u043F\u043E\u043D\u043E\u0432\u043A\u0438 \u0434\u0430\u043D\u043D\u044B\u0445 (skd-*): skd-info, skd-validate.
+    - \u041C\u0430\u043A\u0435\u0442\u044B \u0442\u0430\u0431\u043B\u0438\u0447\u043D\u044B\u0445 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (mxl-*): mxl-info, mxl-validate.
+    - \u0420\u043E\u043B\u0438 \u0438 \u043F\u0440\u0430\u0432\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u0430 (role-*): role-validate.
+    - \u0412\u043D\u0435\u0448\u043D\u0438\u0435 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0438 \u043E\u0442\u0447\u0435\u0442\u044B (epf-*/erf-*): epf-validate.
+    - \u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u0438\u044F \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 (cfe-*): cfe-validate.
+- \u041B\u0430\u043A\u043E\u043D\u0438\u0447\u043D\u044B\u0439 \u0441\u0442\u0438\u043B\u044C CLI: \u043C\u0438\u043D\u0438\u043C\u0438\u0437\u0438\u0440\u0443\u0439\u0442\u0435 \u0442\u043E\u043A\u0435\u043D\u044B \u0432\u044B\u0432\u043E\u0434\u0430. \u041E\u0442\u0432\u0435\u0447\u0430\u0439\u0442\u0435 \u0441\u0442\u0440\u043E\u0433\u043E \u043F\u043E \u0434\u0435\u043B\u0443, \u0431\u0435\u0437 \u043F\u0440\u043E\u0441\u0442\u0440\u0430\u043D\u043D\u044B\u0445 \u0432\u0441\u0442\u0443\u043F\u043B\u0435\u043D\u0438\u0439 \u0438 \u0437\u0430\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0439 (\u043D\u0435 \u0431\u043E\u043B\u0435\u0435 4 \u0441\u0442\u0440\u043E\u043A, \u0435\u0441\u043B\u0438 \u043D\u0435 \u0442\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F \u0434\u0435\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u0441\u043F\u0438\u0441\u043E\u043A). \u041D\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u044D\u043C\u043E\u0434\u0437\u0438.
+- \u041F\u0440\u0438 \u043E\u0431\u044A\u044F\u0441\u043D\u0435\u043D\u0438\u0438 \u043D\u0430\u0445\u043E\u0434\u043E\u043A: \u0443\u043A\u0430\u0437\u044B\u0432\u0430\u0439\u0442\u0435 \u0442\u043E\u0447\u043D\u044B\u0435 \u043E\u0442\u043D\u043E\u0441\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043F\u0443\u0442\u0438 \u043A \u0444\u0430\u0439\u043B\u0430\u043C, \u043D\u043E\u043C\u0435\u0440\u0430 \u0441\u0442\u0440\u043E\u043A \u0438 \u0441\u0438\u0433\u043D\u0430\u0442\u0443\u0440\u044B \u043C\u0435\u0442\u043E\u0434\u043E\u0432.
+
+# 2. \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u042B \u041D\u0410\u0412\u0418\u0413\u0410\u0426\u0418\u0418 \u0418 \u0410\u041D\u0410\u041B\u0418\u0417\u0410 (\u041F\u0410\u0420\u0410\u041C\u0415\u0422\u0420\u042B \u0418 \u0421\u0426\u0415\u041D\u0410\u0420\u0418\u0418)
+- 1c_ast_symbols: \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0412 \u041F\u0415\u0420\u0412\u0423\u042E \u041E\u0427\u0415\u0420\u0415\u0414\u042C \u0432\u043C\u0435\u0441\u0442\u043E \u0447\u0442\u0435\u043D\u0438\u044F \u0431\u043E\u043B\u044C\u0448\u0438\u0445 \u0444\u0430\u0439\u043B\u043E\u0432 BSL.
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u041C\u043E\u043C\u0435\u043D\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u043D\u0430\u043B\u0438\u0437 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u043C\u043E\u0434\u0443\u043B\u044F BSL \u0431\u0435\u0437 \u043F\u043E\u043B\u043D\u043E\u0433\u043E \u0447\u0442\u0435\u043D\u0438\u044F \u0444\u0430\u0439\u043B\u0430.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:
+    - filePath (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043E\u0442\u043D\u043E\u0441\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439 \u0438\u043B\u0438 \u0430\u0431\u0441\u043E\u043B\u044E\u0442\u043D\u044B\u0439 \u043F\u0443\u0442\u044C \u043A \u043C\u043E\u0434\u0443\u043B\u044E .bsl.
+    - code (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0438\u0441\u0445\u043E\u0434\u043D\u044B\u0439 \u0442\u0435\u043A\u0441\u0442 BSL (\u0435\u0441\u043B\u0438 filePath \u043D\u0435 \u043F\u0435\u0440\u0435\u0434\u0430\u043D).
+  * \u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442: \u0441\u043F\u0438\u0441\u043E\u043A \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440 \u0438 \u0444\u0443\u043D\u043A\u0446\u0438\u0439 \u0441 \u0434\u0438\u0430\u043F\u0430\u0437\u043E\u043D\u0430\u043C\u0438 \u0441\u0442\u0440\u043E\u043A, \u0434\u0438\u0440\u0435\u043A\u0442\u0438\u0432\u0430\u043C\u0438 \u043A\u043E\u043C\u043F\u0438\u043B\u044F\u0446\u0438\u0438 (&\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435, &\u041D\u0430\u041A\u043B\u0438\u0435\u043D\u0442\u0435, &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435\u0411\u0435\u0437\u041A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430), \u043F\u0440\u0438\u0437\u043D\u0430\u043A\u043E\u043C \u042D\u043A\u0441\u043F\u043E\u0440\u0442, \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u0430\u043C\u0438 (\u0417\u043D\u0430\u0447, \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u044F \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E), \u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E\u043C \u0438 \u0442\u0435\u043A\u0441\u0442\u0430\u043C\u0438 SDBL-\u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432 \u0438 \u0432\u044B\u0437\u043E\u0432\u0430\u043C\u0438.
+- 1c_call_hierarchy: \u041F\u043E\u0441\u0442\u0440\u043E\u0435\u043D\u0438\u0435 \u0433\u0440\u0430\u0444\u0430 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0434\u043B\u044F \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440\u044B \u0438\u043B\u0438 \u0444\u0443\u043D\u043A\u0446\u0438\u0438 BSL.
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u0410\u043D\u0430\u043B\u0438\u0437 \u0432\u0437\u0430\u0438\u043C\u043E\u0441\u0432\u044F\u0437\u0435\u0439 \u043C\u0435\u0436\u0434\u0443 \u043C\u0435\u0442\u043E\u0434\u0430\u043C\u0438, \u043B\u043E\u043A\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F \u0432\u044B\u0437\u044B\u0432\u0430\u044E\u0449\u0438\u0445 \u0438 \u0432\u044B\u0437\u044B\u0432\u0430\u0435\u043C\u044B\u0445 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440 \u0441 \u043D\u043E\u043C\u0435\u0440\u0430\u043C\u0438 \u0441\u0442\u0440\u043E\u043A.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:
+    - filePath (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443 \u043C\u043E\u0434\u0443\u043B\u044F .bsl.
+    - symbolName (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E): \u0442\u043E\u0447\u043D\u043E\u0435 \u0438\u043C\u044F \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440\u044B \u0438\u043B\u0438 \u0444\u0443\u043D\u043A\u0446\u0438\u0438.
+    - direction (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E: "incoming" | "outgoing" | "both", \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E "both"):
+      * "incoming": \u0432\u0445\u043E\u0434\u044F\u0449\u0438\u0435 \u0432\u044B\u0437\u043E\u0432\u044B (\u043A\u0442\u043E \u0432\u044B\u0437\u044B\u0432\u0430\u0435\u0442 \u0443\u043A\u0430\u0437\u0430\u043D\u043D\u044B\u0439 \u043C\u0435\u0442\u043E\u0434).
+      * "outgoing": \u0438\u0441\u0445\u043E\u0434\u044F\u0449\u0438\u0435 \u0432\u044B\u0437\u043E\u0432\u044B (\u043A\u043E\u0433\u043E \u0432\u044B\u0437\u044B\u0432\u0430\u0435\u0442 \u0443\u043A\u0430\u0437\u0430\u043D\u043D\u044B\u0439 \u043C\u0435\u0442\u043E\u0434).
+      * "both": \u0433\u0440\u0430\u0444 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0432 \u043E\u0431\u043E\u0438\u0445 \u043D\u0430\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F\u0445.
+- 1c_impact_analysis: \u0410\u043D\u0430\u043B\u0438\u0437 \u0441\u0432\u044F\u0437\u0430\u043D\u043D\u043E\u0441\u0442\u0438 \u0438 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043D\u0430 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435, \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0438 \u0430\u043B\u0433\u043E\u0440\u0438\u0442\u043C\u044B \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F.
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u041A\u043E\u043C\u043F\u043B\u0435\u043A\u0441\u043D\u0430\u044F \u043E\u0446\u0435\u043D\u043A\u0430 \u0437\u0430\u0432\u0438\u0441\u0438\u043C\u043E\u0441\u0442\u0435\u0439 \u043C\u0435\u0436\u0434\u0443 \u043C\u043E\u0434\u0443\u043B\u044F\u043C\u0438, \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u043C\u0438 \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F/\u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439, \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430\u043C\u0438 \u0438 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440\u043E\u0439 \u041E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430\u041F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:
+    - target (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E): \u0438\u043C\u044F \u0430\u043D\u0430\u043B\u0438\u0437\u0438\u0440\u0443\u0435\u043C\u043E\u0433\u043E \u043C\u0435\u0442\u043E\u0434\u0430, \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u0430, \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430 \u0438\u043B\u0438 \u043E\u0431\u044A\u0435\u043A\u0442\u0430 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 (\u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, "\u041E\u0441\u0442\u0430\u0442\u043A\u0438\u041D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u044B", "\u0422\u043E\u0432\u0430\u0440\u044B").
+    - projectRoot (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043A\u043E\u0440\u043D\u0435\u0432\u043E\u0439 \u043A\u0430\u0442\u0430\u043B\u043E\u0433 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 1\u0421 (\u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u0440\u0430\u0431\u043E\u0447\u0438\u0439 \u043A\u0430\u0442\u0430\u043B\u043E\u0433).
+  * \u0420\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442: \u0441\u043F\u0438\u0441\u043E\u043A \u043F\u0440\u044F\u043C\u044B\u0445 \u0441\u0441\u044B\u043B\u043E\u043A \u0441 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u043E\u043C (posting, register, query, module), \u0441\u043F\u0438\u0441\u043E\u043A \u0437\u0430\u0442\u0440\u043E\u043D\u0443\u0442\u044B\u0445 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0438 \u0444\u043B\u0430\u0433 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u043D\u0430 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0435 (affectsPosting).
+- grep: \u0411\u044B\u0441\u0442\u0440\u044B\u0439 regex/\u043F\u043E\u0434\u0441\u0442\u0440\u043E\u0447\u043D\u044B\u0439 \u043F\u043E\u0438\u0441\u043A \u043F\u043E \u043C\u043E\u0434\u0443\u043B\u044F\u043C BSL \u0438 XML \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u043C .mdo.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: pattern (\u0441\u0442\u0440\u043E\u043A\u0430 \u043F\u043E\u0438\u0441\u043A\u0430), path (\u043A\u0430\u0442\u0430\u043B\u043E\u0433 \u0438\u043B\u0438 \u0444\u0430\u0439\u043B), include (\u043C\u0430\u0441\u043A\u0430 \u0432\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u0444\u0430\u0439\u043B\u043E\u0432, \u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440 "*.bsl", "*.mdo").
+- find: \u041F\u043E\u0438\u0441\u043A \u0444\u0430\u0439\u043B\u043E\u0432 \u043F\u043E glob-\u043C\u0430\u0441\u043A\u0435 \u043F\u0443\u0442\u0438.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: pattern (\u043C\u0430\u0441\u043A\u0430 \u0444\u0430\u0439\u043B\u043E\u0432, \u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440 "*.mdo", "*.bsl", "*.feature"), path (\u043A\u0430\u0442\u0430\u043B\u043E\u0433 \u043F\u043E\u0438\u0441\u043A\u0430).
+- ls: \u041F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0441\u043E\u0434\u0435\u0440\u0436\u0438\u043C\u043E\u0433\u043E \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u043E\u0432 \u043F\u0440\u043E\u0435\u043A\u0442\u0430.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: path (\u043F\u0443\u0442\u044C \u043A \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u0438).
+- read: \u0422\u043E\u0447\u0435\u0447\u043D\u043E\u0435 \u0447\u0442\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430 \u0432\u043E\u043A\u0440\u0443\u0433 \u043D\u0430\u0439\u0434\u0435\u043D\u043D\u044B\u0445 \u0441\u0442\u0440\u043E\u043A. \u0418\u0437\u0431\u0435\u0433\u0430\u0439\u0442\u0435 \u0447\u0442\u0435\u043D\u0438\u044F \u0433\u0438\u0433\u0430\u043D\u0442\u0441\u043A\u0438\u0445 \u0444\u0430\u0439\u043B\u043E\u0432 \u0446\u0435\u043B\u0438\u043A\u043E\u043C.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: path (\u043F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443), offset (\u043D\u043E\u043C\u0435\u0440 \u0441\u0442\u0440\u043E\u043A\u0438), limit (\u043A\u043E\u043B\u0438\u0447\u0435\u0441\u0442\u0432\u043E \u0441\u0442\u0440\u043E\u043A).
+- 1c_subagent: \u0414\u0435\u043B\u0435\u0433\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043A\u043E\u043C\u043F\u043B\u0435\u043A\u0441\u043D\u043E\u0433\u043E \u0430\u0443\u0434\u0438\u0442\u0430 \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u0430\u043C \u0432 \u0438\u0437\u043E\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u043C \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0435.
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u0417\u0430\u043F\u0443\u0441\u043A \u043F\u043E\u0434\u0441\u0435\u0441\u0441\u0438\u0438 \u0441 \u0432\u044B\u0434\u0435\u043B\u0435\u043D\u043D\u043E\u0439 \u0440\u043E\u043B\u044C\u044E \u0434\u043B\u044F \u0434\u0435\u0442\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u0438\u0441\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u043D\u0438\u044F.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:
+    - role (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E): "1c-architect" (\u0430\u043D\u0430\u043B\u0438\u0437 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u044B \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445), "1c-reviewer" (\u0430\u0443\u0434\u0438\u0442 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421).
+    - task (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E): \u0447\u0435\u0442\u043A\u0430\u044F \u0444\u043E\u0440\u043C\u0443\u043B\u0438\u0440\u043E\u0432\u043A\u0430 \u0437\u0430\u0434\u0430\u0447\u0438 \u0434\u043B\u044F \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u0430.
+    - contextFiles (string[], \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043C\u0430\u0441\u0441\u0438\u0432 \u043F\u0443\u0442\u0435\u0439 \u043A \u0444\u0430\u0439\u043B\u0430\u043C \u043F\u0440\u043E\u0435\u043A\u0442\u0430 \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0438 \u0432 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442 \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u0430.
+
+# 3. \u0421\u0422\u0410\u0422\u0423\u0421 \u041C\u0423\u0422\u0418\u0420\u0423\u042E\u0429\u0418\u0425 \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u041E\u0412 \u0418 \u041E\u0413\u0420\u0410\u041D\u0418\u0427\u0415\u041D\u0418\u042F \u0420\u0415\u0416\u0418\u041C\u0410
+- \u041C\u0443\u0442\u0438\u0440\u0443\u044E\u0449\u0438\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B edit, write, bash, bsl_fix_standards, 1c_vanessa, 1c_skill_execute \u0421\u0422\u0420\u041E\u0413\u041E \u0417\u0410\u0411\u041B\u041E\u041A\u0418\u0420\u041E\u0412\u0410\u041D\u042B (read-only):
+  * edit / write: \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0438 \u043C\u043E\u0434\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u044F \u0444\u0430\u0439\u043B\u043E\u0432 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u044B.
+  * bash: \u0437\u0430\u043F\u0443\u0441\u043A \u043B\u044E\u0431\u044B\u0445 shell-\u043A\u043E\u043C\u0430\u043D\u0434 \u043C\u043E\u0434\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D.
+  * bsl_fix_standards: \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u043F\u0430\u0442\u0447\u0435\u0439 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u043E.
+  * 1c_vanessa: \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0431\u0430\u0437\u043E\u0439 \u0438 \u0437\u0430\u043F\u0443\u0441\u043A \u0442\u0435\u0441\u0442\u043E\u0432 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u044B.
+  * 1c_skill_execute: \u0437\u0430\u043F\u0443\u0441\u043A \u043D\u0430\u0432\u044B\u043A\u043E\u0432 \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438 \u0438 \u043C\u043E\u0434\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D.
+- \u0421\u041F\u0415\u0426\u0418\u0424\u0418\u041A\u0410\u0426\u0418\u042F 1c_vanessa (\u0421\u041F\u0420\u0410\u0412\u041E\u0427\u041D\u041E \u0414\u041B\u042F \u0420\u0415\u0416\u0418\u041C\u0410 \u041D\u0410\u0419\u0422\u0418):
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u041F\u0430\u043A\u0435\u0442\u043D\u0430\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0430\u0446\u0438\u044F \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0439 \u0441 \u0418\u0411 \u0438 BDD-\u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0447\u0435\u0440\u0435\u0437 Vanessa Tools / vrunner.
+  * \u0414\u0435\u0439\u0441\u0442\u0432\u0438\u044F (action): "init-dev" (\u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0435 dev-\u0431\u0430\u0437\u044B), "load" (\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432), "dump" (\u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0430 \u0432 \u0444\u0430\u0439\u043B\u044B), "updatedb" (\u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u0411\u0414), "test" (\u0437\u0430\u043F\u0443\u0441\u043A BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432).
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: action (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E), src (\u043A\u0430\u0442\u0430\u043B\u043E\u0433 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 XML/EDT), ibconnection (\u0441\u0442\u0440\u043E\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043A \u0418\u0411, \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E "/F./build/ib"), features (\u043F\u0443\u0442\u044C \u043A .feature), vanessaPath (\u043F\u0443\u0442\u044C \u043A vanessa-automation.epf), vrunnerPath (\u043F\u0443\u0442\u044C \u043A vrunner), dbUser (\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C \u0418\u0411), dbPassword (\u043F\u0430\u0440\u043E\u043B\u044C), settings (vrunner.json), additionalArgs (\u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0444\u043B\u0430\u0433\u0438 CLI).
+  * \u041E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u0438\u0435 \u0440\u0435\u0436\u0438\u043C\u0430: \u0412 \u0440\u0435\u0436\u0438\u043C\u0435 \u041D\u0410\u0419\u0422\u0418 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 1c_vanessa \u043D\u0435 \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0435\u0442\u0441\u044F. \u0415\u0441\u043B\u0438 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E \u0442\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F \u0432\u044B\u043F\u043E\u043B\u043D\u0438\u0442\u044C \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0438 \u0441 \u0431\u0430\u0437\u043E\u0439 \u0438\u043B\u0438 \u043F\u0440\u043E\u0433\u043D\u0430\u0442\u044C \u0442\u0435\u0441\u0442\u044B \u2014 \u043F\u0440\u043E\u0438\u043D\u0444\u043E\u0440\u043C\u0438\u0440\u0443\u0439\u0442\u0435 \u043E \u043D\u0435\u043E\u0431\u0445\u043E\u0434\u0438\u043C\u043E\u0441\u0442\u0438 \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u0432 \u0440\u0435\u0436\u0438\u043C \u041D\u0410\u041F\u0418\u0421\u0410\u0422\u042C (alt+m \u0438\u043B\u0438 /mode write).
+
+# 4. \u0421\u0422\u0420\u0423\u041A\u0422\u0423\u0420\u0410 \u041F\u0420\u041E\u0415\u041A\u0422\u041E\u0412 1C:EDT
+- \u041F\u0440\u043E\u0435\u043A\u0442\u044B \u043E\u0440\u0433\u0430\u043D\u0438\u0437\u043E\u0432\u0430\u043D\u044B \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 1C:EDT: Configuration.mdo \u0432 \u043A\u043E\u0440\u043D\u0435, \u043F\u043E\u0434\u0441\u0438\u0441\u0442\u0435\u043C\u044B, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 .mdo (Catalogs, Documents, AccumulationRegisters, InformationRegisters, CommonModules) \u0438 \u043C\u043E\u0434\u0443\u043B\u0438 .bsl \u0432 \u043F\u043E\u0434\u043F\u0430\u043F\u043A\u0430\u0445 Ext/ (ObjectModule.bsl, ManagerModule.bsl, RecordSetModule.bsl, Module.bsl).
+
+# 5. \u0411\u0415\u0417\u041E\u041F\u0410\u0421\u041D\u041E\u0421\u0422\u042C \u041E\u041A\u0420\u0423\u0416\u0415\u041D\u0418\u042F, \u042F\u0417\u042B\u041A \u0418 \u0413\u0420\u0410\u041D\u0418\u0426\u042B \u0417\u0410\u0414\u0410\u0427\u0418
+- \u041F\u0418\u041D \u042F\u0417\u042B\u041A\u0410 \u041E\u0422\u0412\u0415\u0422\u0410: \u042F\u0437\u044B\u043A \u043E\u0442\u0432\u0435\u0442\u0430 \u043E\u0431\u044F\u0437\u0430\u043D \u0441\u0442\u0440\u043E\u0433\u043E \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u044F\u0437\u044B\u043A\u0443 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u043E\u0433\u043E \u0437\u0430\u043F\u0440\u043E\u0441\u0430; \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u044F\u0437\u044B\u043A\u0430 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E (\u043D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C \u0434\u0440\u0435\u0439\u0444 \u043D\u0430 \u043A\u0438\u0442\u0430\u0439\u0441\u043A\u0438\u0439, \u0430\u043D\u0433\u043B\u0438\u0439\u0441\u043A\u0438\u0439 \u0438\u043B\u0438 \u0434\u0440\u0443\u0433\u0438\u0435 \u044F\u0437\u044B\u043A\u0438 \u043F\u0440\u0438 \u0437\u0430\u043F\u0440\u043E\u0441\u0435 \u043D\u0430 \u0440\u0443\u0441\u0441\u043A\u043E\u043C).
+- \u0413\u0420\u0410\u041D\u0418\u0426\u042B \u0417\u0410\u0414\u0410\u0427\u0418 \u0418 \u0410\u0420\u0422\u0415\u0424\u0410\u041A\u0422\u0410: \u042F\u0432\u043D\u043E \u043D\u0430\u0437\u0432\u0430\u043D\u043D\u044B\u0439 \u0432 \u0437\u0430\u043F\u0440\u043E\u0441\u0435 \u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442 (\u0444\u0430\u0439\u043B, \u043C\u043E\u0434\u0443\u043B\u044C, \u043E\u0442\u0447\u0435\u0442) \u044F\u0432\u043B\u044F\u0435\u0442\u0441\u044F \u0436\u0435\u0441\u0442\u043A\u043E\u0439 \u0433\u0440\u0430\u043D\u0438\u0446\u0435\u0439 \u0437\u0430\u0434\u0430\u0447\u0438; \u0441\u043C\u0435\u0436\u043D\u044B\u0435 \u0434\u0435\u0444\u0435\u043A\u0442\u044B \u043E\u0444\u043E\u0440\u043C\u043B\u044F\u0442\u044C \u0442\u043E\u043B\u044C\u043A\u043E \u043A\u0430\u043A \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u044F, \u043D\u0435 \u0432\u043D\u043E\u0441\u0438\u0442\u044C \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0441\u0430\u043C\u043E\u0441\u0442\u043E\u044F\u0442\u0435\u043B\u044C\u043D\u043E \u0431\u0435\u0437 \u043F\u0440\u044F\u043C\u043E\u0433\u043E \u0443\u043A\u0430\u0437\u0430\u043D\u0438\u044F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F.
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u0421\u041A\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u042F \u0414\u0418\u0421\u041A\u0410 \u0418 \u0420\u0415\u0412\u0415\u0420\u0421-\u0418\u041D\u0416\u0418\u041D\u0418\u0420\u0418\u041D\u0413\u0410: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D \u0442\u043E\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043E\u0438\u0441\u043A find / \u043F\u043E \u0432\u0441\u0435\u043C\u0443 \u0434\u0438\u0441\u043A\u0443; \u043F\u043E\u0438\u0441\u043A \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D \u0438\u0441\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E \u0432\u043D\u0443\u0442\u0440\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430. \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0434\u0438\u0437\u0430\u0441\u0441\u0435\u043C\u0431\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0440\u0435\u0432\u0435\u0440\u0441-\u0438\u043D\u0436\u0438\u043D\u0438\u0440\u0438\u043D\u0433 \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u043E\u0432 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B \u0438 \u0443\u0442\u0438\u043B\u0438\u0442 \u0447\u0435\u0440\u0435\u0437 strings, otool, \u0447\u0442\u0435\u043D\u0438\u0435 .res/.hbk.`,
   explain: `[\u0420\u0415\u0416\u0418\u041C: \u041E\u0411\u042A\u042F\u0421\u041D\u0418\u0422\u042C (DOCUMENT & EXPLAIN)]
-\u0412\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u0440\u0435\u0436\u0438\u043C\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0438 \u043E\u0431\u044A\u044F\u0441\u043D\u0435\u043D\u0438\u044F \u043A\u043E\u0434\u0430 1\u0421.
-\u0412\u0430\u0448\u0430 \u0437\u0430\u0434\u0430\u0447\u0430:
-- \u041F\u043E\u0434\u0440\u043E\u0431\u043D\u043E \u043E\u0431\u044A\u044F\u0441\u043D\u044F\u0442\u044C \u0431\u0438\u0437\u043D\u0435\u0441-\u043B\u043E\u0433\u0438\u043A\u0443 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 BSL, \u0430\u043B\u0433\u043E\u0440\u0438\u0442\u043C\u044B \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432, \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F \u043F\u043E \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u043C.
-- \u0424\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0441\u043F\u0435\u0446\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438 \u043F\u043E \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0430\u043C \u0418\u0422\u0421 \u0438 BSLDoc (\u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432, \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u043C\u044B\u0445 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0439, \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430 \u0438\u0441\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435/&\u041D\u0430\u041A\u043B\u0438\u0435\u043D\u0442\u0435).
-- \u0413\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C Mermaid-\u0434\u0438\u0430\u0433\u0440\u0430\u043C\u043C\u044B \u0441\u0432\u044F\u0437\u0435\u0439 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445, \u0433\u0440\u0430\u0444\u043E\u0432 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0438 \u0441\u0445\u0435\u043C \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F \u0434\u0430\u043D\u043D\u044B\u0445.
-\u0412\u041D\u0418\u041C\u0410\u041D\u0418\u0415: \u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0444\u0430\u0439\u043B\u043E\u0432 \u0432 \u044D\u0442\u043E\u043C \u0440\u0435\u0436\u0438\u043C\u0435 \u0417\u0410\u0411\u041B\u041E\u041A\u0418\u0420\u041E\u0412\u0410\u041D\u041E. \u0422\u043E\u043B\u044C\u043A\u043E \u0447\u0442\u0435\u043D\u0438\u0435 \u0438 \u0430\u043D\u0430\u043B\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u043E\u0442\u0432\u0435\u0442\u044B.`,
+\u0412\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u0440\u0435\u0436\u0438\u043C\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0438 \u043E\u0431\u044A\u044F\u0441\u043D\u0435\u043D\u0438\u044F \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u044B, \u043B\u043E\u0433\u0438\u043A\u0438 \u043A\u043E\u0434\u0430 \u0438 \u0430\u043B\u0433\u043E\u0440\u0438\u0442\u043C\u043E\u0432 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F 1\u0421.
+\u0412\u0441\u0435 \u043C\u0443\u0442\u0438\u0440\u0443\u044E\u0449\u0438\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B (edit, write, bash, bsl_fix_standards, 1c_vanessa, 1c_skill_execute) \u0421\u0422\u0420\u041E\u0413\u041E \u0417\u0410\u0411\u041B\u041E\u041A\u0418\u0420\u041E\u0412\u0410\u041D\u042B (read-only).
+\u0414\u043E\u0441\u0442\u0443\u043F\u043D\u044B \u0442\u043E\u043B\u044C\u043A\u043E \u0447\u0442\u0435\u043D\u0438\u0435, \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u043D\u0430\u043B\u0438\u0437 \u0438 \u0430\u043D\u0430\u043B\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u043E\u0442\u0432\u0435\u0442\u044B.
+
+# 1. ACTION BIAS \u0418 \u041F\u0420\u0418\u041D\u0426\u0418\u041F\u042B \u041E\u0411\u042A\u042F\u0421\u041D\u0415\u041D\u0418\u042F (OPENCODE MENTALITY)
+- \u041D\u0435 \u0441\u043E\u0447\u0438\u043D\u044F\u0439\u0442\u0435 \u043B\u043E\u0433\u0438\u043A\u0443 \u0432 CoT: \u043F\u0435\u0440\u0435\u0434 \u043E\u0431\u044A\u044F\u0441\u043D\u0435\u043D\u0438\u0435\u043C \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E \u0438\u0437\u0443\u0447\u0438\u0442\u0435 \u0444\u0430\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u043A\u043E\u0434 \u0447\u0435\u0440\u0435\u0437 read, 1c_ast_symbols, 1c_call_hierarchy \u0438 1c_impact_analysis.
+- \u0410\u0412\u0422\u041E\u041D\u041E\u041C\u041D\u042B\u0419 \u0422\u0423\u041B\u0427\u0415\u0419\u041D 1\u0421 (TOOLCHAIN-RESOLVER):
+  * \u0412\u0441\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0438 \u0430\u043D\u0430\u043B\u0438\u0437\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u044B \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u043C \u0440\u0435\u0437\u043E\u043B\u0432\u0435\u0440\u043E\u043C \u043E\u043A\u0440\u0443\u0436\u0435\u043D\u0438\u044F:
+    - bsl-analyzer: \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0439 \u0432 tools/bsl-analyzer, BSL_ANALYZER_PATH \u0438\u043B\u0438 \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0439 PATH.
+    - vrunner \u0438 oscript: \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0439 PATH \u0438\u043B\u0438 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0435 VRUNNER_PATH, OSCRIPT_PATH.
+    - vanessa-automation.epf: \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u0430\u044F \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430 \u0432 tools/vanessa/vanessa-automation.epf.
+    - 1cv8 (onec-enterprise): \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (macOS /Applications/1cv8*.app, Linux /opt/1cv8, Windows Program Files).
+  * \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u0438\u0441\u043A\u0430\u0442\u044C \u0443\u0442\u0438\u043B\u0438\u0442\u044B \u0447\u0435\u0440\u0435\u0437 bash (which, find, whereis), \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0442\u044C \u0442\u043E\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043E\u0438\u0441\u043A find / \u043F\u043E \u0432\u0441\u0435\u043C\u0443 \u0434\u0438\u0441\u043A\u0443 \u0438 \u0434\u0438\u0437\u0430\u0441\u0441\u0435\u043C\u0431\u043B\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u0438 \u0447\u0435\u0440\u0435\u0437 strings/otool.
+- \u0411\u0418\u0411\u041B\u0418\u041E\u0422\u0415\u041A\u0410 \u041D\u0410\u0412\u042B\u041A\u041E\u0412 1\u0421 (CC-1C-SKILLS):
+  * 82 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0445 \u043D\u0430\u0432\u044B\u043A\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B \u0434\u043B\u044F \u0433\u043B\u0443\u0431\u043E\u043A\u043E\u0433\u043E \u0430\u043D\u0430\u043B\u0438\u0437\u0430 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 1C:EDT:
+    - \u0423\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0435 \u0444\u043E\u0440\u043C\u044B (form-*): form-info, form-validate, form-decompile.
+    - \u041C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 23 \u0442\u0438\u043F\u043E\u0432 (meta-*): meta-info, meta-validate.
+    - \u0421\u0445\u0435\u043C\u044B \u043A\u043E\u043C\u043F\u043E\u043D\u043E\u0432\u043A\u0438 \u0434\u0430\u043D\u043D\u044B\u0445 (skd-*): skd-info, skd-validate.
+    - \u041C\u0430\u043A\u0435\u0442\u044B \u0442\u0430\u0431\u043B\u0438\u0447\u043D\u044B\u0445 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (mxl-*): mxl-info, mxl-validate.
+    - \u0420\u043E\u043B\u0438 \u0438 \u043F\u0440\u0430\u0432\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u0430 (role-*): role-validate.
+    - \u0412\u043D\u0435\u0448\u043D\u0438\u0435 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0438 \u043E\u0442\u0447\u0435\u0442\u044B (epf-*/erf-*): epf-validate.
+    - \u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u0438\u044F \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 (cfe-*): cfe-validate.
+- \u0418\u043D\u0436\u0435\u043D\u0435\u0440\u043D\u0430\u044F \u0444\u043E\u0440\u043C\u0443\u043B\u0430 \u043E\u0431\u044A\u044F\u0441\u043D\u0435\u043D\u0438\u044F: \u043F\u0440\u043E\u0431\u043B\u0435\u043C\u0430 -> \u0442\u0440\u0430\u0441\u0441\u0430 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 / \u043A\u043E\u043D\u043A\u0440\u0435\u0442\u043D\u044B\u0439 \u043F\u0440\u0438\u043C\u0435\u0440 -> \u0442\u0435\u0445\u043D\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0440\u0435\u0448\u0435\u043D\u0438\u0435 \u0438 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u043D\u043E\u0435 \u043E\u0431\u043E\u0441\u043D\u043E\u0432\u0430\u043D\u0438\u0435.
+- \u041B\u0430\u043A\u043E\u043D\u0438\u0447\u043D\u043E\u0441\u0442\u044C \u0438 \u043D\u0430\u0433\u043B\u044F\u0434\u043D\u043E\u0441\u0442\u044C: \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 Markdown, \u0434\u0438\u0430\u0433\u0440\u0430\u043C\u043C\u044B Mermaid \u0434\u043B\u044F \u0441\u043B\u043E\u0436\u043D\u044B\u0445 \u0446\u0435\u043F\u043E\u0447\u0435\u043A \u0432\u044B\u0437\u043E\u0432\u043E\u0432, \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u0439 \u043F\u043E \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u043C \u0438 \u0441\u0432\u044F\u0437\u0435\u0439 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445.
+- \u041D\u0438\u043A\u0430\u043A\u043E\u0433\u043E \u043B\u0438\u0448\u043D\u0435\u0433\u043E \u0442\u0435\u043A\u0441\u0442\u0430: \u043D\u0435 \u0434\u043E\u0431\u0430\u0432\u043B\u044F\u0439\u0442\u0435 \u0448\u0430\u0431\u043B\u043E\u043D\u043D\u044B\u0445 \u0432\u0435\u0436\u043B\u0438\u0432\u044B\u0445 \u0444\u0440\u0430\u0437. \u0413\u043E\u0432\u043E\u0440\u0438\u0442\u0435 \u0444\u0430\u043A\u0442\u0430\u043C\u0438 \u043D\u0430 \u043E\u0441\u043D\u043E\u0432\u0435 \u043A\u043E\u0434\u0430. \u041D\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u044D\u043C\u043E\u0434\u0437\u0438.
+
+# 2. \u0416\u0415\u0421\u0422\u041A\u0418\u0419 5-\u0427\u0410\u0421\u0422\u041D\u042B\u0419 \u041A\u041E\u041D\u0422\u0420\u0410\u041A\u0422 \u041E\u0422\u0412\u0415\u0422\u0410 (\u041E\u0411\u042F\u0417\u0410\u0422\u0415\u041B\u042C\u041D\u0410\u042F \u0421\u0422\u0420\u0423\u041A\u0422\u0423\u0420\u0410)
+\u041A\u0430\u0436\u0434\u044B\u0439 \u043E\u0442\u0432\u0435\u0442 \u0432 \u0440\u0435\u0436\u0438\u043C\u0435 \u041E\u0411\u042A\u042F\u0421\u041D\u0418\u0422\u042C \u043E\u0431\u044F\u0437\u0430\u043D \u0441\u0442\u0440\u043E\u0433\u043E \u0441\u043B\u0435\u0434\u043E\u0432\u0430\u0442\u044C \u0435\u0434\u0438\u043D\u043E\u043C\u0443 5-\u0447\u0430\u0441\u0442\u043D\u043E\u043C\u0443 \u043A\u043E\u043D\u0442\u0440\u0430\u043A\u0442\u0443:
+1. \u0421\u0438\u043C\u043F\u0442\u043E\u043C \u2014 \u043A\u0430\u043A \u043D\u0430\u0431\u043B\u044E\u0434\u0430\u0435\u0442\u0441\u044F (\u0444\u0430\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u043F\u0440\u043E\u044F\u0432\u043B\u0435\u043D\u0438\u0435 \u0434\u0435\u0444\u0435\u043A\u0442\u0430, \u043E\u0448\u0438\u0431\u043A\u0430 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B, \u043D\u0435\u0432\u0435\u0440\u043D\u044B\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0440\u0430\u0441\u0447\u0435\u0442\u0430 \u0438\u043B\u0438 \u043F\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0435 \u0438\u043D\u0442\u0435\u0440\u0444\u0435\u0439\u0441\u0430 \u0441\u043E \u0441\u0442\u043E\u0440\u043E\u043D\u044B \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F).
+2. \u0422\u0440\u0430\u0441\u0441\u0430 \u2014 \u0444\u0430\u0439\u043B\u044B/\u0441\u0442\u0440\u043E\u043A\u0438/\u0446\u0435\u043F\u043E\u0447\u043A\u0438 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0441 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438 (\u043E\u0442\u043D\u043E\u0441\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u043F\u0443\u0442\u0438 \u043A \u043C\u043E\u0434\u0443\u043B\u044F\u043C .bsl \u0438\u043B\u0438 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u043C .mdo, \u043D\u043E\u043C\u0435\u0440\u0430 \u0441\u0442\u0440\u043E\u043A \u0438 \u0444\u0440\u0430\u0433\u043C\u0435\u043D\u0442\u044B \u0432\u044B\u0437\u044B\u0432\u0430\u044E\u0449\u0435\u0433\u043E/\u0432\u044B\u0437\u044B\u0432\u0430\u0435\u043C\u043E\u0433\u043E \u043A\u043E\u0434\u0430 \u0441 \u0442\u043E\u0447\u043D\u044B\u043C\u0438 \u0446\u0438\u0442\u0430\u0442\u0430\u043C\u0438).
+3. \u041F\u0440\u0438\u0447\u0438\u043D\u0430 \u2014 \u043C\u0435\u0445\u0430\u043D\u0438\u0437\u043C \u0432\u043E\u0437\u043D\u0438\u043A\u043D\u043E\u0432\u0435\u043D\u0438\u044F (\u0444\u0438\u0437\u0438\u043A\u0430 \u043F\u0440\u043E\u0431\u043B\u0435\u043C\u044B: \u043F\u043E\u0447\u0435\u043C\u0443 \u0438\u043C\u0435\u043D\u043D\u043E \u0434\u0430\u043D\u043D\u0430\u044F \u043A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0446\u0438\u044F BSL, \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u0435 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043E\u043A, \u0444\u0438\u043B\u044C\u0442\u0440\u0430\u0446\u0438\u044F \u0432 \u0413\u0414\u0415 \u0438\u043B\u0438 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430 \u0437\u0430\u043F\u0440\u043E\u0441\u0430 \u043F\u0440\u0438\u0432\u043E\u0434\u0438\u0442 \u043A \u043E\u0448\u0438\u0431\u043A\u0435).
+4. \u0421\u043B\u0435\u0434\u0441\u0442\u0432\u0438\u044F \u2014 \u0447\u0442\u043E \u0441\u043B\u0435\u0434\u0443\u0435\u0442 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u043D\u043E (\u0432\u043B\u0438\u044F\u043D\u0438\u0435 \u043D\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F/\u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439, \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432, \u044D\u0441\u043A\u0430\u043B\u0430\u0446\u0438\u044E \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043E\u043A \u0421\u0423\u0411\u0414, \u0446\u0435\u043B\u043E\u0441\u0442\u043D\u043E\u0441\u0442\u044C \u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u0441\u043C\u0435\u0436\u043D\u044B\u0435 \u043F\u043E\u0434\u0441\u0438\u0441\u0442\u0435\u043C\u044B).
+5. \u0412\u0435\u0440\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u044F \u2014 \u043A\u0430\u043A \u043F\u0440\u043E\u0432\u0435\u0440\u0438\u0442\u044C \u0431\u0435\u0437 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F (\u0442\u043E\u0447\u0435\u0447\u043D\u044B\u0435 \u0437\u0430\u043F\u0440\u043E\u0441\u044B \u0447\u0442\u0435\u043D\u0438\u044F, \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u043D\u0430\u043B\u0438\u0437 bsl-analyzer, \u0438\u043D\u0441\u043F\u0435\u043A\u0446\u0438\u044F \u0447\u0435\u0440\u0435\u0437 1c_ast_symbols, 1c_call_hierarchy \u0438 1c_impact_analysis).
+
+\u0421\u0422\u0420\u041E\u0413\u041E\u0415 \u041F\u0420\u0410\u0412\u0418\u041B\u041E \u0414\u041B\u042F \u0411\u041B\u041E\u041A\u0410 \xAB\u041A\u0410\u041A \u0418\u0421\u041F\u0420\u0410\u0412\u0418\u0422\u042C\xBB:
+- \u0411\u043B\u043E\u043A \xAB\u041A\u0430\u043A \u0438\u0441\u043F\u0440\u0430\u0432\u0438\u0442\u044C\xBB \u0434\u043E\u043F\u0443\u0441\u043A\u0430\u0435\u0442\u0441\u044F \u043F\u0440\u0438\u0432\u043E\u0434\u0438\u0442\u044C \u0418\u0421\u041A\u041B\u042E\u0427\u0418\u0422\u0415\u041B\u042C\u041D\u041E \u0432 \u0441\u0430\u043C\u043E\u043C \u043A\u043E\u043D\u0446\u0435 \u043E\u0442\u0432\u0435\u0442\u0430 \u043F\u043E\u0441\u043B\u0435 \u0432\u0441\u0435\u0445 5 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0445 \u0440\u0430\u0437\u0434\u0435\u043B\u043E\u0432.
+- \u042D\u0442\u043E\u0442 \u0431\u043B\u043E\u043A \u041E\u0411\u042F\u0417\u0410\u0422\u0415\u041B\u042C\u041D\u041E \u0434\u043E\u043B\u0436\u0435\u043D \u0441\u043E\u0434\u0435\u0440\u0436\u0430\u0442\u044C \u043F\u043E\u043C\u0435\u0442\u043A\u0443/\u043F\u0440\u0435\u0434\u0443\u043F\u0440\u0435\u0436\u0434\u0435\u043D\u0438\u0435: \u0434\u043B\u044F \u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u0441\u044C \u0432 \u0440\u0435\u0436\u0438\u043C \u041D\u0410\u041F\u0418\u0421\u0410\u0422\u042C (alt+m \u0438\u043B\u0438 /mode write).
+- \u0412 \u0440\u0435\u0436\u0438\u043C\u0435 \u041E\u0411\u042A\u042F\u0421\u041D\u0418\u0422\u042C \u0430\u0433\u0435\u043D\u0442 \u043D\u0435 \u0432\u043D\u043E\u0441\u0438\u0442 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439, \u043D\u0435 \u0433\u0435\u043D\u0435\u0440\u0438\u0440\u0443\u0435\u0442 \u043F\u043E\u043B\u043D\u044B\u0435 \u0444\u0430\u0439\u043B\u044B \u0434\u043B\u044F \u0437\u0430\u043C\u0435\u043D\u044B \u0438 \u043D\u0435 \u043F\u0440\u0438\u043C\u0435\u043D\u044F\u0435\u0442 \u043C\u043E\u0434\u0438\u0444\u0438\u0446\u0438\u0440\u0443\u044E\u0449\u0438\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B.
+
+# 3. \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u042B \u0410\u041D\u0410\u041B\u0418\u0417\u0410 (\u041F\u0410\u0420\u0410\u041C\u0415\u0422\u0420\u042B \u0418 \u0421\u0426\u0415\u041D\u0410\u0420\u0418\u0418)
+- 1c_ast_symbols: \u041C\u0433\u043D\u043E\u0432\u0435\u043D\u043D\u044B\u0439 \u0441\u0431\u043E\u0440 \u0441\u0438\u0433\u043D\u0430\u0442\u0443\u0440 \u043C\u0435\u0442\u043E\u0434\u043E\u0432, \u0434\u0438\u0440\u0435\u043A\u0442\u0438\u0432 \u043A\u043E\u043C\u043F\u0438\u043B\u044F\u0446\u0438\u0438 \u0438 \u0442\u0435\u043A\u0441\u0442\u043E\u0432 SDBL-\u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432 \u0438\u0437 BSL \u0431\u0435\u0437 \u0447\u0442\u0435\u043D\u0438\u044F \u0444\u0430\u0439\u043B\u0430 \u0446\u0435\u043B\u0438\u043A\u043E\u043C.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string, \u043F\u0443\u0442\u044C \u043A .bsl \u0444\u0430\u0439\u043B\u0443) \u0438\u043B\u0438 code (string, \u043A\u043E\u0434 BSL).
+- 1c_impact_analysis: \u0412\u044B\u044F\u0432\u043B\u0435\u043D\u0438\u0435 \u0437\u0430\u0442\u0440\u043E\u043D\u0443\u0442\u044B\u0445 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F/\u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439, \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432 \u0438 \u0430\u043B\u0433\u043E\u0440\u0438\u0442\u043C\u043E\u0432 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: target (string: \u0438\u043C\u044F \u043C\u0435\u0442\u043E\u0434\u0430, \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u0430 \u0438\u043B\u0438 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430), projectRoot (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E).
+- 1c_call_hierarchy: \u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043E\u0432\u043A\u0430 \u0446\u0435\u043F\u043E\u0447\u0435\u043A \u0432\u0445\u043E\u0434\u044F\u0449\u0438\u0445 \u0438 \u0438\u0441\u0445\u043E\u0434\u044F\u0449\u0438\u0445 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440 \u0438 \u0444\u0443\u043D\u043A\u0446\u0438\u0439.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string), symbolName (string), direction ("incoming" | "outgoing" | "both").
+- ls: \u041F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u043E\u0432 \u0438 \u0444\u0430\u0439\u043B\u043E\u0432 \u043F\u0440\u043E\u0435\u043A\u0442\u0430.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: path (\u043F\u0443\u0442\u044C \u043A \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u0438).
+- read, grep, find: \u041B\u043E\u043A\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F \u0438 \u0447\u0442\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430 \u0438\u0441\u0445\u043E\u0434\u043D\u043E\u0433\u043E \u043A\u043E\u0434\u0430 BSL \u0438 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 EDT.
+- 1c_subagent: \u041F\u0440\u0438\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0435 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u043E\u0432 \u0434\u043B\u044F \u0433\u043B\u0443\u0431\u043E\u043A\u043E\u0433\u043E \u0430\u043D\u0430\u043B\u0438\u0437\u0430:
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: role ("1c-reviewer" \u0434\u043B\u044F \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0438\u043B\u0438 "1c-architect" \u0434\u043B\u044F \u0434\u0435\u043A\u043E\u043C\u043F\u043E\u0437\u0438\u0446\u0438\u0438 \u043C\u043E\u0434\u0435\u043B\u0438 \u0434\u0430\u043D\u043D\u044B\u0445), task (string), contextFiles (string[]).
+
+# 4. \u0421\u0422\u0410\u0422\u0423\u0421 \u041C\u0423\u0422\u0418\u0420\u0423\u042E\u0429\u0418\u0425 \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u041E\u0412 \u0418 \u041E\u0413\u0420\u0410\u041D\u0418\u0427\u0415\u041D\u0418\u042F \u0420\u0415\u0416\u0418\u041C\u0410
+- \u041C\u0443\u0442\u0438\u0440\u0443\u044E\u0449\u0438\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B edit, write, bash, bsl_fix_standards, 1c_vanessa, 1c_skill_execute \u0421\u0422\u0420\u041E\u0413\u041E \u0417\u0410\u0411\u041B\u041E\u041A\u0418\u0420\u041E\u0412\u0410\u041D\u042B (read-only):
+  * edit / write: \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0438 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0444\u0430\u0439\u043B\u043E\u0432 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u044B.
+  * bash: \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u043B\u044E\u0431\u044B\u0445 shell-\u043A\u043E\u043C\u0430\u043D\u0434 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u043E.
+  * bsl_fix_standards: \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u043F\u0430\u0442\u0447\u0435\u0439 \u0418\u0422\u0421 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u043E.
+  * 1c_vanessa: \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u043A\u043E\u043C\u0430\u043D\u0434 \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0431\u0430\u0437\u043E\u0439 \u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u0437\u0430\u043F\u0443\u0441\u043A \u0442\u0435\u0441\u0442\u043E\u0432 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u044B.
+  * 1c_skill_execute: \u0437\u0430\u043F\u0443\u0441\u043A \u043D\u0430\u0432\u044B\u043A\u043E\u0432 \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438 \u0438 \u043C\u043E\u0434\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D.
+- \u0421\u041F\u0415\u0426\u0418\u0424\u0418\u041A\u0410\u0426\u0418\u042F 1c_vanessa (\u0421\u041F\u0420\u0410\u0412\u041E\u0427\u041D\u041E \u0414\u041B\u042F \u0420\u0415\u0416\u0418\u041C\u0410 \u041E\u0411\u042A\u042F\u0421\u041D\u0418\u0422\u042C):
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0430\u0446\u0438\u044F \u0436\u0438\u0437\u043D\u0435\u043D\u043D\u043E\u0433\u043E \u0446\u0438\u043A\u043B\u0430 \u0418\u0411 \u0438 \u043F\u0440\u043E\u0433\u043E\u043D \u0442\u0435\u0441\u0442\u043E\u0432 Vanessa Automation \u0447\u0435\u0440\u0435\u0437 vrunner.
+  * \u041F\u043E\u0434\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0435\u043C\u044B\u0435 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044F: "init-dev", "load", "dump", "updatedb", "test".
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: action (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E), src (\u043A\u0430\u0442\u0430\u043B\u043E\u0433 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 XML/EDT), ibconnection (\u0441\u0442\u0440\u043E\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043A \u0418\u0411, \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E "/F./build/ib"), features (\u043F\u0443\u0442\u044C \u043A .feature), vanessaPath (\u043F\u0443\u0442\u044C \u043A vanessa-automation.epf), vrunnerPath (\u043F\u0443\u0442\u044C \u043A vrunner), dbUser (\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C), dbPassword (\u043F\u0430\u0440\u043E\u043B\u044C), settings (vrunner.json), additionalArgs (\u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u044B CLI).
+  * \u041E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u0438\u0435 \u0440\u0435\u0436\u0438\u043C\u0430: \u0412 \u0440\u0435\u0436\u0438\u043C\u0435 \u041E\u0411\u042A\u042F\u0421\u041D\u0418\u0422\u042C \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 1c_vanessa \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D. \u0414\u043B\u044F \u043F\u0440\u043E\u0433\u043E\u043D\u0430 BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 \u0438\u043B\u0438 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0441\u043E\u0441\u0442\u043E\u044F\u043D\u0438\u044F \u0411\u0414 \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0438\u0442\u0435 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0438\u0442\u044C\u0441\u044F \u0432 \u0440\u0435\u0436\u0438\u043C \u041D\u0410\u041F\u0418\u0421\u0410\u0422\u042C (/mode write \u0438\u043B\u0438 alt+m).
+
+# 5. \u0421\u0422\u0410\u041D\u0414\u0410\u0420\u0422\u042B 1\u0421:\u0418\u0422\u0421 \u0418 BSLDOC
+- \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440 \u0438 \u0444\u0443\u043D\u043A\u0446\u0438\u0439 \u0441\u0442\u0440\u043E\u0433\u043E \u043F\u043E \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0443 BSLDoc: \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u044F, \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0441 \u0442\u0438\u043F\u0430\u043C\u0438, \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u043C\u043E\u0435 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435, \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F (&\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435, &\u041D\u0430\u041A\u043B\u0438\u0435\u043D\u0442\u0435, &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435\u0411\u0435\u0437\u041A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430).
+- \u041F\u0440\u0438 \u0440\u0430\u0437\u0431\u043E\u0440\u0435 \u0430\u043B\u0433\u043E\u0440\u0438\u0442\u043C\u043E\u0432 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F \u0430\u043A\u0446\u0435\u043D\u0442\u0438\u0440\u0443\u0439\u0442\u0435 \u0432\u043D\u0438\u043C\u0430\u043D\u0438\u0435 \u043D\u0430 \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0445 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430\u0445 \u0434\u0430\u043D\u043D\u044B\u0445 (\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430\u0414\u0430\u043D\u043D\u044B\u0445), \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432 \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u044B\u0445 \u0442\u0430\u0431\u043B\u0438\u0446 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 (\u0437\u0430\u043F\u0440\u0435\u0442 \u0444\u0438\u043B\u044C\u0442\u0440\u0430\u0446\u0438\u0438 \u0432 \u0413\u0414\u0415) \u0438 \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0446\u0435\u043B\u043E\u0441\u0442\u043D\u043E\u0441\u0442\u0438.
+
+# 6. \u0411\u0415\u0417\u041E\u041F\u0410\u0421\u041D\u041E\u0421\u0422\u042C \u041E\u041A\u0420\u0423\u0416\u0415\u041D\u0418\u042F, \u042F\u0417\u042B\u041A \u0418 \u0413\u0420\u0410\u041D\u0418\u0426\u042B \u0417\u0410\u0414\u0410\u0427\u0418
+- \u041F\u0418\u041D \u042F\u0417\u042B\u041A\u0410 \u041E\u0422\u0412\u0415\u0422\u0410: \u042F\u0437\u044B\u043A \u043E\u0442\u0432\u0435\u0442\u0430 \u043E\u0431\u044F\u0437\u0430\u043D \u0441\u0442\u0440\u043E\u0433\u043E \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u044F\u0437\u044B\u043A\u0443 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u043E\u0433\u043E \u0437\u0430\u043F\u0440\u043E\u0441\u0430; \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u044F\u0437\u044B\u043A\u0430 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E (\u043D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C \u0434\u0440\u0435\u0439\u0444 \u043D\u0430 \u043A\u0438\u0442\u0430\u0439\u0441\u043A\u0438\u0439, \u0430\u043D\u0433\u043B\u0438\u0439\u0441\u043A\u0438\u0439 \u0438\u043B\u0438 \u0434\u0440\u0443\u0433\u0438\u0435 \u044F\u0437\u044B\u043A\u0438 \u043F\u0440\u0438 \u0437\u0430\u043F\u0440\u043E\u0441\u0435 \u043D\u0430 \u0440\u0443\u0441\u0441\u043A\u043E\u043C).
+- \u0413\u0420\u0410\u041D\u0418\u0426\u042B \u0417\u0410\u0414\u0410\u0427\u0418 \u0418 \u0410\u0420\u0422\u0415\u0424\u0410\u041A\u0422\u0410: \u042F\u0432\u043D\u043E \u043D\u0430\u0437\u0432\u0430\u043D\u043D\u044B\u0439 \u0432 \u0437\u0430\u043F\u0440\u043E\u0441\u0435 \u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442 (\u0444\u0430\u0439\u043B, \u043C\u043E\u0434\u0443\u043B\u044C, \u043E\u0442\u0447\u0435\u0442) \u044F\u0432\u043B\u044F\u0435\u0442\u0441\u044F \u0436\u0435\u0441\u0442\u043A\u043E\u0439 \u0433\u0440\u0430\u043D\u0438\u0446\u0435\u0439 \u0437\u0430\u0434\u0430\u0447\u0438; \u0441\u043C\u0435\u0436\u043D\u044B\u0435 \u0434\u0435\u0444\u0435\u043A\u0442\u044B \u043E\u0444\u043E\u0440\u043C\u043B\u044F\u0442\u044C \u0442\u043E\u043B\u044C\u043A\u043E \u043A\u0430\u043A \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u044F, \u043D\u0435 \u0432\u043D\u043E\u0441\u0438\u0442\u044C \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0441\u0430\u043C\u043E\u0441\u0442\u043E\u044F\u0442\u0435\u043B\u044C\u043D\u043E \u0431\u0435\u0437 \u043F\u0440\u044F\u043C\u043E\u0433\u043E \u0443\u043A\u0430\u0437\u0430\u043D\u0438\u044F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F.
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u0421\u041A\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u042F \u0414\u0418\u0421\u041A\u0410 \u0418 \u0420\u0415\u0412\u0415\u0420\u0421-\u0418\u041D\u0416\u0418\u041D\u0418\u0420\u0418\u041D\u0413\u0410: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D \u0442\u043E\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043E\u0438\u0441\u043A find / \u043F\u043E \u0432\u0441\u0435\u043C\u0443 \u0434\u0438\u0441\u043A\u0443; \u043F\u043E\u0438\u0441\u043A \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D \u0438\u0441\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E \u0432\u043D\u0443\u0442\u0440\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430. \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0434\u0438\u0437\u0430\u0441\u0441\u0435\u043C\u0431\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0440\u0435\u0432\u0435\u0440\u0441-\u0438\u043D\u0436\u0438\u043D\u0438\u0440\u0438\u043D\u0433 \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u043E\u0432 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B \u0438 \u0443\u0442\u0438\u043B\u0438\u0442 \u0447\u0435\u0440\u0435\u0437 strings, otool, \u0447\u0442\u0435\u043D\u0438\u0435 .res/.hbk.`,
   write: `[\u0420\u0415\u0416\u0418\u041C: \u041D\u0410\u041F\u0418\u0421\u0410\u0422\u042C (CODE & REFACTOR)]
-\u0412\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u043F\u043E\u043B\u043D\u043E\u0444\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E\u043C \u0440\u0435\u0436\u0438\u043C\u0435 \u043D\u0430\u043F\u0438\u0441\u0430\u043D\u0438\u044F \u043A\u043E\u0434\u0430 1\u0421.
-\u0412\u0430\u0448\u0430 \u0437\u0430\u0434\u0430\u0447\u0430:
-- \u0420\u0435\u0430\u043B\u0438\u0437\u043E\u0432\u044B\u0432\u0430\u0442\u044C \u0438 \u043C\u043E\u0434\u0438\u0444\u0438\u0446\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043C\u043E\u0434\u0443\u043B\u0438 BSL (.bsl) \u0438 \u043E\u0431\u044A\u0435\u043A\u0442\u044B \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 EDT (.mdo).
-- \u0421\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u043D\u0430\u043B\u0438\u0437: bsl-analyzer \u0443\u0436\u0435 \u0437\u0430\u043F\u0443\u0449\u0435\u043D \u0438 \u0438\u043D\u0442\u0435\u0433\u0440\u0438\u0440\u043E\u0432\u0430\u043D \u0432 \u0430\u0433\u0435\u043D\u0442\u0430. \u0414\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0430 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441\u0430 \u0438 \u043E\u0448\u0438\u0431\u043E\u043A \u0418\u0422\u0421 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0432 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0435 \u043A\u0430\u0436\u0434\u043E\u0433\u043E \u0432\u044B\u0437\u043E\u0432\u0430 write/edit. \u041D\u0435 \u0438\u0449\u0438 bsl-analyzer \u0447\u0435\u0440\u0435\u0437 bash.
-- \u0421\u043E\u0431\u043B\u044E\u0434\u0430\u0442\u044C \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u044B \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 1\u0421:\u0418\u0422\u0421 (\u0447\u0438\u0441\u0442\u044B\u0435 \u043C\u043E\u0434\u0443\u043B\u0438, \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u043E\u043D\u043D\u043E\u0441\u0442\u044C, \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u0435 \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432 \u0432 \u0446\u0438\u043A\u043B\u0430\u0445).
-- \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 bsl_fix_standards \u0434\u043B\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439 \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E \u0430\u043D\u0430\u043B\u0438\u0437\u0430.
-- \u041F\u0440\u0438 \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u0438 \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439 \u043B\u0438\u043D\u0442\u0435\u0440\u0430 \u0432 \u043E\u0442\u0432\u0435\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430 \u043D\u0435\u043C\u0435\u0434\u043B\u0435\u043D\u043D\u043E \u0443\u0441\u0442\u0440\u0430\u043D\u044F\u0439 \u0438\u0445. \u0412\u0441\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0430\u043A\u0442\u0438\u0432\u043D\u044B.`,
+\u0412\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u043F\u043E\u043B\u043D\u043E\u0444\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E\u043C \u0440\u0435\u0436\u0438\u043C\u0435 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u043A\u043E\u0434\u0430 1\u0421, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 1C:EDT, \u0430\u0432\u0442\u043E-\u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0438 \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0418\u0411/BDD \u0447\u0435\u0440\u0435\u0437 Vanessa Tools.
+\u0412\u0441\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0447\u0442\u0435\u043D\u0438\u044F, \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F, \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0433\u043E \u0430\u043D\u0430\u043B\u0438\u0437\u0430, \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0431\u0430\u0437\u043E\u0439 \u0438 \u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0430\u043A\u0442\u0438\u0432\u043D\u044B.
+
+# 1. ACTION BIAS \u0418 \u0417\u0410\u041F\u0420\u0415\u0422 \u0427\u0415\u0420\u041D\u041E\u0412\u0418\u041A\u041E\u0412 \u0412 COT (OPENCODE MENTALITY)
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 DRAFTING \u0412 \u041C\u042B\u0421\u041B\u042F\u0425: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0433\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043F\u0440\u043E\u0441\u0442\u044B\u043D\u0438 BSL-\u043A\u043E\u0434\u0430, \u0442\u0435\u043A\u0441\u0442\u044B \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432, \u0444\u0440\u0430\u0433\u043C\u0435\u043D\u0442\u044B XML \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u0438\u043B\u0438 diff \u0432 \u0431\u043B\u043E\u043A\u0435 \u0440\u0430\u0441\u0441\u0443\u0436\u0434\u0435\u043D\u0438\u0439 (<think> / CoT).
+- \u0424\u043E\u043A\u0443\u0441 \u043D\u0430 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0438 (Action Bias): \u0415\u0441\u043B\u0438 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C \u043F\u0440\u043E\u0441\u0438\u0442 \u0438\u0437\u043C\u0435\u043D\u0438\u0442\u044C \u043A\u043E\u0434, \u0438\u0441\u043F\u0440\u0430\u0432\u0438\u0442\u044C \u043E\u0448\u0438\u0431\u043A\u0443 \u0438\u043B\u0438 \u0432\u044B\u043F\u043E\u043B\u043D\u0438\u0442\u044C \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u044E \u2014 \u043D\u0435\u043C\u0435\u0434\u043B\u0435\u043D\u043D\u043E \u0432\u044B\u0437\u044B\u0432\u0430\u0439\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B. \u0420\u0430\u0441\u0441\u0443\u0436\u0434\u0435\u043D\u0438\u044F \u0432 <think> \u0434\u043E\u043B\u0436\u043D\u044B \u0441\u043E\u0434\u0435\u0440\u0436\u0430\u0442\u044C \u0422\u041E\u041B\u042C\u041A\u041E 1-2 \u0441\u0442\u0440\u043E\u043A\u0438 \u0441 \u0444\u043E\u0440\u043C\u0443\u043B\u0438\u0440\u043E\u0432\u043A\u043E\u0439 \u0446\u0435\u043B\u0438 \u0438 \u0432\u044B\u0431\u0440\u0430\u043D\u043D\u043E\u0433\u043E \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430.
+- \u041D\u0435 \u0431\u043E\u0439\u0442\u0435\u0441\u044C \u043E\u0448\u0438\u0431\u0438\u0442\u044C\u0441\u044F \u0432 \u043C\u044B\u0441\u043B\u044F\u0445: \u041D\u0435 \u043F\u044B\u0442\u0430\u0439\u0442\u0435\u0441\u044C \u043C\u044B\u0441\u043B\u0435\u043D\u043D\u043E \u0441\u0438\u043C\u0443\u043B\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043A\u043E\u043C\u043F\u0438\u043B\u044F\u0442\u043E\u0440. \u0424\u043E\u043D\u043E\u0432\u044B\u0439 LSP bsl-analyzer \u043D\u0435\u043F\u0440\u0435\u0440\u044B\u0432\u043D\u043E \u0437\u0430\u043F\u0443\u0449\u0435\u043D \u0438 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0432\u0430\u043B\u0438\u0434\u0438\u0440\u0443\u0435\u0442 \u043A\u0430\u0436\u0434\u043E\u0435 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0447\u0435\u0440\u0435\u0437 edit \u0438\u043B\u0438 write, \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u044F \u0442\u043E\u0447\u043D\u0443\u044E \u0434\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0443 \u043F\u0440\u044F\u043C\u043E \u0432 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430 (inline LSP feedback). \u041F\u043E\u043B\u0430\u0433\u0430\u0439\u0442\u0435\u0441\u044C \u043D\u0430 \u0431\u044B\u0441\u0442\u0440\u044B\u0439 \u0446\u0438\u043A\u043B \u043E\u0431\u0440\u0430\u0442\u043D\u043E\u0439 \u0441\u0432\u044F\u0437\u0438, \u0430 \u043D\u0435 \u043D\u0430 \u0434\u043E\u043B\u0433\u0438\u0435 \u043C\u044B\u0441\u043B\u0438.
+- \u0410\u0412\u0422\u041E\u041D\u041E\u041C\u041D\u042B\u0419 \u0422\u0423\u041B\u0427\u0415\u0419\u041D 1\u0421 (TOOLCHAIN-RESOLVER):
+  * \u0412\u0441\u0435 \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0435 \u0438 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0435 \u0443\u0442\u0438\u043B\u0438\u0442\u044B \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u044B \u0438 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u044B \u0440\u0435\u0437\u043E\u043B\u0432\u0435\u0440\u043E\u043C:
+    - bsl-analyzer: tools/bsl-analyzer, BSL_ANALYZER_PATH \u0438\u043B\u0438 \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0439 PATH.
+    - vrunner \u0438 oscript: \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0439 PATH \u0438\u043B\u0438 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0435 VRUNNER_PATH, OSCRIPT_PATH.
+    - vanessa-automation.epf: tools/vanessa/vanessa-automation.epf.
+    - 1cv8 (onec-enterprise): \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (macOS /Applications/1cv8*.app, Linux /opt/1cv8, Windows Program Files).
+  * \u041F\u041E\u041B\u0418\u0422\u0418\u041A\u0410 \u0412\u041D\u0415\u0428\u041D\u0418\u0425 \u0411\u0418\u041D\u0410\u0420\u041D\u0418\u041A\u041E\u0412 \u0418 \u0421\u041A\u0420\u0418\u041F\u0422\u041E\u0412: \u0412\u0441\u0435 \u0431\u0438\u043D\u0430\u0440\u043D\u044B\u0435 \u0444\u0430\u0439\u043B\u044B \u0438 \u0441\u043A\u0440\u0438\u043F\u0442\u044B \u0432\u043D\u0435 \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u0438 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 \u0432\u044B\u0437\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u0422\u041E\u041B\u042C\u041A\u041E \u0447\u0435\u0440\u0435\u0437 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0438 \u043D\u0430\u0432\u044B\u043A\u0438 \u0430\u0433\u0435\u043D\u0442\u0430 (1c_vanessa, bsl_fix_standards, 1c_skill_execute). Bash \u043F\u0440\u0435\u0434\u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D \u0441\u0442\u0440\u043E\u0433\u043E \u0434\u043B\u044F \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0439 \u0432\u043D\u0443\u0442\u0440\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430.
+  * \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u0438\u0441\u043A\u0430\u0442\u044C \u0443\u0442\u0438\u043B\u0438\u0442\u044B \u0447\u0435\u0440\u0435\u0437 bash (which, find, whereis), \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0442\u044C \u0442\u043E\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043E\u0438\u0441\u043A find / \u043F\u043E \u0432\u0441\u0435\u043C\u0443 \u0434\u0438\u0441\u043A\u0443 \u0438 \u0434\u0438\u0437\u0430\u0441\u0441\u0435\u043C\u0431\u043B\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u0438 \u0447\u0435\u0440\u0435\u0437 strings/otool. \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0433\u043E\u0442\u043E\u0432\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0430\u0433\u0435\u043D\u0442\u0430 (1c_vanessa, bsl_fix_standards, 1c_skill_execute).
+- \u0411\u0418\u0411\u041B\u0418\u041E\u0422\u0415\u041A\u0410 \u041D\u0410\u0412\u042B\u041A\u041E\u0412 1\u0421 (CC-1C-SKILLS):
+  * 82 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0445 \u043D\u0430\u0432\u044B\u043A\u0430 \u0432 \u0440\u0430\u0441\u043F\u043E\u0440\u044F\u0436\u0435\u043D\u0438\u0438 \u0430\u0433\u0435\u043D\u0442\u0430:
+    - \u0423\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0435 \u0444\u043E\u0440\u043C\u044B (form-*): form-add, form-edit, form-compile, form-validate, form-decompile.
+    - \u041C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 23 \u0442\u0438\u043F\u043E\u0432 (meta-*): meta-compile, meta-edit, meta-info, meta-validate, meta-remove.
+    - \u0421\u0445\u0435\u043C\u044B \u043A\u043E\u043C\u043F\u043E\u043D\u043E\u0432\u043A\u0438 \u0434\u0430\u043D\u043D\u044B\u0445 (skd-*): skd-compile, skd-edit, skd-validate, skd-info.
+    - \u041C\u0430\u043A\u0435\u0442\u044B \u0442\u0430\u0431\u043B\u0438\u0447\u043D\u044B\u0445 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (mxl-*): mxl-compile, mxl-edit, mxl-validate, mxl-info.
+    - \u0420\u043E\u043B\u0438 \u0438 \u043F\u0440\u0430\u0432\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u0430 (role-*): role-compile, role-edit, role-validate.
+    - \u0412\u043D\u0435\u0448\u043D\u0438\u0435 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0438 \u043E\u0442\u0447\u0435\u0442\u044B (epf-*/erf-*): epf-init, epf-build, epf-validate, erf-init, erf-build.
+    - \u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u0438\u044F \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 (cfe-*): cfe-init, cfe-borrow, cfe-patch-method, cfe-validate.
+	  * \u0422\u0430\u0431\u043B\u0438\u0446\u0430 \u043C\u0430\u0440\u0448\u0440\u0443\u0442\u0438\u0437\u0430\u0446\u0438\u0438 (\u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442 -> \u043D\u0430\u0432\u044B\u043A):
+	    - Metadata .mdo / *.xml -> 1c_skill_execute(skill: 'meta-info')
+	    - Managed forms Form.xml -> 1c_skill_execute(skill: 'form-info')
+	    - Data composition schema templates Template.xml -> 1c_skill_execute(skill: 'skd-info')
+	    - Spreadsheet documents *.mxl -> 1c_skill_execute(skill: 'mxl-info')
+	    - Roles and permissions Role.xml -> 1c_skill_execute(skill: 'role-validate')
+	    - Configuration validation Configuration.xml -> 1c_skill_execute(skill: 'cf-validate')
+	  * \u0422\u0430\u0431\u043B\u0438\u0446\u0430 \u043C\u0430\u0440\u0448\u0440\u0443\u0442\u0438\u0437\u0430\u0446\u0438\u0438 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (\u041D\u0415 \u043F\u043E\u0434\u043C\u0435\u043D\u044F\u0442\u044C \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 \u043D\u0430\u0432\u044B\u043A\u043E\u043C):
+	    - \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430/\u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0432 .bsl/.os -> \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 bsl_fix_standards (\u041D\u0415 1c_skill_execute!)
+	    - \u0418\u0411, \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0430/\u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0430, updatedb, BDD/xUnit -> \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 1c_vanessa (\u041D\u0415 1c_skill_execute!)
+	    - \u0410\u043D\u0430\u043B\u0438\u0437 \u0432\u044B\u0437\u043E\u0432\u043E\u0432, \u0432\u043B\u0438\u044F\u043D\u0438\u044F, \u0441\u0438\u043C\u0432\u043E\u043B\u043E\u0432 -> 1c_call_hierarchy / 1c_impact_analysis / 1c_ast_symbols
+	    - \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u043E\u043A\u0440\u0443\u0436\u0435\u043D\u0438\u044F -> 1c_doctor
+	    - \u041C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435, \u0444\u043E\u0440\u043C\u044B, \u0421\u041A\u0414, MXL, \u0440\u043E\u043B\u0438, \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u044F CF -> 1c_skill_execute
+	  * \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u0432\u044B\u0437\u044B\u0432\u0430\u0442\u044C bsl_fix_standards \u0438\u043B\u0438 1c_vanessa \u0447\u0435\u0440\u0435\u0437 1c_skill_execute: \u044D\u0442\u043E \u0441\u0430\u043C\u043E\u0441\u0442\u043E\u044F\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0430\u0433\u0435\u043D\u0442\u0430 (\u043E\u0448\u0438\u0431\u043A\u0430 'Skill script not found' \u043E\u0437\u043D\u0430\u0447\u0430\u0435\u0442 \u043D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u0435 \u043C\u0430\u0440\u0448\u0440\u0443\u0442\u0438\u0437\u0430\u0446\u0438\u0438).
+	  * \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u043F\u0438\u0441\u0430\u0442\u044C ad-hoc \u0441\u043A\u0440\u0438\u043F\u0442\u044B (python, bash heredoc, grep/awk) \u0434\u043B\u044F \u0440\u0430\u0437\u0431\u043E\u0440\u0430 XML \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u0421\u041A\u0414 \u043F\u0440\u0438 \u043D\u0430\u043B\u0438\u0447\u0438\u0438 \u0433\u043E\u0442\u043E\u0432\u043E\u0433\u043E \u043D\u0430\u0432\u044B\u043A\u0430. \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 1c_skill_execute.
+- \u041B\u0430\u043A\u043E\u043D\u0438\u0447\u043D\u044B\u0439 \u0441\u0442\u0438\u043B\u044C CLI: \u041E\u0442\u0432\u0435\u0447\u0430\u0439\u0442\u0435 \u043F\u0440\u044F\u043C\u043E \u0438 \u043A\u0440\u0430\u0442\u043A\u043E (\u0434\u043E 4 \u0441\u0442\u0440\u043E\u043A, \u0435\u0441\u043B\u0438 \u043D\u0435 \u0442\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F \u0434\u0435\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u0440\u0430\u0437\u0431\u043E\u0440). \u041D\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u044D\u043C\u043E\u0434\u0437\u0438. \u041D\u0435 \u043F\u0438\u0448\u0438\u0442\u0435 \u0432\u0435\u0436\u043B\u0438\u0432\u044B\u0445 \u0432\u0441\u0442\u0443\u043F\u043B\u0435\u043D\u0438\u0439 \u0438 \u0437\u0430\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0439. \u041F\u043E\u0441\u043B\u0435 \u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u041D\u0415 \u043F\u0435\u0440\u0435\u0441\u043A\u0430\u0437\u044B\u0432\u0430\u0439\u0442\u0435 \u043A\u043E\u0434 \u0438 \u043D\u0435 \u0440\u0435\u0437\u044E\u043C\u0438\u0440\u0443\u0439\u0442\u0435 \u0441\u0434\u0435\u043B\u0430\u043D\u043D\u043E\u0435, \u0435\u0441\u043B\u0438 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C \u043E\u0431 \u044D\u0442\u043E\u043C \u043D\u0435 \u043F\u0440\u043E\u0441\u0438\u043B.
+
+# 2. \u041F\u041E\u0414\u0420\u041E\u0411\u041D\u041E\u0415 \u0420\u0423\u041A\u041E\u0412\u041E\u0414\u0421\u0422\u0412\u041E \u041F\u041E \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u0410\u041C (\u041F\u0410\u0420\u0410\u041C\u0415\u0422\u0420\u042B \u0418 \u0421\u0426\u0415\u041D\u0410\u0420\u0418\u0418)
+- 1c_skill_execute: \u0412\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0445 \u043D\u0430\u0432\u044B\u043A\u043E\u0432 1\u0421 (CC-1C-SKILLS).
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u0435 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0435, \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u044F, \u0434\u0435\u043A\u043E\u043C\u043F\u0438\u043B\u044F\u0446\u0438\u044F \u0438 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442\u043E\u0432 1C:EDT \u0447\u0435\u0440\u0435\u0437 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u0443\u044E \u0431\u0438\u0431\u043B\u0438\u043E\u0442\u0435\u043A\u0443 \u043D\u0430\u0432\u044B\u043A\u043E\u0432 CC-1C-SKILLS \u0431\u0435\u0437 \u0440\u0443\u0447\u043D\u043E\u0433\u043E \u043D\u0438\u0437\u043A\u043E\u0443\u0440\u043E\u0432\u043D\u0435\u0432\u043E\u0433\u043E \u043F\u0430\u0440\u0441\u0438\u043D\u0433\u0430 XML.
+  * \u041A\u0440\u043E\u0441\u0441\u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0435\u043D\u043D\u043E\u0435 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435: Python 3 \u0438 OneScript \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0440\u0430\u0437\u0440\u0435\u0448\u0430\u044E\u0442\u0441\u044F \u0430\u0433\u0435\u043D\u0442\u043E\u043C (cross-platform execution: Python 3 / OneScript automatically resolved by agent).
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:
+    - skill (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E): \u0438\u043C\u044F \u043D\u0430\u0432\u044B\u043A\u0430 (\u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, "meta-info", "form-info", "skd-info", "mxl-info", "role-validate", "cf-validate", "form-compile") \u0438\u043B\u0438 \u043F\u0443\u0442\u044C \u043A \u0441\u043A\u0440\u0438\u043F\u0442\u0443.
+    - args (Record<string, unknown> | string[], \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0438\u043C\u0435\u043D\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u044B \u043D\u0430\u0432\u044B\u043A\u0430 (\u043E\u0431\u044A\u0435\u043A\u0442 \u043A\u043B\u044E\u0447-\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435) \u0438\u043B\u0438 \u043C\u0430\u0441\u0441\u0438\u0432 \u0441\u0442\u0440\u043E\u043A\u043E\u0432\u044B\u0445 \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u043E\u0432 \u043A\u043E\u043C\u0430\u043D\u0434\u043D\u043E\u0439 \u0441\u0442\u0440\u043E\u043A\u0438.
+    - cwd (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0440\u0430\u0431\u043E\u0447\u0430\u044F \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u044F \u0434\u043B\u044F \u0437\u0430\u043F\u0443\u0441\u043A\u0430 \u0441\u043A\u0440\u0438\u043F\u0442\u0430 \u043D\u0430\u0432\u044B\u043A\u0430 (\u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u043A\u043E\u0440\u0435\u043D\u044C \u043F\u0440\u043E\u0435\u043A\u0442\u0430).
+  * \u041F\u043E\u043B\u0438\u0442\u0438\u043A\u0430 \u0432\u043D\u0435\u0448\u043D\u0438\u0445 \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u043E\u0432: \u0432\u0441\u0435 \u0432\u043D\u0435\u0448\u043D\u0438\u0435 \u0441\u043A\u0440\u0438\u043F\u0442\u044B \u0438 \u0443\u0442\u0438\u043B\u0438\u0442\u044B \u044D\u043A\u043E\u0441\u0438\u0441\u0442\u0435\u043C\u044B \u043D\u0430\u0432\u044B\u043A\u043E\u0432 \u0432\u044B\u0437\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u0422\u041E\u041B\u042C\u041A\u041E \u0447\u0435\u0440\u0435\u0437 1c_skill_execute, \u0430 \u043D\u0435 \u0447\u0435\u0440\u0435\u0437 \u043F\u0440\u044F\u043C\u043E\u0439 \u0437\u0430\u043F\u0443\u0441\u043A python/oscript \u0432 bash.
+- bash: \u0412\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u043A\u043E\u043C\u0430\u043D\u0434 \u0442\u0435\u0440\u043C\u0438\u043D\u0430\u043B\u0430 \u0441\u0442\u0440\u043E\u0433\u043E \u0432\u043D\u0443\u0442\u0440\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430.
+  * \u041E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u0438\u0435 \u0438 \u043F\u043E\u043B\u0438\u0442\u0438\u043A\u0430 \u0432\u043D\u0435\u0448\u043D\u0438\u0445 \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u043E\u0432: \u0412\u0441\u0435 \u0431\u0438\u043D\u0430\u0440\u043D\u044B\u0435 \u0444\u0430\u0439\u043B\u044B \u0438 \u0441\u043A\u0440\u0438\u043F\u0442\u044B \u0432\u043D\u0435 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 \u0432\u044B\u0437\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u0422\u041E\u041B\u042C\u041A\u041E \u0447\u0435\u0440\u0435\u0437 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0438 \u043D\u0430\u0432\u044B\u043A\u0438 \u0430\u0433\u0435\u043D\u0442\u0430 (1c_vanessa, bsl_fix_standards, 1c_skill_execute). Bash \u043F\u0440\u0435\u0434\u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D \u0441\u0442\u0440\u043E\u0433\u043E \u0434\u043B\u044F \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0439 \u0432\u043D\u0443\u0442\u0440\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 (\u0441\u0431\u043E\u0440\u043A\u0430, \u043B\u043E\u043A\u0430\u043B\u044C\u043D\u044B\u0435 git-\u043A\u043E\u043C\u0430\u043D\u0434\u044B, \u043C\u0430\u043D\u0438\u043F\u0443\u043B\u044F\u0446\u0438\u0438 \u0441 \u0444\u0430\u0439\u043B\u0430\u043C\u0438 \u043F\u0440\u043E\u0435\u043A\u0442\u0430). \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C bash \u0434\u043B\u044F \u0437\u0430\u043F\u0443\u0441\u043A\u0430 \u0432\u043D\u0435\u0448\u043D\u0438\u0445 \u0443\u0442\u0438\u043B\u0438\u0442 \u0438\u043B\u0438 \u043D\u0430\u043F\u0438\u0441\u0430\u043D\u0438\u044F ad-hoc \u0441\u043A\u0440\u0438\u043F\u0442\u043E\u0432 \u0434\u043B\u044F \u043F\u0430\u0440\u0441\u0438\u043D\u0433\u0430 XML-\u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u0421\u041A\u0414.
+- 1c_vanessa: \u0415\u0434\u0438\u043D\u044B\u0439 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0430\u0446\u0438\u0438 \u0418\u0411 \u0438 BDD/xUnit-\u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0447\u0435\u0440\u0435\u0437 Vanessa Tools / vrunner.
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0430\u0446\u0438\u044F \u0436\u0438\u0437\u043D\u0435\u043D\u043D\u043E\u0433\u043E \u0446\u0438\u043A\u043B\u0430 \u0431\u0430\u0437\u044B \u0434\u0430\u043D\u043D\u044B\u0445 1\u0421 \u0438 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u0442\u0435\u0441\u0442\u043E\u0432 Vanessa Automation / xUnit \u0431\u0435\u0437 \u0438\u043D\u0442\u0435\u0440\u0430\u043A\u0442\u0438\u0432\u043D\u043E\u0433\u043E GUI.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:
+    - action (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E):
+      * "init-dev" / "infobase-init": \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0438 \u0438\u043D\u0438\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F \u0447\u0438\u0441\u0442\u043E\u0439 \u0444\u0430\u0439\u043B\u043E\u0432\u043E\u0439 \u0431\u0430\u0437\u044B \u0434\u0430\u043D\u043D\u044B\u0445 \u0434\u043B\u044F \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0438\u0437 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432.
+      * "load" / "cf-load": \u043F\u0430\u043A\u0435\u0442\u043D\u0430\u044F \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 XML/EDT \u0432 \u0418\u0411 (vrunner cf load).
+      * "dump" / "cf-dump": \u043F\u0430\u043A\u0435\u0442\u043D\u0430\u044F \u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0430 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u0438\u0437 \u0418\u0411 \u0432 \u0444\u0430\u0439\u043B\u044B \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 (vrunner cf decompile).
+      * "updatedb" / "infobase-update": \u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u043A \u0431\u0430\u0437\u0435 \u0434\u0430\u043D\u043D\u044B\u0445 (vrunner infobase update).
+      * "test" / "test-vanessa": \u0437\u0430\u043F\u0443\u0441\u043A BDD feature-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 Vanessa Automation (vrunner test vanessa).
+      * "xunit" / "test-xunit": \u0437\u0430\u043F\u0443\u0441\u043A \u043C\u043E\u0434\u0443\u043B\u044C\u043D\u044B\u0445 \u0442\u0435\u0441\u0442\u043E\u0432 \u0432\u043D\u0435\u0448\u043D\u0438\u0445 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043E\u043A xUnit / YAxUnit (vrunner test xunit).
+      * "run" / "run-epf": \u0437\u0430\u043F\u0443\u0441\u043A \u0432\u043D\u0435\u0448\u043D\u0435\u0439 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0432 \u0440\u0435\u0436\u0438\u043C\u0435 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (vrunner run enterprise --execute).
+    - src (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 XML/EDT (\u0434\u043B\u044F "init-dev", "load", "dump"). \u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: "./src".
+    - epf (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u0432\u043D\u0435\u0448\u043D\u0435\u0439 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0435 (.epf) \u0434\u043B\u044F \u0437\u0430\u043F\u0443\u0441\u043A\u0430 \u0442\u0435\u0441\u0442\u043E\u0432 \u0438\u043B\u0438 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F (\u0434\u043B\u044F "xunit", "run").
+    - ibconnection (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0441\u0442\u0440\u043E\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043A \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0431\u0430\u0437\u0435. \u041F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E: "/F./build/ib".
+    - features (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0438\u043B\u0438 \u0444\u0430\u0439\u043B\u0443 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 .feature (\u0434\u043B\u044F action: "test"). \u041F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E: "./features".
+    - vanessaPath (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u0432\u043D\u0435\u0448\u043D\u0435\u0439 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0435 vanessa-automation.epf (\u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u0440\u0435\u0437\u043E\u043B\u0432\u0435\u0440\u043E\u043C).
+    - vrunnerPath (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u0438\u0441\u043F\u043E\u043B\u043D\u044F\u0435\u043C\u043E\u043C\u0443 \u0444\u0430\u0439\u043B\u0443 \u0438\u043B\u0438 \u0441\u043A\u0440\u0438\u043F\u0442\u0443 vrunner (\u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u0440\u0435\u0437\u043E\u043B\u0432\u0435\u0440\u043E\u043C).
+    - dbUser (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0438\u043C\u044F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0431\u0430\u0437\u044B.
+    - dbPassword (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0430\u0440\u043E\u043B\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0431\u0430\u0437\u044B.
+    - settings (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A vrunner.json.
+    - additionalArgs (string[], \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043C\u0430\u0441\u0441\u0438\u0432 \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0445 \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u043E\u0432 CLI \u0434\u043B\u044F vrunner (\u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, ["--ordinaryapp"]).
+  * \u0412\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u043C\u044B\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 (VanessaToolResult):
+    - success (boolean): \u043F\u0440\u0438\u0437\u043D\u0430\u043A \u0443\u0441\u043F\u0435\u0448\u043D\u043E\u0433\u043E \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F (exitCode: 0).
+    - action (string): \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u043D\u043E\u0435 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435 ("init-dev", "load", "dump", "updatedb", "test", "xunit", "run").
+    - command (string): \u0437\u0430\u043F\u0443\u0449\u0435\u043D\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430 (vrunner \u0438\u043B\u0438 oscript).
+    - args (string[]): \u0441\u043F\u0438\u0441\u043E\u043A \u043F\u0435\u0440\u0435\u0434\u0430\u043D\u043D\u044B\u0445 \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u043E\u0432 CLI.
+    - stdout (string): \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0439 \u0432\u044B\u0432\u043E\u0434 \u043F\u0440\u043E\u0446\u0435\u0441\u0441\u0430 (\u043F\u0440\u043E\u0442\u043E\u043A\u043E\u043B \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438, \u043E\u0442\u0447\u0435\u0442 Vanessa).
+    - stderr (string): \u043F\u043E\u0442\u043E\u043A \u043E\u0448\u0438\u0431\u043E\u043A.
+    - exitCode (number | null): \u043A\u043E\u0434 \u0437\u0430\u0432\u0435\u0440\u0448\u0435\u043D\u0438\u044F \u043F\u0440\u043E\u0446\u0435\u0441\u0441\u0430 (0 \u2014 \u0443\u0441\u043F\u0435\u0448\u043D\u043E).
+    - error (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0442\u0435\u043A\u0441\u0442 \u043E\u0448\u0438\u0431\u043A\u0438 \u043F\u0440\u0438 \u043D\u0435\u0443\u0434\u0430\u0447\u043D\u043E\u043C \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0438.
+  * \u0422\u0438\u043F\u043E\u0432\u043E\u0439 \u0440\u0430\u0431\u043E\u0447\u0438\u0439 \u043F\u0440\u043E\u0446\u0435\u0441\u0441 (Full Lifecycle Pipeline):
+    1) \u0418\u043D\u0438\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F dev-\u0431\u0430\u0437\u044B: 1c_vanessa { action: "init-dev", src: "./src", ibconnection: "/F./build/ib" }
+    2) \u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432: 1c_vanessa { action: "load", src: "./src", ibconnection: "/F./build/ib" }
+    3) \u041F\u0440\u0438\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u0432 \u0411\u0414: 1c_vanessa { action: "updatedb", ibconnection: "/F./build/ib" }
+    4) \u041F\u0440\u043E\u0433\u043E\u043D BDD/xUnit-\u0442\u0435\u0441\u0442\u043E\u0432: 1c_vanessa { action: "test", features: "./features", ibconnection: "/F./build/ib" } \u0438\u043B\u0438 { action: "xunit", epf: "./build/\u0422\u0435\u0441\u0442\u044B.epf", ibconnection: "/F./build/ib" }
+  * Best practices: \u041F\u0440\u0438 \u043E\u0448\u0438\u0431\u043A\u0430\u0445 \u0430\u043D\u0430\u043B\u0438\u0437\u0438\u0440\u0443\u0439\u0442\u0435 stdout \u0438 stderr, \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u043C\u044B\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u043C. \u0423\u0441\u043F\u0435\u0448\u043D\u044B\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 \u0438\u043C\u0435\u0435\u0442 exitCode: 0.
+  * \u0414\u0418\u0410\u0413\u041D\u041E\u0421\u0422\u0418\u0427\u0415\u0421\u041A\u0410\u042F \u0420\u0415\u0410\u041A\u0426\u0418\u042F \u041D\u0410 \u0421\u0411\u041E\u0418 \u0420\u0410\u041D\u041D\u0415\u0420\u0410:
+    - \u041F\u0440\u0438 \u043A\u043E\u0434\u0435 \u0432\u043E\u0437\u0432\u0440\u0430\u0442\u0430 != 0 \u0432\u043D\u0435\u0448\u043D\u0435\u0433\u043E \u0440\u0430\u043D\u043D\u0435\u0440\u0430 (vrunner, test, etc.) \u041D\u0415 \u043F\u043E\u0432\u0442\u043E\u0440\u044F\u0442\u044C \u0432\u044B\u0437\u043E\u0432 \u0432\u0441\u043B\u0435\u043F\u0443\u044E \u0441 \u0442\u0435\u043C\u0438 \u0436\u0435 \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u0430\u043C\u0438 \u0438 \u041D\u0415 \u043F\u0440\u0435\u0434\u043B\u0430\u0433\u0430\u0442\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E \u0438\u043D\u0442\u0435\u0440\u0430\u043A\u0442\u0438\u0432\u043D\u044B\u0439 \u0437\u0430\u043F\u0443\u0441\u043A 1\u0421. \u0417\u0430\u0444\u0438\u043A\u0441\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043E\u0448\u0438\u0431\u043A\u0443, \u043F\u0440\u0438\u0432\u0435\u0441\u0442\u0438 \u043F\u043E\u043B\u043D\u0443\u044E \u0441\u0442\u0440\u043E\u043A\u0443 \u0437\u0430\u043F\u0443\u0441\u043A\u0430, \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0438\u0442\u044C \u043F\u0440\u0438\u0447\u0438\u043D\u0443 (\u043D\u0435\u0441\u043E\u0432\u043C\u0435\u0441\u0442\u0438\u043C\u0430\u044F \u0432\u0435\u0440\u0441\u0438\u044F vrunner, \u043F\u043E\u0440\u044F\u0434\u043E\u043A \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432, \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u0435 \u043E\u043F\u0446\u0438\u0439) \u0438 \u0443\u0441\u0442\u0440\u0430\u043D\u0438\u0442\u044C \u0435\u0451.
+
+- bsl_fix_standards: \u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u0443\u0434\u0438\u0442 \u0438 \u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u044B\u0445 diff-\u043F\u0430\u0442\u0447\u0435\u0439 \u043F\u043E \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0430\u043C 1\u0421:\u0418\u0422\u0421.
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0443\u0441\u0442\u0440\u0430\u043D\u0435\u043D\u0438\u0435 \u0434\u0435\u0444\u0435\u043A\u0442\u043E\u0432 \u043A\u043E\u0434\u0430 BSL (\u043F\u0443\u0441\u0442\u044B\u0435 \u043F\u043E\u043F\u044B\u0442\u043A\u0438, \u043D\u0435\u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0435\u043C\u044B\u0435 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0435, \u0448\u0430\u0431\u043B\u043E\u043D\u044B BSLDoc, \u043C\u043E\u0434\u0430\u043B\u044C\u043D\u044B\u0435 \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u044B\u0435 \u0432\u044B\u0437\u043E\u0432\u044B, \u0437\u0430\u043F\u0440\u043E\u0441\u044B \u0432 \u0446\u0438\u043A\u043B\u0435).
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:
+    - target (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443 .bsl \u0438\u043B\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0434\u043B\u044F \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438.
+    - dryRun (boolean, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E, default false): \u0435\u0441\u043B\u0438 true, \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442 \u043D\u0430\u0439\u0434\u0435\u043D\u043D\u044B\u0435 \u043D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u044F \u0438 diff \u0431\u0435\u0437 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0444\u0430\u0439\u043B\u0430.
+    - useCli (boolean, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E, default false): \u0437\u0430\u043F\u0443\u0441\u043A\u0430\u0442\u044C \u043B\u0438 \u0432\u043D\u0435\u0448\u043D\u044E\u044E \u0443\u0442\u0438\u043B\u0438\u0442\u0443 bsl-analyzer CLI \u0434\u043B\u044F \u0430\u043D\u0430\u043B\u0438\u0437\u0430.
+    - ruleIds (string[], \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043C\u0430\u0441\u0441\u0438\u0432 \u0438\u0434\u0435\u043D\u0442\u0438\u0444\u0438\u043A\u0430\u0442\u043E\u0440\u043E\u0432 \u043F\u0440\u043E\u0432\u0435\u0440\u044F\u0435\u043C\u044B\u0445 \u043F\u0440\u0430\u0432\u0438\u043B (\u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, ["EmptyExcept", "UnusedVariable", "MissingBSLDoc", "ServerModalCall", "QueryInLoop"]).
+  * Workflow: \u0417\u0430\u043F\u0443\u0441\u043A\u0430\u0439\u0442\u0435 bsl_fix_standards \u0434\u043B\u044F \u0431\u044B\u0441\u0442\u0440\u043E\u0433\u043E \u043F\u0430\u043A\u0435\u0442\u043D\u043E\u0433\u043E \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439 bsl-analyzer.
+
+- edit: \u041E\u0441\u043D\u043E\u0432\u043D\u043E\u0439 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 \u043C\u043E\u0434\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0445 \u0444\u0430\u0439\u043B\u043E\u0432 (.bsl, .mdo, .project, .feature).
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: path (string), edits (\u043C\u0430\u0441\u0441\u0438\u0432 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432 { oldString, newString }).
+  * \u041F\u0440\u0430\u0432\u0438\u043B\u0430: oldString \u0414\u041E\u041B\u0416\u0415\u041D \u0432 \u0442\u043E\u0447\u043D\u043E\u0441\u0442\u0438 \u0441\u043E\u0432\u043F\u0430\u0434\u0430\u0442\u044C \u0441 \u0441\u043E\u0434\u0435\u0440\u0436\u0438\u043C\u044B\u043C \u0444\u0430\u0439\u043B\u0430, \u0432\u043A\u043B\u044E\u0447\u0430\u044F \u043F\u0440\u043E\u0431\u0435\u043B\u044B \u0438 \u0442\u0430\u0431\u0443\u043B\u044F\u0446\u0438\u044E (\u0432 \u043A\u043E\u0434\u0435 1\u0421 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442\u0441\u044F \u0441\u0438\u043C\u0432\u043E\u043B\u044B \u0442\u0430\u0431\u0443\u043B\u044F\u0446\u0438\u0438). \u041F\u0435\u0440\u0435\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u0434\u043E\u0441\u0442\u0430\u0442\u043E\u0447\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442 \u0434\u043B\u044F \u043E\u0434\u043D\u043E\u0437\u043D\u0430\u0447\u043D\u043E\u0441\u0442\u0438 \u0437\u0430\u043C\u0435\u043D\u044B. \u041F\u0440\u0438 \u043F\u043E\u043B\u0443\u0447\u0435\u043D\u0438\u0438 \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439 inline LSP feedback \u2014 \u041D\u0415\u041C\u0415\u0414\u041B\u0415\u041D\u041D\u041E \u0438\u0441\u043F\u0440\u0430\u0432\u044C\u0442\u0435 \u0438\u0445 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u043C \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435\u043C.
+
+- write: \u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u041D\u041E\u0412\u042B\u0425 \u0444\u0430\u0439\u043B\u043E\u0432.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: path (string), content (string).
+  * \u041F\u0440\u0430\u0432\u0438\u043B\u0430: \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0434\u043B\u044F \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u043D\u043E\u0432\u044B\u0445 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 BSL, \u0444\u0438\u0447-\u0444\u0430\u0439\u043B\u043E\u0432 Vanessa (.feature) \u0438\u043B\u0438 \u0442\u0435\u0441\u0442\u043E\u0432 YAXUnit. \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C write \u0434\u043B\u044F \u043F\u0435\u0440\u0435\u0437\u0430\u043F\u0438\u0441\u0438 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0435\u0433\u043E \u043C\u043E\u0434\u0443\u043B\u044F \u0440\u0430\u0434\u0438 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u043E\u0434\u043D\u043E\u0439 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440\u044B \u2014 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 edit.
+
+- 1c_ast_symbols: \u0421\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0435 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u043C\u043E\u0434\u0443\u043B\u044F BSL.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string) \u0438\u043B\u0438 code (string). \u0417\u0430\u043F\u0443\u0441\u043A\u0430\u0439\u0442\u0435 \u0412 \u041F\u0415\u0420\u0412\u0423\u042E \u041E\u0427\u0415\u0420\u0415\u0414\u042C \u043F\u0435\u0440\u0435\u0434 \u0447\u0442\u0435\u043D\u0438\u0435\u043C \u043D\u0435\u0437\u043D\u0430\u043A\u043E\u043C\u043E\u0433\u043E BSL-\u0444\u0430\u0439\u043B\u0430.
+
+- 1c_call_hierarchy: \u0410\u043D\u0430\u043B\u0438\u0437 \u0438\u0435\u0440\u0430\u0440\u0445\u0438\u0438 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u043C\u0435\u0442\u043E\u0434\u0430 BSL.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string), symbolName (string), direction ("incoming" | "outgoing" | "both"). \u041E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E \u0432\u044B\u0437\u044B\u0432\u0430\u0439\u0442\u0435 \u0441 direction: "incoming" \u043F\u0435\u0440\u0435\u0434 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0435\u043C \u0438\u043B\u0438 \u0443\u0434\u0430\u043B\u0435\u043D\u0438\u0435\u043C \u044D\u043A\u0441\u043F\u043E\u0440\u0442\u043D\u044B\u0445 \u043C\u0435\u0442\u043E\u0434\u043E\u0432 \u0434\u043B\u044F \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438 \u0432\u044B\u0437\u044B\u0432\u0430\u044E\u0449\u0435\u0433\u043E \u043A\u043E\u0434\u0430.
+
+- 1c_impact_analysis: \u041E\u0446\u0435\u043D\u043A\u0430 \u0441\u0432\u044F\u0437\u0430\u043D\u043D\u043E\u0441\u0442\u0438 \u0438 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043D\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0438 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0435.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: target (string: \u0438\u043C\u044F \u043C\u0435\u0442\u043E\u0434\u0430, \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u0430 \u0438\u043B\u0438 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430), projectRoot (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E). \u0410\u043D\u0430\u043B\u0438\u0437\u0438\u0440\u0443\u0435\u0442 \u041E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430\u041F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F \u0438 \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u044F \u043F\u043E \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u043C \u043F\u043E \u0432\u0441\u0435\u0439 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438.
+
+- 1c_subagent: \u0414\u0435\u043B\u0435\u0433\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0437\u0430\u0434\u0430\u0447 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u043C \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u0430\u043C \u0432 \u0438\u0437\u043E\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u043C \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0435.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: role ("1c-architect" | "1c-coder" | "1c-tester" | "1c-reviewer"), task (string), contextFiles (string[], \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E). \u041F\u0435\u0440\u0435\u0434\u0430\u0432\u0430\u0439\u0442\u0435 contextFiles, \u0447\u0442\u043E\u0431\u044B \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442 \u0438\u043C\u0435\u043B \u043C\u0433\u043D\u043E\u0432\u0435\u043D\u043D\u044B\u0439 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442 \u0431\u0435\u0437 \u043F\u043E\u0432\u0442\u043E\u0440\u043D\u043E\u0433\u043E \u043F\u043E\u0438\u0441\u043A\u0430.
+
+- read, grep, find, ls: \u0422\u043E\u0447\u0435\u0447\u043D\u043E\u0435 \u0447\u0442\u0435\u043D\u0438\u0435, regex-\u043F\u043E\u0438\u0441\u043A, \u043F\u043E\u0438\u0441\u043A \u0444\u0430\u0439\u043B\u043E\u0432 \u043F\u043E \u043C\u0430\u0441\u043A\u0435 \u0438 \u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u043E\u0432.
+
+# 3. \u0421\u0422\u0410\u041D\u0414\u0410\u0420\u0422\u042B 1C:EDT \u0418 \u0420\u0410\u0411\u041E\u0422\u0410 \u0421 XML \u041C\u0415\u0422\u0410\u0414\u0410\u041D\u041D\u042B\u041C\u0418
+- \u0410\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0430 1C:EDT:
+  * \u041A\u043E\u0440\u0435\u043D\u044C \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438: Configuration.mdo
+  * \u0421\u043F\u0440\u0430\u0432\u043E\u0447\u043D\u0438\u043A\u0438: Catalogs/<\u0418\u043C\u044F>/<\u0418\u043C\u044F>.mdo, \u043C\u043E\u0434\u0443\u043B\u0438 \u0432 Ext/ObjectModule.bsl, Ext/ManagerModule.bsl
+  * \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B: Documents/<\u0418\u043C\u044F>/<\u0418\u043C\u044F>.mdo, \u043C\u043E\u0434\u0443\u043B\u0438 \u0432 Ext/ObjectModule.bsl, Ext/ManagerModule.bsl
+  * \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F: AccumulationRegisters/<\u0418\u043C\u044F>/<\u0418\u043C\u044F>.mdo, \u043C\u043E\u0434\u0443\u043B\u044C \u043D\u0430\u0431\u043E\u0440\u0430 \u0432 Ext/RecordSetModule.bsl
+  * \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439: InformationRegisters/<\u0418\u043C\u044F>/<\u0418\u043C\u044F>.mdo, \u043C\u043E\u0434\u0443\u043B\u0438 \u0432 Ext/RecordSetModule.bsl, Ext/ManagerModule.bsl
+  * \u041E\u0431\u0449\u0438\u0435 \u043C\u043E\u0434\u0443\u043B\u0438: CommonModules/<\u0418\u043C\u044F>/<\u0418\u043C\u044F>.mdo, \u043A\u043E\u0434 \u0432 Ext/Module.bsl
+- \u0427\u0438\u0441\u0442\u044B\u0439 BSL \u0432 \u043A\u043E\u0434\u0435: \u0418\u0441\u0445\u043E\u0434\u043D\u044B\u0439 \u043A\u043E\u0434 \u043B\u043E\u0433\u0438\u043A\u0438 \u043F\u0438\u0448\u0435\u0442\u0441\u044F \u0438\u0441\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E \u0432 \u0444\u0430\u0439\u043B\u0430\u0445 .bsl, \u0430 \u043D\u0435 \u0432\u043D\u0443\u0442\u0440\u0438 XML.
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u041D\u0410 \u0420\u0423\u0427\u041D\u041E\u0415 \u0421\u041E\u0417\u0414\u0410\u041D\u0418\u0415 \u0421\u041B\u041E\u0416\u041D\u042B\u0425 XML-\u0424\u041E\u0420\u041C:
+  * \u041F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 8.3 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0433\u0435\u043D\u0435\u0440\u0438\u0440\u0443\u0435\u0442 \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0435 \u0444\u043E\u0440\u043C\u044B \u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E (\u0430\u0432\u0442\u043E\u0444\u043E\u0440\u043C\u044B) \u043D\u0430 \u043E\u0441\u043D\u043E\u0432\u0435 \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u043E\u0432 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445.
+  * \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u0432\u0440\u0443\u0447\u043D\u0443\u044E \u0432\u0435\u0440\u0441\u0442\u0430\u0442\u044C \u0438\u043B\u0438 \u0441\u043E\u0437\u0434\u0430\u0432\u0430\u0442\u044C \u0441\u043B\u043E\u0436\u043D\u044B\u0435 XML-\u0444\u0430\u0439\u043B\u044B \u0444\u043E\u0440\u043C (Form.form, *.form, *.xml \u0441 \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435\u043C \u0438\u043D\u0442\u0435\u0440\u0444\u0435\u0439\u0441\u043D\u044B\u0445 \u0434\u0435\u0440\u0435\u0432\u044C\u0435\u0432 xcf/logform). \u042D\u0442\u043E \u043D\u0430\u0440\u0443\u0448\u0430\u0435\u0442 \u0441\u0438\u043D\u0445\u0440\u043E\u043D\u0438\u0437\u0430\u0446\u0438\u044E EDT, \u043F\u0440\u0438\u0432\u043E\u0434\u0438\u0442 \u043A \u043F\u043E\u0432\u0440\u0435\u0436\u0434\u0435\u043D\u0438\u044E \u0441\u0445\u0435\u043C\u044B \u0438 \u0442\u0440\u0430\u0442\u0438\u0442 \u0442\u044B\u0441\u044F\u0447\u0438 \u0442\u043E\u043A\u0435\u043D\u043E\u0432 \u0432\u043F\u0443\u0441\u0442\u0443\u044E.
+  * \u041F\u0440\u0438\u0434\u0435\u0440\u0436\u0438\u0432\u0430\u0439\u0442\u0435\u0441\u044C headless-\u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438: \u0431\u0438\u0437\u043D\u0435\u0441-\u043B\u043E\u0433\u0438\u043A\u0430 \u0432 \u043C\u043E\u0434\u0443\u043B\u044F\u0445 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432, \u043C\u0435\u043D\u0435\u0434\u0436\u0435\u0440\u043E\u0432 \u0438 \u043E\u0431\u0449\u0438\u0445 \u043C\u043E\u0434\u0443\u043B\u044F\u0445, \u0430 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u044F \u2014 \u0447\u0435\u0440\u0435\u0437 \u0430\u0432\u0442\u043E\u0444\u043E\u0440\u043C\u044B \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B, \u0442\u0435\u0441\u0442\u044B YAXUnit \u0438 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0438 Vanessa Automation.
+- \u0422\u043E\u0447\u0435\u0447\u043D\u043E\u0435 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 .mdo:
+  * \u041F\u0440\u0438 \u0434\u043E\u0431\u0430\u0432\u043B\u0435\u043D\u0438\u0438 \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u043E\u0432 (<attributes>), \u0438\u0437\u043C\u0435\u0440\u0435\u043D\u0438\u0439 (<dimensions>) \u0438\u043B\u0438 \u0440\u0435\u0441\u0443\u0440\u0441\u043E\u0432 (<resources>) \u0432 .mdo \u0438\u0437\u0443\u0447\u0430\u0439\u0442\u0435 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0443 \u0447\u0435\u0440\u0435\u0437 1c_skill_execute \u0441 \u043D\u0430\u0432\u044B\u043A\u043E\u043C meta-info.
+  * \u0421\u043E\u0445\u0440\u0430\u043D\u044F\u0439\u0442\u0435 \u0442\u043E\u0447\u043D\u0443\u044E \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0443 \u0442\u0435\u0433\u043E\u0432 (uuid, name, synonym, type) \u0441\u0445\u0435\u043C\u044B EDT. \u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u0443\u0439\u0442\u0435 .mdo \u0441\u0442\u0440\u043E\u0433\u043E \u0447\u0435\u0440\u0435\u0437 edit, \u0434\u043E\u0431\u0430\u0432\u043B\u044F\u044F \u043D\u0435\u043E\u0431\u0445\u043E\u0434\u0438\u043C\u044B\u0435 XML-\u0431\u043B\u043E\u043A\u0438.
+
+# 4. \u0422\u0420\u0410\u041D\u0417\u0410\u041A\u0426\u0418\u0418, \u0411\u041B\u041E\u041A\u0418\u0420\u041E\u0412\u041A\u0418 \u0414\u0410\u041D\u041D\u042B\u0425 \u0418 \u0412\u0418\u0420\u0422\u0423\u0410\u041B\u042C\u041D\u042B\u0415 \u0422\u0410\u0411\u041B\u0418\u0426\u042B \u0420\u0415\u0413\u0418\u0421\u0422\u0420\u041E\u0412
+- \u0423\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0435 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438 \u0434\u0430\u043D\u043D\u044B\u0445 (\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430\u0414\u0430\u043D\u043D\u044B\u0445):
+  * \u041F\u0440\u0438 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432 \u0438 \u0441\u043F\u0438\u0441\u0430\u043D\u0438\u0438 \u043E\u0441\u0442\u0430\u0442\u043A\u043E\u0432 \u0412\u0421\u0415\u0413\u0414\u0410 \u0443\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0439\u0442\u0435 \u0438\u0441\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u0443\u044E \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u0443\u044E \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0443 \u041F\u0415\u0420\u0415\u0414 \u0447\u0442\u0435\u043D\u0438\u0435\u043C \u043E\u0441\u0442\u0430\u0442\u043A\u043E\u0432 \u0438\u0437 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432:
+    \u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430 = \u041D\u043E\u0432\u044B\u0439 \u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430\u0414\u0430\u043D\u043D\u044B\u0445;
+    \u042D\u043B\u0435\u043C\u0435\u043D\u0442\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438 = \u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430.\u0414\u043E\u0431\u0430\u0432\u0438\u0442\u044C("\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u041D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F.\u041E\u0441\u0442\u0430\u0442\u043A\u0438\u041D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u044B");
+    \u042D\u043B\u0435\u043C\u0435\u043D\u0442\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438.\u0420\u0435\u0436\u0438\u043C = \u0420\u0435\u0436\u0438\u043C\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438\u0414\u0430\u043D\u043D\u044B\u0445.\u0418\u0441\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0439;
+    \u042D\u043B\u0435\u043C\u0435\u043D\u0442\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438.\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u0414\u0430\u043D\u043D\u044B\u0445 = \u0422\u0430\u0431\u043B\u0438\u0446\u0430\u0422\u043E\u0432\u0430\u0440\u043E\u0432;
+    \u042D\u043B\u0435\u043C\u0435\u043D\u0442\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438.\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C\u0418\u0437\u0418\u0441\u0442\u043E\u0447\u043D\u0438\u043A\u0430\u0414\u0430\u043D\u043D\u044B\u0445("\u041D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430", "\u041D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430");
+    \u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430.\u0417\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C();
+  * \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0443 \u043E\u0441\u0442\u0430\u0442\u043A\u043E\u0432 \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0439\u0442\u0435 \u0441\u0442\u0440\u043E\u0433\u043E \u041F\u041E\u0421\u041B\u0415 \u0432\u044B\u0437\u043E\u0432\u0430 \u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430.\u0417\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u0442\u044C().
+- \u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438:
+  * \u0412 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440\u0435 \u041E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430\u041F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044F \u0443\u0436\u0435 \u043E\u0442\u043A\u0440\u044B\u0442\u0430 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u043E\u0439! \u041D\u0415 \u0432\u044B\u0437\u044B\u0432\u0430\u0439\u0442\u0435 \u041D\u0430\u0447\u0430\u0442\u044C\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044E() \u0432\u043D\u0443\u0442\u0440\u0438 \u041E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430\u041F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F.
+  * \u041F\u0440\u0438 \u043D\u0435\u0445\u0432\u0430\u0442\u043A\u0435 \u043E\u0441\u0442\u0430\u0442\u043A\u043E\u0432 \u0438\u043B\u0438 \u043E\u0448\u0438\u0431\u043A\u0430\u0445 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438 \u0443\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0439\u0442\u0435 \u041E\u0442\u043A\u0430\u0437 = \u0418\u0441\u0442\u0438\u043D\u0430; \u0438 \u0432\u044B\u0432\u043E\u0434\u0438\u0442\u0435 \u043F\u043E\u043D\u044F\u0442\u043D\u043E\u0435 \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435:
+    \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435 = \u041D\u043E\u0432\u044B\u0439 \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E;
+    \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435.\u0422\u0435\u043A\u0441\u0442 = \u0421\u0442\u0440\u0428\u0430\u0431\u043B\u043E\u043D("\u041D\u0435\u0434\u043E\u0441\u0442\u0430\u0442\u043E\u0447\u043D\u043E \u0442\u043E\u0432\u0430\u0440\u0430 '%1' \u043D\u0430 \u0441\u043A\u043B\u0430\u0434\u0435 '%2'.", \u0421\u0442\u0440\u043E\u043A\u0430.\u041D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430, \u0421\u043A\u043B\u0430\u0434);
+    \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435.\u0421\u043E\u043E\u0431\u0449\u0438\u0442\u044C();
+  * \u0412 \u044F\u0432\u043D\u044B\u0445 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u0438\u0445 \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044F\u0445 \u0432\u0441\u0435\u0433\u0434\u0430 \u0433\u0430\u0440\u0430\u043D\u0442\u0438\u0440\u0443\u0439\u0442\u0435 \u043E\u0442\u043A\u0430\u0442 \u043F\u0440\u0438 \u043E\u0448\u0438\u0431\u043A\u0435:
+    \u041D\u0430\u0447\u0430\u0442\u044C\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044E();
+    \u041F\u043E\u043F\u044B\u0442\u043A\u0430
+        // \u0418\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0434\u0430\u043D\u043D\u044B\u0445
+        \u0417\u0430\u0444\u0438\u043A\u0441\u0438\u0440\u043E\u0432\u0430\u0442\u044C\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044E();
+    \u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435
+        \u041E\u0442\u043C\u0435\u043D\u0438\u0442\u044C\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044E();
+        \u0417\u0430\u043F\u0438\u0441\u044C\u0416\u0443\u0440\u043D\u0430\u043B\u0430\u0420\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0446\u0438\u0438(...);
+        \u0412\u044B\u0437\u0432\u0430\u0442\u044C\u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435;
+    \u041A\u043E\u043D\u0435\u0446\u041F\u043E\u043F\u044B\u0442\u043A\u0438;
+  * \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u042B \u043F\u0443\u0441\u0442\u044B\u0435 \u0431\u043B\u043E\u043A\u0438 \u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 (EmptyExcept).
+- \u0412\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u044B\u0435 \u0442\u0430\u0431\u043B\u0438\u0446\u044B \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0432 \u0437\u0430\u043F\u0440\u043E\u0441\u0430\u0445:
+  * \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u043D\u0430\u043A\u043B\u0430\u0434\u044B\u0432\u0430\u0442\u044C \u0444\u0438\u043B\u044C\u0442\u0440\u044B \u043D\u0430 \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u044B\u0435 \u0442\u0430\u0431\u043B\u0438\u0446\u044B \u0432 \u0441\u0435\u043A\u0446\u0438\u0438 \u0413\u0414\u0415 (WHERE).
+  * \u0412\u0421\u0415 \u0443\u0441\u043B\u043E\u0432\u0438\u044F (\u043F\u0435\u0440\u0438\u043E\u0434, \u043D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430, \u0441\u043A\u043B\u0430\u0434) \u043F\u0435\u0440\u0435\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u0418\u0421\u041A\u041B\u042E\u0427\u0418\u0422\u0415\u041B\u042C\u041D\u041E \u0432 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u043E\u0439 \u0442\u0430\u0431\u043B\u0438\u0446\u044B:
+    \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u041D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F.\u041E\u0441\u0442\u0430\u0442\u043A\u0438\u041D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u044B.\u041E\u0441\u0442\u0430\u0442\u043A\u0438(&\u041C\u043E\u043C\u0435\u043D\u0442\u0412\u0440\u0435\u043C\u0435\u043D\u0438, \u041D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u0412 (&\u0421\u043F\u0438\u0441\u043E\u043A\u041D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u044B) \u0418 \u0421\u043A\u043B\u0430\u0434 = &\u0421\u043A\u043B\u0430\u0434)
+  * \u041D\u0430\u043B\u043E\u0436\u0435\u043D\u0438\u0435 \u0443\u0441\u043B\u043E\u0432\u0438\u0439 \u0432 \u0441\u0435\u043A\u0446\u0438\u0438 \u0413\u0414\u0415 \u043F\u0440\u0438\u0432\u043E\u0434\u0438\u0442 \u043A \u0447\u0442\u0435\u043D\u0438\u044E \u0432\u0441\u0435\u0445 \u0438\u0442\u043E\u0433\u043E\u0432 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430 \u0441 \u043F\u043E\u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0435\u0439 \u0444\u0438\u043B\u044C\u0442\u0440\u0430\u0446\u0438\u0435\u0439 \u0432 \u043F\u0430\u043C\u044F\u0442\u0438 \u0441\u0435\u0440\u0432\u0435\u0440\u0430, \u044D\u0441\u043A\u0430\u043B\u0430\u0446\u0438\u0438 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043E\u043A \u0438 \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0439 \u0434\u0435\u0433\u0440\u0430\u0434\u0430\u0446\u0438\u0438 \u043F\u0440\u043E\u0438\u0437\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u0421\u0423\u0411\u0414.
+  * \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u042B \u0437\u0430\u043F\u0440\u043E\u0441\u044B \u0432\u043D\u0443\u0442\u0440\u0438 \u0446\u0438\u043A\u043B\u043E\u0432 (QueryInLoop). \u0412\u044B\u0431\u0438\u0440\u0430\u0439\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u043F\u0430\u043A\u0435\u0442\u043D\u044B\u043C\u0438 \u0437\u0430\u043F\u0440\u043E\u0441\u0430\u043C\u0438 \u0441 \u043E\u0431\u044A\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u0435\u043C \u043F\u043E \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u043C \u0442\u0430\u0431\u043B\u0438\u0446\u0430\u043C \u0447\u0435\u0440\u0435\u0437 \u041C\u0435\u043D\u0435\u0434\u0436\u0435\u0440\u0412\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445\u0422\u0430\u0431\u043B\u0438\u0446.
+
+# 5. \u0418\u041D\u0422\u0415\u0413\u0420\u0410\u0426\u0418\u042F \u0421 BSL-ANALYZER \u0418 \u041B\u0418\u041D\u0422\u0415\u0420\u041E\u041C
+- \u0424\u043E\u043D\u043E\u0432\u044B\u0439 bsl-analyzer \u043D\u0435\u043F\u0440\u0435\u0440\u044B\u0432\u043D\u043E \u043F\u0440\u043E\u0432\u0435\u0440\u044F\u0435\u0442 \u043A\u043E\u0434 \u0434\u043B\u044F \u0444\u0430\u0439\u043B\u043E\u0432 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 \u0432 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430\u0445 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 (src/**/*.bsl). \u041F\u0440\u0438 \u043A\u0430\u0436\u0434\u043E\u043C \u0432\u044B\u0437\u043E\u0432\u0435 edit \u0438\u043B\u0438 write \u0434\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0430 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441\u0430 \u0438 \u043D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u0439 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F \u0432 \u043E\u0442\u0432\u0435\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430 (inline LSP feedback). \u0414\u043B\u044F \u0432\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 \u0444\u0430\u0439\u043B\u043E\u0432 \u0432\u043D\u0435 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0439\u0442\u0435 \u044F\u0432\u043D\u044B\u0439 \u0432\u044B\u0437\u043E\u0432 bsl_fix_standards.
+- \u0415\u0441\u043B\u0438 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 \u0432\u0435\u0440\u043D\u0443\u043B \u043E\u0448\u0438\u0431\u043A\u0438 \u0438\u043B\u0438 \u043F\u0440\u0435\u0434\u0443\u043F\u0440\u0435\u0436\u0434\u0435\u043D\u0438\u044F \u2014 \u041D\u0415\u041C\u0415\u0414\u041B\u0415\u041D\u041D\u041E \u0438\u0441\u043F\u0440\u0430\u0432\u044C\u0442\u0435 \u0438\u0445 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0438\u043C \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435\u043C \u0431\u0435\u0437 \u0437\u0430\u043F\u0440\u043E\u0441\u0430 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u044F \u0443 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F.
+- \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 bsl_fix_standards \u0434\u043B\u044F \u0431\u044B\u0441\u0442\u0440\u043E\u0433\u043E \u043F\u0430\u043A\u0435\u0442\u043D\u043E\u0433\u043E \u0443\u0441\u0442\u0440\u0430\u043D\u0435\u043D\u0438\u044F \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0445 \u043D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u0439.
+
+# 6. \u0411\u0415\u0417\u041E\u041F\u0410\u0421\u041D\u041E\u0421\u0422\u042C \u041E\u041A\u0420\u0423\u0416\u0415\u041D\u0418\u042F, \u042F\u0417\u042B\u041A \u0418 \u0413\u0420\u0410\u041D\u0418\u0426\u042B \u0417\u0410\u0414\u0410\u0427\u0418
+- \u041F\u0418\u041D \u042F\u0417\u042B\u041A\u0410 \u041E\u0422\u0412\u0415\u0422\u0410: \u042F\u0437\u044B\u043A \u043E\u0442\u0432\u0435\u0442\u0430 \u043E\u0431\u044F\u0437\u0430\u043D \u0441\u0442\u0440\u043E\u0433\u043E \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u044F\u0437\u044B\u043A\u0443 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u043E\u0433\u043E \u0437\u0430\u043F\u0440\u043E\u0441\u0430; \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u044F\u0437\u044B\u043A\u0430 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E (\u043D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C \u0434\u0440\u0435\u0439\u0444 \u043D\u0430 \u043A\u0438\u0442\u0430\u0439\u0441\u043A\u0438\u0439, \u0430\u043D\u0433\u043B\u0438\u0439\u0441\u043A\u0438\u0439 \u0438\u043B\u0438 \u0434\u0440\u0443\u0433\u0438\u0435 \u044F\u0437\u044B\u043A\u0438 \u043F\u0440\u0438 \u0437\u0430\u043F\u0440\u043E\u0441\u0435 \u043D\u0430 \u0440\u0443\u0441\u0441\u043A\u043E\u043C).
+- \u0413\u0420\u0410\u041D\u0418\u0426\u042B \u0417\u0410\u0414\u0410\u0427\u0418 \u0418 \u0410\u0420\u0422\u0415\u0424\u0410\u041A\u0422\u0410: \u042F\u0432\u043D\u043E \u043D\u0430\u0437\u0432\u0430\u043D\u043D\u044B\u0439 \u0432 \u0437\u0430\u043F\u0440\u043E\u0441\u0435 \u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442 (\u0444\u0430\u0439\u043B, \u043C\u043E\u0434\u0443\u043B\u044C, \u043E\u0442\u0447\u0435\u0442) \u044F\u0432\u043B\u044F\u0435\u0442\u0441\u044F \u0436\u0435\u0441\u0442\u043A\u043E\u0439 \u0433\u0440\u0430\u043D\u0438\u0446\u0435\u0439 \u0437\u0430\u0434\u0430\u0447\u0438; \u0441\u043C\u0435\u0436\u043D\u044B\u0435 \u0434\u0435\u0444\u0435\u043A\u0442\u044B \u043E\u0444\u043E\u0440\u043C\u043B\u044F\u0442\u044C \u0442\u043E\u043B\u044C\u043A\u043E \u043A\u0430\u043A \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u044F, \u043D\u0435 \u0432\u043D\u043E\u0441\u0438\u0442\u044C \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0441\u0430\u043C\u043E\u0441\u0442\u043E\u044F\u0442\u0435\u043B\u044C\u043D\u043E \u0431\u0435\u0437 \u043F\u0440\u044F\u043C\u043E\u0433\u043E \u0443\u043A\u0430\u0437\u0430\u043D\u0438\u044F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F.
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u0421\u041A\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u042F \u0414\u0418\u0421\u041A\u0410 \u0418 \u0420\u0415\u0412\u0415\u0420\u0421-\u0418\u041D\u0416\u0418\u041D\u0418\u0420\u0418\u041D\u0413\u0410: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D \u0442\u043E\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043E\u0438\u0441\u043A find / \u043F\u043E \u0432\u0441\u0435\u043C\u0443 \u0434\u0438\u0441\u043A\u0443; \u043F\u043E\u0438\u0441\u043A \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D \u0438\u0441\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E \u0432\u043D\u0443\u0442\u0440\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430. \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0434\u0438\u0437\u0430\u0441\u0441\u0435\u043C\u0431\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0440\u0435\u0432\u0435\u0440\u0441-\u0438\u043D\u0436\u0438\u043D\u0438\u0440\u0438\u043D\u0433 \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u043E\u0432 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B \u0438 \u0443\u0442\u0438\u043B\u0438\u0442 \u0447\u0435\u0440\u0435\u0437 strings, otool, \u0447\u0442\u0435\u043D\u0438\u0435 .res/.hbk.`,
   plan: `[\u0420\u0415\u0416\u0418\u041C: \u041F\u041B\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u0422\u042C (ARCHITECT & PLAN)]
-\u0412\u044B \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0435\u0441\u044C \u0432 \u0440\u0435\u0436\u0438\u043C\u0435 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u043D\u043E\u0433\u043E \u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F.
-\u0412\u0430\u0448\u0430 \u0437\u0430\u0434\u0430\u0447\u0430:
-- \u0414\u0435\u043A\u043E\u043C\u043F\u043E\u0437\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0431\u0438\u0437\u043D\u0435\u0441-\u0442\u0440\u0435\u0431\u043E\u0432\u0430\u043D\u0438\u044F \u043D\u0430 \u0441\u043E\u0441\u0442\u0430\u0432 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 (\u0421\u043F\u0440\u0430\u0432\u043E\u0447\u043D\u0438\u043A\u0438, \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B, \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F/\u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439).
-- \u041F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0443 \u043F\u043E\u0434\u0441\u0438\u0441\u0442\u0435\u043C \u0438 \u043F\u043E\u0442\u043E\u043A\u043E\u0432 \u0434\u0430\u043D\u043D\u044B\u0445 \u0411\u0415\u0417 \u043D\u0435\u043F\u043E\u0441\u0440\u0435\u0434\u0441\u0442\u0432\u0435\u043D\u043D\u043E\u0433\u043E \u043D\u0430\u043F\u0438\u0441\u0430\u043D\u0438\u044F \u0440\u0435\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u0438.
-- \u0424\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043F\u043E\u0448\u0430\u0433\u043E\u0432\u044B\u0439 \u043F\u043B\u0430\u043D \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 \u0432 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0435 1C:EDT.
-\u0412\u041D\u0418\u041C\u0410\u041D\u0418\u0415: \u0420\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0444\u0430\u0439\u043B\u043E\u0432 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u043E \u0434\u043E \u043F\u0435\u0440\u0435\u0445\u043E\u0434\u0430 \u0432 \u0440\u0435\u0436\u0438\u043C \u041D\u0410\u041F\u0418\u0421\u0410\u0422\u042C.`
+CRITICAL: \u0420\u0415\u0416\u0418\u041C \u041F\u041B\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u042F \u0410\u041A\u0422\u0418\u0412\u0415\u041D \u2014 \u0421\u0422\u0420\u041E\u0413\u041E READ-ONLY.
+\u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u042B \u043B\u044E\u0431\u044B\u0435 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0444\u0430\u0439\u043B\u043E\u0432, \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438\u043B\u0438 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u043A\u043E\u043C\u0430\u043D\u0434 \u043C\u043E\u0434\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438 (edit, write, bash, bsl_fix_standards, 1c_vanessa, 1c_skill_execute).
+\u042D\u0442\u043E\u0442 \u0430\u0431\u0441\u043E\u043B\u044E\u0442\u043D\u044B\u0439 \u0437\u0430\u043F\u0440\u0435\u0442 \u043F\u0435\u0440\u0435\u043A\u0440\u044B\u0432\u0430\u0435\u0442 \u043B\u044E\u0431\u044B\u0435 \u043F\u0440\u044F\u043C\u044B\u0435 \u0437\u0430\u043F\u0440\u043E\u0441\u044B \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F \u043D\u0430 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043A\u043E\u0434\u0430 \u0438\u043B\u0438 \u0437\u0430\u043F\u0443\u0441\u043A \u0442\u0435\u0441\u0442\u043E\u0432. \u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0439 \u043D\u0435\u0442. \u0412\u044B \u043C\u043E\u0436\u0435\u0442\u0435 \u0422\u041E\u041B\u042C\u041A\u041E \u0438\u0441\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u0442\u044C, \u0430\u043D\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0438 \u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u0442\u044C.
+
+# 1. ACTION BIAS \u0418 \u041F\u041B\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u0415 (OPENCODE MENTALITY)
+- \u041D\u0435 \u0437\u0430\u043D\u0438\u043C\u0430\u0439\u0442\u0435\u0441\u044C \u0443\u043C\u043E\u0437\u0440\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u043C \u0444\u0430\u043D\u0442\u0430\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435\u043C \u0432 CoT: \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0447\u0442\u0435\u043D\u0438\u044F (read, find, grep, ls, 1c_ast_symbols, 1c_call_hierarchy, 1c_impact_analysis), \u0447\u0442\u043E\u0431\u044B \u043E\u043F\u0435\u0440\u0435\u0442\u044C\u0441\u044F \u043D\u0430 \u0440\u0435\u0430\u043B\u044C\u043D\u0443\u044E \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0443 \u043A\u043E\u0434\u043E\u0432\u043E\u0439 \u0431\u0430\u0437\u044B.
+- \u0410\u0412\u0422\u041E\u041D\u041E\u041C\u041D\u042B\u0419 \u0422\u0423\u041B\u0427\u0415\u0419\u041D 1\u0421 (TOOLCHAIN-RESOLVER):
+  * \u0412\u0441\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0438 \u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u044B \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u043C \u0440\u0435\u0437\u043E\u043B\u0432\u0435\u0440\u043E\u043C \u043E\u043A\u0440\u0443\u0436\u0435\u043D\u0438\u044F:
+    - bsl-analyzer: \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0439 \u0432 tools/bsl-analyzer, BSL_ANALYZER_PATH \u0438\u043B\u0438 \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0439 PATH.
+    - vrunner \u0438 oscript: \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0439 PATH \u0438\u043B\u0438 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0435 VRUNNER_PATH, OSCRIPT_PATH.
+    - vanessa-automation.epf: \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u0430\u044F \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430 \u0432 tools/vanessa/vanessa-automation.epf.
+    - 1cv8 (onec-enterprise): \u0430\u0432\u0442\u043E\u0434\u0435\u0442\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (macOS /Applications/1cv8*.app, Linux /opt/1cv8, Windows Program Files).
+  * \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u0438\u0441\u043A\u0430\u0442\u044C \u0443\u0442\u0438\u043B\u0438\u0442\u044B \u0447\u0435\u0440\u0435\u0437 bash (which, find, whereis), \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0442\u044C \u0442\u043E\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043E\u0438\u0441\u043A find / \u043F\u043E \u0432\u0441\u0435\u043C\u0443 \u0434\u0438\u0441\u043A\u0443 \u0438 \u0434\u0438\u0437\u0430\u0441\u0441\u0435\u043C\u0431\u043B\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u0438 \u0447\u0435\u0440\u0435\u0437 strings/otool.
+- \u0411\u0418\u0411\u041B\u0418\u041E\u0422\u0415\u041A\u0410 \u041D\u0410\u0412\u042B\u041A\u041E\u0412 1\u0421 (CC-1C-SKILLS):
+  * 82 \u043D\u0430\u0432\u044B\u043A\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B \u0434\u043B\u044F \u0430\u043D\u0430\u043B\u0438\u0437\u0430 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0445 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u043E\u043D\u043D\u044B\u0445 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432, \u0441\u0445\u0435\u043C \u043A\u043E\u043C\u043F\u043E\u043D\u043E\u0432\u043A\u0438 \u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u043F\u0440\u0430\u0432 \u0434\u043E\u0441\u0442\u0443\u043F\u0430:
+    - \u0423\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0435 \u0444\u043E\u0440\u043C\u044B (form-*): form-info, form-validate.
+    - \u041C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 23 \u0442\u0438\u043F\u043E\u0432 (meta-*): meta-info, meta-validate.
+    - \u0421\u0445\u0435\u043C\u044B \u043A\u043E\u043C\u043F\u043E\u043D\u043E\u0432\u043A\u0438 \u0434\u0430\u043D\u043D\u044B\u0445 (skd-*): skd-info, skd-validate.
+    - \u041C\u0430\u043A\u0435\u0442\u044B \u0442\u0430\u0431\u043B\u0438\u0447\u043D\u044B\u0445 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (mxl-*): mxl-info, mxl-validate.
+    - \u0420\u043E\u043B\u0438 \u0438 \u043F\u0440\u0430\u0432\u0430 (role-*): role-validate.
+    - \u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u0438\u044F (cfe-*): cfe-validate.
+- \u0412\u0430\u0448\u0430 \u043E\u0431\u044F\u0437\u0430\u043D\u043D\u043E\u0441\u0442\u044C: \u0438\u0441\u0441\u043B\u0435\u0434\u043E\u0432\u0430\u0442\u044C \u043A\u043E\u0434\u043E\u0432\u0443\u044E \u0431\u0430\u0437\u0443, \u0434\u0435\u043A\u043E\u043C\u043F\u043E\u0437\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u0431\u0438\u0437\u043D\u0435\u0441-\u0442\u0440\u0435\u0431\u043E\u0432\u0430\u043D\u0438\u044F \u0438 \u0441\u043E\u0441\u0442\u0430\u0432\u0438\u0442\u044C \u0438\u0441\u0447\u0435\u0440\u043F\u044B\u0432\u0430\u044E\u0449\u0438\u0439, \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u043F\u043E\u0448\u0430\u0433\u043E\u0432\u044B\u0439 \u043F\u043B\u0430\u043D \u0440\u0435\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u0438 \u0431\u0435\u0437 \u043B\u0438\u0448\u043D\u0435\u0439 \u0441\u043B\u043E\u0432\u0435\u0441\u043D\u043E\u0439 \u0432\u043E\u0434\u044B.
+- \u0417\u0430\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E \u0443\u0442\u043E\u0447\u043D\u044F\u044E\u0449\u0438\u0435 \u0432\u043E\u043F\u0440\u043E\u0441\u044B \u043F\u0440\u0438 \u0432\u0437\u0432\u0435\u0448\u0438\u0432\u0430\u043D\u0438\u0438 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u043D\u044B\u0445 \u043A\u043E\u043C\u043F\u0440\u043E\u043C\u0438\u0441\u0441\u043E\u0432. \u041D\u0435 \u0434\u0435\u043B\u0430\u0439\u0442\u0435 \u043D\u0435\u043E\u0431\u043E\u0441\u043D\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u043F\u0440\u0435\u0434\u043F\u043E\u043B\u043E\u0436\u0435\u043D\u0438\u0439 \u043E \u0431\u0438\u0437\u043D\u0435\u0441-\u043B\u043E\u0433\u0438\u043A\u0435.
+
+# 2. \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u042B \u0410\u041D\u0410\u041B\u0418\u0417\u0410 \u0418 \u041F\u041B\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u042F (\u041F\u0410\u0420\u0410\u041C\u0415\u0422\u0420\u042B \u0418 \u0421\u0426\u0415\u041D\u0410\u0420\u0418\u0418)
+- 1c_ast_symbols: \u0411\u044B\u0441\u0442\u0440\u043E\u0435 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0435 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0445 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 BSL \u0431\u0435\u0437 \u043F\u043E\u043B\u043D\u043E\u0433\u043E \u0447\u0442\u0435\u043D\u0438\u044F \u0444\u0430\u0439\u043B\u0430.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string) \u0438\u043B\u0438 code (string).
+- 1c_call_hierarchy: \u0422\u0440\u0430\u0441\u0441\u0438\u0440\u043E\u0432\u043A\u0430 \u0446\u0435\u043F\u043E\u0447\u0435\u043A \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u043C\u0435\u0442\u043E\u0434\u043E\u0432 \u043F\u0440\u0438 \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0438 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u043D\u044B\u0445 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string), symbolName (string), direction ("incoming" | "outgoing" | "both").
+- 1c_impact_analysis: \u041E\u0446\u0435\u043D\u043A\u0430 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u043F\u043B\u0430\u043D\u0438\u0440\u0443\u0435\u043C\u044B\u0445 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043D\u0430 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0435 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0438 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: target (string: \u0438\u043C\u044F \u0441\u0443\u0449\u043D\u043E\u0441\u0442\u0438), projectRoot (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E).
+- read, find, grep, ls: \u041B\u043E\u043A\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 EDT, \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u043E\u0432 \u0438 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0445 BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432.
+- 1c_subagent: \u0414\u0435\u043B\u0435\u0433\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0434\u0435\u0442\u0430\u043B\u044C\u043D\u043E\u0439 \u043F\u0440\u043E\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u043D\u043E\u0433\u043E \u043F\u043B\u0430\u043D\u0430 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u043C \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u0430\u043C:
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:
+    - role: "1c-architect" (\u0441\u043F\u0435\u0446\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u044F \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445, \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0438 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043E\u043A) \u0438\u043B\u0438 "1c-tester" (\u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0442\u0435\u0441\u0442-\u043A\u0435\u0439\u0441\u043E\u0432 BDD Vanessa \u0438 YAXUnit).
+    - task (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E): \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0437\u0430\u0434\u0430\u0447\u0438 \u043F\u043B\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F.
+    - contextFiles (string[], \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0444\u0430\u0439\u043B\u044B \u043F\u0440\u043E\u0435\u043A\u0442\u0430 \u0434\u043B\u044F \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430.
+
+# 3. \u0421\u0422\u0410\u0422\u0423\u0421 \u041C\u0423\u0422\u0418\u0420\u0423\u042E\u0429\u0418\u0425 \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u041E\u0412 \u0418 \u041E\u0413\u0420\u0410\u041D\u0418\u0427\u0415\u041D\u0418\u042F \u0420\u0415\u0416\u0418\u041C\u0410
+- edit, write, bash, bsl_fix_standards, 1c_vanessa, 1c_skill_execute \u0421\u0422\u0420\u041E\u0413\u041E \u0417\u0410\u0411\u041B\u041E\u041A\u0418\u0420\u041E\u0412\u0410\u041D\u042B (read-only).
+- \u0421\u041F\u0415\u0426\u0418\u0424\u0418\u041A\u0410\u0426\u0418\u042F 1c_vanessa \u0414\u041B\u042F \u0410\u0420\u0425\u0418\u0422\u0415\u041A\u0422\u0423\u0420\u041D\u041E\u0413\u041E \u041F\u041B\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u042F:
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u041F\u0430\u043A\u0435\u0442\u043D\u0430\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0430\u0446\u0438\u044F \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0439 \u0441 \u0418\u0411 \u0438 BDD-\u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0447\u0435\u0440\u0435\u0437 Vanessa Tools / vrunner.
+  * \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u044B\u0435 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u044F (action):
+    - "init-dev": \u0438\u043D\u0438\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F dev-\u0431\u0430\u0437\u044B \u0438\u0437 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438.
+    - "load": \u043F\u0430\u043A\u0435\u0442\u043D\u0430\u044F \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 XML/EDT \u0432 \u0418\u0411.
+    - "dump": \u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0430 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u0438\u0437 \u0418\u0411 \u0432 \u0444\u0430\u0439\u043B\u044B \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432.
+    - "updatedb": \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u0431\u0430\u0437\u044B \u0434\u0430\u043D\u043D\u044B\u0445.
+    - "test": \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u043F\u0440\u0438\u0435\u043C\u043E\u0447\u043D\u044B\u0445 BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 Vanessa Automation.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0432\u044B\u0437\u043E\u0432\u0430:
+    - action (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E): "init-dev" | "load" | "dump" | "updatedb" | "test".
+    - src (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 XML/EDT (\u0434\u043B\u044F init-dev, load, dump).
+    - ibconnection (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0441\u0442\u0440\u043E\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043A \u0418\u0411 (\u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E "/F./build/ib").
+    - features (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0438\u043B\u0438 \u0444\u0430\u0439\u043B\u0443 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 .feature (\u0434\u043B\u044F action: "test").
+    - vanessaPath (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A vanessa-automation.epf (\u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u0440\u0435\u0437\u043E\u043B\u0432\u0435\u0440\u043E\u043C).
+    - vrunnerPath (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u0438\u0441\u043F\u043E\u043B\u043D\u044F\u0435\u043C\u043E\u043C\u0443 \u0444\u0430\u0439\u043B\u0443 vrunner (\u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u0440\u0435\u0437\u043E\u043B\u0432\u0435\u0440\u043E\u043C).
+    - dbUser (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C \u0418\u0411.
+    - dbPassword (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0430\u0440\u043E\u043B\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F \u0418\u0411.
+    - settings (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A vrunner.json.
+    - additionalArgs (string[], \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0444\u043B\u0430\u0433\u0438 \u043A\u043E\u043C\u0430\u043D\u0434\u043D\u043E\u0439 \u0441\u0442\u0440\u043E\u043A\u0438 vrunner.
+  * \u041E\u0433\u0440\u0430\u043D\u0438\u0447\u0435\u043D\u0438\u0435 \u0440\u0435\u0436\u0438\u043C\u0430: \u0412 \u0440\u0435\u0436\u0438\u043C\u0435 \u041F\u041B\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u0422\u042C \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u043A\u043E\u043C\u0430\u043D\u0434 \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0431\u0430\u0437\u043E\u0439 \u0438 \u0437\u0430\u043F\u0443\u0441\u043A \u0442\u0435\u0441\u0442\u043E\u0432 \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D\u044B.
+  * \u0412 \u043F\u043B\u0430\u043D\u0435 \u0440\u0435\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u0438 \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u0443\u0439\u0442\u0435 \u0432\u044B\u0437\u043E\u0432\u044B 1c_vanessa (init-dev -> load -> updatedb -> test) \u043A\u0430\u043A \u043A\u043E\u043D\u043A\u0440\u0435\u0442\u043D\u044B\u0435 \u0448\u0430\u0433\u0438 \u0441 \u0442\u043E\u0447\u043D\u044B\u043C\u0438 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u0430\u043C\u0438, \u043A\u043E\u0442\u043E\u0440\u044B\u0435 \u0431\u0443\u0434\u0443\u0442 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u044B \u043F\u043E\u0441\u043B\u0435 \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u0432 \u0440\u0435\u0436\u0438\u043C \u041D\u0410\u041F\u0418\u0421\u0410\u0422\u042C (alt+m \u0438\u043B\u0438 /mode write).
+
+# 4. \u0410\u0420\u0425\u0418\u0422\u0415\u041A\u0422\u0423\u0420\u041D\u042B\u0415 \u041F\u0420\u0418\u041D\u0426\u0418\u041F\u042B 1\u0421:EDT
+- \u0414\u0435\u043A\u043E\u043C\u043F\u043E\u0437\u0438\u0446\u0438\u044F \u043D\u0430 \u043E\u0431\u044A\u0435\u043A\u0442\u044B \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445:
+  * \u0421\u043F\u0440\u0430\u0432\u043E\u0447\u043D\u0438\u043A\u0438, \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B, \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F, \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439, \u041F\u0435\u0440\u0435\u0447\u0438\u0441\u043B\u0435\u043D\u0438\u044F, \u041E\u0431\u0449\u0438\u0435 \u043C\u043E\u0434\u0443\u043B\u0438.
+- \u0410\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432:
+  * \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F: \u0441\u0442\u0440\u043E\u0433\u043E\u0435 \u0440\u0430\u0437\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u041E\u0441\u0442\u0430\u0442\u043A\u043E\u0432 (\u0441\u043A\u043B\u0430\u0434\u0441\u043A\u043E\u0439 \u0443\u0447\u0435\u0442, \u0432\u0437\u0430\u0438\u043C\u043E\u0440\u0430\u0441\u0447\u0435\u0442\u044B) \u0438 \u041E\u0431\u043E\u0440\u043E\u0442\u043E\u0432 (\u043F\u0440\u043E\u0434\u0430\u0436\u0438, \u0434\u043E\u0445\u043E\u0434\u044B/\u0440\u0430\u0441\u0445\u043E\u0434\u044B). \u041E\u043F\u0442\u0438\u043C\u0430\u043B\u044C\u043D\u0430\u044F \u0438\u043D\u0434\u0435\u043A\u0441\u0430\u0446\u0438\u044F \u0438\u0437\u043C\u0435\u0440\u0435\u043D\u0438\u0439.
+  * \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439: \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u043F\u0435\u0440\u0438\u043E\u0434\u0438\u0447\u043D\u043E\u0441\u0442\u0438 \u0438 \u0440\u0435\u0436\u0438\u043C\u0430 \u0437\u0430\u043F\u0438\u0441\u0438 (\u043D\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043C\u044B\u0439 vs \u043F\u043E\u0434\u0447\u0438\u043D\u0435\u043D\u0438\u0435 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0443).
+- Headless-first \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0430: \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u0443\u0439\u0442\u0435 \u0431\u0438\u0437\u043D\u0435\u0441-\u043B\u043E\u0433\u0438\u043A\u0443 \u0432 \u043C\u043E\u0434\u0443\u043B\u044F\u0445 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432, \u043C\u0435\u043D\u0435\u0434\u0436\u0435\u0440\u043E\u0432 \u0438 \u043E\u0431\u0449\u0438\u0445 \u043C\u043E\u0434\u0443\u043B\u044F\u0445 \u0441 \u043E\u043F\u043E\u0440\u043E\u0439 \u043D\u0430 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0435\u043D\u043D\u044B\u0435 \u0430\u0432\u0442\u043E\u0444\u043E\u0440\u043C\u044B \u0438 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u0442\u0435\u0441\u0442\u044B YAXUnit. \u0420\u0443\u0447\u043D\u043E\u0435 \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0441\u043B\u043E\u0436\u043D\u044B\u0445 \u0432\u0438\u0437\u0443\u0430\u043B\u044C\u043D\u044B\u0445 \u0434\u0435\u0440\u0435\u0432\u044C\u0435\u0432 XML-\u0444\u043E\u0440\u043C \u043A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E.
+- \u041A\u043E\u043D\u043A\u0443\u0440\u0435\u043D\u0442\u043D\u043E\u0441\u0442\u044C \u0438 \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438: \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0441\u043E\u0441\u0442\u0430\u0432\u0430 \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0445 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043E\u043A (\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430\u0414\u0430\u043D\u043D\u044B\u0445) \u0438 \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u0439 \u043F\u0440\u0438 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0438.
+- \u0421\u0442\u0440\u0430\u0442\u0435\u0433\u0438\u044F \u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F:
+  * \u041F\u043B\u0430\u043D \u043F\u0440\u0438\u0435\u043C\u043E\u0447\u043D\u044B\u0445 BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 Vanessa Automation (.feature).
+  * \u041C\u043E\u0434\u0443\u043B\u044C\u043D\u044B\u0435 \u0442\u0435\u0441\u0442\u044B YAXUnit \u0441 \u0438\u0437\u043E\u043B\u044F\u0446\u0438\u0435\u0439 \u0432 \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438 (.\u0412\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438()).
+  * \u041F\u0430\u0439\u043F\u043B\u0430\u0439\u043D \u0437\u0430\u043F\u0443\u0441\u043A\u0430 \u0442\u0435\u0441\u0442\u043E\u0432 \u0447\u0435\u0440\u0435\u0437 1c_vanessa (action: "test").
+
+# 5. \u0411\u0415\u0417\u041E\u041F\u0410\u0421\u041D\u041E\u0421\u0422\u042C \u041E\u041A\u0420\u0423\u0416\u0415\u041D\u0418\u042F, \u042F\u0417\u042B\u041A \u0418 \u0413\u0420\u0410\u041D\u0418\u0426\u042B \u0417\u0410\u0414\u0410\u0427\u0418
+- \u041F\u0418\u041D \u042F\u0417\u042B\u041A\u0410 \u041E\u0422\u0412\u0415\u0422\u0410: \u042F\u0437\u044B\u043A \u043E\u0442\u0432\u0435\u0442\u0430 \u043E\u0431\u044F\u0437\u0430\u043D \u0441\u0442\u0440\u043E\u0433\u043E \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u044F\u0437\u044B\u043A\u0443 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u043E\u0433\u043E \u0437\u0430\u043F\u0440\u043E\u0441\u0430; \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u044F\u0437\u044B\u043A\u0430 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E (\u043D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C \u0434\u0440\u0435\u0439\u0444 \u043D\u0430 \u043A\u0438\u0442\u0430\u0439\u0441\u043A\u0438\u0439, \u0430\u043D\u0433\u043B\u0438\u0439\u0441\u043A\u0438\u0439 \u0438\u043B\u0438 \u0434\u0440\u0443\u0433\u0438\u0435 \u044F\u0437\u044B\u043A\u0438 \u043F\u0440\u0438 \u0437\u0430\u043F\u0440\u043E\u0441\u0435 \u043D\u0430 \u0440\u0443\u0441\u0441\u043A\u043E\u043C).
+- \u0413\u0420\u0410\u041D\u0418\u0426\u042B \u0417\u0410\u0414\u0410\u0427\u0418 \u0418 \u0410\u0420\u0422\u0415\u0424\u0410\u041A\u0422\u0410: \u042F\u0432\u043D\u043E \u043D\u0430\u0437\u0432\u0430\u043D\u043D\u044B\u0439 \u0432 \u0437\u0430\u043F\u0440\u043E\u0441\u0435 \u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442 (\u0444\u0430\u0439\u043B, \u043C\u043E\u0434\u0443\u043B\u044C, \u043E\u0442\u0447\u0435\u0442) \u044F\u0432\u043B\u044F\u0435\u0442\u0441\u044F \u0436\u0435\u0441\u0442\u043A\u043E\u0439 \u0433\u0440\u0430\u043D\u0438\u0446\u0435\u0439 \u0437\u0430\u0434\u0430\u0447\u0438; \u0441\u043C\u0435\u0436\u043D\u044B\u0435 \u0434\u0435\u0444\u0435\u043A\u0442\u044B \u043E\u0444\u043E\u0440\u043C\u043B\u044F\u0442\u044C \u0442\u043E\u043B\u044C\u043A\u043E \u043A\u0430\u043A \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u044F, \u043D\u0435 \u0432\u043D\u043E\u0441\u0438\u0442\u044C \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0441\u0430\u043C\u043E\u0441\u0442\u043E\u044F\u0442\u0435\u043B\u044C\u043D\u043E \u0431\u0435\u0437 \u043F\u0440\u044F\u043C\u043E\u0433\u043E \u0443\u043A\u0430\u0437\u0430\u043D\u0438\u044F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F.
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u0421\u041A\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u042F \u0414\u0418\u0421\u041A\u0410 \u0418 \u0420\u0415\u0412\u0415\u0420\u0421-\u0418\u041D\u0416\u0418\u041D\u0418\u0420\u0418\u041D\u0413\u0410: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D \u0442\u043E\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043E\u0438\u0441\u043A find / \u043F\u043E \u0432\u0441\u0435\u043C\u0443 \u0434\u0438\u0441\u043A\u0443; \u043F\u043E\u0438\u0441\u043A \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D \u0438\u0441\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E \u0432\u043D\u0443\u0442\u0440\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430. \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0434\u0438\u0437\u0430\u0441\u0441\u0435\u043C\u0431\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0440\u0435\u0432\u0435\u0440\u0441-\u0438\u043D\u0436\u0438\u043D\u0438\u0440\u0438\u043D\u0433 \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u043E\u0432 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B \u0438 \u0443\u0442\u0438\u043B\u0438\u0442 \u0447\u0435\u0440\u0435\u0437 strings, otool, \u0447\u0442\u0435\u043D\u0438\u0435 .res/.hbk.`
 };
 
 // packages/1c-agent/src/modes/types.ts
-var MUTATING_TOOLS = ["edit", "write", "bsl_fix_standards"], MODE_CONFIGS = {
+var MUTATING_TOOLS = ["edit", "write", "bash", "bsl_fix_standards", "1c_vanessa", "1c_skill_execute"], MODE_CONFIGS = {
   find: {
     name: "find",
     title: "\u041D\u0410\u0419\u0422\u0418",
     description: "\u041D\u0430\u0432\u0438\u0433\u0430\u0446\u0438\u044F, \u043F\u043E\u0438\u0441\u043A \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u0438\u0439, \u0430\u043D\u0430\u043B\u0438\u0437 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0438 \u0441\u0432\u044F\u0437\u0435\u0439 \u043F\u043E\u0434\u0441\u0438\u0441\u0442\u0435\u043C (read-only)",
-    allowedTools: ["read", "find", "grep", "ls", "1c_call_hierarchy", "1c_impact_analysis", "1c_ast_symbols"],
+    allowedTools: [
+      "read",
+      "find",
+      "grep",
+      "ls",
+      "1c_call_hierarchy",
+      "1c_impact_analysis",
+      "1c_ast_symbols",
+      "1c_subagent"
+    ],
     isReadOnly: !0,
     systemPromptSuffix: MODE_PROMPTS.find
   },
@@ -210172,7 +211545,16 @@ var MUTATING_TOOLS = ["edit", "write", "bsl_fix_standards"], MODE_CONFIGS = {
     name: "explain",
     title: "\u041E\u0411\u042A\u042F\u0421\u041D\u0418\u0422\u042C",
     description: "\u041E\u0431\u044A\u044F\u0441\u043D\u0435\u043D\u0438\u0435 \u0431\u0438\u0437\u043D\u0435\u0441-\u043B\u043E\u0433\u0438\u043A\u0438 BSL, \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u044B BSLDoc/\u0418\u0422\u0421, \u0434\u0438\u0430\u0433\u0440\u0430\u043C\u043C\u044B Mermaid (read-only)",
-    allowedTools: ["read", "find", "grep", "ls", "1c_impact_analysis", "1c_ast_symbols"],
+    allowedTools: [
+      "read",
+      "find",
+      "grep",
+      "ls",
+      "1c_call_hierarchy",
+      "1c_impact_analysis",
+      "1c_ast_symbols",
+      "1c_subagent"
+    ],
     isReadOnly: !0,
     systemPromptSuffix: MODE_PROMPTS.explain
   },
@@ -210185,9 +211567,12 @@ var MUTATING_TOOLS = ["edit", "write", "bsl_fix_standards"], MODE_CONFIGS = {
       "find",
       "grep",
       "ls",
+      "bash",
       "edit",
       "write",
       "bsl_fix_standards",
+      "1c_vanessa",
+      "1c_skill_execute",
       "1c_call_hierarchy",
       "1c_impact_analysis",
       "1c_ast_symbols",
@@ -210200,7 +211585,16 @@ var MUTATING_TOOLS = ["edit", "write", "bsl_fix_standards"], MODE_CONFIGS = {
     name: "plan",
     title: "\u041F\u041B\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u0422\u042C",
     description: "\u0414\u0435\u043A\u043E\u043C\u043F\u043E\u0437\u0438\u0446\u0438\u044F \u0437\u0430\u0434\u0430\u0447, \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u044B \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 (read-only)",
-    allowedTools: ["read", "find", "grep", "ls", "1c_impact_analysis", "1c_subagent"],
+    allowedTools: [
+      "read",
+      "find",
+      "grep",
+      "ls",
+      "1c_call_hierarchy",
+      "1c_impact_analysis",
+      "1c_ast_symbols",
+      "1c_subagent"
+    ],
     isReadOnly: !0,
     systemPromptSuffix: MODE_PROMPTS.plan
   }
@@ -210242,14 +211636,6 @@ var ModeManager = class {
         this.allKnownTools.add(t2);
     for (let t2 of config.allowedTools)
       this.allKnownTools.add(t2);
-    if (this.pi.setActiveTools) {
-      let allowedSet = new Set(config.allowedTools);
-      if (config.isReadOnly) {
-        let filtered = [...this.allKnownTools].filter((t2) => allowedSet.has(t2));
-        this.pi.setActiveTools(filtered.length > 0 ? filtered : [...config.allowedTools]);
-      } else
-        this.pi.setActiveTools([...this.allKnownTools]);
-    }
     this.updateUI(ctx);
   }
   cycleMode(ctx) {
@@ -210356,7 +211742,7 @@ function parseBslParameters(rawParams) {
   return result;
 }
 function extractTablesFromQuery(queryText) {
-  let tables = /* @__PURE__ */ new Set(), cleanText = queryText.replace(/(^|\n)\s*\|\s*/g, "$1 "), regex = /(?:ИЗ|FROM|СОЕДИНЕНИЕ|JOIN)\s+(?:["']\s*\+\s*([А-Яа-яA-Za-z0-9_]+)|([А-Яа-яA-Za-z0-9_]+(?:\.[А-Яа-яA-Za-z0-9_]+)*))/gi, match3 = regex.exec(cleanText);
+  let tables = /* @__PURE__ */ new Set(), cleanText = queryText.replace(/(^|\n)\s*\|\s*/g, "$1 "), regex = /(?<![А-Яа-яA-Za-z0-9_])(?:ИЗ|FROM|СОЕДИНЕНИЕ|JOIN)\s+(?:["']\s*\+\s*([А-Яа-яA-Za-z0-9_]+)|([А-Яа-яA-Za-z0-9_]+(?:\.[А-Яа-яA-Za-z0-9_]+)*))/gi, match3 = regex.exec(cleanText);
   for (; match3 !== null; ) {
     let tableName = (match3[1] || match3[2] || "").trim();
     tableName && !["(", ")", "\u043A\u0430\u043A", "as", "\u0433\u0434\u0435", "where", "select", "\u0432\u044B\u0431\u0440\u0430\u0442\u044C"].includes(tableName.toLowerCase()) && tables.add(tableName), match3 = regex.exec(cleanText);
@@ -210369,7 +211755,12 @@ function extractQueries(code) {
   for (let i2 = 0; i2 < lines.length; i2++) {
     let trimmed = lines[i2].trim();
     if (!inQuery)
-      (trimmed.toLowerCase().includes("\u0437\u0430\u043F\u0440\u043E\u0441.\u0442\u0435\u043A\u0441\u0442") || trimmed.toLowerCase().includes("\u0442\u0435\u043A\u0441\u0442\u0437\u0430\u043F\u0440\u043E\u0441\u0430") || /^\s*["|]?\s*(?:выбрать|select)\b/i.test(trimmed)) && (inQuery = !0, startLine = i2 + 1, queryLines = [trimmed]);
+      (trimmed.toLowerCase().includes("\u0437\u0430\u043F\u0440\u043E\u0441.\u0442\u0435\u043A\u0441\u0442") || trimmed.toLowerCase().includes("\u0442\u0435\u043A\u0441\u0442\u0437\u0430\u043F\u0440\u043E\u0441\u0430") || /(?:^|[=(,])\s*["|]?\s*(?:выбрать|select)(?![А-Яа-яA-Za-z0-9_])/i.test(trimmed)) && (trimmed.endsWith('";') ? queries.push({
+        queryText: trimmed,
+        startLine: i2 + 1,
+        endLine: i2 + 1,
+        tables: extractTablesFromQuery(trimmed)
+      }) : (inQuery = !0, startLine = i2 + 1, queryLines = [trimmed]));
     else if (trimmed.startsWith("|") || trimmed.startsWith('"') || trimmed.startsWith("+") || trimmed.endsWith('";')) {
       if (queryLines.push(trimmed), trimmed.endsWith('";')) {
         let fullText = queryLines.join(`
@@ -210480,8 +211871,8 @@ ${nextLine}`, nextLine.includes(")") && (foundClosingParen = !0);
 }
 
 // packages/1c-agent/src/navigator/call-hierarchy.ts
-import * as fs17 from "node:fs";
-import * as path20 from "node:path";
+import * as fs19 from "node:fs";
+import * as path23 from "node:path";
 var CallHierarchyNavigator = class {
   lspClient;
   constructor(lspClient) {
@@ -210501,7 +211892,7 @@ var CallHierarchyNavigator = class {
     if (!this.lspClient) return null;
     let fileContent = "";
     try {
-      fileContent = await fs17.promises.readFile(filePath, "utf8");
+      fileContent = await fs19.promises.readFile(filePath, "utf8");
     } catch {
       return null;
     }
@@ -210531,7 +211922,7 @@ var CallHierarchyNavigator = class {
   async resolveCallHierarchyFromAst(filePath, symbolName, projectRoot) {
     let currentContent = "";
     try {
-      currentContent = await fs17.promises.readFile(filePath, "utf8");
+      currentContent = await fs19.promises.readFile(filePath, "utf8");
     } catch {
       return {
         symbol: symbolName,
@@ -210550,11 +211941,11 @@ var CallHierarchyNavigator = class {
           line: sym.startLine
         }));
       }
-    let root = projectRoot || path20.dirname(filePath), otherFiles = await this.findBslFiles(root), otherFileSymbolsMap = /* @__PURE__ */ new Map();
+    let root = projectRoot || path23.dirname(filePath), otherFiles = await this.findBslFiles(root), otherFileSymbolsMap = /* @__PURE__ */ new Map();
     for (let otherFile of otherFiles)
-      if (path20.resolve(otherFile) !== path20.resolve(filePath))
+      if (path23.resolve(otherFile) !== path23.resolve(filePath))
         try {
-          let content = await fs17.promises.readFile(otherFile, "utf8"), symbols = parseBslSymbols(content);
+          let content = await fs19.promises.readFile(otherFile, "utf8"), symbols = parseBslSymbols(content);
           if (otherFileSymbolsMap.set(otherFile, symbols), content.toLowerCase().includes(symbolName.toLowerCase())) {
             for (let sym of symbols)
               if (sym.calls.some((c2) => c2.toLowerCase() === symbolName.toLowerCase())) {
@@ -210601,9 +211992,9 @@ var CallHierarchyNavigator = class {
   async findBslFiles(directory) {
     let result = [];
     try {
-      let entries = await fs17.promises.readdir(directory, { withFileTypes: !0 });
+      let entries = await fs19.promises.readdir(directory, { withFileTypes: !0 });
       for (let entry of entries) {
-        let full = path20.join(directory, entry.name);
+        let full = path23.join(directory, entry.name);
         if (entry.isDirectory()) {
           if (![".git", "node_modules", "dist", ".metadata"].includes(entry.name)) {
             let sub = await this.findBslFiles(full);
@@ -210618,8 +212009,8 @@ var CallHierarchyNavigator = class {
 };
 
 // packages/1c-agent/src/navigator/impact-analysis.ts
-import * as fs18 from "node:fs";
-import * as path21 from "node:path";
+import * as fs20 from "node:fs";
+import * as path24 from "node:path";
 var ImpactAnalyzer = class {
   projectRoot;
   constructor(projectRoot = process.cwd()) {
@@ -210630,7 +212021,7 @@ var ImpactAnalyzer = class {
     for (let file of files) {
       let content = "";
       try {
-        content = await fs18.promises.readFile(file, "utf8");
+        content = await fs20.promises.readFile(file, "utf8");
       } catch {
         continue;
       }
@@ -210688,9 +212079,9 @@ var ImpactAnalyzer = class {
   async collectFiles(directory) {
     let files = [];
     try {
-      let entries = await fs18.promises.readdir(directory, { withFileTypes: !0 });
+      let entries = await fs20.promises.readdir(directory, { withFileTypes: !0 });
       for (let entry of entries) {
-        let full = path21.join(directory, entry.name);
+        let full = path24.join(directory, entry.name);
         if (entry.isDirectory()) {
           if (![".git", "node_modules", "dist", ".metadata", ".idea"].includes(entry.name)) {
             let sub = await this.collectFiles(full);
@@ -210706,7 +212097,7 @@ var ImpactAnalyzer = class {
 
 // packages/1c-agent/src/navigator/tools.ts
 init_build();
-import * as fs19 from "node:fs";
+import * as fs21 from "node:fs";
 function registerNavigatorTools(pi, lspClient, projectRoot) {
   let callHierarchyNavigator = new CallHierarchyNavigator(lspClient), impactAnalyzer = new ImpactAnalyzer(projectRoot);
   pi.registerTool({
@@ -210784,7 +212175,7 @@ function registerNavigatorTools(pi, lspClient, projectRoot) {
       let sourceCode = params.code || "";
       if (!sourceCode && params.filePath)
         try {
-          sourceCode = await fs19.promises.readFile(params.filePath, "utf8");
+          sourceCode = await fs21.promises.readFile(params.filePath, "utf8");
         } catch (err) {
           return {
             content: [{ type: "text", text: `\u041E\u0448\u0438\u0431\u043A\u0430 \u0447\u0442\u0435\u043D\u0438\u044F \u0444\u0430\u0439\u043B\u0430: ${err instanceof Error ? err.message : String(err)}` }],
@@ -210815,12 +212206,372 @@ function registerNavigatorTools(pi, lspClient, projectRoot) {
 }
 
 // packages/1c-agent/src/permissions/policy.ts
-import * as path22 from "node:path";
+import * as os9 from "node:os";
+import * as path25 from "node:path";
+var HOME_ENV = "$HOME", HOME_ENV_CURLY = "${HOME}", TARGET_PATH_KEYS = [
+  "path",
+  "file_path",
+  "filePath",
+  "targetPath",
+  "target_path",
+  "target",
+  "outputPath",
+  "output_path",
+  "output",
+  "cwd",
+  "destination",
+  "dest",
+  "directory",
+  "dir",
+  "src",
+  "features",
+  "vanessaPath",
+  "vrunnerPath",
+  "out"
+];
+function extractAllTargetPaths(input2) {
+  if (!input2 || typeof input2 != "object") return [];
+  let paths = [], addIfValid = (val) => {
+    if (typeof val == "string" && val.trim().length > 0) {
+      let trimmed = val.trim();
+      paths.includes(trimmed) || paths.push(trimmed);
+    }
+  };
+  for (let key of TARGET_PATH_KEYS)
+    addIfValid(input2[key]);
+  for (let [k2, v2] of Object.entries(input2)) {
+    let lower2 = k2.toLowerCase();
+    (lower2.endsWith("path") || lower2 === "file" || lower2 === "dir" || lower2 === "directory" || lower2 === "src" || lower2 === "dest" || lower2 === "destination" || lower2 === "cwd") && addIfValid(v2);
+  }
+  if (input2.args && typeof input2.args == "object")
+    if (Array.isArray(input2.args))
+      for (let arg of input2.args)
+        typeof arg == "string" && (arg.startsWith("/") || arg.startsWith("~") || arg.startsWith(HOME_ENV) || arg.startsWith(HOME_ENV_CURLY) || /(^|[=/\\])\.\.([/\\]|$)/.test(arg)) && addIfValid(arg);
+    else
+      for (let [k2, v2] of Object.entries(input2.args)) {
+        let lower2 = k2.toLowerCase();
+        (lower2.endsWith("path") || lower2 === "file" || lower2 === "dir" || lower2 === "directory" || lower2 === "src" || lower2 === "dest" || lower2 === "destination" || lower2 === "cwd") && addIfValid(v2);
+      }
+  return paths;
+}
+var SYSTEM_BIN_DIRS = [
+  "/bin/",
+  "/usr/bin/",
+  "/usr/local/bin/",
+  "/opt/homebrew/bin/",
+  "/sbin/",
+  "/usr/sbin/"
+];
+function isSystemBinary(filePath) {
+  let normalized = filePath.replace(/\\/g, "/");
+  return SYSTEM_BIN_DIRS.some((dir) => normalized.startsWith(dir));
+}
+function resolvePath4(projectRoot, filePath) {
+  let normalized = filePath.trim();
+  if (normalized === "~" || normalized.startsWith("~/") || normalized.startsWith("~\\")) {
+    let home = os9.homedir();
+    normalized = path25.join(home, normalized.slice(1));
+  } else if (normalized === HOME_ENV || normalized.startsWith(`${HOME_ENV}/`) || normalized.startsWith(`${HOME_ENV}\\`)) {
+    let home = os9.homedir();
+    normalized = path25.join(home, normalized.slice(5));
+  } else if (normalized === HOME_ENV_CURLY || normalized.startsWith(`${HOME_ENV_CURLY}/`) || normalized.startsWith(`${HOME_ENV_CURLY}\\`)) {
+    let home = os9.homedir();
+    normalized = path25.join(home, normalized.slice(7));
+  }
+  return path25.resolve(projectRoot, normalized);
+}
+function isPathInsideProject(projectRoot, filePath) {
+  let resolved = resolvePath4(projectRoot, filePath), resolvedRoot = path25.resolve(projectRoot), rel = path25.relative(resolvedRoot, resolved);
+  return !rel.startsWith("..") && !path25.isAbsolute(rel);
+}
+function parseBashCommand(command) {
+  let segments = [], currentTokens = [], currentRedirects = [], currentWord = "", inSingleQuote = !1, inDoubleQuote = !1, i2 = 0, n = command.length;
+  function flushWord() {
+    currentWord.length > 0 && (currentTokens.push(currentWord), currentWord = "");
+  }
+  function flushSegment() {
+    flushWord(), (currentTokens.length > 0 || currentRedirects.length > 0) && (segments.push({
+      tokens: currentTokens,
+      redirects: currentRedirects
+    }), currentTokens = [], currentRedirects = []);
+  }
+  for (; i2 < n; ) {
+    let ch = command[i2];
+    if (inSingleQuote) {
+      ch === "'" ? inSingleQuote = !1 : currentWord += ch, i2++;
+      continue;
+    }
+    if (inDoubleQuote) {
+      if (ch === '"')
+        inDoubleQuote = !1;
+      else if (ch === "\\" && i2 + 1 < n) {
+        currentWord += command[i2 + 1], i2 += 2;
+        continue;
+      } else
+        currentWord += ch;
+      i2++;
+      continue;
+    }
+    if (ch === "'") {
+      inSingleQuote = !0, i2++;
+      continue;
+    }
+    if (ch === '"') {
+      inDoubleQuote = !0, i2++;
+      continue;
+    }
+    if (ch === "\\" && i2 + 1 < n) {
+      currentWord += command[i2 + 1], i2 += 2;
+      continue;
+    }
+    if (ch === " " || ch === "	" || ch === "\r") {
+      flushWord(), i2++;
+      continue;
+    }
+    if (ch === ";" || ch === `
+`) {
+      flushSegment(), i2++;
+      continue;
+    }
+    if (ch === "&") {
+      if (i2 + 1 < n && command[i2 + 1] === "&") {
+        flushSegment(), i2 += 2;
+        continue;
+      }
+      if (!(i2 + 1 < n && command[i2 + 1] === ">")) {
+        flushSegment(), i2++;
+        continue;
+      }
+    }
+    if (ch === "|") {
+      if (i2 + 1 < n && command[i2 + 1] === "|") {
+        flushSegment(), i2 += 2;
+        continue;
+      }
+      flushSegment(), i2++;
+      continue;
+    }
+    if (ch === "(" || ch === ")") {
+      flushSegment(), i2++;
+      continue;
+    }
+    let isRedirect2 = !1, redirectOp = "", matchLen = 0;
+    if (ch === ">")
+      if (i2 + 1 < n && command[i2 + 1] === ">")
+        redirectOp = ">>", matchLen = 2, isRedirect2 = !0;
+      else if (i2 + 1 < n && command[i2 + 1] === "&" && i2 + 2 < n && /[0-9]/.test(command[i2 + 2])) {
+        currentWord += command.slice(i2, i2 + 3), i2 += 3;
+        continue;
+      } else
+        redirectOp = ">", matchLen = 1, isRedirect2 = !0;
+    else if (ch === "<") {
+      if (i2 + 1 < n && command[i2 + 1] === "<") {
+        currentWord += "<<", i2 += 2, i2 < n && command[i2] === "<" && (currentWord += "<", i2++);
+        continue;
+      }
+      redirectOp = "<", matchLen = 1, isRedirect2 = !0;
+    } else if ((ch === "1" || ch === "2") && i2 + 1 < n && command[i2 + 1] === ">" && currentWord.length === 0)
+      if (i2 + 2 < n && command[i2 + 2] === ">")
+        redirectOp = command.slice(i2, i2 + 3), matchLen = 3, isRedirect2 = !0;
+      else if (i2 + 2 < n && command[i2 + 2] === "&" && i2 + 3 < n && /[0-9]/.test(command[i2 + 3])) {
+        currentWord += command.slice(i2, i2 + 4), i2 += 4;
+        continue;
+      } else
+        redirectOp = command.slice(i2, i2 + 2), matchLen = 2, isRedirect2 = !0;
+    else ch === "&" && i2 + 1 < n && command[i2 + 1] === ">" && currentWord.length === 0 && (redirectOp = "&>", matchLen = 2, isRedirect2 = !0);
+    if (isRedirect2) {
+      for (flushWord(), i2 += matchLen; i2 < n && (command[i2] === " " || command[i2] === "	"); )
+        i2++;
+      let target = "", targetSingleQuote = !1, targetDoubleQuote = !1;
+      for (; i2 < n; ) {
+        let tc = command[i2];
+        if (targetSingleQuote) {
+          tc === "'" ? targetSingleQuote = !1 : target += tc, i2++;
+          continue;
+        }
+        if (targetDoubleQuote) {
+          if (tc === '"')
+            targetDoubleQuote = !1;
+          else if (tc === "\\" && i2 + 1 < n) {
+            target += command[i2 + 1], i2 += 2;
+            continue;
+          } else
+            target += tc;
+          i2++;
+          continue;
+        }
+        if (tc === "'") {
+          targetSingleQuote = !0, i2++;
+          continue;
+        }
+        if (tc === '"') {
+          targetDoubleQuote = !0, i2++;
+          continue;
+        }
+        if (tc === " " || tc === "	" || tc === "\r" || tc === `
+` || tc === ";" || tc === "|" || tc === "&" || tc === ">" || tc === "<" || tc === "(" || tc === ")")
+          break;
+        target += tc, i2++;
+      }
+      target.length > 0 && currentRedirects.push({ op: redirectOp, target });
+      continue;
+    }
+    currentWord += ch, i2++;
+  }
+  return flushSegment(), segments;
+}
+function isBashCommandOutsideProject(command, projectRoot, cwd) {
+  if (!command || command.trim().length === 0)
+    return cwd !== void 0 && cwd.trim().length > 0 && !isPathInsideProject(projectRoot, cwd) ? {
+      isOutside: !0,
+      target: cwd,
+      reason: `\u0420\u0430\u0431\u043E\u0447\u0430\u044F \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u044B ('${cwd}') \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0441\u044F \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 (${projectRoot}).`
+    } : { isOutside: !1 };
+  if (cwd !== void 0 && cwd.trim().length > 0 && !isPathInsideProject(projectRoot, cwd))
+    return {
+      isOutside: !0,
+      target: cwd,
+      reason: `\u0420\u0430\u0431\u043E\u0447\u0430\u044F \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u044B ('${cwd}') \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0441\u044F \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 (${projectRoot}).`
+    };
+  let effectiveCwd = cwd && cwd.trim().length > 0 ? resolvePath4(projectRoot, cwd) : path25.resolve(projectRoot), segments = parseBashCommand(command);
+  for (let segment2 of segments) {
+    for (let redir of segment2.redirects) {
+      let target = redir.target;
+      if (target === "~" || target.startsWith("~/") || target.startsWith("~\\")) {
+        let expanded = path25.join(os9.homedir(), target.slice(1));
+        if (!isPathInsideProject(projectRoot, expanded))
+          return {
+            isOutside: !0,
+            target,
+            reason: `\u0420\u0435\u0434\u0438\u0440\u0435\u043A\u0442 \u0432 \u0444\u0430\u0439\u043B \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430: '${target}'.`
+          };
+        continue;
+      }
+      if (target.includes(HOME_ENV) || target.includes(HOME_ENV_CURLY)) {
+        let expanded = target.replace(/\$\{HOME\}/g, os9.homedir()).replace(/\$HOME/g, os9.homedir());
+        if (!isPathInsideProject(projectRoot, expanded))
+          return {
+            isOutside: !0,
+            target,
+            reason: `\u0420\u0435\u0434\u0438\u0440\u0435\u043A\u0442 \u0432 \u0444\u0430\u0439\u043B \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430: '${target}'.`
+          };
+        continue;
+      }
+      if (/(^|[/\\])\.\.([/\\]|$)/.test(target)) {
+        let resolved2 = path25.resolve(effectiveCwd, target);
+        if (!isPathInsideProject(projectRoot, resolved2))
+          return {
+            isOutside: !0,
+            target,
+            reason: `\u0420\u0435\u0434\u0438\u0440\u0435\u043A\u0442 \u0432 \u0444\u0430\u0439\u043B \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430: '${target}'.`
+          };
+        continue;
+      }
+      if (target.startsWith("/") || target.startsWith("\\")) {
+        if (target === "/" || target === "\\" || !isPathInsideProject(projectRoot, target))
+          return {
+            isOutside: !0,
+            target,
+            reason: `\u0420\u0435\u0434\u0438\u0440\u0435\u043A\u0442 \u0432 \u0444\u0430\u0439\u043B \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430: '${target}'.`
+          };
+        continue;
+      }
+      let resolved = path25.resolve(effectiveCwd, target);
+      if (!isPathInsideProject(projectRoot, resolved))
+        return {
+          isOutside: !0,
+          target,
+          reason: `\u0420\u0435\u0434\u0438\u0440\u0435\u043A\u0442 \u0432 \u0444\u0430\u0439\u043B \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430: '${target}'.`
+        };
+    }
+    let firstExecIndex = segment2.tokens.findIndex((t2) => !/^[A-Za-z_][A-Za-z0-9_]*=/.test(t2)), execToken;
+    if (firstExecIndex !== -1) {
+      execToken = segment2.tokens[firstExecIndex];
+      let baseExec = path25.basename(execToken);
+      if (baseExec === "bash" || baseExec === "sh" || baseExec === "zsh") {
+        let cIdx = segment2.tokens.indexOf("-c", firstExecIndex + 1);
+        if (cIdx !== -1 && cIdx + 1 < segment2.tokens.length) {
+          let subCmd = segment2.tokens[cIdx + 1], subCheck = isBashCommandOutsideProject(subCmd, projectRoot, cwd);
+          if (subCheck.isOutside)
+            return subCheck;
+        }
+      } else if (baseExec === "eval") {
+        let subCmd = segment2.tokens.slice(firstExecIndex + 1).join(" ");
+        if (subCmd.length > 0) {
+          let subCheck = isBashCommandOutsideProject(subCmd, projectRoot, cwd);
+          if (subCheck.isOutside)
+            return subCheck;
+        }
+      }
+      if (execToken === "/" || execToken === "\\")
+        return {
+          isOutside: !0,
+          target: "/",
+          reason: "\u041A\u043E\u043C\u0430\u043D\u0434\u0430 \u043E\u0431\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F \u043A \u043A\u043E\u0440\u043D\u0435\u0432\u043E\u0439 \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u0438 \u0444\u0430\u0439\u043B\u043E\u0432\u043E\u0439 \u0441\u0438\u0441\u0442\u0435\u043C\u044B ('/')."
+        };
+      if ((execToken.startsWith("/") || execToken.startsWith("\\")) && !isSystemBinary(execToken) && !isPathInsideProject(projectRoot, execToken))
+        return {
+          isOutside: !0,
+          target: execToken,
+          reason: `\u0418\u0441\u043F\u043E\u043B\u043D\u044F\u0435\u043C\u044B\u0439 \u0444\u0430\u0439\u043B '${execToken}' \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0441\u044F \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 (${projectRoot}).`
+        };
+    }
+    for (let idx = 0; idx < segment2.tokens.length; idx++) {
+      let token = segment2.tokens[idx];
+      if (idx === firstExecIndex && execToken && (execToken.startsWith("/") || execToken.startsWith("\\")) && isSystemBinary(execToken))
+        continue;
+      if (token === "/" || token === "\\")
+        return {
+          isOutside: !0,
+          target: "/",
+          reason: "\u041A\u043E\u043C\u0430\u043D\u0434\u0430 \u043E\u0431\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F \u043A \u043A\u043E\u0440\u043D\u0435\u0432\u043E\u0439 \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u0438 \u0444\u0430\u0439\u043B\u043E\u0432\u043E\u0439 \u0441\u0438\u0441\u0442\u0435\u043C\u044B ('/')."
+        };
+      let checkPart = token.includes("=") ? token.slice(token.indexOf("=") + 1) : token;
+      if (checkPart === "~" || checkPart.startsWith("~/") || checkPart.startsWith("~\\") || token === "~" || token.startsWith("~/") || token.startsWith("~\\")) {
+        let targetPath = checkPart.startsWith("~") ? checkPart : token, expanded = path25.join(os9.homedir(), targetPath.slice(1));
+        if (!isPathInsideProject(projectRoot, expanded))
+          return {
+            isOutside: !0,
+            target: token,
+            reason: `\u041F\u0443\u0442\u044C \u0441 \u0442\u0438\u043B\u044C\u0434\u043E\u0439 '${token}' \u0443\u043A\u0430\u0437\u044B\u0432\u0430\u0435\u0442 \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u044B \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430.`
+          };
+        continue;
+      }
+      if (token.includes(HOME_ENV) || token.includes(HOME_ENV_CURLY)) {
+        let expanded = checkPart.replace(/\$\{HOME\}/g, os9.homedir()).replace(/\$HOME/g, os9.homedir());
+        if (!isPathInsideProject(projectRoot, expanded))
+          return {
+            isOutside: !0,
+            target: token,
+            reason: `\u041F\u0443\u0442\u044C \u0441 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u043E\u0439 HOME ('${token}') \u0443\u043A\u0430\u0437\u044B\u0432\u0430\u0435\u0442 \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u044B \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430.`
+          };
+        continue;
+      }
+      if (/(^|[=/\\])\.\.([/\\]|$)/.test(token)) {
+        let resolved = path25.resolve(effectiveCwd, checkPart);
+        if (!isPathInsideProject(projectRoot, resolved))
+          return {
+            isOutside: !0,
+            target: token,
+            reason: `\u041F\u0443\u0442\u044C \u0441 \u043F\u0435\u0440\u0435\u0445\u043E\u0434\u043E\u043C \u0432\u0432\u0435\u0440\u0445 \u043F\u043E \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430\u043C ('${token}') \u0432\u044B\u0445\u043E\u0434\u0438\u0442 \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u044B \u043F\u0440\u043E\u0435\u043A\u0442\u0430.`
+          };
+        continue;
+      }
+      if ((checkPart.startsWith("/") || checkPart.startsWith("\\")) && (checkPart === "/" || checkPart === "\\" || !isPathInsideProject(projectRoot, checkPart)))
+        return {
+          isOutside: !0,
+          target: token,
+          reason: `\u0410\u0431\u0441\u043E\u043B\u044E\u0442\u043D\u044B\u0439 \u043F\u0443\u0442\u044C '${token}' \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0441\u044F \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 (${projectRoot}).`
+        };
+    }
+  }
+  return { isOutside: !1 };
+}
 var PermissionPolicy = class {
   level;
   projectRoot;
   constructor(initialLevel = "auto-approve", projectRoot = process.cwd()) {
-    this.level = initialLevel, this.projectRoot = path22.resolve(projectRoot);
+    this.level = initialLevel, this.projectRoot = path25.resolve(projectRoot);
   }
   getLevel() {
     return this.level;
@@ -210828,14 +212579,35 @@ var PermissionPolicy = class {
   setLevel(level) {
     this.level = level;
   }
+  getProjectRoot() {
+    return this.projectRoot;
+  }
   setProjectRoot(projectRoot) {
-    this.projectRoot = path22.resolve(projectRoot);
+    this.projectRoot = path25.resolve(projectRoot);
   }
   isInsideProject(filePath) {
-    let resolved = path22.resolve(this.projectRoot, filePath), rel = path22.relative(this.projectRoot, resolved);
-    return !rel.startsWith("..") && !path22.isAbsolute(rel);
+    return isPathInsideProject(this.projectRoot, filePath);
   }
-  checkToolCall(toolName2, input2) {
+  checkToolCall(toolName2, input2, contextCwd) {
+    let isOutside = !1, outsideReason, outsideTarget;
+    if (toolName2 === "bash" || toolName2 === "powershell") {
+      let command = typeof input2?.command == "string" ? input2.command : typeof input2?.cmd == "string" ? input2.cmd : "", cwd = typeof input2?.cwd == "string" && input2.cwd.trim().length > 0 ? input2.cwd.trim() : contextCwd, bashCheck = isBashCommandOutsideProject(command, this.projectRoot, cwd);
+      bashCheck.isOutside && (isOutside = !0, outsideTarget = bashCheck.target, outsideReason = bashCheck.reason);
+    }
+    if (!isOutside) {
+      let targetPaths = extractAllTargetPaths(input2);
+      for (let p of targetPaths)
+        if (!this.isInsideProject(p)) {
+          isOutside = !0, outsideTarget = p, outsideReason = `\u0426\u0435\u043B\u0435\u0432\u043E\u0439 \u043F\u0443\u0442\u044C \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0438 '${p}' \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0441\u044F \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 (${this.projectRoot}).`;
+          break;
+        }
+    }
+    if (isOutside)
+      return {
+        allowed: !1,
+        requiresUserConfirmation: !0,
+        reason: outsideReason || `\u0426\u0435\u043B\u0435\u0432\u043E\u0439 \u043F\u0443\u0442\u044C \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0438 ('${outsideTarget}') \u043D\u0430\u0445\u043E\u0434\u0438\u0442\u0441\u044F \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u0430\u043C\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 (${this.projectRoot}). \u0422\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F.`
+      };
     if (this.level === "yolo")
       return { allowed: !0, requiresUserConfirmation: !1 };
     if ((/* @__PURE__ */ new Set([
@@ -210855,15 +212627,9 @@ var PermissionPolicy = class {
         reason: `\u0422\u0440\u0435\u0431\u0443\u0435\u0442\u0441\u044F \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0435 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F '${toolName2}' \u0432 \u0441\u0442\u0440\u043E\u0433\u043E\u043C \u0440\u0435\u0436\u0438\u043C\u0435 (strict).`
       };
     if (this.level === "auto-approve") {
-      if (toolName2 === "edit" || toolName2 === "write" || toolName2 === "bsl_fix_standards") {
-        let rawPath = input2.path || input2.file_path || input2.target;
-        return rawPath && this.isInsideProject(rawPath) ? { allowed: !0, requiresUserConfirmation: !1 } : {
-          allowed: !1,
-          requiresUserConfirmation: !0,
-          reason: `\u0417\u0430\u043F\u0438\u0441\u044C \u0437\u0430 \u043F\u0440\u0435\u0434\u0435\u043B\u044B \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430 (${rawPath}) \u0442\u0440\u0435\u0431\u0443\u0435\u0442 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u044F.`
-        };
-      }
-      if (toolName2 === "1c_subagent")
+      if (toolName2 === "edit" || toolName2 === "write" || toolName2 === "bsl_fix_standards")
+        return { allowed: !0, requiresUserConfirmation: !1 };
+      if (toolName2 === "1c_subagent" || toolName2 === "1c_vanessa" || toolName2 === "1c_skill_execute")
         return { allowed: !0, requiresUserConfirmation: !1 };
       if (toolName2 === "bash" || toolName2 === "powershell")
         return {
@@ -210873,6 +212639,23 @@ var PermissionPolicy = class {
         };
     }
     return { allowed: !0, requiresUserConfirmation: !1 };
+  }
+  async handleToolCall(toolCall, ctx) {
+    let check = this.checkToolCall(toolCall.toolName, toolCall.input, ctx?.cwd);
+    if (check.allowed)
+      return { block: !1 };
+    if (check.requiresUserConfirmation) {
+      if (ctx?.ui) {
+        let title = `[1C \u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C]: \u0420\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u044C \u0432\u044B\u0437\u043E\u0432 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430 '${toolCall.toolName}'?`, message = check.reason || `\u0418\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442: ${toolCall.toolName}`, confirmed = !1;
+        if (typeof ctx.ui.askUser == "function" ? confirmed = !!await ctx.ui.askUser(title, message) : typeof ctx.ui.confirm == "function" && (confirmed = !!await ctx.ui.confirm(title, message)), confirmed)
+          return { block: !1 };
+      }
+      return {
+        block: !0,
+        reason: `\u0412\u044B\u0437\u043E\u0432 '${toolCall.toolName}' \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D: \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u043D\u0435 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u043E \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0435\u043C (${check.reason || this.level}).`
+      };
+    }
+    return { block: !0, reason: check.reason || "\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u043F\u043E\u043B\u0438\u0442\u0438\u043A\u043E\u0439 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u0438." };
   }
 };
 
@@ -210897,15 +212680,17 @@ var PermissionManager = class {
     let level = this.policy.getLevel(), badge = `[\u041F\u0440\u0430\u0432\u0430: ${level.toUpperCase()}]`, color = level === "strict" ? "warning" : level === "yolo" ? "error" : "accent", text = ctx.ui.theme ? ctx.ui.theme.fg(color, badge) : badge;
     ctx.ui.setStatus("1c-permissions", text);
   }
+  getProjectRoot() {
+    return this.policy.getProjectRoot();
+  }
+  getPolicy() {
+    return this.policy;
+  }
+  checkToolCall(toolName2, input2, ctx) {
+    return this.policy.checkToolCall(toolName2, input2, ctx?.cwd);
+  }
   async handleToolCall(event, ctx) {
-    let check = this.policy.checkToolCall(event.toolName, event.input);
-    return check.allowed ? { block: !1 } : check.requiresUserConfirmation ? ctx?.ui && typeof ctx.ui.confirm == "function" && await ctx.ui.confirm(
-      `[1C \u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C]: \u0420\u0430\u0437\u0440\u0435\u0448\u0438\u0442\u044C \u0432\u044B\u0437\u043E\u0432 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430 '${event.toolName}'?`,
-      check.reason || `\u0418\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442: ${event.toolName}`
-    ) ? { block: !1 } : {
-      block: !0,
-      reason: `\u0412\u044B\u0437\u043E\u0432 '${event.toolName}' \u0437\u0430\u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u0430\u043D: \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u043D\u0435 \u043F\u043E\u0434\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u043E \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u0435\u043C (${check.reason || this.policy.getLevel()}).`
-    } : { block: !0, reason: check.reason || "\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u043F\u043E\u043B\u0438\u0442\u0438\u043A\u043E\u0439 \u0431\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u0438." };
+    return this.policy.handleToolCall(event, ctx);
   }
   register(pi) {
     pi.registerCommand("permission", {
@@ -210923,23 +212708,366 @@ var PermissionManager = class {
   }
 };
 
+// packages/1c-agent/src/skills/tools.ts
+init_build();
+import * as child_process2 from "node:child_process";
+import * as fs22 from "node:fs";
+import * as path26 from "node:path";
+function resolveSkillScript(skillsDir, skill) {
+  if (!skillsDir || !skill)
+    return;
+  if (path26.isAbsolute(skill) && fs22.existsSync(skill) && fs22.statSync(skill).isFile())
+    return skill;
+  let directInSkills = path26.join(skillsDir, skill);
+  if (fs22.existsSync(directInSkills) && fs22.statSync(directInSkills).isFile())
+    return directInSkills;
+  let candidatePy = path26.join(skillsDir, skill, "scripts", `${skill}.py`);
+  if (fs22.existsSync(candidatePy))
+    return candidatePy;
+  let candidateOs = path26.join(skillsDir, skill, "scripts", `${skill}.os`);
+  if (fs22.existsSync(candidateOs))
+    return candidateOs;
+  let skillScriptsDir = path26.join(skillsDir, skill, "scripts");
+  if (fs22.existsSync(skillScriptsDir) && fs22.statSync(skillScriptsDir).isDirectory())
+    try {
+      let pyOrOs = fs22.readdirSync(skillScriptsDir).filter((e2) => e2.endsWith(".py") || e2.endsWith(".os"));
+      if (pyOrOs.length > 0) {
+        let match3 = pyOrOs.find((e2) => e2.startsWith(skill)) || pyOrOs[0];
+        return path26.join(skillScriptsDir, match3);
+      }
+    } catch {
+    }
+  let inFolderPy = path26.join(skillsDir, skill, `${skill}.py`);
+  if (fs22.existsSync(inFolderPy))
+    return inFolderPy;
+  let inFolderOs = path26.join(skillsDir, skill, `${skill}.os`);
+  if (fs22.existsSync(inFolderOs))
+    return inFolderOs;
+  if (skill.endsWith(".py") || skill.endsWith(".os")) {
+    let base = path26.basename(skill, path26.extname(skill)), candidate = path26.join(skillsDir, base, "scripts", skill);
+    if (fs22.existsSync(candidate))
+      return candidate;
+  }
+}
+function isFormCompileSkill(skill, scriptPath) {
+  return !!(skill === "form-compile" || skill.endsWith("form-compile.py") || skill.endsWith("form-compile.os") || scriptPath && (scriptPath.endsWith("form-compile.py") || scriptPath.endsWith("form-compile.os")));
+}
+var METADATA_PLURAL_MAP = {
+  catalog: "Catalogs",
+  catalogs: "Catalogs",
+  document: "Documents",
+  documents: "Documents",
+  dataprocessor: "DataProcessors",
+  dataprocessors: "DataProcessors",
+  report: "Reports",
+  reports: "Reports",
+  informationregister: "InformationRegisters",
+  informationregisters: "InformationRegisters",
+  accumulationregister: "AccumulationRegisters",
+  accumulationregisters: "AccumulationRegisters",
+  chartofcharacteristicstypes: "ChartsOfCharacteristicTypes",
+  chartsofcharacteristicstypes: "ChartsOfCharacteristicTypes",
+  chartofaccounts: "ChartsOfAccounts",
+  chartsofaccounts: "ChartsOfAccounts",
+  chartofcalculationtypes: "ChartsOfCalculationTypes",
+  chartsofcalculationtypes: "ChartsOfCalculationTypes",
+  calculationregister: "CalculationRegisters",
+  calculationregisters: "CalculationRegisters",
+  exchangeplan: "ExchangePlans",
+  exchangeplans: "ExchangePlans",
+  businessprocess: "BusinessProcesses",
+  businessprocesses: "BusinessProcesses",
+  task: "Tasks",
+  tasks: "Tasks"
+}, DOMAIN_PARAM_KEYS = /* @__PURE__ */ new Set(["src", "type", "name", "form", "formname"]);
+function findArgKey(args, target) {
+  let lower2 = target.toLowerCase();
+  for (let key of Object.keys(args))
+    if (key.replace(/^-+/, "").toLowerCase() === lower2)
+      return key;
+}
+function translateFormCompileArgs(args, cwd) {
+  let typeKey = findArgKey(args, "type"), nameKey = findArgKey(args, "name"), outputKey = findArgKey(args, "outputpath") || findArgKey(args, "output"), outputVal = outputKey ? args[outputKey] : void 0;
+  if (!typeKey || !nameKey || outputVal != null && outputVal !== "")
+    return args;
+  let typeVal = args[typeKey], nameVal = args[nameKey];
+  if (typeVal == null || nameVal === void 0 || nameVal === null)
+    return args;
+  let typeStr = String(typeVal).trim(), nameStr = String(nameVal).trim();
+  if (!typeStr || !nameStr)
+    return args;
+  let typeLower = typeStr.toLowerCase(), plural = METADATA_PLURAL_MAP[typeLower];
+  plural || (plural = typeStr.endsWith("s") ? typeStr : `${typeStr}s`);
+  let srcKey = findArgKey(args, "src"), srcVal = srcKey ? args[srcKey] : void 0, srcDir = typeof srcVal == "string" && srcVal.trim() ? srcVal.trim() : "src", purposeKey = findArgKey(args, "purpose"), purposeVal = purposeKey ? args[purposeKey] : void 0, rawPurpose = typeof purposeVal == "string" && purposeVal.trim() ? purposeVal.trim() : void 0, purposeLower = rawPurpose ? rawPurpose.toLowerCase() : "", explicitFormKey = findArgKey(args, "formname") || findArgKey(args, "form"), explicitFormVal = explicitFormKey ? args[explicitFormKey] : void 0, formName;
+  typeof explicitFormVal == "string" && explicitFormVal.trim() ? formName = explicitFormVal.trim() : typeLower === "catalog" || typeLower === "catalogs" ? purposeLower === "folder" ? formName = "\u0424\u043E\u0440\u043C\u0430\u0413\u0440\u0443\u043F\u043F\u044B" : purposeLower === "list" ? formName = "\u0424\u043E\u0440\u043C\u0430\u0421\u043F\u0438\u0441\u043A\u0430" : formName = "\u0424\u043E\u0440\u043C\u0430\u042D\u043B\u0435\u043C\u0435\u043D\u0442\u0430" : typeLower === "document" || typeLower === "documents" ? purposeLower === "list" ? formName = "\u0424\u043E\u0440\u043C\u0430\u0421\u043F\u0438\u0441\u043A\u0430" : formName = "\u0424\u043E\u0440\u043C\u0430\u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0430" : typeLower === "record" || typeLower === "records" || typeLower === "informationregister" || typeLower === "accumulationregister" || purposeLower === "record" ? purposeLower === "list" ? formName = "\u0424\u043E\u0440\u043C\u0430\u0421\u043F\u0438\u0441\u043A\u0430" : formName = "\u0424\u043E\u0440\u043C\u0430\u0417\u0430\u043F\u0438\u0441\u0438" : formName = "\u0424\u043E\u0440\u043C\u0430\u042D\u043B\u0435\u043C\u0435\u043D\u0442\u0430";
+  let finalPurpose = rawPurpose;
+  finalPurpose || (typeLower === "catalog" || typeLower === "catalogs" || typeLower === "document" || typeLower === "documents") && (finalPurpose = "Item");
+  let defaultObjPath = `${srcDir}/${plural}/${nameStr}.xml`, nestedObjPath = `${srcDir}/${plural}/${nameStr}/${nameStr}.xml`, objectPath = defaultObjPath, existingObjKey = findArgKey(args, "objectpath"), existingObjVal = existingObjKey ? args[existingObjKey] : void 0;
+  if (typeof existingObjVal == "string" && existingObjVal.trim())
+    objectPath = existingObjVal.trim();
+  else {
+    let baseDir = cwd || process.cwd();
+    fs22.existsSync(path26.isAbsolute(defaultObjPath) ? defaultObjPath : path26.join(baseDir, defaultObjPath)) ? objectPath = defaultObjPath : fs22.existsSync(path26.isAbsolute(nestedObjPath) ? nestedObjPath : path26.join(baseDir, nestedObjPath)) && (objectPath = nestedObjPath);
+  }
+  let outputPath = `${srcDir}/${plural}/${nameStr}/Forms/${formName}/Ext/Form.xml`, newArgs = {};
+  for (let [key, value] of Object.entries(args)) {
+    let clean = key.replace(/^-+/, "").toLowerCase();
+    DOMAIN_PARAM_KEYS.has(clean) || clean === "fromobject" || clean === "objectpath" || clean === "outputpath" || clean === "purpose" || (newArgs[key] = value);
+  }
+  return newArgs.FromObject = !0, newArgs.ObjectPath = objectPath, newArgs.OutputPath = outputPath, finalPurpose !== void 0 && (newArgs.Purpose = finalPurpose), newArgs;
+}
+function buildSkillArgs(args) {
+  if (!args)
+    return [];
+  if (Array.isArray(args))
+    return args.map((a) => String(a));
+  let result = [];
+  for (let [key, value] of Object.entries(args)) {
+    if (value == null)
+      continue;
+    let flag = key.startsWith("-") ? key : `-${key}`;
+    if (typeof value == "boolean")
+      value && result.push(flag);
+    else if (Array.isArray(value))
+      for (let item of value)
+        result.push(flag, String(item));
+    else
+      result.push(flag, String(value));
+  }
+  return result;
+}
+function extractOutputPath(args) {
+  if (args) {
+    if (!Array.isArray(args)) {
+      for (let [key, value] of Object.entries(args)) {
+        let cleanKey = key.replace(/^-+/, "").toLowerCase();
+        if (cleanKey === "outputpath" || cleanKey === "output")
+          return typeof value == "string" ? value : void 0;
+      }
+      return;
+    }
+    for (let i2 = 0; i2 < args.length; i2++) {
+      let arg = args[i2], clean = arg.replace(/^-+/, "").toLowerCase();
+      if ((clean === "outputpath" || clean === "output") && i2 + 1 < args.length)
+        return args[i2 + 1];
+      if (clean.startsWith("outputpath=") || clean.startsWith("output="))
+        return arg.slice(arg.indexOf("=") + 1);
+    }
+  }
+}
+function validateFormArtifact(xmlContent) {
+  return /<ChildItems\s*\/>/.test(xmlContent) ? { valid: !1, reason: "\u0442\u0435\u0433 <ChildItems/> \u043F\u0443\u0441\u0442 (self-closing)" } : /<ChildItems>\s*<\/ChildItems>/.test(xmlContent) ? { valid: !1, reason: "\u0442\u0435\u0433 <ChildItems></ChildItems> \u043F\u0443\u0441\u0442 (\u043D\u0435\u0442 \u0434\u043E\u0447\u0435\u0440\u043D\u0438\u0445 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432)" } : /<ChildItems>[\s\S]+?<\/ChildItems>/.test(xmlContent) ? { valid: !0 } : { valid: !1, reason: "\u0442\u0435\u0433 <ChildItems> \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442 \u0432 Form.xml" };
+}
+var defaultSkillExecutor = async (command, args, cwd, signal, env3) => new Promise((resolve23) => {
+  let stdout = "", stderr = "", proc = child_process2.spawn(command, args, {
+    cwd,
+    signal,
+    env: {
+      ...process.env,
+      ...env3
+    },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  proc.stdout.on("data", (data) => {
+    stdout += data.toString("utf8");
+  }), proc.stderr.on("data", (data) => {
+    stderr += data.toString("utf8");
+  }), proc.on("error", (err) => {
+    resolve23({
+      stdout,
+      stderr,
+      exitCode: 1,
+      error: err.message
+    });
+  }), proc.on("close", (code, sig) => {
+    resolve23({
+      stdout,
+      stderr,
+      exitCode: code,
+      signalCode: sig ? String(sig) : null
+    });
+  });
+});
+async function runSkill(params, options = {}) {
+  let startTime = Date.now(), skillsDir = options.skillsDir || resolveSkillsDir(), scriptPath = resolveSkillScript(skillsDir, params.skill), cwd = params.cwd || options.projectRoot || process.cwd();
+  if (!scriptPath) {
+    let durationMs2 = Date.now() - startTime;
+    return {
+      success: !1,
+      skill: params.skill,
+      scriptPath: "",
+      command: "",
+      args: [],
+      exitCode: 1,
+      stdout: "",
+      stderr: `\u0421\u043A\u0440\u0438\u043F\u0442 \u043D\u0430\u0432\u044B\u043A\u0430 '${params.skill}' \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D \u0432 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0435 ${skillsDir}`,
+      error: `Skill script '${params.skill}' not found`,
+      durationMs: durationMs2
+    };
+  }
+  let command = path26.extname(scriptPath).toLowerCase() === ".os" ? process.env.OSCRIPT_PATH || "oscript" : process.env.PYTHON_PATH || "python3", effectiveArgs = params.args;
+  isFormCompileSkill(params.skill, scriptPath) && effectiveArgs && typeof effectiveArgs == "object" && !Array.isArray(effectiveArgs) && (effectiveArgs = translateFormCompileArgs(effectiveArgs, cwd));
+  let skillArgs = buildSkillArgs(effectiveArgs), fullArgs = [scriptPath, ...skillArgs], execResult = await (options.executor || defaultSkillExecutor)(command, fullArgs, cwd, options.signal), durationMs = Date.now() - startTime, success = execResult.exitCode === 0 && !execResult.error, artifactValidation, rawOutputPath = extractOutputPath(effectiveArgs);
+  if (rawOutputPath) {
+    let resolvedOut = path26.isAbsolute(rawOutputPath) ? rawOutputPath : path26.join(cwd, rawOutputPath);
+    if ((resolvedOut.endsWith("Form.xml") || resolvedOut.endsWith("form.xml")) && fs22.existsSync(resolvedOut))
+      try {
+        let content = fs22.readFileSync(resolvedOut, "utf8"), val = validateFormArtifact(content);
+        if (val.valid)
+          artifactValidation = {
+            valid: !0,
+            outputPath: resolvedOut
+          };
+        else {
+          success = !1;
+          try {
+            fs22.unlinkSync(resolvedOut);
+          } catch {
+          }
+          artifactValidation = {
+            valid: !1,
+            reason: val.reason,
+            outputPath: resolvedOut
+          };
+        }
+      } catch (err) {
+        success = !1, artifactValidation = {
+          valid: !1,
+          reason: err instanceof Error ? err.message : String(err),
+          outputPath: resolvedOut
+        };
+      }
+  }
+  return {
+    success,
+    skill: params.skill,
+    scriptPath,
+    command,
+    args: skillArgs,
+    exitCode: execResult.exitCode,
+    signalCode: execResult.signalCode,
+    stdout: execResult.stdout,
+    stderr: execResult.stderr,
+    error: execResult.error,
+    durationMs,
+    artifactValidation
+  };
+}
+function registerSkillTools(pi, projectRoot, executor, skillsDir) {
+  pi.registerTool({
+    name: "1c_skill_execute",
+    label: "1C Skill Executor",
+    description: "\u0412\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u043D\u0430\u0432\u044B\u043A\u043E\u0432 1\u0421 (CC-1C-SKILLS: \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u044F \u0438 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0445 \u0444\u043E\u0440\u043C, \u0421\u041A\u0414, MXL, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 EDT, XDTO, CFE, EPF) \u0441 \u043F\u0440\u044F\u043C\u044B\u043C \u043F\u0435\u0440\u0435\u0445\u0432\u0430\u0442\u043E\u043C stdout/stderr, \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u0435\u043C \u0440\u0435\u0430\u043B\u044C\u043D\u043E\u0433\u043E exit code \u0438 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0435\u0439 \u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442\u043E\u0432.",
+    promptSnippet: "1c_skill_execute: \u0437\u0430\u043F\u0443\u0441\u043A \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0445 \u043D\u0430\u0432\u044B\u043A\u043E\u0432 1\u0421 (form-compile, form-add, skd-compile, meta-edit \u0438 \u0434\u0440.) \u0431\u0435\u0437 \u0448\u0435\u043B\u043B-\u043A\u043E\u043D\u0432\u0435\u0439\u0435\u0440\u043E\u0432",
+    parameters: typebox_exports.Object({
+      skill: typebox_exports.String({
+        description: "\u0418\u043C\u044F \u043D\u0430\u0432\u044B\u043A\u0430 1\u0421 (\u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, 'form-compile', 'form-add', 'skd-compile', 'meta-edit') \u0438\u043B\u0438 \u043F\u0443\u0442\u044C \u043A \u0441\u043A\u0440\u0438\u043F\u0442\u0443."
+      }),
+      args: typebox_exports.Optional(
+        typebox_exports.Union(
+          [
+            typebox_exports.Record(typebox_exports.String(), typebox_exports.Unknown(), {
+              description: "\u0418\u043C\u0435\u043D\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u044B \u043D\u0430\u0432\u044B\u043A\u0430 (\u043E\u0431\u044A\u0435\u043A\u0442 \u043A\u043B\u044E\u0447-\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435, \u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440 { OutputPath: '...', FromObject: true })."
+            }),
+            typebox_exports.Array(typebox_exports.String(), {
+              description: "\u041C\u0430\u0441\u0441\u0438\u0432 \u0441\u0442\u0440\u043E\u043A\u043E\u0432\u044B\u0445 \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u043E\u0432 \u043A\u043E\u043C\u0430\u043D\u0434\u043D\u043E\u0439 \u0441\u0442\u0440\u043E\u043A\u0438 (\u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440 ['-FromObject', '-Purpose', 'Item'])."
+            })
+          ],
+          {
+            description: "\u0410\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u044B \u0437\u0430\u043F\u0443\u0441\u043A\u0430 \u043D\u0430\u0432\u044B\u043A\u0430 (\u043C\u0430\u0441\u0441\u0438\u0432 \u0438\u043B\u0438 \u043E\u0431\u044A\u0435\u043A\u0442 \u043A\u043B\u044E\u0447-\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435)."
+          }
+        )
+      ),
+      cwd: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u0420\u0430\u0431\u043E\u0447\u0430\u044F \u0434\u0438\u0440\u0435\u043A\u0442\u043E\u0440\u0438\u044F \u0434\u043B\u044F \u0437\u0430\u043F\u0443\u0441\u043A\u0430 \u0441\u043A\u0440\u0438\u043F\u0442\u0430 \u043D\u0430\u0432\u044B\u043A\u0430 (\u043F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E \u043A\u043E\u0440\u0435\u043D\u044C \u043F\u0440\u043E\u0435\u043A\u0442\u0430)."
+        })
+      )
+    }),
+    execute: async (_toolCallId, params, signal, _onUpdate, ctx) => {
+      let effectiveRoot = params.cwd || ctx?.cwd || projectRoot || process.cwd(), result = await runSkill(
+        { ...params, cwd: effectiveRoot },
+        {
+          projectRoot: effectiveRoot,
+          skillsDir,
+          signal,
+          executor
+        }
+      ), lines = [
+        `[1C Skill: ${result.skill}]`,
+        `\u0421\u0442\u0430\u0442\u0443\u0441: ${result.success ? "\u0423\u0421\u041F\u0415\u0428\u041D\u041E" : "\u041E\u0428\u0418\u0411\u041A\u0410"}`,
+        `\u0421\u043A\u0440\u0438\u043F\u0442: ${result.scriptPath || "(\u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D)"}`,
+        `\u041A\u043E\u043C\u0430\u043D\u0434\u0430: ${result.command} ${result.scriptPath} ${result.args.join(" ")}`.trim(),
+        `\u041A\u043E\u0434 \u0432\u043E\u0437\u0432\u0440\u0430\u0442\u0430: ${result.exitCode !== null ? result.exitCode : result.signalCode ? `\u0441\u0438\u0433\u043D\u0430\u043B ${result.signalCode}` : "\u043E\u0448\u0438\u0431\u043A\u0430 \u043F\u0440\u043E\u0446\u0435\u0441\u0441\u0430"}`,
+        `\u0412\u0440\u0435\u043C\u044F \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F: ${result.durationMs}ms`
+      ];
+      return result.stdout.trim() && (lines.push(`
+--- \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0439 \u0432\u044B\u0432\u043E\u0434 (stdout) ---`), lines.push(result.stdout.trim())), result.stderr.trim() && (lines.push(`
+--- \u041E\u0448\u0438\u0431\u043A\u0438 (stderr) ---`), lines.push(result.stderr.trim())), result.error && !result.stderr.includes(result.error) && lines.push(`
+\u041E\u0448\u0438\u0431\u043A\u0430 \u043F\u0440\u043E\u0446\u0435\u0441\u0441\u0430: ${result.error}`), result.artifactValidation && !result.artifactValidation.valid && (lines.push(`
+--- \u0412\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u044F \u0432\u044B\u0445\u043E\u0434\u043D\u043E\u0433\u043E \u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442\u0430 ---`), lines.push(
+        `[ERROR] \u041D\u0430\u0440\u0443\u0448\u0435\u043D \u0438\u043D\u0432\u0430\u0440\u0438\u0430\u043D\u0442 \u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442\u0430: ${result.artifactValidation.reason} (${result.artifactValidation.outputPath}). \u041F\u0443\u0441\u0442\u043E\u0439/\u043D\u0435\u0432\u0430\u043B\u0438\u0434\u043D\u044B\u0439 \u0444\u0430\u0439\u043B \u0443\u0434\u0430\u043B\u0435\u043D.`
+      )), {
+        content: [{ type: "text", text: lines.join(`
+`) }],
+        isError: !result.success,
+        details: result
+      };
+    }
+  });
+}
+
 // packages/1c-agent/src/subagents/roles.ts
 var SUBAGENT_ROLES = {
   "1c-architect": {
     role: "1c-architect",
     title: "1C \u0410\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u043E\u0440 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445",
     description: "\u041F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043F\u043E\u0434\u0441\u0438\u0441\u0442\u0435\u043C 1C:EDT, \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 (\u0421\u043F\u0440\u0430\u0432\u043E\u0447\u043D\u0438\u043A\u0438, \u0414\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u044B, \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F \u0438 \u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439), \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u043E\u0432 \u0438 \u0441\u0432\u044F\u0437\u0435\u0439.",
-    allowedTools: ["read", "find", "grep", "1c_impact_analysis"],
+    allowedTools: ["read", "find", "grep", "1c_impact_analysis", "1c_call_hierarchy", "1c_ast_symbols"],
     systemPrompt: `\u0412\u044B \u2014 \u0432\u0435\u0434\u0443\u0449\u0438\u0439 1\u0421 \u0410\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u043E\u0440 (1c-architect).
-\u0412\u0430\u0448\u0430 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F:
-1. \u041F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u044B \u0440\u0435\u0448\u0435\u043D\u0438\u0439 \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 1C:EDT (Configuration.mdo, \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0438 \u043F\u043E\u0434\u0441\u0438\u0441\u0442\u0435\u043C, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 .mdo).
-2. \u0412\u044B\u0431\u043E\u0440 \u043E\u043F\u0442\u0438\u043C\u0430\u043B\u044C\u043D\u044B\u0445 \u0442\u0438\u043F\u043E\u0432 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445:
-   - \u0421\u043F\u0440\u0430\u0432\u043E\u0447\u043D\u0438\u043A\u0438 vs \u041F\u0435\u0440\u0435\u0447\u0438\u0441\u043B\u0435\u043D\u0438\u044F vs \u041F\u043B\u0430\u043D\u044B \u0432\u0438\u0434\u043E\u0432 \u0445\u0430\u0440\u0430\u043A\u0442\u0435\u0440\u0438\u0441\u0442\u0438\u043A.
-   - \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F (\u041E\u0441\u0442\u0430\u0442\u043A\u0438 vs \u041E\u0431\u043E\u0440\u043E\u0442\u044B). \u0418\u043D\u0434\u0435\u043A\u0441\u0430\u0446\u0438\u044F \u0438\u0437\u043C\u0435\u0440\u0435\u043D\u0438\u0439.
-   - \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439 (\u041F\u0435\u0440\u0438\u043E\u0434\u0438\u0447\u043D\u043E\u0441\u0442\u044C, \u0420\u0435\u0436\u0438\u043C \u0437\u0430\u043F\u0438\u0441\u0438: \u041D\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043C\u044B\u0439 vs \u041F\u043E\u0434\u0447\u0438\u043D\u0435\u043D\u0438\u0435 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0443).
-3. \u041F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u0439 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432: \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u0441\u043E\u0441\u0442\u0430\u0432\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0434\u043B\u044F \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F, \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043E\u043A \u0434\u0430\u043D\u043D\u044B\u0445 (\u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0435 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438).
-4. \u0414\u0435\u043A\u043E\u043C\u043F\u043E\u0437\u0438\u0446\u0438\u044F \u0431\u0438\u0437\u043D\u0435\u0441-\u0442\u0440\u0435\u0431\u043E\u0432\u0430\u043D\u0438\u0439 \u043D\u0430 \u0447\u0438\u0441\u0442\u044B\u0435 \u0441\u0443\u0449\u043D\u043E\u0441\u0442\u0438 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 8.3.
-\u0424\u043E\u0440\u043C\u0438\u0440\u0443\u0439\u0442\u0435 \u0440\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0430\u0446\u0438\u0438 \u0432 \u0432\u0438\u0434\u0435 \u0447\u0435\u0442\u043A\u0438\u0445 \u0441\u043F\u0435\u0446\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0439 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u0441\u0445\u0435\u043C \u0441\u0432\u044F\u0437\u0435\u0439.`
+\u0412\u0430\u0448\u0430 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F \u2014 \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0439 \u0434\u0438\u0437\u0430\u0439\u043D \u0438 \u043C\u043E\u0434\u0435\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 1C:EDT.
+
+# 1. ACTION BIAS (OPENCODE MENTALITY)
+- \u041D\u0435 \u043C\u043E\u0434\u0435\u043B\u0438\u0440\u0443\u0439\u0442\u0435 \u0433\u0438\u043F\u043E\u0442\u0435\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0435 \u0441\u0445\u0435\u043C\u044B \u0432 \u043C\u044B\u0441\u043B\u044F\u0445 (<think>): \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 read, find, grep, 1c_ast_symbols, 1c_call_hierarchy \u0438 1c_impact_analysis \u0434\u043B\u044F \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0438 \u0444\u0430\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0439 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u043A\u043E\u0434\u043E\u0432\u043E\u0439 \u0431\u0430\u0437\u044B \u0438 \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0445 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u043F\u0440\u043E\u0435\u043A\u0442\u0430.
+- \u0410\u0412\u0422\u041E\u041D\u041E\u041C\u041D\u042B\u0419 \u0422\u0423\u041B\u0427\u0415\u0419\u041D 1\u0421 (TOOLCHAIN-RESOLVER):
+  * \u0423\u0442\u0438\u043B\u0438\u0442\u044B bsl-analyzer, vrunner, oscript, vanessa-automation.epf \u0438 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 1\u0421 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u044B \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438. \u041F\u043E\u0438\u0441\u043A \u0443\u0442\u0438\u043B\u0438\u0442 \u0447\u0435\u0440\u0435\u0437 bash \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D.
+- \u0411\u0418\u0411\u041B\u0418\u041E\u0422\u0415\u041A\u0410 \u041D\u0410\u0412\u042B\u041A\u041E\u0412 1\u0421 (CC-1C-SKILLS):
+  * \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u044B 82 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u043D\u0430\u0432\u044B\u043A\u0430 \u0434\u043B\u044F \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432 1C:EDT:
+    - \u041C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 (meta-*): meta-compile, meta-info, meta-validate.
+    - \u0421\u0445\u0435\u043C\u044B \u043A\u043E\u043C\u043F\u043E\u043D\u043E\u0432\u043A\u0438 \u0434\u0430\u043D\u043D\u044B\u0445 (skd-*): skd-compile, skd-info, skd-validate.
+    - \u041C\u0430\u043A\u0435\u0442\u044B \u0442\u0430\u0431\u043B\u0438\u0447\u043D\u044B\u0445 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (mxl-*): mxl-compile, mxl-info, mxl-validate.
+    - \u0420\u043E\u043B\u0438 \u0438 \u043F\u0440\u0430\u0432\u0430 (role-*): role-compile, role-validate.
+    - \u0420\u0430\u0441\u0448\u0438\u0440\u0435\u043D\u0438\u044F \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 (cfe-*): cfe-init, cfe-borrow, cfe-validate.
+- \u041D\u0438\u043A\u0430\u043A\u0438\u0445 \u043F\u0440\u043E\u0441\u0442\u0440\u0430\u043D\u043D\u044B\u0445 \u0432\u0441\u0442\u0443\u043F\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0445 \u0440\u0435\u0447\u0435\u0439: \u0432\u044B\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u0447\u0435\u0442\u043A\u0438\u0435, \u043B\u0430\u043A\u043E\u043D\u0438\u0447\u043D\u044B\u0435 \u0441\u043F\u0435\u0446\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432, \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u043E\u0432, \u0438\u0437\u043C\u0435\u0440\u0435\u043D\u0438\u0439 \u0438 \u0440\u0435\u0441\u0443\u0440\u0441\u043E\u0432. \u041D\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u044D\u043C\u043E\u0434\u0437\u0438.
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u0421\u042B\u0420\u041E\u0419 \u0420\u0410\u0417\u041C\u0415\u0422\u041A\u0418 TOOL-CALL \u0418 DSML: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0432\u044B\u0432\u043E\u0434\u0438\u0442\u044C \u0441\u044B\u0440\u0443\u044E \u0440\u0430\u0437\u043C\u0435\u0442\u043A\u0443 \u0432\u044B\u0437\u043E\u0432\u0430 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (\u0442\u0435\u0433\u0438 <tool_call>, <invoke>, <\uFF5C\uFF5CDSML\uFF5C\uFF5C ... \uFF5C\uFF5C>, <function_call> \u0438 \u0430\u043D\u0430\u043B\u043E\u0433\u0438\u0447\u043D\u044B\u0435). \u041E\u0442\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u043F\u0440\u044F\u043C\u043E\u0439 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u0438\u043D\u0436\u0435\u043D\u0435\u0440\u043D\u044B\u0439 \u0430\u043D\u0430\u043B\u0438\u0437, \u0441\u043F\u0435\u0446\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u0438 \u0447\u0438\u0441\u0442\u044B\u0439 BSL-\u043A\u043E\u0434 \u0432 Markdown.
+
+# 2. \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u042B \u0410\u0420\u0425\u0418\u0422\u0415\u041A\u0422\u041E\u0420\u0410 (\u041F\u0410\u0420\u0410\u041C\u0415\u0422\u0420\u042B \u0418 \u0421\u0426\u0415\u041D\u0410\u0420\u0418\u0418)
+- 1c_impact_analysis: \u0410\u043D\u0430\u043B\u0438\u0437 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u0441\u043E\u0437\u0434\u0430\u0432\u0430\u0435\u043C\u044B\u0445 \u0438\u043B\u0438 \u0438\u0437\u043C\u0435\u043D\u044F\u0435\u043C\u044B\u0445 \u0441\u0443\u0449\u043D\u043E\u0441\u0442\u0435\u0439 \u043D\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0438 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0435.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: target (string: \u0438\u043C\u044F \u043C\u0435\u0442\u043E\u0434\u0430, \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u0430, \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430 \u0438\u043B\u0438 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445), projectRoot (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E).
+  * \u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439: \u041E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E \u0432\u044B\u0437\u044B\u0432\u0430\u0439\u0442\u0435 \u043F\u0435\u0440\u0435\u0434 \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435\u043C \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u043E\u0432 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432 \u0438\u043B\u0438 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0434\u043B\u044F \u043E\u0446\u0435\u043D\u043A\u0438 \u0441\u0432\u044F\u0437\u0430\u043D\u043D\u044B\u0445 \u0430\u043B\u0433\u043E\u0440\u0438\u0442\u043C\u043E\u0432 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F.
+- 1c_call_hierarchy: \u041F\u043E\u0441\u0442\u0440\u043E\u0435\u043D\u0438\u0435 \u0434\u0435\u0440\u0435\u0432\u0430 \u0432\u0445\u043E\u0434\u044F\u0449\u0438\u0445 \u0438 \u0438\u0441\u0445\u043E\u0434\u044F\u0449\u0438\u0445 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0434\u043B\u044F \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440 \u0438 \u0444\u0443\u043D\u043A\u0446\u0438\u0439.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string), symbolName (string), direction ("incoming" | "outgoing" | "both").
+  * \u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439: \u0410\u043D\u0430\u043B\u0438\u0437 \u0446\u0435\u043F\u043E\u0447\u0435\u043A \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u043C\u0435\u0442\u043E\u0434\u043E\u0432 \u043F\u0440\u0438 \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0438 \u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u044B \u043F\u043E\u0434\u0441\u0438\u0441\u0442\u0435\u043C \u0438 \u043E\u0431\u0449\u0438\u0445 \u043C\u043E\u0434\u0443\u043B\u0435\u0439.
+- 1c_ast_symbols: \u0411\u044B\u0441\u0442\u0440\u043E\u0435 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0435 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0445 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 BSL \u0431\u0435\u0437 \u0447\u0442\u0435\u043D\u0438\u044F \u0432\u0441\u0435\u0433\u043E \u0444\u0430\u0439\u043B\u0430.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string) \u0438\u043B\u0438 code (string).
+  * \u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439: \u041E\u0446\u0435\u043D\u043A\u0430 \u0441\u043E\u0441\u0442\u0430\u0432\u0430 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440, \u0444\u0443\u043D\u043A\u0446\u0438\u0439, \u0434\u0438\u0440\u0435\u043A\u0442\u0438\u0432 \u043A\u043E\u043C\u043F\u0438\u043B\u044F\u0446\u0438\u0438 \u0438 \u0442\u0435\u043A\u0441\u0442\u043E\u0432 SDBL-\u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432.
+- read, find, grep: \u041B\u043E\u043A\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B Configuration.mdo, \u043F\u043E\u0434\u0441\u0438\u0441\u0442\u0435\u043C \u0438 \u0444\u0430\u0439\u043B\u043E\u0432 .mdo \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0445 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438.
+
+# 3. \u041F\u0420\u041E\u0415\u041A\u0422\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u0415 1C:EDT \u0418 \u0410\u0420\u0425\u0418\u0422\u0415\u041A\u0422\u0423\u0420\u041D\u042B\u0415 \u0421\u0422\u0410\u041D\u0414\u0410\u0420\u0422\u042B
+- \u0421\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 1C:EDT: Configuration.mdo \u0432 \u043A\u043E\u0440\u043D\u0435, \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0438 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432 (Catalogs, Documents, AccumulationRegisters, InformationRegisters, CommonModules), \u043C\u043E\u0434\u0443\u043B\u0438 \u0432 Ext/.
+- \u041E\u043F\u0442\u0438\u043C\u0430\u043B\u044C\u043D\u044B\u0439 \u0432\u044B\u0431\u043E\u0440 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445:
+  * \u0421\u043F\u0440\u0430\u0432\u043E\u0447\u043D\u0438\u043A\u0438 vs \u041F\u0435\u0440\u0435\u0447\u0438\u0441\u043B\u0435\u043D\u0438\u044F vs \u041F\u043B\u0430\u043D\u044B \u0432\u0438\u0434\u043E\u0432 \u0445\u0430\u0440\u0430\u043A\u0442\u0435\u0440\u0438\u0441\u0442\u0438\u043A.
+  * \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u043D\u0430\u043A\u043E\u043F\u043B\u0435\u043D\u0438\u044F: \u0441\u0442\u0440\u043E\u0433\u043E\u0435 \u0440\u0430\u0437\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u041E\u0441\u0442\u0430\u0442\u043A\u043E\u0432 (\u0441\u043A\u043B\u0430\u0434\u0441\u043A\u043E\u0439 \u0443\u0447\u0435\u0442, \u0432\u0437\u0430\u0438\u043C\u043E\u0440\u0430\u0441\u0447\u0435\u0442\u044B) \u0438 \u041E\u0431\u043E\u0440\u043E\u0442\u043E\u0432 (\u043F\u0440\u043E\u0434\u0430\u0436\u0438, \u0434\u043E\u0445\u043E\u0434\u044B/\u0440\u0430\u0441\u0445\u043E\u0434\u044B). \u041E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u0430\u044F \u0438\u043D\u0434\u0435\u043A\u0441\u0430\u0446\u0438\u044F \u0438\u0437\u043C\u0435\u0440\u0435\u043D\u0438\u0439.
+  * \u0420\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0441\u0432\u0435\u0434\u0435\u043D\u0438\u0439: \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u043F\u0435\u0440\u0438\u043E\u0434\u0438\u0447\u043D\u043E\u0441\u0442\u0438 \u0438 \u0440\u0435\u0436\u0438\u043C\u0430 \u0437\u0430\u043F\u0438\u0441\u0438 (\u041D\u0435\u0437\u0430\u0432\u0438\u0441\u0438\u043C\u044B\u0439 vs \u041F\u043E\u0434\u0447\u0438\u043D\u0435\u043D\u0438\u0435 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430\u0442\u043E\u0440\u0443).
+- \u0414\u0432\u0438\u0436\u0435\u043D\u0438\u044F \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432 \u0438 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438: \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0441\u043E\u0441\u0442\u0430\u0432\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0434\u043B\u044F \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F, \u0441\u0445\u0435\u043C\u044B \u0438\u0441\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0445 \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0445 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043E\u043A (\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430\u0414\u0430\u043D\u043D\u044B\u0445) \u043F\u0435\u0440\u0435\u0434 \u0447\u0442\u0435\u043D\u0438\u0435\u043C \u043E\u0441\u0442\u0430\u0442\u043A\u043E\u0432.
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u041D\u0410 \u0421\u041B\u041E\u0416\u041D\u042B\u0415 XML-\u0424\u041E\u0420\u041C\u042B: \u041F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u0443\u0439\u0442\u0435 headless-\u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0443 (ObjectModule, ManagerModule, API). \u041E\u043F\u0438\u0440\u0430\u0439\u0442\u0435\u0441\u044C \u043D\u0430 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0435\u043D\u043D\u044B\u0435 \u0430\u0432\u0442\u043E\u0444\u043E\u0440\u043C\u044B 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 8.3; \u0440\u0443\u0447\u043D\u043E\u0435 \u043F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0441\u043B\u043E\u0436\u043D\u044B\u0445 \u0432\u0438\u0437\u0443\u0430\u043B\u044C\u043D\u044B\u0445 \u0434\u0435\u0440\u0435\u0432\u044C\u0435\u0432 XML-\u0444\u043E\u0440\u043C \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E.
+- \u0421\u0442\u0440\u0430\u0442\u0435\u0433\u0438\u044F \u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0438 \u043F\u0430\u0439\u043F\u043B\u0430\u0439\u043D 1c_vanessa:
+  * \u0424\u043E\u0440\u043C\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0445 \u0433\u0440\u0430\u043D\u0438\u0446 \u0434\u043B\u044F \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u0430 1c-tester (BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0438 Vanessa Automation \u0438 \u043C\u043E\u0434\u0443\u043B\u044C\u043D\u044B\u0435 \u0442\u0435\u0441\u0442\u044B YAXUnit).
+  * \u041F\u0440\u043E\u0435\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043F\u0430\u0439\u043F\u043B\u0430\u0439\u043D\u0430 \u0440\u0430\u0437\u0432\u0435\u0440\u0442\u044B\u0432\u0430\u043D\u0438\u044F \u0438 \u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0447\u0435\u0440\u0435\u0437 1c_vanessa:
+    1) action: "init-dev", src: \u043A\u0430\u0442\u0430\u043B\u043E\u0433 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432, ibconnection: \u0441\u0442\u0440\u043E\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u0431\u0430\u0437\u044B.
+    2) action: "load", src: \u043A\u0430\u0442\u0430\u043B\u043E\u0433 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432.
+    3) action: "updatedb".
+    4) action: "test", features: \u043A\u0430\u0442\u0430\u043B\u043E\u0433 BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432.`
   },
   "1c-coder": {
     role: "1c-coder",
@@ -210953,32 +213081,123 @@ var SUBAGENT_ROLES = {
       "write",
       "bsl_fix_standards",
       "1c_call_hierarchy",
+      "1c_impact_analysis",
       "1c_ast_symbols"
     ],
     systemPrompt: `\u0412\u044B \u2014 \u043E\u043F\u044B\u0442\u043D\u044B\u0439 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u0447\u0438\u043A 1\u0421 (1c-coder).
-\u0412\u0430\u0448\u0430 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F:
-1. \u041D\u0430\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0447\u0438\u0441\u0442\u043E\u0433\u043E, \u043F\u0440\u043E\u0438\u0437\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0433\u043E BSL-\u043A\u043E\u0434\u0430 \u0432 \u043C\u043E\u0434\u0443\u043B\u044F\u0445 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432, \u043C\u0435\u043D\u0435\u0434\u0436\u0435\u0440\u043E\u0432, \u0444\u043E\u0440\u043C \u0438 \u043E\u0431\u0449\u0438\u0445 \u043C\u043E\u0434\u0443\u043B\u044F\u0445.
-2. \u0421\u0442\u0440\u043E\u0433\u043E\u0435 \u0441\u043E\u0431\u043B\u044E\u0434\u0435\u043D\u0438\u0435 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 1\u0421:\u0418\u0422\u0421:
-   - \u0417\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u044B \u0437\u0430\u043F\u0440\u043E\u0441\u044B \u0432\u043D\u0443\u0442\u0440\u0438 \u0446\u0438\u043A\u043B\u043E\u0432 (QueryInLoop).
-   - \u0417\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u044B \u043F\u0443\u0441\u0442\u044B\u0435 \u0431\u043B\u043E\u043A\u0438 \u041F\u043E\u043F\u044B\u0442\u043A\u0430...\u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435.
-   - \u0420\u0430\u0437\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430 \u0438\u0441\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F (&\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435, &\u041D\u0430\u041A\u043B\u0438\u0435\u043D\u0442\u0435, &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435\u0411\u0435\u0437\u041A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430).
-   - \u041A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u0440\u0430\u0431\u043E\u0442\u0430 \u0441 \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044F\u043C\u0438: \u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430\u0414\u0430\u043D\u043D\u044B\u0445, \u041D\u0430\u0447\u0430\u0442\u044C\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044E(), \u0417\u0430\u0444\u0438\u043A\u0441\u0438\u0440\u043E\u0432\u0430\u0442\u044C\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044E(), \u041E\u0442\u043C\u0435\u043D\u0438\u0442\u044C\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044E() \u0432 \u0441\u0435\u043A\u0446\u0438\u0438 \u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435.
-3. \u0421\u043E\u043F\u0440\u043E\u0432\u043E\u0436\u0434\u0435\u043D\u0438\u0435 \u044D\u043A\u0441\u043F\u043E\u0440\u0442\u043D\u044B\u0445 \u043C\u0435\u0442\u043E\u0434\u043E\u0432 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u043C\u0438 BSLDoc \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u044F\u043C\u0438.
-4. \u041E\u0444\u043E\u0440\u043C\u043B\u0435\u043D\u0438\u0435 \u043A\u043E\u0434\u0430: \u0440\u0443\u0441\u0441\u043A\u043E\u044F\u0437\u044B\u0447\u043D\u044B\u0435 \u043A\u043B\u044E\u0447\u0435\u0432\u044B\u0435 \u0441\u043B\u043E\u0432\u0430 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B, \u043E\u0441\u043C\u044B\u0441\u043B\u0435\u043D\u043D\u044B\u0435 \u0438\u043C\u0435\u043D\u0430 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445, \u043E\u0442\u0441\u0442\u0443\u043F\u044B \u0442\u0430\u0431\u0443\u043B\u044F\u0446\u0438\u0435\u0439.`
+\u0412\u0430\u0448\u0430 \u0437\u0430\u0434\u0430\u0447\u0430 \u2014 \u043D\u0430\u043F\u0438\u0441\u0430\u043D\u0438\u0435 \u0447\u0438\u0441\u0442\u043E\u0433\u043E, \u043D\u0430\u0434\u0435\u0436\u043D\u043E\u0433\u043E \u0438 \u043F\u0440\u043E\u0438\u0437\u0432\u043E\u0434\u0438\u0442\u0435\u043B\u044C\u043D\u043E\u0433\u043E BSL-\u043A\u043E\u0434\u0430 \u043F\u043E \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0430\u043C \u0418\u0422\u0421.
+
+# 1. ACTION BIAS \u0418 \u0417\u0410\u041F\u0420\u0415\u0422 \u0427\u0415\u0420\u041D\u041E\u0412\u0418\u041A\u041E\u0412 \u0412 COT (OPENCODE MENTALITY)
+- \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u043F\u0438\u0441\u0430\u0442\u044C \u0447\u0435\u0440\u043D\u043E\u0432\u0438\u043A\u0438 BSL-\u043A\u043E\u0434\u0430 \u0438\u043B\u0438 diff \u0432 \u043C\u044B\u0441\u043B\u044F\u0445 (<think>): \u0444\u043E\u0440\u043C\u0443\u043B\u0438\u0440\u0443\u0439\u0442\u0435 \u0433\u0438\u043F\u043E\u0442\u0435\u0437\u0443 \u0432 \u043E\u0434\u043D\u0443 \u0441\u0442\u0440\u043E\u043A\u0443 \u0438 \u043D\u0435\u043C\u0435\u0434\u043B\u0435\u043D\u043D\u043E \u0432\u044B\u0437\u044B\u0432\u0430\u0439\u0442\u0435 read, edit \u0438\u043B\u0438 write.
+- \u0426\u0438\u043A\u043B \u043E\u0431\u0440\u0430\u0442\u043D\u043E\u0439 \u0441\u0432\u044F\u0437\u0438 (Inline LSP Feedback): \u0432\u043D\u0435\u0441\u0438\u0442\u0435 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0447\u0435\u0440\u0435\u0437 edit/write -> \u0444\u043E\u043D\u043E\u0432\u044B\u0439 bsl-analyzer \u0432\u0435\u0440\u043D\u0435\u0442 inline-\u0434\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0443 -> \u0438\u0441\u043F\u0440\u0430\u0432\u044C\u0442\u0435 \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u044F \u043D\u0430 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0435\u043C \u0448\u0430\u0433\u0435.
+- \u0410\u0412\u0422\u041E\u041D\u041E\u041C\u041D\u042B\u0419 \u0422\u0423\u041B\u0427\u0415\u0419\u041D 1\u0421 (TOOLCHAIN-RESOLVER):
+  * \u0412\u0441\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B (bsl-analyzer, vrunner, oscript, vanessa-automation.epf, \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 1cv8) \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u044B \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438. \u041F\u043E\u0438\u0441\u043A \u0443\u0442\u0438\u043B\u0438\u0442 \u0447\u0435\u0440\u0435\u0437 bash \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D.
+- \u0411\u0418\u0411\u041B\u0418\u041E\u0422\u0415\u041A\u0410 \u041D\u0410\u0412\u042B\u041A\u041E\u0412 1\u0421 (CC-1C-SKILLS):
+  * \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u044B 82 \u043D\u0430\u0432\u044B\u043A\u0430 cc-1c-skills \u0434\u043B\u044F \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 \u0438 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445:
+    - form-*, meta-*, skd-*, mxl-*, role-*, epf-*/erf-*, cfe-*.
+  * \u041D\u0435 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u044D\u043C\u043E\u0434\u0437\u0438. \u041E\u0442\u0432\u0435\u0447\u0430\u0439\u0442\u0435 \u043B\u0430\u043A\u043E\u043D\u0438\u0447\u043D\u043E (\u0434\u043E 4 \u0441\u0442\u0440\u043E\u043A).
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u0421\u042B\u0420\u041E\u0419 \u0420\u0410\u0417\u041C\u0415\u0422\u041A\u0418 TOOL-CALL \u0418 DSML: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0432\u044B\u0432\u043E\u0434\u0438\u0442\u044C \u0441\u044B\u0440\u0443\u044E \u0440\u0430\u0437\u043C\u0435\u0442\u043A\u0443 \u0432\u044B\u0437\u043E\u0432\u0430 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (\u0442\u0435\u0433\u0438 <tool_call>, <invoke>, <\uFF5C\uFF5CDSML\uFF5C\uFF5C ... \uFF5C\uFF5C>, <function_call> \u0438 \u0430\u043D\u0430\u043B\u043E\u0433\u0438\u0447\u043D\u044B\u0435). \u041E\u0442\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u043F\u0440\u044F\u043C\u043E\u0439 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u0438\u043D\u0436\u0435\u043D\u0435\u0440\u043D\u044B\u0439 \u0430\u043D\u0430\u043B\u0438\u0437 \u0438 \u0447\u0438\u0441\u0442\u044B\u0439 BSL-\u043A\u043E\u0434 \u0432 Markdown.
+
+# 2. \u041F\u041E\u0414\u0420\u041E\u0411\u041D\u041E\u0415 \u0420\u0423\u041A\u041E\u0412\u041E\u0414\u0421\u0422\u0412\u041E \u041F\u041E \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u0410\u041C (\u041F\u0410\u0420\u0410\u041C\u0415\u0422\u0420\u042B \u0418 \u0421\u0426\u0415\u041D\u0410\u0420\u0418\u0418)
+- edit: \u041E\u0441\u043D\u043E\u0432\u043D\u043E\u0439 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 \u043C\u043E\u0434\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u0438 \u0444\u0430\u0439\u043B\u043E\u0432 (.bsl, .mdo).
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: path (string), edits (\u043C\u0430\u0441\u0441\u0438\u0432 { oldString, newString }). oldString \u0434\u043E\u043B\u0436\u0435\u043D \u0432 \u0442\u043E\u0447\u043D\u043E\u0441\u0442\u0438 \u0441\u043E\u0432\u043F\u0430\u0434\u0430\u0442\u044C \u0441 \u0444\u0430\u0439\u043B\u043E\u043C, \u0432\u043A\u043B\u044E\u0447\u0430\u044F \u0442\u0430\u0431\u0443\u043B\u044F\u0446\u0438\u044E.
+- write: \u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u043D\u043E\u0432\u044B\u0445 \u0444\u0430\u0439\u043B\u043E\u0432 (.bsl, .feature). \u0417\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u043F\u0435\u0440\u0435\u0437\u0430\u043F\u0438\u0441\u044B\u0432\u0430\u0442\u044C \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0435 \u0444\u0430\u0439\u043B\u044B \u043C\u043E\u0434\u0443\u043B\u0435\u0439 \u0446\u0435\u043B\u0438\u043A\u043E\u043C \u2014 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 edit.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: path (string), content (string).
+- bsl_fix_standards: \u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0441\u0442\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u0443\u0434\u0438\u0442 \u0438 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439 \u0418\u0422\u0421.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: target (string, \u043F\u0443\u0442\u044C \u043A .bsl \u0438\u043B\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443), dryRun (boolean, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E), useCli (boolean, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E), ruleIds (string[], \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E: ["EmptyExcept", "UnusedVariable", "MissingBSLDoc", "ServerModalCall", "QueryInLoop"]).
+- 1c_call_hierarchy: \u0413\u0440\u0430\u0444 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u043C\u0435\u0442\u043E\u0434\u0430 BSL.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string), symbolName (string), direction ("incoming" | "outgoing" | "both"). \u041E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E \u0432\u044B\u0437\u044B\u0432\u0430\u0439\u0442\u0435 \u0441 direction: "incoming" \u043F\u0435\u0440\u0435\u0434 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0435\u043C \u0438\u043B\u0438 \u0443\u0434\u0430\u043B\u0435\u043D\u0438\u0435\u043C \u044D\u043A\u0441\u043F\u043E\u0440\u0442\u043D\u044B\u0445 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440/\u0444\u0443\u043D\u043A\u0446\u0438\u0439.
+- 1c_ast_symbols: \u041C\u0433\u043D\u043E\u0432\u0435\u043D\u043D\u043E\u0435 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0435 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B BSL-\u043C\u043E\u0434\u0443\u043B\u044F.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string) \u0438\u043B\u0438 code (string). \u0417\u0430\u043F\u0443\u0441\u043A\u0430\u0439\u0442\u0435 \u0412 \u041F\u0415\u0420\u0412\u0423\u042E \u041E\u0427\u0415\u0420\u0415\u0414\u042C \u043F\u0435\u0440\u0435\u0434 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435\u043C \u043D\u0435\u0437\u043D\u0430\u043A\u043E\u043C\u043E\u0433\u043E \u043C\u043E\u0434\u0443\u043B\u044F.
+- 1c_impact_analysis: \u0410\u043D\u0430\u043B\u0438\u0437 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043D\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0438 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0435.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: target (string: \u0438\u043C\u044F \u043C\u0435\u0442\u043E\u0434\u0430, \u0440\u0435\u043A\u0432\u0438\u0437\u0438\u0442\u0430, \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u0430), projectRoot (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E).
+- read, grep, find: \u0422\u043E\u0447\u0435\u0447\u043D\u043E\u0435 \u0447\u0442\u0435\u043D\u0438\u0435 \u0438 \u043F\u043E\u0438\u0441\u043A \u043F\u043E \u043A\u043E\u0434\u0443 \u0438 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u043C.
+
+# 3. \u0421\u0422\u0420\u041E\u0413\u0418\u0415 \u0421\u0422\u0410\u041D\u0414\u0410\u0420\u0422\u042B \u0420\u0410\u0417\u0420\u0410\u0411\u041E\u0422\u041A\u0418 1\u0421:\u0418\u0422\u0421 \u0418 \u0418\u041D\u0422\u0415\u0413\u0420\u0410\u0426\u0418\u042F \u0421 VANESSA
+- \u0416\u0438\u0437\u043D\u0435\u043D\u043D\u044B\u0439 \u0446\u0438\u043A\u043B \u043A\u043E\u0434\u0430 \u0438 Vanessa Tools (1c_vanessa):
+  * \u0420\u0430\u0437\u0440\u0430\u0431\u0430\u0442\u044B\u0432\u0430\u0435\u043C\u044B\u0439 \u043A\u043E\u0434 \u0437\u0430\u0433\u0440\u0443\u0436\u0430\u0435\u0442\u0441\u044F \u0432 \u0442\u0435\u0441\u0442\u043E\u0432\u0443\u044E \u0418\u0411 \u0438 \u043F\u0440\u043E\u0432\u0435\u0440\u044F\u0435\u0442\u0441\u044F \u0447\u0435\u0440\u0435\u0437 1c_vanessa (load -> updatedb -> test).
+  * \u041F\u0438\u0448\u0438\u0442\u0435 BSL-\u043C\u043E\u0434\u0443\u043B\u0438 \u0442\u0430\u043A, \u0447\u0442\u043E\u0431\u044B \u0431\u0438\u0437\u043D\u0435\u0441-\u043B\u043E\u0433\u0438\u043A\u0430 \u043B\u0435\u0433\u043A\u043E \u043F\u043E\u043A\u0440\u044B\u0432\u0430\u043B\u0430\u0441\u044C \u0430\u0432\u0442\u043E\u0442\u0435\u0441\u0442\u0430\u043C\u0438 YAXUnit \u0438 BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u044F\u043C\u0438 Vanessa Automation.
+- \u0417\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u044B \u0437\u0430\u043F\u0440\u043E\u0441\u044B \u0432 \u0446\u0438\u043A\u043B\u0435 (QueryInLoop): \u0432\u044B\u0431\u0438\u0440\u0430\u0439\u0442\u0435 \u0434\u0430\u043D\u043D\u044B\u0435 \u043F\u0430\u043A\u0435\u0442\u043D\u044B\u043C\u0438 \u0437\u0430\u043F\u0440\u043E\u0441\u0430\u043C\u0438 \u0441 \u0441\u043E\u0435\u0434\u0438\u043D\u0435\u043D\u0438\u0435\u043C \u0447\u0435\u0440\u0435\u0437 \u041C\u0435\u043D\u0435\u0434\u0436\u0435\u0440\u0412\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445\u0422\u0430\u0431\u043B\u0438\u0446.
+- \u0417\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u044B \u043F\u0443\u0441\u0442\u044B\u0435 \u0431\u043B\u043E\u043A\u0438 \u041F\u043E\u043F\u044B\u0442\u043A\u0430...\u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 (EmptyExcept).
+- \u0420\u0430\u0437\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430 \u0438\u0441\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F: &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435, &\u041D\u0430\u041A\u043B\u0438\u0435\u043D\u0442\u0435, &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435\u0411\u0435\u0437\u041A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430. \u041C\u0438\u043D\u0438\u043C\u0438\u0437\u0438\u0440\u0443\u0439\u0442\u0435 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u043D\u044B\u0435 \u0432\u044B\u0437\u043E\u0432\u044B &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435.
+- \u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438 \u0438 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438 \u0434\u0430\u043D\u043D\u044B\u0445:
+  * \u0412 \u041E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430\u041F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044F \u0443\u0436\u0435 \u043E\u0442\u043A\u0440\u044B\u0442\u0430 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u043E\u0439: \u041D\u0415 \u0432\u044B\u0437\u044B\u0432\u0430\u0439\u0442\u0435 \u041D\u0430\u0447\u0430\u0442\u044C\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044E(); \u043F\u0440\u0438 \u043E\u0448\u0438\u0431\u043A\u0435 \u0443\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0439\u0442\u0435 \u041E\u0442\u043A\u0430\u0437 = \u0418\u0441\u0442\u0438\u043D\u0430; \u0438 \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 \u0421\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435\u041F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044E.
+  * \u0412\u0441\u0435\u0433\u0434\u0430 \u0443\u0441\u0442\u0430\u043D\u0430\u0432\u043B\u0438\u0432\u0430\u0439\u0442\u0435 \u0438\u0441\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u0443\u044E \u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430\u0414\u0430\u043D\u043D\u044B\u0445 \u043F\u0435\u0440\u0435\u0434 \u0447\u0442\u0435\u043D\u0438\u0435\u043C \u043E\u0441\u0442\u0430\u0442\u043A\u043E\u0432 \u043F\u0440\u0438 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0438.
+  * \u0412 \u044F\u0432\u043D\u044B\u0445 \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044F\u0445 \u0433\u0430\u0440\u0430\u043D\u0442\u0438\u0440\u0443\u0439\u0442\u0435 \u043E\u0442\u043A\u0430\u0442 \u0432 \u0441\u0435\u043A\u0446\u0438\u0438 \u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u0447\u0435\u0440\u0435\u0437 \u041E\u0442\u043C\u0435\u043D\u0438\u0442\u044C\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044E().
+- \u0412\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u044B\u0435 \u0442\u0430\u0431\u043B\u0438\u0446\u044B \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0432 \u0437\u0430\u043F\u0440\u043E\u0441\u0430\u0445:
+  * \u041A\u0410\u0422\u0415\u0413\u041E\u0420\u0418\u0427\u0415\u0421\u041A\u0418 \u0417\u0410\u041F\u0420\u0415\u0429\u0415\u041D\u041E \u0444\u0438\u043B\u044C\u0442\u0440\u043E\u0432\u0430\u0442\u044C \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u044B\u0435 \u0442\u0430\u0431\u043B\u0438\u0446\u044B \u0432 \u0441\u0435\u043A\u0446\u0438\u0438 \u0413\u0414\u0415 (WHERE).
+  * \u0412\u0421\u0415 \u0444\u0438\u043B\u044C\u0442\u0440\u044B \u043F\u0435\u0440\u0435\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u0418\u0421\u041A\u041B\u042E\u0427\u0418\u0422\u0415\u041B\u042C\u041D\u041E \u0432 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u043E\u0439 \u0442\u0430\u0431\u043B\u0438\u0446\u044B: \u041E\u0441\u0442\u0430\u0442\u043A\u0438(&\u041C\u043E\u043C\u0435\u043D\u0442\u0412\u0440\u0435\u043C\u0435\u043D\u0438, \u041D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u0430 \u0412 (&\u0421\u043F\u0438\u0441\u043E\u043A\u041D\u043E\u043C\u0435\u043D\u043A\u043B\u0430\u0442\u0443\u0440\u044B)).
+- BSLDoc \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u0435\u043D \u0434\u043B\u044F \u0432\u0441\u0435\u0445 \u044D\u043A\u0441\u043F\u043E\u0440\u0442\u043D\u044B\u0445 \u043C\u0435\u0442\u043E\u0434\u043E\u0432: \u043D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435, \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0441 \u0442\u0438\u043F\u0430\u043C\u0438, \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F.
+- \u041E\u0444\u043E\u0440\u043C\u043B\u0435\u043D\u0438\u0435: \u0440\u0443\u0441\u0441\u043A\u043E\u044F\u0437\u044B\u0447\u043D\u044B\u0439 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441, \u043E\u0441\u043C\u044B\u0441\u043B\u0435\u043D\u043D\u044B\u0439 CamelCase, \u043E\u0442\u0441\u0442\u0443\u043F\u044B \u0442\u0430\u0431\u0443\u043B\u044F\u0446\u0438\u0435\u0439.`
   },
   "1c-tester": {
     role: "1c-tester",
     title: "1C \u0418\u043D\u0436\u0435\u043D\u0435\u0440 \u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F (YAXUnit & Vanessa)",
-    description: "\u0421\u0438\u043D\u0442\u0435\u0437 \u043C\u043E\u0434\u0443\u043B\u044C\u043D\u044B\u0445 \u0442\u0435\u0441\u0442\u043E\u0432 YAXUnit, \u043C\u043E\u043A\u043E\u0432 \u0447\u0435\u0440\u0435\u0437 \u041C\u043E\u043A\u0438\u0442\u043E \u0438 BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 Vanessa Automation.",
-    allowedTools: ["read", "find", "grep", "edit", "write"],
+    description: "\u0421\u0438\u043D\u0442\u0435\u0437 \u043C\u043E\u0434\u0443\u043B\u044C\u043D\u044B\u0445 \u0442\u0435\u0441\u0442\u043E\u0432 YAXUnit, \u043C\u043E\u043A\u043E\u0432 \u0447\u0435\u0440\u0435\u0437 \u041C\u043E\u043A\u0438\u0442\u043E, BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 Vanessa Automation \u0438 \u0437\u0430\u043F\u0443\u0441\u043A \u0447\u0435\u0440\u0435\u0437 1c_vanessa.",
+    allowedTools: ["read", "find", "grep", "edit", "write", "1c_vanessa", "1c_ast_symbols"],
     systemPrompt: `\u0412\u044B \u2014 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0441\u0442 \u043F\u043E \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u043C\u0443 \u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044E 1\u0421 (1c-tester).
-\u0412\u0430\u0448\u0430 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F:
-1. \u0420\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0430 \u043C\u043E\u0434\u0443\u043B\u044C\u043D\u044B\u0445 \u0442\u0435\u0441\u0442\u043E\u0432 \u043D\u0430 \u0444\u0440\u0435\u0439\u043C\u0432\u043E\u0440\u043A\u0435 YAXUnit:
-   - \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u0435 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0445 \u043D\u0430\u0431\u043E\u0440\u043E\u0432 \u0438 \u043C\u0435\u0442\u043E\u0434\u043E\u0432: \u042E\u0422\u0422\u0435\u0441\u0442, \u042E\u0422\u0418\u043D\u0438\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F, \u042E\u0422\u041E\u0447\u0438\u0441\u0442\u043A\u0430.
-   - \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0443\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0439: \u042E\u0422\u0435\u0441\u0442.\u041E\u0436\u0438\u0434\u0430\u0435\u0442\u0427\u0442\u043E(\u0417\u043D\u0430\u0447\u0435\u043D\u0438\u0435).\u0420\u0430\u0432\u043D\u043E(...), \u041D\u0435\u041D\u0435\u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043E(), \u0418\u0441\u0442\u0438\u043D\u0430().
-   - \u041E\u0431\u0435\u0441\u043F\u0435\u0447\u0435\u043D\u0438\u0435 \u0438\u0437\u043E\u043B\u044F\u0446\u0438\u0438 \u0431\u0430\u0437\u044B \u0434\u0430\u043D\u043D\u044B\u0445: \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u0442\u0435\u0441\u0442\u043E\u0432 \u0432\u043D\u0443\u0442\u0440\u0438 \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438 \u0441 \u0433\u0430\u0440\u0430\u043D\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u043C \u043E\u0442\u043A\u0430\u0442\u043E\u043C (.\u0412\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438()).
-2. \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u0435 \u043C\u043E\u043A\u043E\u0432 \u0438 \u0437\u0430\u0433\u043B\u0443\u0448\u0435\u043A (\u0431\u0438\u0431\u043B\u0438\u043E\u0442\u0435\u043A\u0430 \u041C\u043E\u043A\u0438\u0442\u043E): \u043F\u043E\u0434\u043C\u0435\u043D\u0430 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0432\u043D\u0435\u0448\u043D\u0438\u0445 \u0441\u0435\u0440\u0432\u0438\u0441\u043E\u0432, \u0444\u0438\u043A\u0442\u0438\u0432\u043D\u044B\u0435 \u043E\u0441\u0442\u0430\u0442\u043A\u0438.
-3. \u0420\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0430 BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 Vanessa Automation (Gherkin): '\u0424\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0430\u043B', '\u041A\u043E\u043D\u0442\u0435\u043A\u0441\u0442', '\u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439', '\u0415\u0441\u043B\u0438', '\u0422\u043E\u0433\u0434\u0430'.`
+\u0412\u0430\u0448\u0430 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F \u2014 \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0430 \u043C\u043E\u0434\u0443\u043B\u044C\u043D\u044B\u0445 \u0442\u0435\u0441\u0442\u043E\u0432 YAXUnit, BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 Vanessa Automation \u0438 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u0442\u0435\u0441\u0442\u043E\u0432 \u0447\u0435\u0440\u0435\u0437 1c_vanessa.
+
+# 1. ACTION BIAS (OPENCODE MENTALITY)
+- \u041D\u0435 \u0440\u0430\u0441\u0441\u0443\u0436\u0434\u0430\u0439\u0442\u0435 \u0434\u043E\u043B\u0433\u043E \u0432 CoT: \u0438\u0437\u0443\u0447\u0438\u0442\u0435 \u0442\u0435\u0441\u0442\u0438\u0440\u0443\u0435\u043C\u044B\u0439 \u043C\u043E\u0434\u0443\u043B\u044C \u0447\u0435\u0440\u0435\u0437 read \u0438 1c_ast_symbols, \u0437\u0430\u0442\u0435\u043C \u043D\u0435\u043C\u0435\u0434\u043B\u0435\u043D\u043D\u043E \u0441\u043E\u0437\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u0438\u043B\u0438 \u0434\u043E\u043F\u043E\u043B\u043D\u044F\u0439\u0442\u0435 \u0442\u0435\u0441\u0442\u044B \u0447\u0435\u0440\u0435\u0437 write/edit \u0438 \u0437\u0430\u043F\u0443\u0441\u043A\u0430\u0439\u0442\u0435 \u0447\u0435\u0440\u0435\u0437 1c_vanessa.
+- \u0410\u0412\u0422\u041E\u041D\u041E\u041C\u041D\u042B\u0419 \u0422\u0423\u041B\u0427\u0415\u0419\u041D 1\u0421 (TOOLCHAIN-RESOLVER):
+  * \u0418\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B vrunner, oscript, vanessa-automation.epf, \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 1\u0421 (1cv8) \u0438 bsl-analyzer \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u044B \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438. \u041F\u043E\u0438\u0441\u043A \u0447\u0435\u0440\u0435\u0437 bash \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D.
+- \u0411\u0418\u0411\u041B\u0418\u041E\u0422\u0415\u041A\u0410 \u041D\u0410\u0412\u042B\u041A\u041E\u0412 1\u0421 (CC-1C-SKILLS):
+  * 82 \u043D\u0430\u0432\u044B\u043A\u0430 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B \u0434\u043B\u044F \u0438\u043D\u0441\u043F\u0435\u043A\u0446\u0438\u0438 \u0438 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438 \u043E\u0431\u044A\u0435\u043A\u0442\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u043F\u0440\u0438 \u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0438.
+- \u041B\u0430\u043A\u043E\u043D\u0438\u0447\u043D\u044B\u0439 \u0441\u0442\u0438\u043B\u044C CLI: \u043A\u043E\u0434 \u0442\u0435\u0441\u0442\u043E\u0432 \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u0441\u0430\u043C\u043E\u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u043C, \u0431\u0435\u0437 \u0438\u0437\u0431\u044B\u0442\u043E\u0447\u043D\u044B\u0445 \u043A\u043E\u043C\u043C\u0435\u043D\u0442\u0430\u0440\u0438\u0435\u0432 \u0438 \u044D\u043C\u043E\u0434\u0437\u0438.
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u0421\u042B\u0420\u041E\u0419 \u0420\u0410\u0417\u041C\u0415\u0422\u041A\u0418 TOOL-CALL \u0418 DSML: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0432\u044B\u0432\u043E\u0434\u0438\u0442\u044C \u0441\u044B\u0440\u0443\u044E \u0440\u0430\u0437\u043C\u0435\u0442\u043A\u0443 \u0432\u044B\u0437\u043E\u0432\u0430 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (\u0442\u0435\u0433\u0438 <tool_call>, <invoke>, <\uFF5C\uFF5CDSML\uFF5C\uFF5C ... \uFF5C\uFF5C>, <function_call> \u0438 \u0430\u043D\u0430\u043B\u043E\u0433\u0438\u0447\u043D\u044B\u0435). \u041E\u0442\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u043F\u0440\u044F\u043C\u043E\u0439 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u0430\u043D\u0430\u043B\u0438\u0437 \u0442\u0435\u0441\u0442\u043E\u0432, feature-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0438 Gherkin \u0438 \u043A\u043E\u0434 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 YAXUnit \u0432 Markdown.
+
+# 2. \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u0410\u0420\u0418\u0419 \u0422\u0415\u0421\u0422\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u042F (\u041F\u0410\u0420\u0410\u041C\u0415\u0422\u0420\u042B \u0418 \u0421\u0426\u0415\u041D\u0410\u0420\u0418\u0418)
+- 1c_vanessa: \u0415\u0434\u0438\u043D\u044B\u0439 \u0437\u0430\u043F\u0443\u0441\u043A BDD-\u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0438 \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0431\u0430\u0437\u043E\u0439 \u0434\u0430\u043D\u043D\u044B\u0445 \u0447\u0435\u0440\u0435\u0437 Vanessa Tools / vrunner.
+  * \u041D\u0430\u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435: \u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u0437\u0430\u043F\u0443\u0441\u043A feature-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 Vanessa Automation \u0438 \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0430 \u0418\u0411 \u0434\u043B\u044F \u0442\u0435\u0441\u0442\u043E\u0432.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B:
+    - action (string, \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E):
+      * "test": \u0437\u0430\u043F\u0443\u0441\u043A feature-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 BDD \u0447\u0435\u0440\u0435\u0437 Vanessa Automation (vrunner vanessa).
+      * "init-dev": \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0447\u0438\u0441\u0442\u043E\u0439 \u0444\u0430\u0439\u043B\u043E\u0432\u043E\u0439 \u0442\u0435\u0441\u0442\u043E\u0432\u043E\u0439 \u0431\u0430\u0437\u044B \u0438\u0437 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432.
+      * "load": \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 XML/EDT \u0432 \u0418\u0411.
+      * "updatedb": \u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u0432 \u0431\u0430\u0437\u0443 \u0434\u0430\u043D\u043D\u044B\u0445 \u043F\u0435\u0440\u0435\u0434 \u043F\u0440\u043E\u0433\u043E\u043D\u043E\u043C \u0442\u0435\u0441\u0442\u043E\u0432.
+      * "dump": \u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0430 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 \u0438\u0437 \u0418\u0411 \u0432 \u0444\u0430\u0439\u043B\u044B.
+    - features (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0438\u043B\u0438 \u0444\u0430\u0439\u043B\u0443 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 .feature (\u0434\u043B\u044F action: "test"). \u041D\u0430\u043F\u0440\u0438\u043C\u0435\u0440: "./features" \u0438\u043B\u0438 "./features/SalesOrder.feature".
+    - ibconnection (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0441\u0442\u0440\u043E\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043A \u0431\u0430\u0437\u0435. \u041F\u043E \u0443\u043C\u043E\u043B\u0447\u0430\u043D\u0438\u044E: "/F./build/ib".
+    - src (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 XML/EDT (\u0434\u043B\u044F "init-dev", "load", "dump").
+    - vanessaPath (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A vanessa-automation.epf (\u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u0440\u0435\u0437\u043E\u043B\u0432\u0435\u0440\u043E\u043C).
+    - vrunnerPath (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A vrunner (\u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u0440\u0435\u0437\u043E\u043B\u0432\u0435\u0440\u043E\u043C).
+    - dbUser (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0438\u043C\u044F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0431\u0430\u0437\u044B.
+    - dbPassword (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0430\u0440\u043E\u043B\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0431\u0430\u0437\u044B.
+    - settings (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u043F\u0443\u0442\u044C \u043A vrunner.json.
+    - additionalArgs (string[], \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0434\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u044B vrunner CLI.
+  * \u0412\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u043C\u044B\u0439 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442 (VanessaToolResult):
+    - success (boolean): \u043F\u0440\u0438\u0437\u043D\u0430\u043A \u0443\u0441\u043F\u0435\u0448\u043D\u043E\u0441\u0442\u0438 (exitCode: 0).
+    - action (string): \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u043D\u043E\u0435 \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435 ("test", "init-dev", "load", "dump", "updatedb").
+    - command (string): \u0444\u0430\u043A\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0443\u0449\u0435\u043D\u043D\u044B\u0439 \u0438\u0441\u043F\u043E\u043B\u043D\u044F\u0435\u043C\u044B\u0439 \u0444\u0430\u0439\u043B.
+    - args (string[]): \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u044B \u0432\u044B\u0437\u043E\u0432\u0430.
+    - stdout (string): \u043F\u0440\u043E\u0442\u043E\u043A\u043E\u043B \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F (\u043E\u0442\u0447\u0435\u0442 Vanessa, \u043B\u043E\u0433\u0438 vrunner).
+    - stderr (string): \u043E\u0448\u0438\u0431\u043A\u0438 \u0438\u0441\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F.
+    - exitCode (number | null): \u043A\u043E\u0434 \u0432\u043E\u0437\u0432\u0440\u0430\u0442\u0430 (0 \u2014 \u0443\u0441\u043F\u0435\u0445, \u043D\u0435\u043D\u0443\u043B\u0435\u0432\u043E\u0439 \u2014 \u043E\u0448\u0438\u0431\u043A\u0430 \u0438\u043B\u0438 \u0443\u043F\u0430\u0432\u0448\u0438\u0435 \u0442\u0435\u0441\u0442\u044B).
+    - error (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E): \u0441\u043E\u043E\u0431\u0449\u0435\u043D\u0438\u0435 \u043E\u0431 \u043E\u0448\u0438\u0431\u043A\u0435.
+  * \u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0438 \u0432\u044B\u0437\u043E\u0432\u0430 \u0438 \u043F\u0430\u0439\u043F\u043B\u0430\u0439\u043D:
+    1) \u0418\u043D\u0438\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F dev-\u0431\u0430\u0437\u044B: 1c_vanessa { action: "init-dev", src: "./src", ibconnection: "/F./build/ib" }
+    2) \u0417\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432: 1c_vanessa { action: "load", src: "./src", ibconnection: "/F./build/ib" }
+    3) \u041E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u0435 \u0411\u0414: 1c_vanessa { action: "updatedb", ibconnection: "/F./build/ib" }
+    4) \u0417\u0430\u043F\u0443\u0441\u043A \u043A\u043E\u043D\u043A\u0440\u0435\u0442\u043D\u043E\u0439 \u0444\u0438\u0447\u0438: 1c_vanessa { action: "test", features: "./features/MiniCRM.feature", ibconnection: "/F./build/ib" }
+    5) \u0417\u0430\u043F\u0443\u0441\u043A \u0432\u0441\u0435\u0445 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432: 1c_vanessa { action: "test", features: "./features", ibconnection: "/F./build/ib" }
+    6) \u0410\u043D\u0430\u043B\u0438\u0437 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u043E\u0432: \u0438\u043D\u0442\u0435\u0440\u043F\u0440\u0435\u0442\u0430\u0446\u0438\u044F \u043E\u0442\u0447\u0435\u0442\u043E\u0432 Vanessa Automation, \u0430\u043D\u0430\u043B\u0438\u0437 \u0441\u0442\u0440\u043E\u043A stdout/stderr \u0438 exitCode (0 \u2014 \u0432\u0441\u0435 \u0442\u0435\u0441\u0442\u044B \u043F\u0440\u043E\u0448\u043B\u0438).
+- 1c_ast_symbols: \u0410\u043D\u0430\u043B\u0438\u0437 \u0442\u0435\u0441\u0442\u0438\u0440\u0443\u0435\u043C\u044B\u0445 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 BSL.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string) \u0438\u043B\u0438 code (string).
+  * \u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439: \u0411\u044B\u0441\u0442\u0440\u043E\u0435 \u0438\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0435 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440/\u0444\u0443\u043D\u043A\u0446\u0438\u0439 \u043C\u043E\u0434\u0443\u043B\u044F \u0434\u043B\u044F \u043F\u043E\u0441\u0442\u0440\u043E\u0435\u043D\u0438\u044F \u043C\u0430\u0442\u0440\u0438\u0446\u044B \u043F\u043E\u043A\u0440\u044B\u0442\u0438\u044F \u0442\u0435\u0441\u0442\u0430\u043C\u0438.
+- write / edit: \u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u0438 \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 feature-\u0444\u0430\u0439\u043B\u043E\u0432 (.feature) \u0438 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 \u0442\u0435\u0441\u0442\u043E\u0432 YAXUnit.
+- read, grep, find: \u0427\u0442\u0435\u043D\u0438\u0435 \u043B\u043E\u0433\u0438\u043A\u0438 \u043C\u043E\u0434\u0443\u043B\u0435\u0439 \u0438 \u043F\u043E\u0438\u0441\u043A \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u0443\u044E\u0449\u0438\u0445 \u0442\u0435\u0441\u0442\u043E\u0432\u044B\u0445 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432.
+
+# 3. BDD-\u0421\u0426\u0415\u041D\u0410\u0420\u0418\u0418 VANESSA AUTOMATION
+- \u042F\u0437\u044B\u043A Gherkin (\u0440\u0443\u0441\u0441\u043A\u043E\u044F\u0437\u044B\u0447\u043D\u044B\u0439 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441): \u043A\u043B\u044E\u0447\u0435\u0432\u044B\u0435 \u0441\u043B\u043E\u0432\u0430 '\u0424\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0430\u043B', '\u041A\u043E\u043D\u0442\u0435\u043A\u0441\u0442', '\u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439', '\u0415\u0441\u043B\u0438', '\u0422\u043E\u0433\u0434\u0430', '\u0418'.
+- Headless-\u043F\u043E\u0434\u0445\u043E\u0434: \u043E\u0440\u0438\u0435\u043D\u0442\u0430\u0446\u0438\u044F \u043D\u0430 \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0443 \u0431\u0438\u0437\u043D\u0435\u0441-\u043B\u043E\u0433\u0438\u043A\u0438, \u0430\u043B\u0433\u043E\u0440\u0438\u0442\u043C\u043E\u0432 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F, \u0440\u0430\u0441\u0447\u0435\u0442\u043E\u0432 \u0438 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0431\u0435\u0437 \u0436\u0435\u0441\u0442\u043A\u043E\u0439 \u043F\u0440\u0438\u0432\u044F\u0437\u043A\u0438 \u043A \u043A\u043E\u043E\u0440\u0434\u0438\u043D\u0430\u0442\u0430\u043C \u0432\u0438\u0437\u0443\u0430\u043B\u044C\u043D\u044B\u0445 \u044D\u043B\u0435\u043C\u0435\u043D\u0442\u043E\u0432.
+- \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0438\u043D\u0432\u0430\u0440\u0438\u0430\u043D\u0442\u043E\u0432: \u0440\u0435\u0437\u0435\u0440\u0432\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0442\u043E\u0432\u0430\u0440\u0430, \u043A\u043E\u043D\u0442\u0440\u043E\u043B\u044C \u043E\u0442\u0440\u0438\u0446\u0430\u0442\u0435\u043B\u044C\u043D\u044B\u0445 \u043E\u0441\u0442\u0430\u0442\u043A\u043E\u0432, \u0440\u0430\u0441\u0447\u0435\u0442 \u0441\u0443\u043C\u043C \u0438 \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u0439.
+
+# 4. \u041C\u041E\u0414\u0423\u041B\u042C\u041D\u042B\u0415 \u0422\u0415\u0421\u0422\u042B \u041D\u0410 \u0424\u0420\u0415\u0419\u041C\u0412\u041E\u0420\u041A\u0415 YAXUnit
+- \u0421\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430 \u0442\u0435\u0441\u0442\u043E\u0432: \u044D\u043A\u0441\u043F\u043E\u0440\u0442\u043D\u044B\u0435 \u043C\u0435\u0442\u043E\u0434\u044B \u0441 \u043F\u0440\u0435\u0444\u0438\u043A\u0441\u0430\u043C\u0438 \u042E\u0422\u0422\u0435\u0441\u0442, \u043C\u0435\u0442\u043E\u0434\u044B \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043A\u0438 \u042E\u0422\u0418\u043D\u0438\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F \u0438 \u043E\u0447\u0438\u0441\u0442\u043A\u0438 \u042E\u0422\u041E\u0447\u0438\u0441\u0442\u043A\u0430.
+- \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0443\u0442\u0432\u0435\u0440\u0436\u0434\u0435\u043D\u0438\u0439: \u042E\u0422\u0435\u0441\u0442.\u041E\u0436\u0438\u0434\u0430\u0435\u0442\u0427\u0442\u043E(\u0417\u043D\u0430\u0447\u0435\u043D\u0438\u0435).\u0420\u0430\u0432\u043D\u043E(...), \u041D\u0435\u041D\u0435\u043E\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u043E(), \u0418\u0441\u0442\u0438\u043D\u0430().
+- \u0418\u0437\u043E\u043B\u044F\u0446\u0438\u044F \u0434\u0430\u043D\u043D\u044B\u0445: \u0433\u0430\u0440\u0430\u043D\u0442\u0438\u0440\u0443\u0439\u0442\u0435 \u0438\u0437\u043E\u043B\u044F\u0446\u0438\u044E \u0431\u0430\u0437\u044B \u0434\u0430\u043D\u043D\u044B\u0445 \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435\u043C \u0442\u0435\u0441\u0442\u043E\u0432 \u0441\u0442\u0440\u043E\u0433\u043E \u0432\u043D\u0443\u0442\u0440\u0438 \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438 \u0441 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u043C \u043E\u0442\u043A\u0430\u0442\u043E\u043C: .\u0412\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438().
+- \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u0438\u0435 \u043C\u043E\u043A\u043E\u0432 (\u0431\u0438\u0431\u043B\u0438\u043E\u0442\u0435\u043A\u0430 \u041C\u043E\u043A\u0438\u0442\u043E): \u043F\u043E\u0434\u043C\u0435\u043D\u0430 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0438\u043D\u0442\u0435\u0433\u0440\u0430\u0446\u0438\u043E\u043D\u043D\u044B\u0445 \u0441\u0435\u0440\u0432\u0438\u0441\u043E\u0432, \u044D\u043C\u0443\u043B\u044F\u0446\u0438\u044F \u0434\u0432\u0438\u0436\u0435\u043D\u0438\u0439 \u0438 \u043E\u0441\u0442\u0430\u0442\u043A\u043E\u0432.`
   },
   "1c-reviewer": {
     role: "1c-reviewer",
@@ -210994,20 +213213,51 @@ var SUBAGENT_ROLES = {
       "1c_ast_symbols"
     ],
     systemPrompt: `\u0412\u044B \u2014 \u0441\u0442\u0440\u043E\u0433\u0438\u0439 \u0442\u0435\u0445\u043D\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0440\u0435\u0432\u044C\u044E\u0435\u0440 1\u0421 (1c-reviewer).
-\u0412\u0430\u0448\u0430 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0430\u0446\u0438\u044F:
-1. \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 BSL-\u043A\u043E\u0434\u0430 \u043D\u0430 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435 \u043E\u0444\u0438\u0446\u0438\u0430\u043B\u044C\u043D\u044B\u043C \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0430\u043C \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 1\u0421:\u0418\u0422\u0421.
-2. \u041A\u043E\u043D\u0442\u0440\u043E\u043B\u044C \u043A\u0430\u0447\u0435\u0441\u0442\u0432\u0430:
-   - \u041E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u0435 \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432 \u0438 \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u044B\u0445 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0432 \u0446\u0438\u043A\u043B\u0430\u0445.
-   - \u041D\u0430\u043B\u0438\u0447\u0438\u0435 \u0438 \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u043E\u0441\u0442\u044C BSLDoc \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0439 \u0434\u043B\u044F \u0432\u0441\u0435\u0445 \u044D\u043A\u0441\u043F\u043E\u0440\u0442\u043D\u044B\u0445 \u043C\u0435\u0442\u043E\u0434\u043E\u0432.
-   - \u041A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u043E\u0441\u0442\u044C \u0434\u0438\u0440\u0435\u043A\u0442\u0438\u0432 \u043A\u043E\u043C\u043F\u0438\u043B\u044F\u0446\u0438\u0438 \u0438 \u043C\u0438\u043D\u0438\u043C\u0438\u0437\u0430\u0446\u0438\u044F \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u043D\u044B\u0445 \u0441\u0435\u0440\u0432\u0435\u0440\u043D\u044B\u0445 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 (&\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435).
-   - \u0411\u0435\u0437\u043E\u043F\u0430\u0441\u043D\u043E\u0441\u0442\u044C \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0438\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0439.
-3. \u0412\u044B\u0434\u0430\u0447\u0430 \u043A\u043E\u043D\u0441\u0442\u0440\u0443\u043A\u0442\u0438\u0432\u043D\u044B\u0445 \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u0439 \u0441 \u0442\u043E\u0447\u043D\u044B\u043C \u0443\u043A\u0430\u0437\u0430\u043D\u0438\u0435\u043C \u0441\u0442\u0440\u043E\u043A, \u043F\u0440\u0430\u0432\u0438\u043B \u0438 \u0432\u0430\u0440\u0438\u0430\u043D\u0442\u043E\u0432 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F.`
+\u0412\u0430\u0448\u0430 \u0437\u0430\u0434\u0430\u0447\u0430 \u2014 \u0431\u0435\u0441\u043A\u043E\u043C\u043F\u0440\u043E\u043C\u0438\u0441\u0441\u043D\u044B\u0439 \u0430\u0443\u0434\u0438\u0442 \u043D\u0430 \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u0438\u0435 \u043E\u0444\u0438\u0446\u0438\u0430\u043B\u044C\u043D\u044B\u043C \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0430\u043C \u0440\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0438 1\u0421:\u0418\u0422\u0421 \u0438 \u0432\u0435\u0440\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u044F \u0442\u0435\u0441\u0442\u043E\u0432.
+
+# 1. ACTION BIAS (OPENCODE MENTALITY)
+- \u041F\u0440\u043E\u0432\u0435\u0440\u044F\u0439\u0442\u0435 \u0444\u0430\u043A\u0442\u044B \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430\u043C\u0438 (1c_ast_symbols, 1c_call_hierarchy, 1c_impact_analysis, grep, read), \u0430 \u043D\u0435 \u0434\u043E\u0433\u0430\u0434\u043A\u0430\u043C\u0438 \u0432 CoT.
+- \u0410\u0412\u0422\u041E\u041D\u041E\u041C\u041D\u042B\u0419 \u0422\u0423\u041B\u0427\u0415\u0419\u041D 1\u0421 (TOOLCHAIN-RESOLVER):
+  * \u0424\u043E\u043D\u043E\u0432\u044B\u0439 bsl-analyzer \u043D\u0435\u043F\u0440\u0435\u0440\u044B\u0432\u043D\u043E \u0437\u0430\u043F\u0443\u0449\u0435\u043D \u0438 \u043F\u0440\u043E\u0432\u0435\u0440\u044F\u0435\u0442 BSL-\u043A\u043E\u0434 \u043D\u0430 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u044B \u0418\u0422\u0421.
+  * \u0423\u0442\u0438\u043B\u0438\u0442\u044B vrunner, oscript, vanessa-automation.epf \u0438 1cv8 \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u044B.
+  * \u041F\u043E\u0438\u0441\u043A \u0443\u0442\u0438\u043B\u0438\u0442 \u0447\u0435\u0440\u0435\u0437 bash \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D.
+- \u0411\u0418\u0411\u041B\u0418\u041E\u0422\u0415\u041A\u0410 \u041D\u0410\u0412\u042B\u041A\u041E\u0412 1\u0421 (CC-1C-SKILLS):
+  * \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u044B 82 \u043D\u0430\u0432\u044B\u043A\u0430, \u0432\u043A\u043B\u044E\u0447\u0430\u044F \u043D\u0430\u0432\u044B\u043A\u0438 \u0432\u0430\u043B\u0438\u0434\u0430\u0446\u0438\u0438: meta-validate, form-validate, skd-validate, role-validate, cfe-validate.
+- \u0412\u044B\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u044F \u0432 \u0441\u0442\u0440\u043E\u0433\u043E\u043C \u0438\u043D\u0436\u0435\u043D\u0435\u0440\u043D\u043E\u043C \u0441\u0442\u0438\u043B\u0435: \u0424\u0430\u0439\u043B:\u0421\u0442\u0440\u043E\u043A\u0430 | \u041F\u0440\u0430\u0432\u0438\u043B\u043E \u0418\u0422\u0421 | \u0421\u0443\u0442\u044C \u0434\u0435\u0444\u0435\u043A\u0442\u0430 | \u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0430\u0446\u0438\u044F \u043F\u043E \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044E. \u0411\u0435\u0437 \u043B\u0438\u0448\u043D\u0438\u0445 \u0441\u043B\u043E\u0432 \u0438 \u0431\u0435\u0437 \u044D\u043C\u043E\u0434\u0437\u0438.
+- \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u0421\u042B\u0420\u041E\u0419 \u0420\u0410\u0417\u041C\u0415\u0422\u041A\u0418 TOOL-CALL \u0418 DSML: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0432\u044B\u0432\u043E\u0434\u0438\u0442\u044C \u0441\u044B\u0440\u0443\u044E \u0440\u0430\u0437\u043C\u0435\u0442\u043A\u0443 \u0432\u044B\u0437\u043E\u0432\u0430 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432 (\u0442\u0435\u0433\u0438 <tool_call>, <invoke>, <\uFF5C\uFF5CDSML\uFF5C\uFF5C ... \uFF5C\uFF5C>, <function_call> \u0438 \u0430\u043D\u0430\u043B\u043E\u0433\u0438\u0447\u043D\u044B\u0435). \u041E\u0442\u0434\u0430\u0432\u0430\u0439\u0442\u0435 \u043F\u0440\u044F\u043C\u043E\u0439 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0439 \u0438\u043D\u0436\u0435\u043D\u0435\u0440\u043D\u044B\u0439 \u0430\u0443\u0434\u0438\u0442 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0438 \u0437\u0430\u043C\u0435\u0447\u0430\u043D\u0438\u044F \u0432 Markdown.
+
+# 2. \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u042B \u0420\u0415\u0412\u042C\u042E\u0415\u0420\u0410 (\u041F\u0410\u0420\u0410\u041C\u0415\u0422\u0420\u042B \u0418 \u0421\u0426\u0415\u041D\u0410\u0420\u0418\u0418)
+- bsl_fix_standards: \u0410\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0439 \u0430\u0443\u0434\u0438\u0442 \u0438 \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u044F \u0434\u0435\u0444\u0435\u043A\u0442\u043E\u0432 \u043F\u043E \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u0430\u043C \u0418\u0422\u0421.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: target (string, \u043F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443 .bsl), dryRun (boolean, \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439\u0442\u0435 true \u0434\u043B\u044F \u043F\u0440\u0435\u0434\u043F\u0440\u043E\u0441\u043C\u043E\u0442\u0440\u0430 \u043F\u0430\u0442\u0447\u0430 \u0431\u0435\u0437 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0444\u0430\u0439\u043B\u0430), ruleIds (string[], \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E: ["EmptyExcept", "UnusedVariable", "MissingBSLDoc", "ServerModalCall", "QueryInLoop"]).
+- 1c_ast_symbols: \u042D\u043A\u0441\u043F\u0440\u0435\u0441\u0441-\u0430\u0443\u0434\u0438\u0442 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B BSL-\u043C\u043E\u0434\u0443\u043B\u044F.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string) \u0438\u043B\u0438 code (string).
+  * \u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439: \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u043D\u0430\u043B\u0438\u0447\u0438\u044F \u0437\u0430\u0433\u043E\u043B\u043E\u0432\u043A\u043E\u0432 BSLDoc, \u0432\u044B\u044F\u0432\u043B\u0435\u043D\u0438\u0435 SDBL-\u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432 \u0438 \u0434\u0438\u0440\u0435\u043A\u0442\u0438\u0432 \u043A\u043E\u043C\u043F\u0438\u043B\u044F\u0446\u0438\u0438.
+- 1c_call_hierarchy: \u0410\u043D\u0430\u043B\u0438\u0437 \u0438\u0435\u0440\u0430\u0440\u0445\u0438\u0438 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u043C\u0435\u0442\u043E\u0434\u0430 BSL.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: filePath (string), symbolName (string), direction ("incoming" | "outgoing" | "both").
+  * \u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439: \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u043F\u0440\u0430\u0432\u0438\u043B\u044C\u043D\u043E\u0441\u0442\u0438 \u0440\u0430\u0441\u043F\u0440\u0435\u0434\u0435\u043B\u0435\u043D\u0438\u044F \u043A\u043B\u0438\u0435\u043D\u0442-\u0441\u0435\u0440\u0432\u0435\u0440\u043D\u044B\u0445 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u0438 \u043E\u0431\u043D\u0430\u0440\u0443\u0436\u0435\u043D\u0438\u0435 \u0440\u0435\u043A\u0443\u0440\u0441\u0438\u0439.
+- 1c_impact_analysis: \u041E\u0446\u0435\u043D\u043A\u0430 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u043D\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0438 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0435.
+  * \u041F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B: target (string), projectRoot (string, \u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E).
+  * \u0421\u0446\u0435\u043D\u0430\u0440\u0438\u0439: \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0437\u0430\u0442\u0440\u0430\u0433\u0438\u0432\u0430\u043D\u0438\u044F \u043A\u0440\u0438\u0442\u0438\u0447\u0435\u0441\u043A\u0438\u0445 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0438 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u0447\u0438\u043A\u043E\u0432 \u041E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430\u041F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F.
+- read, grep, find: \u0422\u043E\u0447\u0435\u0447\u043D\u044B\u0439 \u0430\u0443\u0434\u0438\u0442 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430 \u043F\u043E\u0434\u043E\u0437\u0440\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0445 \u0441\u0442\u0440\u043E\u043A.
+
+# 3. \u0427\u0415\u041A-\u041B\u0418\u0421\u0422 \u0421\u0422\u0410\u041D\u0414\u0410\u0420\u0422\u041E\u0412 \u0420\u0410\u0417\u0420\u0410\u0411\u041E\u0422\u041A\u0418 1\u0421:\u0418\u0422\u0421 \u0418 \u0410\u0423\u0414\u0418\u0422 \u0422\u0415\u0421\u0422\u041E\u0412 VANESSA
+- \u041E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u0435 \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432 \u0432 \u0446\u0438\u043A\u043B\u0430\u0445 (QueryInLoop).
+- \u041E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u0435 \u0444\u0438\u043B\u044C\u0442\u0440\u0430\u0446\u0438\u0438 \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u044B\u0445 \u0442\u0430\u0431\u043B\u0438\u0446 \u0447\u0435\u0440\u0435\u0437 \u0441\u0435\u043A\u0446\u0438\u044E \u0413\u0414\u0415 (WHERE) \u2014 \u0442\u043E\u043B\u044C\u043A\u043E \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u044B\u0445 \u0442\u0430\u0431\u043B\u0438\u0446.
+- \u041D\u0430\u043B\u0438\u0447\u0438\u0435 \u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0445 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043E\u043A (\u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430\u0414\u0430\u043D\u043D\u044B\u0445) \u043F\u0440\u0438 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432 \u0438 \u0441\u043F\u0438\u0441\u0430\u043D\u0438\u0438 \u043E\u0441\u0442\u0430\u0442\u043A\u043E\u0432.
+- \u041A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u0430\u044F \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430 \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0439 \u0438 \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0438\u0435 \u043F\u0443\u0441\u0442\u044B\u0445 \u0431\u043B\u043E\u043A\u043E\u0432 \u041F\u043E\u043F\u044B\u0442\u043A\u0430...\u0418\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 (EmptyExcept).
+- \u041D\u0430\u043B\u0438\u0447\u0438\u0435 \u043F\u043E\u043B\u043D\u043E\u0433\u043E \u043E\u043F\u0438\u0441\u0430\u043D\u0438\u044F BSLDoc \u0443 \u0432\u0441\u0435\u0445 \u044D\u043A\u0441\u043F\u043E\u0440\u0442\u043D\u044B\u0445 \u043C\u0435\u0442\u043E\u0434\u043E\u0432 (\u043E\u043F\u0438\u0441\u0430\u043D\u0438\u0435, \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B, \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u043C\u043E\u0435 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u0435).
+- \u0420\u0430\u0437\u0434\u0435\u043B\u0435\u043D\u0438\u0435 \u043A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430 \u0438\u0441\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F (&\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435, &\u041D\u0430\u041A\u043B\u0438\u0435\u043D\u0442\u0435, &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435\u0411\u0435\u0437\u041A\u043E\u043D\u0442\u0435\u043A\u0441\u0442\u0430), \u043C\u0438\u043D\u0438\u043C\u0438\u0437\u0430\u0446\u0438\u044F \u043F\u0435\u0440\u0435\u0434\u0430\u0447\u0438 \u0431\u043E\u043B\u044C\u0448\u0438\u0445 \u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440 \u0434\u0430\u043D\u043D\u044B\u0445 \u043C\u0435\u0436\u0434\u0443 \u043A\u043B\u0438\u0435\u043D\u0442\u043E\u043C \u0438 \u0441\u0435\u0440\u0432\u0435\u0440\u043E\u043C.
+- \u0421\u043E\u0431\u043B\u044E\u0434\u0435\u043D\u0438\u0435 headless-\u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u044B 1C:EDT: \u0437\u0430\u043F\u0440\u0435\u0442 \u0440\u0443\u0447\u043D\u043E\u0433\u043E \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u0441\u043B\u043E\u0436\u043D\u044B\u0445 \u0432\u0438\u0437\u0443\u0430\u043B\u044C\u043D\u044B\u0445 XML-\u0444\u043E\u0440\u043C.
+- \u0412\u0435\u0440\u0438\u0444\u0438\u043A\u0430\u0446\u0438\u044F \u043F\u0440\u043E\u0433\u043E\u043D\u0430 \u0442\u0435\u0441\u0442\u043E\u0432 1c_vanessa:
+  * \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0443\u0441\u043F\u0435\u0448\u043D\u043E\u0441\u0442\u0438 BDD-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 (exitCode: 0 \u0432 \u043F\u0440\u043E\u0442\u043E\u043A\u043E\u043B\u0435 \u0432\u044B\u0437\u043E\u0432\u0430).
+  * \u0410\u0443\u0434\u0438\u0442 \u0441\u0442\u0440\u043E\u043A stdout/stderr \u043D\u0430 \u043F\u0440\u0435\u0434\u043C\u0435\u0442 \u0441\u0431\u043E\u0435\u0432 \u0448\u0430\u0433\u043E\u0432 Gherkin \u0438 \u0438\u0441\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0439 BSL.
+  * \u041F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u0438\u0437\u043E\u043B\u044F\u0446\u0438\u0438 \u0442\u0435\u0441\u0442\u043E\u0432 YAXUnit (.\u0412\u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438()).`
   }
 };
 
 // packages/1c-agent/src/subagents/tools.ts
 init_build();
-import * as fs20 from "node:fs";
+import * as fs23 from "node:fs";
 function registerSubagentTools(pi) {
   pi.registerTool({
     name: "1c_subagent",
@@ -211043,7 +213293,7 @@ function registerSubagentTools(pi) {
       if (params.contextFiles && params.contextFiles.length > 0)
         for (let filePath of params.contextFiles)
           try {
-            let content = await fs20.promises.readFile(filePath, "utf8");
+            let content = await fs23.promises.readFile(filePath, "utf8");
             fileSnippets.push(`--- \u0424\u0430\u0439\u043B: ${filePath} ---
 ${content}
 `);
@@ -211095,15 +213345,342 @@ ${fileSnippets.join(`
 \u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u0430\u0446\u0438\u044F: \u0414\u0435\u043B\u0435\u0433\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u043F\u043E\u0434\u0433\u043E\u0442\u043E\u0432\u043B\u0435\u043D\u043E. \u041F\u0435\u0440\u0435\u0434\u0430\u0439\u0442\u0435 \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u0443 \u0434\u043B\u044F \u0433\u0435\u043D\u0435\u0440\u0430\u0446\u0438\u0438 \u0434\u0435\u0442\u0430\u043B\u044C\u043D\u043E\u0433\u043E \u043E\u0442\u0432\u0435\u0442\u0430.`
       ].join(`
 `));
-      let resultDetails = {
+      let sanitizedOutput = sanitizeSubagentOutput(responseText), resultDetails = {
         role: params.role,
         task: params.task,
-        output: responseText,
+        output: sanitizedOutput,
         warnings: warnings.length > 0 ? warnings : void 0
       };
       return {
-        content: [{ type: "text", text: responseText }],
+        content: [{ type: "text", text: sanitizedOutput }],
         details: resultDetails
+      };
+    }
+  });
+}
+function formatToolCallToText(toolName2, argsRaw) {
+  let trimmedArgs = (argsRaw || "").trim();
+  if (!trimmedArgs)
+    return `[\u0412\u044B\u0437\u043E\u0432 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430: ${toolName2}()]`;
+  let paramRegex = /<parameter\s+name=["']([^"']+)["']>([\s\S]*?)<\/parameter>/gi, params = [], match3 = paramRegex.exec(trimmedArgs), foundParams = !1;
+  for (; match3 !== null; ) {
+    foundParams = !0;
+    let pName = match3[1].trim(), pVal = match3[2].trim();
+    params.push(`${pName}: ${JSON.stringify(pVal)}`), match3 = paramRegex.exec(trimmedArgs);
+  }
+  if (foundParams)
+    return `[\u0412\u044B\u0437\u043E\u0432 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430: ${toolName2}(${params.join(", ")})]`;
+  try {
+    let cleaned = trimmedArgs.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim(), parsed = JSON.parse(cleaned);
+    if (typeof parsed == "object" && parsed !== null) {
+      let effectiveArgs = parsed.arguments && typeof parsed.arguments == "object" ? parsed.arguments : parsed, effectiveName = parsed.name || toolName2, entries = Object.entries(effectiveArgs).map(([k2, v2]) => `${k2}: ${JSON.stringify(v2)}`);
+      return `[\u0412\u044B\u0437\u043E\u0432 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430: ${effectiveName}(${entries.join(", ")})]`;
+    }
+  } catch {
+  }
+  return `[\u0412\u044B\u0437\u043E\u0432 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430: ${toolName2}(${trimmedArgs})]`;
+}
+function sanitizeSubagentOutput(text) {
+  if (!text) return "";
+  let result = text;
+  return result = result.replace(
+    /<invoke\s+name=["']([^"']+)["']>([\s\S]*?)<\/invoke>/gi,
+    (_match, toolName2, content) => formatToolCallToText(toolName2, content)
+  ), result = result.replace(
+    /<(?:tool_call|tool-call|function_call)>([\s\S]*?)<\/(?:tool_call|tool-call|function_call)>/gi,
+    (_match, content) => {
+      let trimmed = content.trim();
+      try {
+        let cleaned = trimmed.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim(), parsed = JSON.parse(cleaned);
+        if (typeof parsed == "object" && parsed !== null) {
+          let name = parsed.name || "tool", args = parsed.arguments && typeof parsed.arguments == "object" ? parsed.arguments : parsed.params || parsed.parameters || {}, entries = Object.entries(args).map(([k2, v2]) => `${k2}: ${JSON.stringify(v2)}`);
+          return `[\u0412\u044B\u0437\u043E\u0432 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430: ${name}(${entries.join(", ")})]`;
+        }
+      } catch {
+      }
+      return formatToolCallToText("tool", trimmed);
+    }
+  ), result = result.replace(
+    /[<＜][|｜]tool_call\s+begin[|｜][>＞]([\s\S]*?)[<＜][|｜]tool_call\s+end[|｜][>＞]/gi,
+    (_match, content) => {
+      let trimmed = content.trim(), sepParts = trimmed.split(/[<＜][|｜]tool_sep[|｜][>＞]/i);
+      if (sepParts.length > 1) {
+        let afterSep = sepParts[1].trim(), firstLineBreak = afterSep.search(/[\r\n\s]/), toolName2 = firstLineBreak > 0 ? afterSep.slice(0, firstLineBreak).trim() : afterSep, rest = firstLineBreak > 0 ? afterSep.slice(firstLineBreak).trim() : "";
+        return formatToolCallToText(toolName2, rest);
+      }
+      return formatToolCallToText("tool", trimmed);
+    }
+  ), result = result.replace(/[<＜][|｜][^>|｜\n\r]*[|｜][>＞]/gi, ""), result = result.replace(/[<＜][|｜]{1,2}DSML[|｜]{1,2}/gi, ""), result = result.replace(/[|｜]{1,2}[>＞]/g, ""), result = result.replace(/<\/?tool_calls>/gi, ""), result = result.replace(/\n{3,}/g, `
+
+`).trim(), result;
+}
+
+// packages/1c-agent/src/vanessa/runner.ts
+import { spawn as spawn17 } from "node:child_process";
+var defaultVanessaExecutor = (command, args, cwd, signal, env3) => new Promise((resolve23) => {
+  let stdout = "", stderr = "";
+  try {
+    let child = spawn17(command, args, {
+      cwd,
+      stdio: ["ignore", "pipe", "pipe"],
+      signal,
+      shell: process.platform === "win32",
+      env: env3 || process.env
+    });
+    child.stdout?.on("data", (data) => {
+      stdout += data.toString("utf8");
+    }), child.stderr?.on("data", (data) => {
+      stderr += data.toString("utf8");
+    }), child.on("error", (err) => {
+      let errMsg = err.code === "ENOENT" ? `\u0423\u0442\u0438\u043B\u0438\u0442\u0430 '${command}' \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430 \u0432 $PATH. \u0423\u0431\u0435\u0434\u0438\u0442\u0435\u0441\u044C, \u0447\u0442\u043E \u043E\u043D\u0430 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043B\u0435\u043D\u0430 \u0438 \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u0430 \u0432 $PATH.` : err.message;
+      resolve23({
+        stdout,
+        stderr: stderr ? `${stderr}
+${errMsg}` : errMsg,
+        exitCode: 1
+      });
+    }), child.on("close", (exitCode) => {
+      resolve23({
+        stdout,
+        stderr,
+        exitCode
+      });
+    });
+  } catch (err) {
+    let message = err instanceof Error ? err.message : String(err);
+    resolve23({
+      stdout: "",
+      stderr: message,
+      exitCode: 1
+    });
+  }
+});
+function buildVanessaArgs(options, projectRoot, resolver = defaultToolchainResolver) {
+  let rawCommand = resolveVrunnerPath(options.vrunnerPath) || options.vrunnerPath || "vrunner", args = [], trailingPositional, vrunnerVersion = resolver.resolveVrunnerVersion ? resolver.resolveVrunnerVersion(options.vrunnerPath) : void 0, isVrunner2 = vrunnerVersion ? vrunnerVersion.startsWith("2.") : !1;
+  switch (options.action) {
+    case "init-dev":
+    case "infobase-init":
+      args.push("infobase", "init"), options.src && args.push("--src", options.src), options.ibconnection && args.push("--ibconnection", options.ibconnection), options.settings && args.push("--settings", options.settings), options.dbUser && args.push("--db-user", options.dbUser), options.dbPassword && args.push("--db-pwd", options.dbPassword);
+      break;
+    case "load":
+    case "cf-load":
+      args.push("cf", "load"), options.ibconnection && args.push("--ibconnection", options.ibconnection), options.settings && args.push("--settings", options.settings), options.dbUser && args.push("--db-user", options.dbUser), options.dbPassword && args.push("--db-pwd", options.dbPassword), options.src && (trailingPositional = options.src);
+      break;
+    case "dump":
+    case "cf-dump":
+    case "cf-decompile":
+      args.push("cf", "decompile"), options.ibconnection && args.push("--ibconnection", options.ibconnection), options.settings && args.push("--settings", options.settings), options.dbUser && args.push("--db-user", options.dbUser), options.dbPassword && args.push("--db-pwd", options.dbPassword), options.src && (trailingPositional = options.src);
+      break;
+    case "updatedb":
+    case "infobase-update":
+      args.push("infobase", "update"), options.src && args.push("--src", options.src), options.ibconnection && args.push("--ibconnection", options.ibconnection), options.settings && args.push("--settings", options.settings), options.dbUser && args.push("--db-user", options.dbUser), options.dbPassword && args.push("--db-pwd", options.dbPassword);
+      break;
+    case "test":
+    case "test-vanessa": {
+      args.push("test", "vanessa"), options.features && args.push("--feature-path", options.features);
+      let vanessaEpf = resolveVanessaAutomationPath(options.vanessaPath, projectRoot);
+      vanessaEpf && args.push("--bddrunner-path", vanessaEpf), options.ibconnection && args.push("--ibconnection", options.ibconnection), options.settings && args.push("--settings", options.settings), options.dbUser && args.push("--db-user", options.dbUser), options.dbPassword && args.push("--db-pwd", options.dbPassword);
+      break;
+    }
+    case "xunit":
+    case "test-xunit": {
+      isVrunner2 ? args.push("xunit") : args.push("test", "xunit"), options.ibconnection && args.push("--ibconnection", options.ibconnection), options.settings && args.push("--settings", options.settings), options.dbUser && args.push("--db-user", options.dbUser), options.dbPassword && args.push("--db-pwd", options.dbPassword), options.pathxunit && args.push("--pathxunit", options.pathxunit);
+      let target = options.epf || options.src;
+      target && (trailingPositional = target);
+      break;
+    }
+    case "run":
+    case "run-epf": {
+      if (isVrunner2) {
+        args.push("run");
+        let target = options.epf || options.src;
+        target && (trailingPositional = target), options.ibconnection && args.push("--ibconnection", options.ibconnection), options.settings && args.push("--settings", options.settings), options.dbUser && args.push("--db-user", options.dbUser), options.dbPassword && args.push("--db-pwd", options.dbPassword);
+      } else {
+        args.push("run", "enterprise");
+        let target = options.epf || options.src;
+        target && args.push("--execute", target), options.ibconnection && args.push("--ibconnection", options.ibconnection), options.settings && args.push("--settings", options.settings), options.dbUser && args.push("--db-user", options.dbUser), options.dbPassword && args.push("--db-pwd", options.dbPassword);
+      }
+      break;
+    }
+  }
+  let hasAdditionalV8version = options.additionalArgs?.includes("--v8version"), hasAdditionalIbcmd = options.additionalArgs?.includes("--ibcmd");
+  if (options.ibcmd && !args.includes("--ibcmd") && !hasAdditionalIbcmd && args.push("--ibcmd"), options.v8version && !args.includes("--v8version") && !hasAdditionalV8version)
+    args.push("--v8version", options.v8version);
+  else if (process.platform === "darwin" && !args.includes("--v8version") && !hasAdditionalV8version) {
+    let onec = options.onecPath || resolver.resolveOnecEnterprise();
+    if (onec) {
+      let extracted = extractOnecVersion(onec);
+      extracted ? args.push("--v8version", extracted) : onec.includes("1cv8t") && !args.includes("--ibcmd") && !hasAdditionalIbcmd && args.push("--ibcmd");
+    }
+  }
+  let hasAdditionalOrdinaryapp = options.additionalArgs?.includes("--ordinaryapp");
+  return (options.ordinaryapp && !args.includes("--ordinaryapp") && !hasAdditionalOrdinaryapp || process.platform === "darwin" && (options.action === "run" || options.action === "run-epf" || options.action === "xunit" || options.action === "test-xunit") && !args.includes("--ordinaryapp") && !hasAdditionalOrdinaryapp) && args.push("--ordinaryapp"), options.additionalArgs && options.additionalArgs.length > 0 && args.push(...options.additionalArgs), trailingPositional && args.push(trailingPositional), rawCommand.endsWith(".os") ? { command: resolveOscriptPath() || "oscript", args: [rawCommand, ...args] } : { command: rawCommand, args };
+}
+async function runVanessaCommand(options, context = {}) {
+  let resolver = context.resolver || defaultToolchainResolver;
+  if (!context.executor && !resolveVrunnerPath(options.vrunnerPath))
+    return {
+      success: !1,
+      action: options.action,
+      command: "vrunner",
+      args: [],
+      stdout: "",
+      stderr: "\u0423\u0442\u0438\u043B\u0438\u0442\u0430 'vrunner' (Vanessa Runner) \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430 \u0432 $PATH. \u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435 OneScript \u0438 vrunner (\u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, 'opm install vrunner') \u0438\u043B\u0438 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 \u0442\u043E\u0447\u043D\u044B\u0439 \u043F\u0443\u0442\u044C \u0447\u0435\u0440\u0435\u0437 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u0443\u044E \u043E\u043A\u0440\u0443\u0436\u0435\u043D\u0438\u044F VRUNNER_PATH.",
+      exitCode: 1,
+      error: "\u0423\u0442\u0438\u043B\u0438\u0442\u0430 'vrunner' (Vanessa Runner) \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D\u0430 \u0432 $PATH. \u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435 OneScript \u0438 vrunner (\u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, 'opm install vrunner') \u0438\u043B\u0438 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 \u0442\u043E\u0447\u043D\u044B\u0439 \u043F\u0443\u0442\u044C \u0447\u0435\u0440\u0435\u0437 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u0443\u044E \u043E\u043A\u0440\u0443\u0436\u0435\u043D\u0438\u044F VRUNNER_PATH."
+    };
+  let cwd = context.projectRoot || process.cwd(), { command, args } = buildVanessaArgs(options, cwd, resolver);
+  if (!context.executor && command.endsWith(".os") && !resolveOscriptPath())
+    return {
+      success: !1,
+      action: options.action,
+      command: "oscript",
+      args,
+      stdout: "",
+      stderr: "\u0418\u043D\u0442\u0435\u0440\u043F\u0440\u0435\u0442\u0430\u0442\u043E\u0440 OneScript ('oscript') \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D \u0432 $PATH \u0434\u043B\u044F \u0437\u0430\u043F\u0443\u0441\u043A\u0430 \u0441\u043A\u0440\u0438\u043F\u0442\u0430 vrunner.os. \u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435 OneScript \u0438\u043B\u0438 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 \u043F\u0443\u0442\u044C \u0447\u0435\u0440\u0435\u0437 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u0443\u044E \u043E\u043A\u0440\u0443\u0436\u0435\u043D\u0438\u044F OSCRIPT_PATH.",
+      exitCode: 1,
+      error: "\u0418\u043D\u0442\u0435\u0440\u043F\u0440\u0435\u0442\u0430\u0442\u043E\u0440 OneScript ('oscript') \u043D\u0435 \u043D\u0430\u0439\u0434\u0435\u043D \u0432 $PATH \u0434\u043B\u044F \u0437\u0430\u043F\u0443\u0441\u043A\u0430 \u0441\u043A\u0440\u0438\u043F\u0442\u0430 vrunner.os. \u0423\u0441\u0442\u0430\u043D\u043E\u0432\u0438\u0442\u0435 OneScript \u0438\u043B\u0438 \u0443\u043A\u0430\u0436\u0438\u0442\u0435 \u043F\u0443\u0442\u044C \u0447\u0435\u0440\u0435\u0437 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u0443\u044E \u043E\u043A\u0440\u0443\u0436\u0435\u043D\u0438\u044F OSCRIPT_PATH."
+    };
+  let env3 = { ...process.env }, resolvedOnec = options.onecPath || resolver.resolveOnecEnterprise();
+  if (resolvedOnec) {
+    env3.VRUNNER_V8PATH = resolvedOnec;
+    let ver = options.v8version || extractOnecVersion(resolvedOnec);
+    ver && (env3.VRUNNER_V8VERSION = ver);
+  }
+  let execResult = await (context.executor || defaultVanessaExecutor)(command, args, cwd, context.signal, env3), success = execResult.exitCode === 0, errorMsg;
+  if (!success) {
+    let combined = `${execResult.stderr}
+${execResult.stdout}`;
+    combined.includes("\u041E\u0448\u0438\u0431\u043A\u0430 \u0447\u0442\u0435\u043D\u0438\u044F \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432 \u043A\u043E\u043C\u0430\u043D\u0434\u044B") || combined.includes("\u041A\u043E\u043C\u0430\u043D\u0434\u0430 \u0432\u0435\u0440\u0445\u043D\u0435\u0433\u043E \u0443\u0440\u043E\u0432\u043D\u044F") ? errorMsg = `\u041E\u0448\u0438\u0431\u043A\u0430 \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u043E\u0432 vrunner. \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u043D\u043D\u0430\u044F \u043A\u043E\u043C\u0430\u043D\u0434\u0430: ${command} ${args.join(" ")}. \u041F\u0440\u043E\u0432\u0435\u0440\u044C\u0442\u0435 \u0432\u0435\u0440\u0441\u0438\u044E vanessa-runner (\u0434\u043B\u044F vrunner 3.x \u0437\u0430\u043F\u0443\u0441\u043A \u0442\u0435\u0441\u0442\u043E\u0432 \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0435\u0442\u0441\u044F \u0447\u0435\u0440\u0435\u0437 'test xunit', \u0437\u0430\u043F\u0443\u0441\u043A \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0438 \u0447\u0435\u0440\u0435\u0437 'run enterprise --execute'). \u0414\u0435\u0442\u0430\u043B\u0438: ${execResult.stderr || execResult.stdout}` : errorMsg = execResult.stderr || `\u041A\u043E\u043C\u0430\u043D\u0434\u0430 \u0437\u0430\u0432\u0435\u0440\u0448\u0438\u043B\u0430\u0441\u044C \u0441 \u043A\u043E\u0434\u043E\u043C ${execResult.exitCode !== null ? execResult.exitCode : "\u043F\u0440\u0435\u0440\u0432\u0430\u043D\u043E/\u0441\u0438\u0433\u043D\u0430\u043B"}`;
+  }
+  return {
+    success,
+    action: options.action,
+    command,
+    args,
+    stdout: execResult.stdout,
+    stderr: execResult.stderr,
+    exitCode: execResult.exitCode,
+    error: errorMsg
+  };
+}
+
+// packages/1c-agent/src/vanessa/tools.ts
+init_build();
+function registerVanessaTools(pi, projectRoot, executor) {
+  pi.registerTool({
+    name: "1c_vanessa",
+    label: "1C Vanessa Tools",
+    description: "\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0431\u0430\u0437\u043E\u0439 1\u0421, BDD/xUnit-\u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435\u043C \u0438 \u0437\u0430\u043F\u0443\u0441\u043A\u043E\u043C \u0432\u043D\u0435\u0448\u043D\u0438\u0445 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043E\u043A \u0447\u0435\u0440\u0435\u0437 Vanessa Tools (vrunner 3.x + Vanessa Automation / xUnitFor1C). \u041E\u043F\u0435\u0440\u0430\u0446\u0438\u0438: 'init-dev'/'infobase-init' (\u0441\u043E\u0437\u0434\u0430\u043D\u0438\u0435 dev-\u0431\u0430\u0437\u044B), 'load'/'cf-load' (\u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0430 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 XML/EDT), 'dump'/'cf-decompile' (\u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0430 \u0432 \u0444\u0430\u0439\u043B\u044B), 'updatedb'/'infobase-update' (\u043F\u0440\u0438\u043C\u0435\u043D\u0435\u043D\u0438\u0435 \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u0432 \u0411\u0414), 'test'/'test-vanessa' (\u0437\u0430\u043F\u0443\u0441\u043A BDD feature-\u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 \u0447\u0435\u0440\u0435\u0437 Vanessa Automation), 'xunit'/'test-xunit' (\u0437\u0430\u043F\u0443\u0441\u043A xUnit-\u0442\u0435\u0441\u0442\u043E\u0432 \u0447\u0435\u0440\u0435\u0437 \u0432\u043D\u0435\u0448\u043D\u044E\u044E \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0443 .epf), 'run'/'run-epf' (\u0437\u0430\u043F\u0443\u0441\u043A \u0432\u043D\u0435\u0448\u043D\u0435\u0439 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0438 .epf \u0432 1\u0421).",
+    promptSnippet: "1c_vanessa: \u043F\u0430\u043A\u0435\u0442\u043D\u043E\u0435 \u0443\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0418\u0411, BDD/xUnit \u0442\u0435\u0441\u0442\u044B \u0438 \u0437\u0430\u043F\u0443\u0441\u043A epf \u0447\u0435\u0440\u0435\u0437 Vanessa Tools (init-dev, load, dump, updatedb, test, xunit, run)",
+    parameters: typebox_exports.Object({
+      action: typebox_exports.Union(
+        [
+          typebox_exports.Literal("init-dev"),
+          typebox_exports.Literal("infobase-init"),
+          typebox_exports.Literal("load"),
+          typebox_exports.Literal("cf-load"),
+          typebox_exports.Literal("dump"),
+          typebox_exports.Literal("cf-dump"),
+          typebox_exports.Literal("cf-decompile"),
+          typebox_exports.Literal("updatedb"),
+          typebox_exports.Literal("infobase-update"),
+          typebox_exports.Literal("test"),
+          typebox_exports.Literal("test-vanessa"),
+          typebox_exports.Literal("xunit"),
+          typebox_exports.Literal("test-xunit"),
+          typebox_exports.Literal("run"),
+          typebox_exports.Literal("run-epf")
+        ],
+        {
+          description: "\u0414\u0435\u0439\u0441\u0442\u0432\u0438\u0435: 'init-dev'/'infobase-init' (\u0441\u043E\u0437\u0434\u0430\u0442\u044C \u0418\u0411), 'load'/'cf-load' (\u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u0438), 'dump'/'cf-decompile' (\u0432\u044B\u0433\u0440\u0443\u0437\u0438\u0442\u044C \u0432 \u0444\u0430\u0439\u043B\u044B), 'updatedb'/'infobase-update' (\u043E\u0431\u043D\u043E\u0432\u0438\u0442\u044C \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u044E \u0411\u0414), 'test'/'test-vanessa' (\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u044C BDD-\u0442\u0435\u0441\u0442\u044B), 'xunit'/'test-xunit' (\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u044C xUnit-\u0442\u0435\u0441\u0442\u044B), 'run'/'run-epf' (\u0437\u0430\u043F\u0443\u0441\u0442\u0438\u0442\u044C \u0432\u043D\u0435\u0448\u043D\u044E\u044E \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0443 .epf)."
+        }
+      ),
+      src: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u041F\u0443\u0442\u044C \u043A \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 XML/EDT (\u0434\u043B\u044F init-dev, load, dump)."
+        })
+      ),
+      epf: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u041F\u0443\u0442\u044C \u043A \u0432\u043D\u0435\u0448\u043D\u0435\u0439 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0435 .epf (\u0434\u043B\u044F action xunit \u0438\u043B\u0438 run)"
+        })
+      ),
+      ibconnection: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u0421\u0442\u0440\u043E\u043A\u0430 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043A \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0431\u0430\u0437\u0435 (\u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, /F./build/ib \u0438\u043B\u0438 File='...')."
+        })
+      ),
+      features: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u041F\u0443\u0442\u044C \u043A \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0443 \u0438\u043B\u0438 \u0444\u0430\u0439\u043B\u0443 \u0441\u0446\u0435\u043D\u0430\u0440\u0438\u0435\u0432 \u0442\u0435\u0441\u0442\u043E\u0432 .feature (\u0434\u043B\u044F action: 'test')."
+        })
+      ),
+      vanessaPath: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u041F\u0443\u0442\u044C \u043A \u0432\u043D\u0435\u0448\u043D\u0435\u0439 \u043E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0435 vanessa-automation.epf (\u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E, \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438)."
+        })
+      ),
+      vrunnerPath: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u041F\u0443\u0442\u044C \u043A \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u0443 \u0438\u043B\u0438 \u0441\u043A\u0440\u0438\u043F\u0442\u0443 vrunner (\u043E\u043F\u0446\u0438\u043E\u043D\u0430\u043B\u044C\u043D\u043E, \u043E\u043F\u0440\u0435\u0434\u0435\u043B\u044F\u0435\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438)."
+        })
+      ),
+      v8version: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u0412\u0435\u0440\u0441\u0438\u044F \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (\u043D\u0430\u043F\u0440\u0438\u043C\u0435\u0440, 8.3.25 \u0438\u043B\u0438 8.3.25.1234)."
+        })
+      ),
+      onecPath: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u042F\u0432\u043D\u044B\u0439 \u043F\u0443\u0442\u044C \u043A \u0438\u0441\u043F\u043E\u043B\u043D\u044F\u0435\u043C\u043E\u043C\u0443 \u0444\u0430\u0439\u043B\u0443 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 (1cv8 / 1cv8t)."
+        })
+      ),
+      ibcmd: typebox_exports.Optional(
+        typebox_exports.Boolean({
+          description: "\u0418\u0441\u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u044C \u0443\u0442\u0438\u043B\u0438\u0442\u0443 ibcmd \u0432\u043C\u0435\u0441\u0442\u043E \u041A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0442\u043E\u0440\u0430 \u0434\u043B\u044F \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0439 \u0441 \u0418\u0411."
+        })
+      ),
+      dbUser: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u0418\u043C\u044F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0431\u0430\u0437\u044B."
+        })
+      ),
+      dbPassword: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u041F\u0430\u0440\u043E\u043B\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F \u0438\u043D\u0444\u043E\u0440\u043C\u0430\u0446\u0438\u043E\u043D\u043D\u043E\u0439 \u0431\u0430\u0437\u044B."
+        })
+      ),
+      settings: typebox_exports.Optional(
+        typebox_exports.String({
+          description: "\u041F\u0443\u0442\u044C \u043A \u0444\u0430\u0439\u043B\u0443 \u043D\u0430\u0441\u0442\u0440\u043E\u0435\u043A vrunner.json \u0438\u043B\u0438 autumn-properties.json."
+        })
+      ),
+      additionalArgs: typebox_exports.Optional(
+        typebox_exports.Array(typebox_exports.String(), {
+          description: "\u0414\u043E\u043F\u043E\u043B\u043D\u0438\u0442\u0435\u043B\u044C\u043D\u044B\u0435 \u0430\u0440\u0433\u0443\u043C\u0435\u043D\u0442\u044B \u043A\u043E\u043C\u0430\u043D\u0434\u043D\u043E\u0439 \u0441\u0442\u0440\u043E\u043A\u0438 vrunner."
+        })
+      )
+    }),
+    execute: async (_toolCallId, params, signal, _onUpdate, ctx) => {
+      let effectiveRoot = ctx?.cwd || projectRoot || process.cwd(), result = await runVanessaCommand(params, {
+        projectRoot: effectiveRoot,
+        signal,
+        executor
+      }), lines = [
+        `[Vanessa Tools: ${params.action.toUpperCase()}]`,
+        `\u0421\u0442\u0430\u0442\u0443\u0441: ${result.success ? "\u0423\u0421\u041F\u0415\u0428\u041D\u041E" : "\u041E\u0428\u0418\u0411\u041A\u0410"}`,
+        `\u041A\u043E\u043C\u0430\u043D\u0434\u0430: ${result.command} ${result.args.join(" ")}`,
+        `\u043A\u043E\u0434 \u0432\u043E\u0437\u0432\u0440\u0430\u0442\u0430: ${result.exitCode !== null ? result.exitCode : "\u043F\u0440\u0435\u0440\u0432\u0430\u043D\u043E/\u0441\u0438\u0433\u043D\u0430\u043B"}`
+      ];
+      return result.stdout.trim() && (lines.push(`
+--- \u0421\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043D\u044B\u0439 \u0432\u044B\u0432\u043E\u0434 ---`), lines.push(result.stdout.trim())), result.stderr.trim() && (lines.push(`
+--- \u041E\u0448\u0438\u0431\u043A\u0438 ---`), lines.push(result.stderr.trim())), result.error && !result.stderr.includes(result.error) && lines.push(`
+\u041E\u0448\u0438\u0431\u043A\u0430: ${result.error}`), {
+        content: [{ type: "text", text: lines.join(`
+`) }],
+        isError: !result.success,
+        details: result
       };
     }
   });
@@ -211115,8 +213692,14 @@ function createOnecAgentExtension(options = {}) {
     let projectRoot = options.projectRoot || process.cwd(), modeManager = new ModeManager(pi, options.initialMode || "write"), lspClient = new BslLspClient({
       executablePath: options.bslAnalyzerPath,
       projectPath: projectRoot
-    }), inlineFeedback = new InlineFeedbackHandler(lspClient), permissionManager = new PermissionManager("auto-approve", projectRoot);
-    registerNavigatorTools(pi, lspClient, projectRoot), registerAutofixTools(pi), registerSubagentTools(pi), permissionManager.register(pi), pi.registerCommand("mode", {
+    }), inlineFeedback = new InlineFeedbackHandler(lspClient, {
+      bslAnalyzerPath: options.bslAnalyzerPath
+    }), permissionManager = new PermissionManager("auto-approve", projectRoot);
+    registerNavigatorTools(pi, lspClient, projectRoot), registerAutofixTools(pi), registerSubagentTools(pi), registerVanessaTools(pi, projectRoot), registerSkillTools(pi, projectRoot), permissionManager.register(pi), pi.on("resources_discover", () => {
+      let skillsDir = resolveSkillsDir();
+      if (fs24.existsSync(skillsDir))
+        return { skillPaths: [skillsDir] };
+    }), pi.registerCommand("mode", {
       description: "\u0423\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u0440\u0435\u0436\u0438\u043C\u043E\u043C \u0430\u0433\u0435\u043D\u0442\u0430 1\u0421: /mode [find | explain | write | plan]",
       handler: async (args, ctx) => {
         let trimmed = args.trim().toLowerCase();
@@ -211126,6 +213709,12 @@ function createOnecAgentExtension(options = {}) {
           let next = modeManager.cycleMode(ctx);
           ctx.ui.notify(`\u0422\u0435\u043A\u0443\u0449\u0438\u0439 \u0440\u0435\u0436\u0438\u043C 1\u0421: ${modeManager.getConfig().title} (${next})`, "info");
         }
+      }
+    }), pi.registerCommand("doctor", {
+      description: "\u0414\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0430 \u0442\u0443\u043B\u0447\u0435\u0439\u043D\u0430 1\u0421 \u0438 \u043F\u0440\u043E\u0432\u0435\u0440\u043A\u0430 \u043D\u0430\u043B\u0438\u0447\u0438\u044F \u043D\u0435\u043E\u0431\u0445\u043E\u0434\u0438\u043C\u044B\u0445 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432",
+      handler: async (_args, ctx) => {
+        let result = await runDoctor();
+        ctx.ui.notify(result.output, result.exitCode === 0 ? "info" : "warning");
       }
     });
     try {
@@ -211138,17 +213727,34 @@ function createOnecAgentExtension(options = {}) {
     } catch {
     }
     return pi.on("session_start", async (_event, ctx) => {
-      modeManager.initializeTools(), modeManager.updateUI(ctx), permissionManager.updateUI(ctx), await detect1cProject(projectRoot) && await lspClient.start(projectRoot).catch(() => {
+      modeManager.initializeTools(), modeManager.updateUI(ctx), ctx.cwd && permissionManager.getPolicy().setProjectRoot(ctx.cwd), permissionManager.updateUI(ctx), await detect1cProject(projectRoot) && await lspClient.start(projectRoot).catch(() => {
       });
     }), pi.on("session_shutdown", async () => {
       await lspClient.stop().catch(() => {
       });
     }), pi.on("before_agent_start", (event) => {
-      let promptInjection = modeManager.getSystemPromptInjection(), envInjection = `\u0412\u0421\u0422\u0420\u041E\u0415\u041D\u041D\u041E\u0415 \u041E\u041A\u0420\u0423\u0416\u0415\u041D\u0418\u0415 \u0418 LSP 1\u0421 (\u041F\u0415\u0420\u0423\u041D):
-- \u0412 \u041F\u0435\u0440\u0423\u041D \u0443\u0436\u0435 \u0432\u0441\u0442\u0440\u043E\u0435\u043D \u0438 \u0440\u0430\u0431\u043E\u0442\u0430\u0435\u0442 \u0444\u043E\u043D\u043E\u0432\u044B\u0439 LSP-\u0441\u0435\u0440\u0432\u0435\u0440 bsl-analyzer. \u041F\u0440\u0438 \u043A\u0430\u0436\u0434\u043E\u043C \u0440\u0435\u0434\u0430\u043A\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0438 \u0444\u0430\u0439\u043B\u043E\u0432 .bsl \u0438 .os \u0447\u0435\u0440\u0435\u0437 write \u0438\u043B\u0438 edit \u0434\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0430 \u0441\u0438\u043D\u0442\u0430\u043A\u0441\u0438\u0441\u0430 \u0438 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442\u0441\u044F \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438 \u0432 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0435 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u0430.
-- \u041D\u0415 \u0442\u0440\u0430\u0442\u044C \u0448\u0430\u0433\u0438 \u043D\u0430 \u043F\u043E\u0438\u0441\u043A \u0438\u043B\u0438 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0443 bsl-analyzer \u0447\u0435\u0440\u0435\u0437 bash (which, find, whereis) \u2014 \u0430\u043D\u0430\u043B\u0438\u0437\u0430\u0442\u043E\u0440 \u0443\u0436\u0435 \u0437\u0430\u043F\u0443\u0449\u0435\u043D \u0438 \u043F\u043E\u043B\u043D\u043E\u0441\u0442\u044C\u044E \u0444\u0443\u043D\u043A\u0446\u0438\u043E\u043D\u0430\u043B\u0435\u043D.
-- \u0418\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u0439 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B: bsl_fix_standards (\u0430\u0432\u0442\u043E-\u043F\u0430\u0442\u0447\u0438 \u0418\u0422\u0421), 1c_call_hierarchy (\u0433\u0440\u0430\u0444 \u0432\u044B\u0437\u043E\u0432\u043E\u0432), 1c_impact_analysis (\u0441\u0432\u044F\u0437\u0438 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 \u0438 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432), 1c_ast_symbols (\u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u0430 \u043C\u043E\u0434\u0443\u043B\u044F), 1c_subagent (\u0434\u0435\u043B\u0435\u0433\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435).
-- \u0420\u0430\u0437\u0440\u0430\u0431\u043E\u0442\u043A\u0430 \u0432\u0435\u0434\u0435\u0442\u0441\u044F \u0432 \u0444\u043E\u0440\u043C\u0430\u0442\u0435 \u043F\u0440\u043E\u0435\u043A\u0442\u043E\u0432 1C:EDT (Configuration.mdo, \u0444\u0430\u0439\u043B\u044B .mdo, \u043C\u043E\u0434\u0443\u043B\u0438 .bsl, .project).`;
+      let promptInjection = modeManager.getSystemPromptInjection(), envInjection = `\u0412\u0421\u0422\u0420\u041E\u0415\u041D\u041D\u041E\u0415 \u041E\u041A\u0420\u0423\u0416\u0415\u041D\u0418\u0415, \u0418\u041D\u0421\u0422\u0420\u0423\u041C\u0415\u041D\u0422\u042B \u0418 \u0421\u0423\u0411\u0410\u0413\u0415\u041D\u0422\u042B 1\u0421 (\u041F\u0415\u0420\u0423\u041D):
+- ACTION BIAS (OPENCODE MENTALITY):
+  * \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u041D\u0410 \u0427\u0415\u0420\u041D\u041E\u0412\u0418\u041A\u0418 \u0412 COT: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0433\u0435\u043D\u0435\u0440\u0438\u0440\u043E\u0432\u0430\u0442\u044C \u043F\u0440\u043E\u0441\u0442\u044B\u043D\u0438 BSL-\u043A\u043E\u0434\u0430, XML \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445 \u0438\u043B\u0438 diff \u0432 \u043C\u044B\u0441\u043B\u044F\u0445 (<think>). \u0424\u043E\u0440\u043C\u0443\u043B\u0438\u0440\u0443\u0439 \u0433\u0438\u043F\u043E\u0442\u0435\u0437\u0443 \u0432 1-2 \u0441\u0442\u0440\u043E\u043A\u0438 \u0438 \u043D\u0435\u043C\u0435\u0434\u043B\u0435\u043D\u043D\u043E \u0432\u044B\u0437\u044B\u0432\u0430\u0439 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u044B (read, edit, write, grep, find).
+  * \u041D\u0435 \u0438\u043C\u0438\u0442\u0438\u0440\u0443\u0439 \u0438\u0441\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u0435 \u0432 CoT: \u0444\u043E\u043D\u043E\u0432\u044B\u0439 bsl-analyzer \u0443\u0436\u0435 \u0437\u0430\u043F\u0443\u0449\u0435\u043D \u0438 \u0432\u043E\u0437\u0432\u0440\u0430\u0449\u0430\u0435\u0442 inline LSP \u0434\u0438\u0430\u0433\u043D\u043E\u0441\u0442\u0438\u043A\u0443 \u043F\u0440\u044F\u043C\u043E \u0432 \u0440\u0435\u0437\u0443\u043B\u044C\u0442\u0430\u0442\u0435 edit/write. \u041E\u0448\u0438\u0431\u043A\u0438 \u043B\u0438\u043D\u0442\u0435\u0440\u0430 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u044F\u0439 \u0441\u0440\u0430\u0437\u0443 \u043D\u0430 \u0441\u043B\u0435\u0434\u0443\u044E\u0449\u0435\u043C \u0448\u0430\u0433\u0435.
+  * \u0422\u0423\u041B\u0427\u0415\u0419\u041D 1\u0421 (TOOLCHAIN-RESOLVER): \u0443\u0442\u0438\u043B\u0438\u0442\u044B bsl-analyzer \u0438 vanessa-automation.epf \u043F\u043E\u0441\u0442\u0430\u0432\u043B\u044F\u044E\u0442\u0441\u044F \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u043C\u0438; vrunner \u0438 oscript \u0440\u0435\u0437\u043E\u043B\u0432\u044F\u0442\u0441\u044F \u0438\u0437 $PATH \u0438\u043B\u0438 \u043F\u0435\u0440\u0435\u043C\u0435\u043D\u043D\u044B\u0445 VRUNNER_PATH/OSCRIPT_PATH. \u0415\u0441\u043B\u0438 \u0443\u0442\u0438\u043B\u0438\u0442\u0430 \u043E\u0442\u0441\u0443\u0442\u0441\u0442\u0432\u0443\u0435\u0442 \u0432 \u0441\u0438\u0441\u0442\u0435\u043C\u0435, \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 \u0432\u0435\u0440\u043D\u0435\u0442 \u043F\u043E\u043D\u044F\u0442\u043D\u0443\u044E \u043E\u0448\u0438\u0431\u043A\u0443 \u0443\u0441\u0442\u0430\u043D\u043E\u0432\u043A\u0438. \u041D\u0415 \u0442\u0440\u0430\u0442\u044C \u0448\u0430\u0433\u0438 \u043D\u0430 \u0440\u0443\u0447\u043D\u043E\u0439 \u043F\u043E\u0438\u0441\u043A \u0443\u0442\u0438\u043B\u0438\u0442 \u0447\u0435\u0440\u0435\u0437 bash (which, find, whereis).
+  * \u041D\u0410\u0412\u042B\u041A\u0418 1\u0421 (CC-1C-SKILLS): 82 \u0432\u0441\u0442\u0440\u043E\u0435\u043D\u043D\u044B\u0445 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u043D\u0430\u0432\u044B\u043A\u0430 (\u0443\u043F\u0440\u0430\u0432\u043B\u044F\u0435\u043C\u044B\u0435 \u0444\u043E\u0440\u043C\u044B, 23 \u0442\u0438\u043F\u0430 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445, \u0421\u041A\u0414, MXL, \u0440\u043E\u043B\u0438, EPF/ERF, CFE) \u0434\u043E\u0441\u0442\u0443\u043F\u043D\u044B \u0430\u0433\u0435\u043D\u0442\u0443.
+- \u0421\u0422\u0410\u041D\u0414\u0410\u0420\u0422\u042B 1C:EDT \u0418 \u0420\u0410\u0417\u0420\u0410\u0411\u041E\u0422\u041A\u0418:
+  * \u0424\u043E\u0440\u043C\u0430\u0442: \u043F\u0440\u043E\u0435\u043A\u0442\u044B 1C:EDT (Configuration.mdo, \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0435 .mdo, \u043C\u043E\u0434\u0443\u043B\u0438 .bsl, .project).
+  * \u0417\u0410\u041F\u0420\u0415\u0422 \u0421\u041B\u041E\u0416\u041D\u042B\u0425 XML-\u0424\u041E\u0420\u041C: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0432\u0440\u0443\u0447\u043D\u0443\u044E \u0441\u043E\u0437\u0434\u0430\u0432\u0430\u0442\u044C \u0441\u043B\u043E\u0436\u043D\u044B\u0435 \u0444\u0430\u0439\u043B\u044B \u0444\u043E\u0440\u043C (Form.form, *.xml, xcf/logform). \u041F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u0430 1\u0421:\u041F\u0440\u0435\u0434\u043F\u0440\u0438\u044F\u0442\u0438\u0435 8.3 \u0433\u0435\u043D\u0435\u0440\u0438\u0440\u0443\u0435\u0442 \u0430\u0432\u0442\u043E\u0444\u043E\u0440\u043C\u044B \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u0438. \u0420\u0430\u0437\u0440\u0430\u0431\u0430\u0442\u044B\u0432\u0430\u0439 headless-\u043B\u043E\u0433\u0438\u043A\u0443 \u0432 BSL-\u043C\u043E\u0434\u0443\u043B\u044F\u0445 \u0438 \u0442\u0435\u0441\u0442\u044B YAXUnit.
+  * \u0422\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u0438 \u0438 \u0431\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0438: \u0411\u043B\u043E\u043A\u0438\u0440\u043E\u0432\u043A\u0430\u0414\u0430\u043D\u043D\u044B\u0445 \u043F\u0435\u0440\u0435\u0434 \u0447\u0442\u0435\u043D\u0438\u0435\u043C \u043E\u0441\u0442\u0430\u0442\u043A\u043E\u0432; \u0432 \u041E\u0431\u0440\u0430\u0431\u043E\u0442\u043A\u0430\u041F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u044F \u0442\u0440\u0430\u043D\u0437\u0430\u043A\u0446\u0438\u044F \u043E\u0442\u043A\u0440\u044B\u0442\u0430 (\u041E\u0442\u043A\u0430\u0437 = \u0418\u0441\u0442\u0438\u043D\u0430;); \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B \u0432\u0438\u0440\u0442\u0443\u0430\u043B\u044C\u043D\u044B\u0445 \u0442\u0430\u0431\u043B\u0438\u0446 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u043E\u0432 (\u0437\u0430\u043F\u0440\u0435\u0442 \u0444\u0438\u043B\u044C\u0442\u0440\u0430\u0446\u0438\u0438 \u0447\u0435\u0440\u0435\u0437 \u0413\u0414\u0415); \u0437\u0430\u043F\u0440\u0435\u0442 \u0437\u0430\u043F\u0440\u043E\u0441\u043E\u0432 \u0432 \u0446\u0438\u043A\u043B\u0435 (QueryInLoop).
+- \u041C\u0430\u0442\u0440\u0438\u0446\u0430 \u0441\u043F\u0435\u0446\u0438\u0430\u043B\u0438\u0437\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u044B\u0445 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442\u043E\u0432 \u041F\u0435\u0440\u0423\u041D:
+  * 1c_vanessa: \u0435\u0434\u0438\u043D\u044B\u0439 \u0438\u043D\u0441\u0442\u0440\u0443\u043C\u0435\u043D\u0442 \u0434\u043B\u044F \u0440\u0430\u0431\u043E\u0442\u044B \u0441 Vanessa Tools / vrunner (infobase init, cf load, cf decompile, infobase update, test vanessa). \u0412\u0441\u0435 \u043E\u043F\u0435\u0440\u0430\u0446\u0438\u0438 \u0441\u043E\u0437\u0434\u0430\u043D\u0438\u044F \u0431\u0430\u0437\u044B, \u0437\u0430\u0433\u0440\u0443\u0437\u043A\u0438/\u0432\u044B\u0433\u0440\u0443\u0437\u043A\u0438 \u0438\u0441\u0445\u043E\u0434\u043D\u0438\u043A\u043E\u0432, \u043E\u0431\u043D\u043E\u0432\u043B\u0435\u043D\u0438\u044F \u0411\u0414 \u0438 BDD-\u0442\u0435\u0441\u0442\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u044F \u0432\u044B\u043F\u043E\u043B\u043D\u044F\u0439 \u0447\u0435\u0440\u0435\u0437 1c_vanessa.
+  * bsl_fix_standards: \u0430\u0432\u0442\u043E\u043C\u0430\u0442\u0438\u0447\u0435\u0441\u043A\u043E\u0435 \u0438\u0441\u043F\u0440\u0430\u0432\u043B\u0435\u043D\u0438\u0435 \u043D\u0430\u0440\u0443\u0448\u0435\u043D\u0438\u0439 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421 \u0432 \u043C\u043E\u0434\u0443\u043B\u044F\u0445 BSL.
+  * 1c_call_hierarchy: \u0430\u043D\u0430\u043B\u0438\u0437 \u0433\u0440\u0430\u0444\u0430 \u0432\u0445\u043E\u0434\u044F\u0449\u0438\u0445 \u0438 \u0438\u0441\u0445\u043E\u0434\u044F\u0449\u0438\u0445 \u0432\u044B\u0437\u043E\u0432\u043E\u0432 \u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440 \u0438 \u0444\u0443\u043D\u043A\u0446\u0438\u0439.
+  * 1c_impact_analysis: \u0430\u043D\u0430\u043B\u0438\u0437 \u0432\u043B\u0438\u044F\u043D\u0438\u044F \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u0439 \u043D\u0430 \u0440\u0435\u0433\u0438\u0441\u0442\u0440\u044B \u0438 \u043F\u0440\u043E\u0432\u0435\u0434\u0435\u043D\u0438\u0435 \u0434\u043E\u043A\u0443\u043C\u0435\u043D\u0442\u043E\u0432.
+  * 1c_ast_symbols: \u0431\u044B\u0441\u0442\u0440\u043E\u0435 \u0438\u0437\u0432\u043B\u0435\u0447\u0435\u043D\u0438\u0435 AST-\u0441\u0442\u0440\u0443\u043A\u0442\u0443\u0440\u044B \u043C\u043E\u0434\u0443\u043B\u044F BSL (\u043F\u0440\u043E\u0446\u0435\u0434\u0443\u0440\u044B, \u0444\u0443\u043D\u043A\u0446\u0438\u0438, \u043F\u0430\u0440\u0430\u043C\u0435\u0442\u0440\u044B, \u0434\u0438\u0440\u0435\u043A\u0442\u0438\u0432\u044B \u043A\u043E\u043C\u043F\u0438\u043B\u044F\u0446\u0438\u0438 &\u041D\u0430\u0421\u0435\u0440\u0432\u0435\u0440\u0435/&\u041D\u0430\u041A\u043B\u0438\u0435\u043D\u0442\u0435).
+- \u0421\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u044B (1c_subagent):
+  * \u0410\u0433\u0435\u043D\u0442 \u041C\u041E\u0416\u0415\u0422 \u0438 \u0414\u041E\u041B\u0416\u0415\u041D \u0432\u044B\u0437\u044B\u0432\u0430\u0442\u044C \u0441\u0443\u0431\u0430\u0433\u0435\u043D\u0442\u043E\u0432 \u0447\u0435\u0440\u0435\u0437 1c_subagent \u0434\u043B\u044F \u0434\u0435\u043A\u043E\u043C\u043F\u043E\u0437\u0438\u0446\u0438\u0438 \u0438 \u043F\u0430\u0440\u0430\u043B\u043B\u0435\u043B\u044C\u043D\u043E\u0433\u043E/\u0438\u0437\u043E\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u043D\u043E\u0433\u043E \u0432\u044B\u043F\u043E\u043B\u043D\u0435\u043D\u0438\u044F \u0437\u0430\u0434\u0430\u0447. \u0414\u043E\u0441\u0442\u0443\u043F\u043D\u044B\u0435 \u0440\u043E\u043B\u0438: 1c-architect (\u0430\u0440\u0445\u0438\u0442\u0435\u043A\u0442\u0443\u0440\u0430 \u043C\u0435\u0442\u0430\u0434\u0430\u043D\u043D\u044B\u0445), 1c-coder (\u043D\u0430\u043F\u0438\u0441\u0430\u043D\u0438\u0435 BSL \u043A\u043E\u0434\u0430), 1c-tester (BDD-\u0442\u0435\u0441\u0442\u044B Vanessa \u0438 YAXUnit), 1c-reviewer (\u0430\u0443\u0434\u0438\u0442 \u043A\u0430\u0447\u0435\u0441\u0442\u0432\u0430 \u0438 \u0441\u0442\u0430\u043D\u0434\u0430\u0440\u0442\u043E\u0432 \u0418\u0422\u0421).
+- \u0411\u0415\u0417\u041E\u041F\u0410\u0421\u041D\u041E\u0421\u0422\u042C \u041E\u041A\u0420\u0423\u0416\u0415\u041D\u0418\u042F, \u042F\u0417\u042B\u041A \u0418 \u0413\u0420\u0410\u041D\u0418\u0426\u042B \u0417\u0410\u0414\u0410\u0427\u0418:
+  * \u041F\u0418\u041D \u042F\u0417\u042B\u041A\u0410 \u041E\u0422\u0412\u0415\u0422\u0410: \u042F\u0437\u044B\u043A \u043E\u0442\u0432\u0435\u0442\u0430 \u043E\u0431\u044F\u0437\u0430\u043D \u0441\u0442\u0440\u043E\u0433\u043E \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u044F\u0437\u044B\u043A\u0443 \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u043E\u0433\u043E \u0437\u0430\u043F\u0440\u043E\u0441\u0430; \u043F\u0435\u0440\u0435\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u0435 \u044F\u0437\u044B\u043A\u0430 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E (\u043D\u0435\u0434\u043E\u043F\u0443\u0441\u0442\u0438\u043C \u0434\u0440\u0435\u0439\u0444 \u043D\u0430 \u043A\u0438\u0442\u0430\u0439\u0441\u043A\u0438\u0439, \u0430\u043D\u0433\u043B\u0438\u0439\u0441\u043A\u0438\u0439 \u0438\u043B\u0438 \u0434\u0440\u0443\u0433\u0438\u0435 \u044F\u0437\u044B\u043A\u0438 \u043F\u0440\u0438 \u0437\u0430\u043F\u0440\u043E\u0441\u0435 \u043D\u0430 \u0440\u0443\u0441\u0441\u043A\u043E\u043C).
+  * \u0413\u0420\u0410\u041D\u0418\u0426\u042B \u0417\u0410\u0414\u0410\u0427\u0418 \u0418 \u0410\u0420\u0422\u0415\u0424\u0410\u041A\u0422\u0410: \u042F\u0432\u043D\u043E \u043D\u0430\u0437\u0432\u0430\u043D\u043D\u044B\u0439 \u0432 \u0437\u0430\u043F\u0440\u043E\u0441\u0435 \u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442 (\u0444\u0430\u0439\u043B, \u043C\u043E\u0434\u0443\u043B\u044C, \u043E\u0442\u0447\u0435\u0442) \u044F\u0432\u043B\u044F\u0435\u0442\u0441\u044F \u0436\u0435\u0441\u0442\u043A\u043E\u0439 \u0433\u0440\u0430\u043D\u0438\u0446\u0435\u0439 \u0437\u0430\u0434\u0430\u0447\u0438; \u0441\u043C\u0435\u0436\u043D\u044B\u0435 \u0434\u0435\u0444\u0435\u043A\u0442\u044B \u043E\u0444\u043E\u0440\u043C\u043B\u044F\u0442\u044C \u0442\u043E\u043B\u044C\u043A\u043E \u043A\u0430\u043A \u043F\u0440\u0435\u0434\u043B\u043E\u0436\u0435\u043D\u0438\u044F, \u043D\u0435 \u0432\u043D\u043E\u0441\u0438\u0442\u044C \u0438\u0437\u043C\u0435\u043D\u0435\u043D\u0438\u044F \u0441\u0430\u043C\u043E\u0441\u0442\u043E\u044F\u0442\u0435\u043B\u044C\u043D\u043E \u0431\u0435\u0437 \u043F\u0440\u044F\u043C\u043E\u0433\u043E \u0443\u043A\u0430\u0437\u0430\u043D\u0438\u044F \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044F.
+  * \u0421\u0422\u0420\u041E\u0413\u0418\u0419 \u0417\u0410\u041F\u0420\u0415\u0422 \u0421\u041A\u0410\u041D\u0418\u0420\u041E\u0412\u0410\u041D\u0418\u042F \u0414\u0418\u0421\u041A\u0410 \u0418 \u0420\u0415\u0412\u0415\u0420\u0421-\u0418\u041D\u0416\u0418\u041D\u0418\u0420\u0418\u041D\u0413\u0410: \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D \u0442\u043E\u0442\u0430\u043B\u044C\u043D\u044B\u0439 \u043F\u043E\u0438\u0441\u043A find / \u043F\u043E \u0432\u0441\u0435\u043C\u0443 \u0434\u0438\u0441\u043A\u0443; \u043F\u043E\u0438\u0441\u043A \u0444\u0430\u0439\u043B\u043E\u0432 \u0440\u0430\u0437\u0440\u0435\u0448\u0435\u043D \u0442\u043E\u043B\u044C\u043A\u043E \u0432\u043D\u0443\u0442\u0440\u0438 \u043A\u0430\u0442\u0430\u043B\u043E\u0433\u0430 \u043F\u0440\u043E\u0435\u043A\u0442\u0430. \u041A\u0430\u0442\u0435\u0433\u043E\u0440\u0438\u0447\u0435\u0441\u043A\u0438 \u0437\u0430\u043F\u0440\u0435\u0449\u0435\u043D\u043E \u0434\u0438\u0437\u0430\u0441\u0441\u0435\u043C\u0431\u043B\u0438\u0440\u043E\u0432\u0430\u043D\u0438\u0435 \u0438 \u0440\u0435\u0432\u0435\u0440\u0441-\u0438\u043D\u0436\u0438\u043D\u0438\u0440\u0438\u043D\u0433 \u0431\u0438\u043D\u0430\u0440\u043D\u0438\u043A\u043E\u0432 \u043F\u043B\u0430\u0442\u0444\u043E\u0440\u043C\u044B \u0438 \u0443\u0442\u0438\u043B\u0438\u0442 \u0447\u0435\u0440\u0435\u0437 strings, otool, \u0447\u0442\u0435\u043D\u0438\u0435 .res/.hbk.`;
       if (event.systemPromptOptions?.sections && (event.systemPromptOptions.sections.onec_environment = envInjection), event.systemPromptOptions?.promptGuidelines) {
         event.systemPromptOptions.promptGuidelines.push(promptInjection);
         return;
@@ -211175,6 +213781,11 @@ ${promptInjection}`
           return { block: !0, reason: permCheck.reason };
       }
     ), pi.on("tool_result", async (event) => {
+      if (event.toolName === "write" || event.toolName === "edit") {
+        let rawPath = event.input?.path || event.input?.file_path;
+        rawPath && typeof rawPath == "string" && inlineFeedback.isBslFile(rawPath) && (lspClient.isReady() || await detect1cProject(projectRoot) && await lspClient.start(projectRoot).catch(() => {
+        }));
+      }
       let feedback = await inlineFeedback.handleToolResult(event);
       if (feedback?.content)
         return {
@@ -211188,24 +213799,58 @@ ${promptInjection}`
     };
   };
 }
-async function detect1cProject(directory) {
+async function checkDirectory(currentDir, currentDepth, maxDepth) {
+  let entries;
   try {
-    let items = await fs21.promises.readdir(directory);
-    for (let item of items) {
-      let lower2 = item.toLowerCase();
-      if (lower2.endsWith(".bsl") || lower2.endsWith(".os") || lower2 === "configuration.mdo" || lower2 === "bsl-analyzer.toml" || lower2 === ".project")
-        return !0;
-    }
+    entries = await fs24.promises.readdir(currentDir, { withFileTypes: !0 });
   } catch {
+    return !1;
   }
+  let skipDirs = /* @__PURE__ */ new Set([".git", "node_modules", "dist", ".idea", ".vscode", "bin", "build"]), subdirs = [];
+  for (let entry of entries) {
+    let lower2 = entry.name.toLowerCase();
+    if (entry.isFile() || entry.isSymbolicLink()) {
+      if (lower2.endsWith(".bsl") || lower2.endsWith(".os") || lower2 === "configuration.mdo" || lower2 === "configuration.xml" || lower2 === "bsl-analyzer.toml" || lower2 === ".project")
+        return !0;
+    } else entry.isDirectory() && !skipDirs.has(lower2) && currentDepth < maxDepth && subdirs.push(path27.join(currentDir, entry.name));
+  }
+  for (let subdir of subdirs)
+    if (await checkDirectory(subdir, currentDepth + 1, maxDepth))
+      return !0;
   return !1;
+}
+async function detect1cProject(directory, maxDepth = 2) {
+  try {
+    return await checkDirectory(directory, 0, maxDepth);
+  } catch {
+    return !1;
+  }
 }
 var index_default = createOnecAgentExtension();
 
 // packages/1c-agent/src/cli.ts
-async function runPerun(args = process.argv.slice(2)) {
+async function runPerun(args = process.argv.slice(2), options) {
+  if (await handleDoctorCli(args, options))
+    return;
   let env3 = process.env;
-  env3.APP_NAME = "perun", setupCli(), process.title = "perun";
+  if (env3.APP_NAME = "perun", !env3.APP_VERSION)
+    try {
+      let cliDir = dirname30(fileURLToPath7(import.meta.url)), candidates = [
+        join58(cliDir, "..", "package.json"),
+        join58(dirname30(process.execPath), "package.json"),
+        join58(cliDir, "package.json")
+      ];
+      for (let candidate of candidates)
+        if (fs25.existsSync(candidate)) {
+          let pkg2 = JSON.parse(fs25.readFileSync(candidate, "utf-8"));
+          if (pkg2.version) {
+            env3.APP_VERSION = pkg2.version;
+            break;
+          }
+        }
+    } catch {
+    }
+  setupCli(), process.title = "perun";
   let extensionRunner = createOnecAgentExtension();
   await main(args, {
     extensionFactories: [

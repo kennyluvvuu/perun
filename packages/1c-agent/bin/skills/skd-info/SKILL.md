@@ -24,6 +24,38 @@ allowed-tools:
 | `Limit` / `Offset` | Пагинация (по умолчанию 150 строк; `-Raw` не усекается) |
 | `OutFile` | Записать результат в файл (UTF-8 BOM) |
 
+### Через инструмент 1c_skill_execute (рекомендуется)
+
+```json
+{
+  "skill": "skd-info",
+  "args": {
+    "TemplatePath": "src/Reports/МойОтчет/Templates/ОсновнаяСхемаКомпоновкиДанных",
+    "Mode": "overview"
+  }
+}
+```
+
+С указанием режима и имени элемента:
+```json
+{
+  "skill": "skd-info",
+  "args": {
+    "TemplatePath": "src/Reports/МойОтчет/Templates/ОсновнаяСхемаКомпоновкиДанных",
+    "Mode": "query",
+    "Name": "НоменклатураСЦенами"
+  }
+}
+```
+
+### Через python3 (кроссплатформенно)
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/skd-info.py" -TemplatePath "<путь>"
+```
+
+### Через PowerShell
+
 ```powershell
 powershell.exe -NoProfile -File "${CLAUDE_SKILL_DIR}/scripts/skd-info.ps1" -TemplatePath "<путь>"
 ```

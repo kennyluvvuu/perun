@@ -1,4 +1,7 @@
 #!/usr/bin/env node
+import * as fs from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { setupCli } from "../../coding-agent/src/cli/setup.ts";
 import { main } from "../../coding-agent/src/main.ts";
@@ -14,6 +17,25 @@ export async function runPerun(args: string[] = process.argv.slice(2), options?:
 
 	const env = process.env;
 	env.APP_NAME = "perun";
+	if (!env.APP_VERSION) {
+		try {
+			const cliDir = dirname(fileURLToPath(import.meta.url));
+			const candidates = [
+				join(cliDir, "..", "package.json"),
+				join(dirname(process.execPath), "package.json"),
+				join(cliDir, "package.json"),
+			];
+			for (const candidate of candidates) {
+				if (fs.existsSync(candidate)) {
+					const pkg = JSON.parse(fs.readFileSync(candidate, "utf-8"));
+					if (pkg.version) {
+						env.APP_VERSION = pkg.version;
+						break;
+					}
+				}
+			}
+		} catch {}
+	}
 	setupCli();
 	process.title = "perun";
 	const extensionRunner = createOnecAgentExtension();
