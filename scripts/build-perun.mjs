@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { chmodSync, copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from "node:fs";
+import { chmodSync, copyFileSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,6 +10,8 @@ import { build } from "esbuild";
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 let repoRoot = resolve(scriptDir, "..");
 const onecAgentDir = join(repoRoot, "packages", "1c-agent");
+const pkgJsonPath = join(onecAgentDir, "package.json");
+const onecPkg = JSON.parse(readFileSync(pkgJsonPath, "utf-8"));
 const outputFile = join(onecAgentDir, "bin", "perun.bundle.mjs");
 
 const banner = {
@@ -31,6 +33,7 @@ try {
 		define: {
 			PI_BUNDLED_NODE: "true",
 			"process.env.APP_NAME": '"perun"',
+			"process.env.APP_VERSION": JSON.stringify(onecPkg.version),
 		},
 		external: [
 			"@silvia-odwyer/photon-node",
@@ -90,6 +93,9 @@ try {
 		if (existsSync(skillsSrcDir)) {
 			cpSync(skillsSrcDir, skillsDestDir, { recursive: true });
 		}
+
+		// Copy package.json next to the binary for runtime metadata
+		copyFileSync(pkgJsonPath, join(binDir, "package.json"));
 
 		// Bun native binary compilation
 		const bunCandidate = process.env.BUN_PATH || (existsSync(join(homedir(), ".bun", "bin", "bun")) ? join(homedir(), ".bun", "bin", "bun") : "bun");

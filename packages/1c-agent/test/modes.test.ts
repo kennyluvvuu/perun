@@ -1,7 +1,7 @@
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { describe, expect, it, vi } from "vitest";
 import { ModeManager } from "../src/modes/index.ts";
-import { MODE_CYCLE_ORDER } from "../src/modes/types.ts";
+import { MODE_CYCLE_ORDER, MUTATING_TOOLS } from "../src/modes/types.ts";
 import type { AgentMode } from "../src/types.ts";
 
 function createMockExtensionAPI() {
@@ -41,6 +41,15 @@ describe("1C Agent Modes", () => {
 		expect(manager.getConfig().isReadOnly).toBe(false);
 	});
 
+	it("MUTATING_TOOLS contains all required mutating tools", () => {
+		expect(MUTATING_TOOLS).toContain("edit");
+		expect(MUTATING_TOOLS).toContain("write");
+		expect(MUTATING_TOOLS).toContain("bash");
+		expect(MUTATING_TOOLS).toContain("bsl_fix_standards");
+		expect(MUTATING_TOOLS).toContain("1c_vanessa");
+		expect(MUTATING_TOOLS).toContain("1c_skill_execute");
+	});
+
 	it("cycles through all modes in correct order", () => {
 		const api = createMockExtensionAPI();
 		const ctx = createMockContext();
@@ -65,8 +74,10 @@ describe("1C Agent Modes", () => {
 		expect(manager.isToolAllowed("1c_call_hierarchy")).toBe(true);
 		expect(manager.isToolAllowed("edit")).toBe(false);
 		expect(manager.isToolAllowed("write")).toBe(false);
+		expect(manager.isToolAllowed("bash")).toBe(false);
 		expect(manager.isToolAllowed("bsl_fix_standards")).toBe(false);
 		expect(manager.isToolAllowed("1c_vanessa")).toBe(false);
+		expect(manager.isToolAllowed("1c_skill_execute")).toBe(false);
 
 		const blockCheck = manager.checkToolCall("edit");
 		expect(blockCheck.block).toBe(true);
@@ -75,10 +86,20 @@ describe("1C Agent Modes", () => {
 		// explain mode
 		manager.setMode("explain");
 		expect(manager.checkToolCall("write").block).toBe(true);
+		expect(manager.checkToolCall("bash").block).toBe(true);
+		expect(manager.checkToolCall("1c_skill_execute").block).toBe(true);
+		expect(manager.checkToolCall("bsl_fix_standards").block).toBe(true);
+		expect(manager.checkToolCall("1c_vanessa").block).toBe(true);
+		expect(manager.checkToolCall("edit").block).toBe(true);
+		expect(manager.checkToolCall("read").block).toBe(false);
+		expect(manager.checkToolCall("1c_ast_symbols").block).toBe(false);
 
 		// plan mode
 		manager.setMode("plan");
 		expect(manager.checkToolCall("edit").block).toBe(true);
+		expect(manager.checkToolCall("bash").block).toBe(true);
+		expect(manager.checkToolCall("1c_skill_execute").block).toBe(true);
+		expect(manager.checkToolCall("read").block).toBe(false);
 	});
 
 	it("allows all tools in НАПИСАТЬ mode", () => {
@@ -88,25 +109,36 @@ describe("1C Agent Modes", () => {
 		expect(manager.isToolAllowed("read")).toBe(true);
 		expect(manager.isToolAllowed("edit")).toBe(true);
 		expect(manager.isToolAllowed("write")).toBe(true);
+		expect(manager.isToolAllowed("bash")).toBe(true);
+		expect(manager.isToolAllowed("1c_skill_execute")).toBe(true);
 		expect(manager.isToolAllowed("bsl_fix_standards")).toBe(true);
 		expect(manager.isToolAllowed("1c_vanessa")).toBe(true);
 		expect(manager.checkToolCall("write").block).toBe(false);
+		expect(manager.checkToolCall("bash").block).toBe(false);
+		expect(manager.checkToolCall("1c_skill_execute").block).toBe(false);
 	});
 
-	it("filters active tools when switching mode", () => {
+	it("keeps toolset stable without deleting tools from registry, blocking via checkToolCall", () => {
 		const api = createMockExtensionAPI();
 		const ctx = createMockContext();
 		const manager = new ModeManager(api, "write");
 
 		manager.setMode("find", ctx);
-		expect(api.setActiveTools).toHaveBeenCalledWith(expect.arrayContaining(["read", "find", "grep"]));
-		expect(api.setActiveTools).not.toHaveBeenCalledWith(expect.arrayContaining(["edit", "write"]));
+		// Does not delete tools from registry via setActiveTools to prevent "Tool bash not found"
+		expect(api.setActiveTools).not.toHaveBeenCalled();
 
-		// Switching back to write restores full toolset
-		manager.setMode("write", ctx);
-		expect(api.setActiveTools).toHaveBeenLastCalledWith(
-			expect.arrayContaining(["read", "edit", "write", "find", "grep"]),
-		);
+		// Mutating tools are blocked via checkToolCall
+		expect(manager.checkToolCall("bash").block).toBe(true);
+		expect(manager.checkToolCall("1c_skill_execute").block).toBe(true);
+		expect(manager.checkToolCall("edit").block).toBe(true);
+		expect(manager.checkToolCall("write").block).toBe(true);
+		expect(manager.checkToolCall("bsl_fix_standards").block).toBe(true);
+		expect(manager.checkToolCall("1c_vanessa").block).toBe(true);
+
+		// Read-only tools are allowed
+		expect(manager.checkToolCall("read").block).toBe(false);
+		expect(manager.checkToolCall("find").block).toBe(false);
+		expect(manager.checkToolCall("grep").block).toBe(false);
 	});
 
 	it("updates UI status badge on mode change", () => {
@@ -152,6 +184,37 @@ describe("1C Agent Modes", () => {
 			expect(prompt).toContain("dump");
 			expect(prompt).toContain("updatedb");
 			expect(prompt).toContain("test");
+		}
+	});
+
+	it("explain mode prompt enforces 5-part response contract and write mode transition for fixes", () => {
+		const api = createMockExtensionAPI();
+		const manager = new ModeManager(api, "explain");
+		const prompt = manager.getSystemPromptInjection();
+
+		expect(prompt).toContain("ЖЕСТКИЙ 5-ЧАСТНЫЙ КОНТРАКТ ОТВЕТА");
+		expect(prompt).toContain("1. Симптом");
+		expect(prompt).toContain("2. Трасса");
+		expect(prompt).toContain("3. Причина");
+		expect(prompt).toContain("4. Следствия");
+		expect(prompt).toContain("5. Верификация");
+		expect(prompt).toContain("СТРОГОЕ ПРАВИЛО ДЛЯ БЛОКА «КАК ИСПРАВИТЬ»");
+		expect(prompt).toContain("НАПИСАТЬ");
+	});
+
+	it("all mode system prompts include language pin, artifact boundary, and disk search ban rules", () => {
+		const api = createMockExtensionAPI();
+		const manager = new ModeManager(api, "find");
+
+		for (const mode of ["find", "explain", "write", "plan"] as const) {
+			manager.setMode(mode);
+			const prompt = manager.getSystemPromptInjection();
+			expect(prompt).toContain("ПИН ЯЗЫКА ОТВЕТА");
+			expect(prompt).toContain("ГРАНИЦЫ ЗАДАЧИ И АРТЕФАКТА");
+			expect(prompt).toContain("СТРОГИЙ ЗАПРЕТ СКАНИРОВАНИЯ ДИСКА И РЕВЕРС-ИНЖИНИРИНГА");
+			expect(prompt).toContain("find /");
+			expect(prompt).toContain("strings");
+			expect(prompt).toContain("otool");
 		}
 	});
 });

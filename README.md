@@ -1,206 +1,194 @@
-<p align="center">
-  <a href="https://pi.dev">
-    <img alt="pi logo" src="https://pi.dev/logo-auto.svg" width="128">
-  </a>
-</p>
-<p align="center">
-  <a href="https://discord.com/invite/3cU7Bz4UPx"><img alt="Discord" src="https://img.shields.io/badge/discord-community-5865F2?style=flat-square&logo=discord&logoColor=white" /></a>
-  <a href="https://www.npmjs.com/package/@earendil-works/pi-coding-agent"><img alt="npm" src="https://img.shields.io/npm/v/@earendil-works/pi-coding-agent?style=flat-square" /></a>
-</p>
+# PerUN (ПерУН)
 
-> New issues and PRs from new contributors are auto-closed by default. Maintainers review auto-closed issues daily. See [CONTRIBUTING.md](CONTRIBUTING.md).
+Персональный Умный Напарник — специализированный терминальный AI-ассистент и автономная среда разработки для платформы 1С:Предприятие 8.3, 1C:EDT, BSL и OneScript.
 
-# Pi
+PerUN сочетает архитектуру автономного кодинг-агента с глубокой интеграцией в инструментарий разработки 1С: нативный статический анализ BSL, автофикс стандартов ИТС, граф вызовов и анализ связанности метаданных, специализированные субагенты, BDD-тестирование через Vanessa Automation и библиотеку прикладных навыков.
 
-Pi is a minimal, extensible agent harness that you can make your own.
+---
 
-Adapt Pi to your workflows, not the other way around. Customize Pi with [extensions](packages/coding-agent/docs/extensions.md), [skills](packages/coding-agent/docs/skills.md), [prompt templates](packages/coding-agent/docs/prompt-templates.md), and [themes](packages/coding-agent/docs/themes.md). Bundle them as [Pi packages](packages/coding-agent/docs/packages.md) and share via npm or git.
+## Возможности
 
-Pi ships with powerful defaults but skips features like sub-agents and plan mode. Ask Pi to build what you want, or install a package that does it your way.
+### 1. Специализированные режимы работы (Workflow Modes)
 
-Use Pi [interactively](packages/coding-agent/docs/usage.md), automate it in [print or JSON mode](packages/coding-agent/docs/cli.md), control it over [RPC](packages/coding-agent/docs/rpc.md), or build apps with the [Pi TypeScript SDK](packages/coding-agent/docs/sdk.md). See [OpenClaw](https://github.com/OpenClaw/OpenClaw) for a real-world integration.
+Агент поддерживает четыре режима функционирования с разграничением прав доступа к инструментам:
 
-## Getting started
+- **НАЙТИ (Explore)**: Безопасная навигация и исследование конфигурации, поиск методов, анализ графа вызовов и зависимостей. Инструменты изменения файлов заблокированы (read-only).
+- **ОБЪЯСНИТЬ (Explain)**: Анализ прикладной логики, проверка соответствия стандартам документирования BSLDoc и ИТС, формирование диаграмм архитектуры (read-only).
+- **НАПИСАТЬ (Write)**: Разработка и модификация BSL-модулей, файлов метаданных 1C:EDT (.mdo), автоматическое исправление замечаний статического анализа (полный доступ).
+- **ПЛАНИРОВАТЬ (Plan)**: Проектирование структур данных, архитектуры регистров и декомпозиция задач без модификации исходного кода (read-only).
 
-Install the command-line interface:
+Переключение режимов выполняется циклической комбинацией клавиш `alt+m` или командой чата `/mode [find|explain|write|plan]`.
 
-```bash
-curl -fsSL https://pi.dev/install.sh | sh
-```
+### 2. Мгновенный инлайн LSP-фидбэк (bsl-analyzer)
 
-On Windows:
+- Встроенный демон `bsl-analyzer` (написанный на Rust) запускается в фоне при открытии проекта 1С.
+- При операциях создания и редактирования файлов `.bsl` и `.os` агент автоматически передает изменения по протоколу LSP (`textDocument/didChange`).
+- Диагностика компилятора и замечания стандартов разработки ИТС прикрепляются напрямую к результату работы инструмента (`tool_result`) на том же шаге. Модель сразу видит допущенные синтаксические или логические ошибки и исправляет их без лишних итераций диалога.
 
-```shell
-powershell -c "irm https://pi.dev/install.ps1 | iex"
-```
+### 3. Навигация по коду и граф зависимостей (Deep Code Navigator)
 
-The installer pins all dependencies and updates Pi with `pi update`. Alternatively, install directly with npm, which does not pin transitive dependencies:
+- `1c_call_hierarchy`: Построение цепочек входящих (`incoming`) и исходящих (`outgoing`) вызовов процедур и функций BSL.
+- `1c_impact_analysis`: Анализ влияния изменений модулей на объекты метаданных (документы, справочники, регистры накопления и сведений, обработчики проведения `ОбработкаПроведения`).
+- `1c_ast_symbols`: Быстрый синтаксический разбор BSL без накладных расходов: процедуры, функции, параметры с директивами `Знач` и значениями по умолчанию, директивы компиляции (`&НаСервере`, `&НаКлиенте` и др.), блоки BSLDoc и встроенные запросы SDBL.
 
-```bash
-npm install -g --ignore-scripts @earendil-works/pi-coding-agent
-```
+### 4. Автоматическое исправление стандартов ИТС (ITS Auto-Fixer)
 
-Pi requires Node.js 22.19 or newer. The macOS, Linux, and Windows installers can install it if needed. Pi does not require dependency lifecycle scripts for a normal npm installation.
+Инструмент `bsl_fix_standards` выполняет поиск и исправление типовых нарушений стандартов разработки 1С:
 
-Start Pi in the directory where you want it to work:
+- Запросы в циклах (`QueryInLoop`).
+- Пустые блоки исключений (`EmptyExcept`).
+- Неиспользуемые переменные (`UnusedVariable`).
+- Отсутствие комментариев методов по формату BSLDoc (`MissingBSLDoc`).
+- Модальные вызовы на сервере (`ServerModalCall`).
 
-```bash
-cd /path/to/project
-pi
-```
+Поддерживается режим предварительного просмотра в формате Unified Diff (`dryRun: true`) и автоматическое применение изменений (`dryRun: false`).
 
-For a built-in AI provider, run `/login` inside Pi to connect a subscription or API key. Then give Pi a task.
+### 5. Ролевые субагенты 1С
 
-See the [documentation](https://pi.dev/docs/latest) for full setup and usage instructions, or [visit pi.dev](https://pi.dev) for demos.
+Инструмент `1c_subagent` позволяет делегировать подзадачи специализированным агентам с выделенными системными инструкциями:
 
-## Run with Nix
+- `1c-architect`: Проектирование архитектуры метаданных, регистров и подсистем конфигурации.
+- `1c-coder`: Написание BSL-кода в модулях объектов, менеджеров, наборов записей, форм и общих модулях.
+- `1c-tester`: Разработка модульных тестов YAXUnit (с изоляцией в `.ВТранзакции()`), моков и сценариев Vanessa Automation.
+- `1c-reviewer`: Проведение ревью кода, аудит соответствия стандартам разработки 1С и анализ узких мест производительности.
 
-```bash
-nix run github:earendil-works/pi/stable
-```
+### 6. Управление информационными базами и BDD (Vanessa Tools)
 
-`stable` points at the latest release. Install it with `nix profile add github:earendil-works/pi/stable` and update with `nix profile upgrade pi`. Use a release tag such as `github:earendil-works/pi/v1.0.0` to pin a version, or `github:earendil-works/pi` for unreleased changes on `main`. Nix builds Pi from source.
+Инструмент `1c_vanessa` автоматизирует взаимодействие с платформой 1С и утилитами Vanessa Tools (vrunner + Vanessa Automation):
 
-Supports ARM64 and x86-64 on Linux and macOS. Use `nix build .` or `nix run .` to build or run your checkout.
+- `init-dev` / `infobase-init`: Инициализация локальной базы данных для разработки.
+- `load` / `cf-load`: Загрузка исходных кодов конфигурации в базу данных.
+- `dump` / `cf-dump` / `cf-decompile`: Выгрузка конфигурации из базы в исходные файлы.
+- `updatedb` / `infobase-update`: Обновление конфигурации базы данных.
+- `test` / `test-vanessa`: Запуск приемочных BDD-тестов по `.feature`-сценариям.
 
-Nix builds are offline, so the bundled model data comes from a pi.dev model catalog revision pinned in `nix/model-catalog.json`. At runtime, Pi still overlays newer catalog data from pi.dev as usual. The Nix workflow replaces the pin on `main` when it no longer matches the checkout, for example after a provider is added or gains a new model type. To refresh it by hand:
+### 7. Библиотека прикладных навыков 1С (CC-1C-SKILLS)
 
-```bash
-npm run update:model-catalog-pin
-```
+В PerUN интегрировано более 80 готовых навыков для работы с объектами 1С:
 
-## Packages
+- Конфигурации и расширения: `cf-edit`, `cf-info`, `cfe-borrow`, `cfe-diff`, `cfe-patch-method`.
+- Внешние отчеты и обработки: `epf-build`, `epf-dump`, `epf-init`, `erf-build`, `erf-dump`.
+- Формы и интерфейсы: `form-edit`, `form-add`, `form-patterns`, `interface-edit`.
+- Схемы компоновки данных (СКД): `skd-compile`, `skd-decompile`, `skd-edit`, `skd-validate`.
+- Табличные документы и макеты: `mxl-compile`, `mxl-decompile`, `mxl-info`.
+- Роли и права доступа: `role-edit`, `role-compile`, `role-validate`.
+- Базы данных и сервисы: `db-create`, `db-dump-cf`, `db-dump-dt`, `db-load-git`, `web-publish`.
 
-This monorepo contains the Pi CLI and its supporting libraries.
+### 8. Политики безопасности и подтверждений
 
-| Package | Description |
-|---------|-------------|
-| **[@earendil-works/chord](packages/chord)** | Typed host runtime for hot-reloadable plugins, contracts, replicated state, and RPC over JSON links |
-| **[@earendil-works/pi-telemetry](packages/telemetry)** | Vendor-neutral telemetry contracts, reference adapter, conformance tests, and typed schemas |
-| **[@earendil-works/pi-ai](packages/ai)** | Unified multi-provider LLM API (OpenAI, Anthropic, Google, etc.) |
-| **[@earendil-works/pi-durable](packages/durable)** | Durable conversation, task, and document runtime |
-| **[@earendil-works/pi-agent-core](packages/agent)** | Agent runtime with tool calling and state management |
-| **[@earendil-works/pi-coding-agent](packages/coding-agent)** | Interactive coding agent CLI |
-| **[@earendil-works/pi-tui](packages/tui)** | Terminal UI library with differential rendering |
+Управление уровнем автономности агента через команду `/permission [strict|auto-approve|yolo]`:
 
-For Slack/chat automation and workflows see [earendil-works/pi-chat](https://github.com/earendil-works/pi-chat).
+- **Strict**: Требуется ручное подтверждение для каждого изменения файла и выполнения консольной команды.
+- **Auto-Approve**: Автоматическое применение правок внутри каталога проекта; деструктивные действия и системные команды требуют подтверждения.
+- **Yolo**: Полностью автономный режим без интерактивных пауз.
 
-## Permissions & Containerization
+### 9. Диагностика окружения (`doctor`)
 
-Pi does not include a built-in permission system for restricting filesystem, process, network, or credential access. By default, it runs with the permissions of the user and process that launched it.
+Команда CLI `perun doctor` и встроенная команда чата `/doctor` выполняют проверку тулчейна 1С:
 
-If you need stronger boundaries, containerize or sandbox Pi. See [packages/coding-agent/docs/containerization.md](packages/coding-agent/docs/containerization.md) for three patterns:
+- Наличие платформы 1С:Предприятие (`1cv8` / `1cv8t`).
+- Наличие бинарного файла `bsl-analyzer`.
+- Утилиты автоматизации `vrunner` и интерпретатора `oscript`.
+- Внешняя обработка `vanessa-automation.epf`.
+- Утилита командной строки `ibcmd`.
+- Доступность каталога встроенных навыков и инструментов.
 
-- **Gondolin extension**: keep `pi` and provider auth on the host while routing built-in tools and `!` commands into a local Linux micro-VM.
-- **Plain Docker**: run the whole `pi` process in a local container for simple isolation.
-- **OpenShell**: run the whole `pi` process in a policy-controlled sandbox.
+При отсутствии компонентов утилита выводит рекомендации по их установке и путям поиска.
 
-## Contributing
+---
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidelines and [AGENTS.md](AGENTS.md) for project-specific rules (for both humans and agents).  Longer term plans for Pi can also be found in [RFCs](https://rfc.earendil.com/keyword/pi/).
+## Быстрый старт
 
-## Development
+### Требования
 
-```bash
-npm install --ignore-scripts  # Install all dependencies without running lifecycle scripts
-npm run build         # Refresh model data, then build all packages
-npm run build:offline # Rebuild using existing model data without network access
-npm run check         # Lint, format, and type check
-./test.sh            # Run tests (skips LLM-dependent tests without API keys)
-./pi-test.sh         # Run pi from sources (can be run from any directory)
-```
+- Node.js 22.19 или новее (для работы с бандлом и разработки) или Bun (для нативной сборки).
+- Платформа 1С:Предприятие 8.3 (рекомендуется для работы с базами данных и vrunner).
+- OneScript 2.0+ и vanessa-runner (опционально, для BDD и автоматизации).
 
-### Using local packages outside the monorepo
+### Запуск
 
-Build every public package into one coherent local artifact set:
+Запуск скомпилированного нативного бинарника:
 
 ```bash
-npm run pack:packages -- --out .artifacts/pi-packages
+./packages/1c-agent/bin/perun
 ```
 
-This refreshes model data before building `pi-ai`. To avoid network access when
-model data is already hydrated, pass `--offline-model-data`.
-
-Then configure an external project to consume one package and resolve all of
-its Pi dependencies from the same artifact set. npm is the default:
+Запуск через npm-скрипты из корня репозитория:
 
 ```bash
-node scripts/use-local-packages.mjs \
-  --manifest .artifacts/pi-packages/manifest.json \
-  --consumer ../my-project \
-  --package @earendil-works/pi-durable \
-  --package @earendil-works/pi-agent-core
-cd ../my-project
+# Запуск исполняемого файла PerUN
+npm run perun
+
+# Либо запуск ESM-бандла через Node.js
+npm run perun:bundle
+```
+
+Диагностика тулчейна:
+
+```bash
+./packages/1c-agent/bin/perun doctor
+```
+
+Запуск в каталоге проекта 1С:
+
+```bash
+cd /path/to/1c/project
+/path/to/perun
+```
+
+После старта подключите необходимый AI-провайдер с помощью команды `/login` внутри интерфейса.
+
+---
+
+## Сборка и разработка
+
+Установка зависимостей:
+
+```bash
 npm install --ignore-scripts
 ```
 
-For a pnpm project, point `--consumer` at the workspace root:
+Сборка ESM-бандла и нативного бинарника PerUN:
 
 ```bash
-node scripts/use-local-packages.mjs \
-  --manifest .artifacts/pi-packages/manifest.json \
-  --consumer ../my-project \
-  --package @earendil-works/pi-agent-core \
-  --package-manager pnpm
-cd ../my-project
-pnpm install --ignore-scripts
+npm run build:perun
 ```
 
-Repeat `--package` for each direct dependency. The command updates the
-consumer's `package.json` with content-addressed local `file:` references. It
-writes transitive overrides to `package.json` for npm or `pnpm-workspace.yaml`
-for pnpm. Keep the artifact directory available while installing or updating
-the consumer. Re-run both commands after changing Pi source.
-
-## Building standalone binaries from release source
-
-GitHub releases include a versioned source archive covered by the release's `SHA256SUMS` file. Extract it and run the same build script used for the official standalone binaries:
+Проверка типов и качества кода:
 
 ```bash
-VERSION="<release-version>"
-tar -xzf "pi-${VERSION}-source.tar.gz"
-cd "pi-${VERSION}"
-./scripts/build-binaries.sh --offline-model-data --platform linux-x64 --out "$PWD/out"
+npm run check
 ```
 
-The archive includes release model data and native prebuilds. `--offline-model-data` uses that model data without refreshing provider catalogs. The script installs dependencies and builds the executable with its runtime assets; pass `--skip-install` if dependencies are already provided.
+Запуск тестов:
 
-## Supply-chain hardening
+```bash
+# Общие тесты монорепозитория
+./test.sh
 
-We treat npm dependency changes as reviewed code changes.
+# Тесты расширения 1C (PerUN)
+node "$(git rev-parse --show-toplevel)/node_modules/vitest/dist/cli.js" --run packages/1c-agent/test
+```
 
-- Direct external dependencies are pinned to exact versions. Internal workspace packages remain version-ranged.
-- `.npmrc` sets `save-exact=true` and `min-release-age=2` to avoid same-day dependency releases during npm resolution.
-- `package-lock.json` is the dependency ground truth. Pre-commit blocks accidental lockfile commits unless `PI_ALLOW_LOCKFILE_CHANGE=1` is set.
-- `npm run check` verifies pinned direct deps, native TypeScript import compatibility, and the generated coding-agent install lock.
-- The pi.dev installer installs from `packages/coding-agent/install-lock/`, generated from the root lockfile, to pin transitive deps. The npm package does not pin transitive deps.
-- Local release smoke tests and npm publication use the same tarball packer; npm publishes the validated tarballs rather than repacking workspace directories.
-- Local release installs, documented npm installs, and `pi update --self` use `--ignore-scripts` where supported.
-- CI installs with `npm ci --ignore-scripts`, and a scheduled GitHub workflow runs `npm audit --omit=dev` plus `npm audit signatures --omit=dev`.
-- Install lock generation has an explicit allowlist for dependency lifecycle scripts; new lifecycle-script deps fail checks until reviewed.
+---
 
-## Share your OSS coding agent sessions
+## Структура пакетов
 
-If you use Pi or other coding agents for open source work, please share your sessions.
+| Пакет | Описание |
+|---|---|
+| **[@earendil-works/pi-1c-agent](packages/1c-agent)** | Специализированный модуль PerUN: режимы, AST, LSP-клиент, навигатор, субагенты, Vanessa Tools, автофикс стандартов ИТС и диагностика |
+| **[@earendil-works/pi-coding-agent](packages/coding-agent)** | Ядро интерактивного агента и терминальные режимы работы |
+| **[@earendil-works/pi-agent-core](packages/agent)** | Среда исполнения агента, диспетчеризация вызовов инструментов и контекст |
+| **[@earendil-works/pi-ai](packages/ai)** | Унифицированный API работы с языковыми моделями (OpenAI, Anthropic, Google Gemini, OpenRouter, локальные модели) |
+| **[@earendil-works/pi-tui](packages/tui)** | Терминальный интерфейс с дифференциальным рендерингом |
+| **[@earendil-works/pi-chord](packages/chord)** | Среда исполнения расширений и типизированный RPC |
+| **[@earendil-works/pi-durable](packages/durable)** | Персистентное хранение диалогов и задач |
 
-Public OSS session data helps improve coding agents with real-world tasks, tool use, failures, and fixes instead of toy benchmarks.
+---
 
-For the full explanation, see [this post on X](https://x.com/badlogicgames/status/2037811643774652911).
+## Лицензия и копирайт
 
-To publish sessions, use [`badlogic/pi-share-hf`](https://github.com/badlogic/pi-share-hf). Read its README.md for setup instructions. All you need is a Hugging Face account, the Hugging Face CLI, and `pi-share-hf`.
+Проект распространяется под лицензией MIT.
 
-You can also watch [this video](https://x.com/badlogicgames/status/2041151967695634619), where I show how I publish my `pi-mono` sessions.
-
-I regularly publish my own `pi-mono` work sessions here:
-
-- [badlogicgames/pi-mono on Hugging Face](https://huggingface.co/datasets/badlogicgames/pi-mono)
-
-## License
-
-MIT
-
-<p align="center">
-  <a href="https://pi.dev">pi.dev</a> domain graciously donated by
-  <br /><br />
-  <a href="https://exe.dev"><img src="packages/coding-agent/docs/images/exy.png" alt="Exy mascot" width="48" /><br />exe.dev</a>
-</p>
+PerUN разработан как форк проекта [Pi](https://github.com/earendil-works/pi) (Copyright (c) Mario Zechner / Earendil Works, MIT License).
+Все модификации, специализированный функционал для 1С:Предприятие, подсистема инлайн-LSP, автофиксеры стандартов ИТС и инструменты навигации по метаданным 1С разработаны в рамках форка PerUN.

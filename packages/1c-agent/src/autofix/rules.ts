@@ -33,13 +33,333 @@ export function parseBslAnalyzerJsonOutput(jsonString: string, defaultFilePath: 
 	}
 }
 
+export const RULE_ALIASES: Record<string, string> = {
+	CreateQueryInCycle: "QueryInLoop",
+	QueryInLoop: "CreateQueryInCycle",
+	MissingCodeTryCatchEx: "EmptyExcept",
+	EmptyExcept: "MissingCodeTryCatchEx",
+	UnusedLocalVariable: "UnusedVariable",
+	UnusedVariable: "UnusedLocalVariable",
+	MissingBSLDocComments: "MissingBSLDoc",
+	MissingBSLDocMethod: "MissingBSLDoc",
+	MissingBSLDoc: "MissingBSLDocMethod",
+};
+
+const NORMALIZED_RULES: Record<string, string> = {
+	CreateQueryInCycle: "QueryInLoop",
+	QueryInLoop: "QueryInLoop",
+	MissingCodeTryCatchEx: "EmptyExcept",
+	EmptyExcept: "EmptyExcept",
+	UnusedLocalVariable: "UnusedVariable",
+	UnusedVariable: "UnusedVariable",
+	MissingBSLDocComments: "MissingBSLDoc",
+	MissingBSLDocMethod: "MissingBSLDoc",
+	MissingBSLDoc: "MissingBSLDoc",
+	QueryVirtualTableParameterArity: "QueryVirtualTableParameterArity",
+};
+
+export function normalizeRuleId(ruleId: string): string {
+	return NORMALIZED_RULES[ruleId] ?? ruleId;
+}
+
+export function matchesRuleId(candidate: string, target: string): boolean {
+	if (candidate === target) return true;
+	const normCandidate = normalizeRuleId(candidate);
+	const normTarget = normalizeRuleId(target);
+	if (normCandidate === normTarget) return true;
+	return RULE_ALIASES[candidate] === target || RULE_ALIASES[target] === candidate;
+}
+
+const AUTO_FIXABLE_RULES = new Set([
+	"EmptyExcept",
+	"MissingCodeTryCatchEx",
+	"UnusedVariable",
+	"UnusedLocalVariable",
+	"MissingBSLDoc",
+	"MissingBSLDocComments",
+	"MissingBSLDocMethod",
+]);
+
 export function isRuleAutoFixable(ruleId: string): boolean {
-	const autoFixableRules = new Set(["EmptyExcept", "UnusedVariable", "MissingBSLDoc"]);
-	return autoFixableRules.has(ruleId);
+	const normalized = normalizeRuleId(ruleId);
+	return AUTO_FIXABLE_RULES.has(ruleId) || AUTO_FIXABLE_RULES.has(normalized);
+}
+
+export interface VirtualTableLimit {
+	readonly max: number;
+	readonly canonicalName: string;
+}
+
+export const VIRTUAL_TABLE_PARAM_LIMITS: Record<string, VirtualTableLimit> = {
+	остатки: { max: 2, canonicalName: "Остатки" },
+	balance: { max: 2, canonicalName: "Balance" },
+	обороты: { max: 4, canonicalName: "Обороты" },
+	turnovers: { max: 4, canonicalName: "Turnovers" },
+	остаткииобороты: { max: 5, canonicalName: "ОстаткиИОбороты" },
+	balanceandturnovers: { max: 5, canonicalName: "BalanceAndTurnovers" },
+	срезпоследних: { max: 2, canonicalName: "СрезПоследних" },
+	slicelast: { max: 2, canonicalName: "SliceLast" },
+	срезпервых: { max: 2, canonicalName: "СрезПервых" },
+	slicefirst: { max: 2, canonicalName: "SliceFirst" },
+	оборотыдткт: { max: 9, canonicalName: "ОборотыДтКт" },
+	turnoversdrcr: { max: 9, canonicalName: "TurnoversDrCr" },
+	субконто: { max: 5, canonicalName: "Субконто" },
+	subconto: { max: 5, canonicalName: "Subconto" },
+};
+
+const VT_NAMES_PATTERN =
+	"(?:ОстаткиИОбороты|BalanceAndTurnovers|ОборотыДтКт|TurnoversDrCr|СрезПоследних|SliceLast|СрезПервых|SliceFirst|Остатки|Balance|Обороты|Turnovers|Субконто|Subconto)";
+
+const VT_CALL_REGEX = new RegExp(`(?<![А-Яа-яA-Za-z0-9_])(${VT_NAMES_PATTERN})(?![А-Яа-яA-Za-z0-9_])\\s*\\(`, "gi");
+
+export function parseVirtualTableArgs(text: string, openParenIndex: number): { argCount: number; endIndex: number } {
+	let depth = 1;
+	let inDoubleQuoteString = false;
+	let isDoubledQuote = false;
+	let inSingleQuoteString = false;
+	let inComment = false;
+	let inXmlComment = false;
+	let commasAtDepth1 = 0;
+	let hasNonWhitespaceContent = false;
+
+	let i = openParenIndex + 1;
+	const len = text.length;
+
+	while (i < len && depth > 0) {
+		const ch = text[i];
+		const next = text[i + 1];
+
+		// 1. XML comment handling
+		if (inXmlComment) {
+			if (ch === "-" && next === "-" && text[i + 2] === ">") {
+				inXmlComment = false;
+				i += 3;
+				continue;
+			}
+			i++;
+			continue;
+		}
+
+		// 2. Single-line comment handling
+		if (inComment) {
+			if (ch === "\n" || ch === "\r") {
+				inComment = false;
+			}
+			i++;
+			continue;
+		}
+
+		// Check for comment starts if not inside strings
+		if (!inDoubleQuoteString && !inSingleQuoteString) {
+			if (ch === "<" && next === "!" && text.slice(i, i + 4) === "<!--") {
+				inXmlComment = true;
+				i += 4;
+				continue;
+			}
+			if (ch === "/" && next === "/") {
+				inComment = true;
+				i += 2;
+				continue;
+			}
+		}
+
+		// 3. String literal handling
+		if (inDoubleQuoteString) {
+			if (isDoubledQuote) {
+				if (ch === '"' && next === '"') {
+					if (text[i + 2] === '"' && text[i + 3] === '"') {
+						i += 4;
+						continue;
+					}
+					inDoubleQuoteString = false;
+					isDoubledQuote = false;
+					i += 2;
+					continue;
+				}
+			} else {
+				if (ch === '"') {
+					if (next === '"') {
+						i += 2;
+						continue;
+					}
+					inDoubleQuoteString = false;
+					i++;
+					continue;
+				}
+			}
+			i++;
+			continue;
+		}
+
+		if (inSingleQuoteString) {
+			if (ch === "'") {
+				if (next === "'") {
+					i += 2;
+					continue;
+				}
+				inSingleQuoteString = false;
+				i++;
+				continue;
+			}
+			i++;
+			continue;
+		}
+
+		// String opening outside strings/comments
+		if (ch === '"') {
+			if (next === '"') {
+				inDoubleQuoteString = true;
+				isDoubledQuote = true;
+				i += 2;
+				continue;
+			}
+			inDoubleQuoteString = true;
+			isDoubledQuote = false;
+			i++;
+			continue;
+		}
+
+		if (ch === "'") {
+			inSingleQuoteString = true;
+			i++;
+			continue;
+		}
+
+		// 4. Parentheses and argument counting
+		if (ch === "(") {
+			depth++;
+			hasNonWhitespaceContent = true;
+			i++;
+			continue;
+		}
+
+		if (ch === ")") {
+			depth--;
+			if (depth === 0) {
+				i++;
+				break;
+			}
+			i++;
+			continue;
+		}
+
+		if (ch === "," && depth === 1) {
+			commasAtDepth1++;
+			i++;
+			continue;
+		}
+
+		if (ch !== " " && ch !== "\t" && ch !== "\r" && ch !== "\n" && ch !== "|") {
+			hasNonWhitespaceContent = true;
+		}
+
+		i++;
+	}
+
+	let argCount = 0;
+	if (commasAtDepth1 > 0) {
+		argCount = commasAtDepth1 + 1;
+	} else if (hasNonWhitespaceContent) {
+		argCount = 1;
+	}
+
+	return { argCount, endIndex: i };
+}
+
+export function checkVirtualTableArity(
+	filePath: string,
+	code: string,
+	baseOffset = 0,
+	fullDocument = code,
+): readonly BslRuleViolation[] {
+	const violations: BslRuleViolation[] = [];
+	const regex = new RegExp(VT_CALL_REGEX.source, VT_CALL_REGEX.flags);
+
+	let match = regex.exec(code);
+	while (match !== null) {
+		const vtToken = match[1];
+		const matchIndex = match.index;
+		const openParenIndex = code.indexOf("(", matchIndex + vtToken.length);
+		if (openParenIndex === -1) {
+			match = regex.exec(code);
+			continue;
+		}
+
+		// Check if preceded by a procedure/function declaration on the same line
+		const lastNewline = code.lastIndexOf("\n", matchIndex);
+		const lineStart = lastNewline === -1 ? 0 : lastNewline + 1;
+		const linePrefix = code.slice(lineStart, matchIndex);
+
+		if (linePrefix.includes("//")) {
+			match = regex.exec(code);
+			continue;
+		}
+		if (/(?:процедура|функция|procedure|function)\s+$/i.test(linePrefix.trim())) {
+			match = regex.exec(code);
+			continue;
+		}
+
+		const limits = VIRTUAL_TABLE_PARAM_LIMITS[vtToken.toLowerCase()];
+		if (!limits) {
+			match = regex.exec(code);
+			continue;
+		}
+
+		const { argCount } = parseVirtualTableArgs(code, openParenIndex);
+
+		if (argCount > limits.max) {
+			const absIndex = baseOffset + matchIndex;
+			const prefix = fullDocument.slice(0, absIndex);
+			const line = (prefix.match(/\n/g)?.length ?? 0) + 1;
+			const docLastNewline = fullDocument.lastIndexOf("\n", absIndex);
+			const column = docLastNewline === -1 ? absIndex + 1 : absIndex - docLastNewline;
+
+			violations.push({
+				ruleId: "QueryVirtualTableParameterArity",
+				ruleName: "Недопустимое количество параметров виртуальной таблицы",
+				message: `Недопустимое количество параметров в виртуальной таблице '${limits.canonicalName}': передано ${argCount}, максимально допустимо ${limits.max}. Платформа 1С отклонит выполнение запроса.`,
+				filePath,
+				line,
+				column,
+				severity: "error",
+				canAutoFix: false,
+			});
+		}
+
+		regex.lastIndex = openParenIndex + 1;
+		match = regex.exec(code);
+	}
+
+	return violations;
+}
+
+export function extractQueriesFromXml(xmlContent: string): { queryText: string; startIndex: number }[] {
+	const queries: { queryText: string; startIndex: number }[] = [];
+	const queryTagRegex = /<query(?:\s[^>]*)?>([\s\S]*?)<\/query>/gi;
+	for (const match of xmlContent.matchAll(queryTagRegex)) {
+		const fullTag = match[0];
+		const innerContent = match[1];
+		const innerStartIndex = match.index + fullTag.indexOf(innerContent);
+		queries.push({
+			queryText: innerContent,
+			startIndex: innerStartIndex,
+		});
+	}
+	return queries;
 }
 
 export function analyzeCodeForItsRules(filePath: string, sourceCode: string): readonly BslRuleViolation[] {
-	const violations: BslRuleViolation[] = [];
+	if (filePath.toLowerCase().endsWith(".xml")) {
+		const xmlQueries = extractQueriesFromXml(sourceCode);
+		const violations: BslRuleViolation[] = [];
+		for (const q of xmlQueries) {
+			violations.push(...checkVirtualTableArity(filePath, q.queryText, q.startIndex, sourceCode));
+		}
+		violations.sort((a, b) => a.line - b.line || a.column - b.column);
+		return violations;
+	}
+
+	const violations: BslRuleViolation[] = [...checkVirtualTableArity(filePath, sourceCode)];
 	const lines = sourceCode.split("\n");
 
 	let inLoop = false;
@@ -209,5 +529,6 @@ export function analyzeCodeForItsRules(filePath: string, sourceCode: string): re
 		}
 	}
 
+	violations.sort((a, b) => a.line - b.line || a.column - b.column);
 	return violations;
 }
