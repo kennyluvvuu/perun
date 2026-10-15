@@ -6,6 +6,7 @@ import {
 	detectInstallChange,
 	detectInstallMethod,
 	findNodePackageDir,
+	getPackageJsonPath,
 	getSelfUpdateCommand,
 	getSelfUpdateUnavailableInstruction,
 	getUpdateInstruction,
@@ -460,5 +461,27 @@ describe("detectInstallChange", () => {
 		writeFileSync(join(tempDir, "package.json"), JSON.stringify({ version: "0.0.1" }));
 		rmSync(installDir, { recursive: true, force: true });
 		expect(detectInstallChange(join(installDir, "package.json"))).toEqual({ kind: "removed" });
+	});
+});
+
+describe("getPackageJsonPath", () => {
+	test("resolves package.json in parent directory when not found in binary directory", () => {
+		tempDir = mkdtempSync(join(tmpdir(), "pi-pkg-json-"));
+		const binDir = join(tempDir, "bin");
+		mkdirSync(binDir, { recursive: true });
+		const rootPkgPath = join(tempDir, "package.json");
+		writeFileSync(rootPkgPath, JSON.stringify({ name: "test-pkg", version: "1.2.3" }));
+
+		process.env.PI_PACKAGE_DIR = binDir;
+		expect(getPackageJsonPath()).toBe(rootPkgPath);
+	});
+
+	test("resolves package.json directly in package dir when present", () => {
+		tempDir = mkdtempSync(join(tmpdir(), "pi-pkg-json-"));
+		const pkgPath = join(tempDir, "package.json");
+		writeFileSync(pkgPath, JSON.stringify({ name: "test-pkg", version: "1.2.3" }));
+
+		process.env.PI_PACKAGE_DIR = tempDir;
+		expect(getPackageJsonPath()).toBe(pkgPath);
 	});
 });

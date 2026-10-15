@@ -1,0 +1,42 @@
+{
+	"name": "@earendil-works/pi-1c-agent",
+	"version": "0.1.1",
+	"description": "1C AI agent extension with BSL LSP feedback, Deep Code Navigator, ITS Auto-Fixer, Subagents, and Modes",
+	"type": "module",
+	"private": true,
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"keywords": [
+		"pi-package",
+		"1c",
+		"bsl",
+		"v8std",
+		"subagents",
+		"lsp"
+	],
+	"pi": {
+		"extensions": [
+			"./src/index.ts"
+		]
+	},
+	"bin": {
+		"perun": "./bin/perun"
+	},
+	"scripts": {
+		"build": "node ../../scripts/build-perun.mjs",
+		"start": "./bin/perun",
+		"start:bundle": "node ./bin/perun.bundle.mjs",
+		"test": "vitest --run"
+	},
+	"dependencies": {
+		"@earendil-works/pi-agent-core": "^1.1.0",
+		"@earendil-works/pi-ai": "^1.1.0",
+		"@earendil-works/pi-coding-agent": "^1.1.0",
+		"@earendil-works/pi-tui": "^1.1.0",
+		"typebox": "1.3.27"
+	},
+	"devDependencies": {
+		"@types/node": "22.19.19",
+		"vitest": "4.1.11"
+	}
+}
