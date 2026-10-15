@@ -554,3 +554,52 @@ export async function computeEditDiff(
 ): Promise<EditDiffResult | EditDiffError> {
 	return computeEditsDiff(path, [{ oldText, newText }], cwd);
 }
+
+/**
+ * Compute 1-based line ranges in the new file for changed blocks.
+ */
+export function computeChangedRanges(
+	oldContent: string,
+	newContent: string,
+): Array<{ startLine: number; endLine: number }> {
+	const parts = Diff.diffLines(oldContent, newContent);
+	const ranges: Array<{ startLine: number; endLine: number }> = [];
+	let newLineNum = 1;
+	let inBlock = false;
+	let blockStartLine = 0;
+	let blockAddedLines = 0;
+
+	for (const part of parts) {
+		const raw = part.value.split("\n");
+		if (raw.length > 0 && raw[raw.length - 1] === "") {
+			raw.pop();
+		}
+		const count = raw.length;
+
+		if (part.added || part.removed) {
+			if (!inBlock) {
+				inBlock = true;
+				blockStartLine = newLineNum;
+				blockAddedLines = 0;
+			}
+			if (part.added) {
+				blockAddedLines += count;
+				newLineNum += count;
+			}
+		} else {
+			if (inBlock) {
+				if (blockAddedLines > 0) {
+					ranges.push({ startLine: blockStartLine, endLine: blockStartLine + blockAddedLines - 1 });
+				}
+				inBlock = false;
+			}
+			newLineNum += count;
+		}
+	}
+
+	if (inBlock && blockAddedLines > 0) {
+		ranges.push({ startLine: blockStartLine, endLine: blockStartLine + blockAddedLines - 1 });
+	}
+
+	return ranges;
+}

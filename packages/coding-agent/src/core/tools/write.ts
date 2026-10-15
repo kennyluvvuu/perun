@@ -41,10 +41,14 @@ export interface WriteToolOptions {
 	operations?: WriteOperations;
 }
 
+export interface WriteToolDetails {
+	ranges: Array<{ startLine: number; endLine: number }>;
+}
+
 export function createWriteToolDefinition(
 	cwd: string,
 	options?: WriteToolOptions,
-): ToolDefinition<typeof writeSchema, undefined> {
+): ToolDefinition<typeof writeSchema, WriteToolDetails> {
 	const ops = options?.operations ?? defaultWriteOperations;
 	return {
 		name: "write",
@@ -82,9 +86,15 @@ export function createWriteToolDefinition(
 				await ops.writeFile(absolutePath, content);
 				throwIfAborted();
 
+				const lines = content.split("\n");
+				if (lines.length > 1 && lines[lines.length - 1] === "") {
+					lines.pop();
+				}
+				const lineCount = Math.max(lines.length, 1);
+
 				return {
 					content: [{ type: "text", text: `Successfully wrote to ${path}` }],
-					details: undefined,
+					details: { ranges: [{ startLine: 1, endLine: lineCount }] },
 				};
 			});
 		},

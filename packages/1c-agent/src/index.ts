@@ -1,3 +1,4 @@
+import * as crypto from "node:crypto";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import type {
@@ -9,6 +10,7 @@ import type {
 	ExtensionCommandContext,
 	ExtensionContext,
 	SessionStartEvent,
+	SubmitFeedbackEvent,
 	ToolCallEvent,
 	ToolCallEventResult,
 	ToolResultEvent,
@@ -18,6 +20,7 @@ import { registerAutofixTools } from "./autofix/index.ts";
 import { runDoctor } from "./doctor/index.ts";
 import { generateDocsForDiff, registerGitTools } from "./git/index.ts";
 import { BslLspClient, InlineFeedbackHandler } from "./lsp/index.ts";
+import { formatMemoryContext, MemoryStore } from "./memory/index.ts";
 import { ModeManager } from "./modes/index.ts";
 import { registerNavigatorTools } from "./navigator/index.ts";
 import { PerunNotifyClient } from "./notify/index.ts";
@@ -32,6 +35,7 @@ export * from "./autofix/index.ts";
 export * from "./doctor/index.ts";
 export * from "./git/index.ts";
 export * from "./lsp/index.ts";
+export * from "./memory/index.ts";
 export * from "./modes/index.ts";
 export * from "./navigator/index.ts";
 export * from "./notify/index.ts";
@@ -46,6 +50,7 @@ export interface OnecAgentExtensionOptions {
 	initialMode?: AgentMode;
 	bslAnalyzerPath?: string;
 	projectRoot?: string;
+	memoryDbPath?: string;
 }
 
 export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}) {
@@ -55,8 +60,10 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 		inlineFeedback: InlineFeedbackHandler;
 		permissionManager: PermissionManager;
 		notifyClient?: PerunNotifyClient;
+		memoryStore: MemoryStore;
 	} {
 		const projectRoot = options.projectRoot || process.cwd();
+		const memoryStore = new MemoryStore(options.memoryDbPath);
 		const modeManager = new ModeManager(pi, options.initialMode || "write");
 		const lspClient = new BslLspClient({
 			executablePath: options.bslAnalyzerPath,
@@ -66,6 +73,44 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			bslAnalyzerPath: options.bslAnalyzerPath,
 		});
 		const permissionManager = new PermissionManager("auto-approve", projectRoot);
+
+		// Persistent feedback listener
+		const processedFeedbackIds = new Set<string>();
+		const persistFeedback = (feedback: Record<string, unknown>) => {
+			const id = String(feedback.id || crypto.randomUUID());
+			if (processedFeedbackIds.has(id)) {
+				return;
+			}
+			processedFeedbackIds.add(id);
+			memoryStore.saveFeedback({ ...feedback, id }, projectRoot);
+
+			const comment = typeof feedback.comment === "string" ? feedback.comment.trim() : "";
+			if (comment) {
+				memoryStore.saveLesson({
+					lesson: comment,
+					cwd: projectRoot,
+					scope: "project",
+					confidence: 1.0,
+				});
+			} else if (
+				Array.isArray(feedback.categories) &&
+				feedback.categories.length > 0 &&
+				feedback.kind === "dislike"
+			) {
+				memoryStore.saveLesson({
+					lesson: `Избегать замечаний: ${feedback.categories.join(", ")}`,
+					cwd: projectRoot,
+					scope: "project",
+					confidence: 0.9,
+				});
+			}
+		};
+
+		pi.on("submit_feedback", (event: SubmitFeedbackEvent) => {
+			if (event?.feedback) {
+				persistFeedback(event.feedback);
+			}
+		});
 
 		let activeCtx: ExtensionContext | undefined;
 		let notifyClient: PerunNotifyClient | undefined;
@@ -199,6 +244,23 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			if (has1cFiles) {
 				await lspClient.start(projectRoot).catch(() => {});
 			}
+
+			// Query relevant memory lessons for current project cwd and inject into history
+			const targetCwd = ctx.cwd || projectRoot;
+			const lessons = memoryStore.getRelevantLessons(targetCwd);
+			if (lessons.length > 0) {
+				const entries = ctx.sessionManager?.getEntries ? ctx.sessionManager.getEntries() : [];
+				const alreadyInjected = entries.some(
+					(e) => (e as { customType?: string }).customType === "pi-memory-context",
+				);
+				if (!alreadyInjected && pi.sendMessage) {
+					pi.sendMessage({
+						customType: "pi-memory-context",
+						content: formatMemoryContext(lessons),
+						display: false,
+					});
+				}
+			}
 		});
 
 		// 7. Lifecycle event: session_shutdown
@@ -207,6 +269,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 				await notifyClient.flush().catch(() => {});
 			}
 			await lspClient.stop().catch(() => {});
+			memoryStore.close();
 		});
 
 		// 8. Hook: before_agent_start - inject mode instructions & 1C environment matrix
@@ -307,6 +370,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			inlineFeedback,
 			permissionManager,
 			notifyClient,
+			memoryStore,
 		};
 	};
 }
