@@ -17,6 +17,7 @@ import type {
 	ToolResultEventResult,
 } from "@earendil-works/pi-coding-agent";
 import { registerAutofixTools } from "./autofix/index.ts";
+import { DocsService, docsPromptSection, registerDocs } from "./docs/index.ts";
 import { runDoctor } from "./doctor/index.ts";
 import { generateDocsForDiff, registerGitTools } from "./git/index.ts";
 import { BslLspClient, InlineFeedbackHandler } from "./lsp/index.ts";
@@ -32,6 +33,7 @@ import type { AgentMode } from "./types.ts";
 import { registerVanessaTools } from "./vanessa/index.ts";
 
 export * from "./autofix/index.ts";
+export * from "./docs/index.ts";
 export * from "./doctor/index.ts";
 export * from "./git/index.ts";
 export * from "./lsp/index.ts";
@@ -51,6 +53,7 @@ export interface OnecAgentExtensionOptions {
 	bslAnalyzerPath?: string;
 	projectRoot?: string;
 	memoryDbPath?: string;
+	docsDbPath?: string;
 }
 
 export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}) {
@@ -61,6 +64,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 		permissionManager: PermissionManager;
 		notifyClient?: PerunNotifyClient;
 		memoryStore: MemoryStore;
+		docsService: DocsService;
 	} {
 		const projectRoot = options.projectRoot || process.cwd();
 		const memoryStore = new MemoryStore(options.memoryDbPath);
@@ -115,6 +119,12 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 		let activeCtx: ExtensionContext | undefined;
 		let notifyClient: PerunNotifyClient | undefined;
 
+		const docsService = new DocsService({
+			root: projectRoot,
+			dbPath: options.docsDbPath,
+			onStatus: (text) => activeCtx?.ui.setStatus("1c-docs", text),
+		});
+
 		const notifyUrl = process.env.PERUN_NOTIFY_URL;
 		const notifySecret = process.env.PERUN_NOTIFY_SECRET;
 		if (notifyUrl && notifySecret) {
@@ -162,6 +172,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 		registerVanessaTools(pi, projectRoot);
 		registerSkillTools(pi, projectRoot);
 		registerGitTools(pi, projectRoot);
+		registerDocs(pi, docsService);
 		permissionManager.register(pi);
 
 		// 2. Discover built-in 1C skills
@@ -243,6 +254,8 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			const has1cFiles = await detect1cProject(projectRoot);
 			if (has1cFiles) {
 				await lspClient.start(projectRoot).catch(() => {});
+				docsService.setRoot(ctx.cwd || projectRoot);
+				docsService.refresh();
 			}
 
 			// Query relevant memory lessons for current project cwd and inject into history
@@ -270,6 +283,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			}
 			await lspClient.stop().catch(() => {});
 			memoryStore.close();
+			docsService.close();
 		});
 
 		// 8. Hook: before_agent_start - inject mode instructions & 1C environment matrix
@@ -301,8 +315,9 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 				"  * ГРАНИЦЫ ЗАДАЧИ И АРТЕФАКТА: Явно названный в запросе артефакт (файл, модуль, отчет) является жесткой границей задачи; смежные дефекты оформлять только как предложения, не вносить изменения самостоятельно без прямого указания пользователя.\n" +
 				"  * СТРОГИЙ ЗАПРЕТ СКАНИРОВАНИЯ ДИСКА И РЕВЕРС-ИНЖИНИРИНГА: Категорически запрещен тотальный поиск find / по всему диску; поиск файлов разрешен только внутри каталога проекта. Категорически запрещено дизассемблирование и реверс-инжиниринг бинарников платформы и утилит через strings, otool, чтение .res/.hbk.";
 
+			const environment = `${envInjection}\n\n${docsPromptSection()}`;
 			if (event.systemPromptOptions?.sections) {
-				event.systemPromptOptions.sections.onec_environment = envInjection;
+				event.systemPromptOptions.sections.onec_environment = environment;
 			}
 			if (event.systemPromptOptions?.promptGuidelines) {
 				event.systemPromptOptions.promptGuidelines.push(promptInjection);
@@ -310,7 +325,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			}
 			if (event.systemPrompt) {
 				return {
-					systemPrompt: `${event.systemPrompt}\n\n${envInjection}\n\n${promptInjection}`,
+					systemPrompt: `${event.systemPrompt}\n\n${environment}\n\n${promptInjection}`,
 				};
 			}
 			return undefined;
@@ -371,6 +386,7 @@ export function createOnecAgentExtension(options: OnecAgentExtensionOptions = {}
 			permissionManager,
 			notifyClient,
 			memoryStore,
+			docsService,
 		};
 	};
 }

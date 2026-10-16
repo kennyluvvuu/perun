@@ -1,8 +1,7 @@
 import * as crypto from "node:crypto";
-import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { DatabaseSync } from "node:sqlite";
+import { openSqlite, type SqliteDatabase } from "../storage/sqlite.ts";
 import type { FeedbackRecord, LessonRecord } from "./types.ts";
 
 export function getMemoryDbPath(): string {
@@ -11,20 +10,17 @@ export function getMemoryDbPath(): string {
 }
 
 export class MemoryStore {
-	private db: DatabaseSync;
+	private db: SqliteDatabase;
 	private dbPath: string;
 
 	constructor(customPath?: string) {
 		this.dbPath = customPath || getMemoryDbPath();
+		this.db = openSqlite(this.dbPath);
 		try {
-			const dir = path.dirname(this.dbPath);
-			if (!fs.existsSync(dir)) {
-				fs.mkdirSync(dir, { recursive: true });
-			}
-			this.db = new DatabaseSync(this.dbPath);
 			this.initSchema();
 		} catch {
-			this.db = new DatabaseSync(":memory:");
+			this.db.close();
+			this.db = openSqlite(":memory:");
 			this.initSchema();
 		}
 	}

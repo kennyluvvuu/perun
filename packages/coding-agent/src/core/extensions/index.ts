@@ -88,6 +88,8 @@ export type {
 	ExtensionFlag,
 	ExtensionHandler,
 	ExtensionMode,
+	ExtensionRequestEvent,
+	ExtensionRequestEventResult,
 	// Runtime
 	ExtensionRuntime,
 	ExtensionShortcut,

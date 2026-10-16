@@ -718,6 +718,10 @@ export class PermissionPolicy {
 			"1c_call_hierarchy",
 			"1c_impact_analysis",
 			"1c_ast_symbols",
+			"1c_docs_search",
+			"1c_docs_read",
+			"1c_docs_write",
+			"1c_docs_outdated",
 		]);
 
 		if (safeReadTools.has(toolName)) {

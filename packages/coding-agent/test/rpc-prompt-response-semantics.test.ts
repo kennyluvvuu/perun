@@ -486,4 +486,53 @@ describe("RPC prompt response semantics", () => {
 			await cleanup();
 		}
 	});
+
+	it("routes extension_request to the owning extension and reports unknown methods", async () => {
+		const { lineHandler, cleanup } = await startRpcMode({
+			withAuth: false,
+			responseDelayMs: 0,
+			extensionsResult: await createTestExtensionsResult([
+				(pi) => {
+					pi.on("extension_request", async (event) => {
+						if (event.method === "docs.fail") throw new Error("Документация не найдена");
+						return event.method === "docs.echo" ? { echo: event.params } : undefined;
+					});
+				},
+			]),
+		});
+
+		try {
+			for (const [id, method] of [
+				["r1", "docs.echo"],
+				["r2", "docs.fail"],
+				["r3", "other.method"],
+			]) {
+				lineHandler(JSON.stringify({ id, type: "extension_request", method, params: { q: 1 } }));
+			}
+			await vi.waitFor(() => {
+				const responses = parseOutputLines(rpcIo.outputLines).filter((line) => line.type === "response");
+				expect(responses).toEqual(
+					expect.arrayContaining([
+						{ id: "r1", type: "response", command: "extension_request", success: true, data: { echo: { q: 1 } } },
+						{
+							id: "r2",
+							type: "response",
+							command: "extension_request",
+							success: false,
+							error: "Документация не найдена",
+						},
+						{
+							id: "r3",
+							type: "response",
+							command: "extension_request",
+							success: false,
+							error: "Unknown extension method: other.method",
+						},
+					]),
+				);
+			});
+		} finally {
+			await cleanup();
+		}
+	});
 });

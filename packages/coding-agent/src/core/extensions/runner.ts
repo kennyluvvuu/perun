@@ -54,6 +54,8 @@ import type {
 	ExtensionEvent,
 	ExtensionFlag,
 	ExtensionMode,
+	ExtensionRequestEvent,
+	ExtensionRequestEventResult,
 	ExtensionRuntime,
 	ExtensionShortcut,
 	ExtensionToolContext,
@@ -197,6 +199,7 @@ type RunnerEmitEvent = Exclude<
 	| InputEvent
 	| TurnEndEvent
 	| AgentBeforeSettleEvent
+	| ExtensionRequestEvent
 >;
 
 type SessionBeforeEvent = Extract<
@@ -1264,6 +1267,22 @@ export class ExtensionRunner {
 		}
 
 		return result;
+	}
+
+	/** Returns the first handler result; handler errors propagate to the caller as the request error. */
+	async emitExtensionRequest(event: ExtensionRequestEvent): Promise<ExtensionRequestEventResult | undefined> {
+		const ctx = this.createContext();
+
+		for (const { handlers } of snapshotEventHandlers(this.extensions, "extension_request")) {
+			for (const handler of handlers) {
+				const handlerResult = (await handler(event, ctx)) as ExtensionRequestEventResult | undefined;
+				if (handlerResult !== undefined) {
+					return handlerResult;
+				}
+			}
+		}
+
+		return undefined;
 	}
 
 	async emitUserBash(event: UserBashEvent): Promise<UserBashEventResult | undefined> {
