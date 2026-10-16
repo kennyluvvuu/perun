@@ -728,6 +728,14 @@ export class PermissionPolicy {
 			return { allowed: true, requiresUserConfirmation: false };
 		}
 
+		const action = typeof input?.action === "string" ? input.action : "";
+		if (
+			(toolName === "1c_md" && (action === "info" || action === "validate")) ||
+			(toolName === "1c_ib" && action === "status")
+		) {
+			return { allowed: true, requiresUserConfirmation: false };
+		}
+
 		// C. STRICT mode: all mutating tools and commands require interactive user confirmation
 		if (this.level === "strict") {
 			return {
@@ -744,8 +752,8 @@ export class PermissionPolicy {
 				return { allowed: true, requiresUserConfirmation: false };
 			}
 
-			// Subagents, 1c_vanessa, and 1c_skill_execute within project are allowed
-			if (toolName === "1c_subagent" || toolName === "1c_vanessa" || toolName === "1c_skill_execute") {
+			// Метаданные, информационная база и тесты внутри проекта разрешены
+			if (toolName === "1c_md" || toolName === "1c_ib" || toolName === "1c_vanessa") {
 				return { allowed: true, requiresUserConfirmation: false };
 			}
 

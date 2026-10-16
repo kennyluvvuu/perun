@@ -1,4 +1,6 @@
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { isReadOnlyMdCall } from "../edt/tools.ts";
+import { isReadOnlyIbCall } from "../infobase/tools.ts";
 import type { AgentMode, ModeConfig } from "../types.ts";
 import { MODE_CONFIGS, MODE_CYCLE_ORDER, MUTATING_TOOLS } from "./types.ts";
 
@@ -79,17 +81,23 @@ export class ModeManager {
 		ctx.ui.setStatus("1c-mode", text);
 	}
 
-	public isToolAllowed(toolName: string): boolean {
+	public isToolAllowed(toolName: string, input?: unknown): boolean {
 		const config = MODE_CONFIGS[this.currentMode];
 		if (!config.isReadOnly) {
 			return true;
+		}
+		if (toolName === "1c_md") {
+			return isReadOnlyMdCall(input);
+		}
+		if (toolName === "1c_ib") {
+			return isReadOnlyIbCall(input);
 		}
 		const mutatingSet = new Set<string>(MUTATING_TOOLS);
 		return !mutatingSet.has(toolName);
 	}
 
-	public checkToolCall(toolName: string): { block: boolean; reason?: string } {
-		if (this.isToolAllowed(toolName)) {
+	public checkToolCall(toolName: string, input?: unknown): { block: boolean; reason?: string } {
+		if (this.isToolAllowed(toolName, input)) {
 			return { block: false };
 		}
 		const config = MODE_CONFIGS[this.currentMode];

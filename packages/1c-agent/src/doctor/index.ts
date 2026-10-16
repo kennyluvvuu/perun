@@ -1,12 +1,7 @@
 import { spawnSync } from "node:child_process";
 import * as fs from "node:fs";
-import * as path from "node:path";
-import {
-	defaultToolchainResolver,
-	extractOnecVersion,
-	resolveSkillsDir,
-	type ToolchainResolver,
-} from "../toolchain/resolver.ts";
+import { locateEdtCli } from "../infobase/platform-locator.ts";
+import { defaultToolchainResolver, extractOnecVersion, type ToolchainResolver } from "../toolchain/resolver.ts";
 import type { DoctorItem, DoctorReport, DoctorRunResult } from "./types.ts";
 
 export * from "./types.ts";
@@ -183,42 +178,25 @@ export async function checkDoctorToolchain(
 		});
 	}
 
-	// 7. skills
-	const skillsDir = resolveSkillsDir();
-	let skillsCount = 0;
-	if (fs.existsSync(skillsDir)) {
-		try {
-			const entries = fs.readdirSync(skillsDir, { withFileTypes: true });
-			skillsCount = entries.filter(
-				(e) => e.isDirectory() && fs.existsSync(path.join(skillsDir, e.name, "SKILL.md")),
-			).length;
-		} catch {}
-	}
-	if (skillsCount > 0) {
+	// 7. 1C:EDT CLI
+	const edtCli = locateEdtCli();
+	if (edtCli) {
 		items.push({
-			name: "skills",
-			title: "Встроенные навыки 1С (CC-1C-SKILLS)",
-			required: true,
+			name: "edtCli",
+			title: "1C:EDT CLI (1cedtcli)",
+			required: false,
 			status: "ok",
-			path: skillsDir,
-			details: `Каталог навыков доступен (обнаружено навыков: ${skillsCount}).`,
-		});
-	} else if (fs.existsSync(skillsDir)) {
-		items.push({
-			name: "skills",
-			title: "Встроенные навыки 1С (CC-1C-SKILLS)",
-			required: true,
-			status: "warning",
-			path: skillsDir,
-			details: "Каталог навыков найден, но навыки с SKILL.md не обнаружены.",
+			path: edtCli,
+			details: "Выгрузка EDT-проекта в XML для сборки в базу доступна (1c_ib build).",
 		});
 	} else {
 		items.push({
-			name: "skills",
-			title: "Встроенные навыки 1С (CC-1C-SKILLS)",
-			required: true,
-			status: "missing",
-			recommendation: "Каталог встроенных навыков не найден. Проверьте PERUN_SKILLS_DIR или сборку дистрибутива.",
+			name: "edtCli",
+			title: "1C:EDT CLI (1cedtcli)",
+			required: false,
+			status: "warning",
+			recommendation:
+				"Установите 1C:EDT или укажите путь к 1cedtcli в EDTCLI_PATH: без него проект EDT нельзя собрать в базу (1c_ib build).",
 		});
 	}
 
