@@ -54,6 +54,7 @@ export type PiCodingAgentHarnessOptions = {
 	tools?: CreateAgentSessionOptions["tools"];
 	customTools?: CreateAgentSessionOptions["customTools"];
 	workspaceFiles?: Readonly<Record<string, string>>;
+	extensions?: readonly InlineExtension[];
 	transformSystemPrompt?: (defaultPrompt: string) => string;
 	expectedPiDocumentation?: boolean;
 };
@@ -284,7 +285,7 @@ async function runPiCodingAgent<TOutput extends JsonValue>(
 	const workspace = join(root, "workspace");
 	const isolatedHome = join(root, "home");
 	const agentDir = join(isolatedHome, ".pi", "agent");
-	const extensionFactories: InlineExtension[] = [];
+	const extensionFactories: InlineExtension[] = [...(options.extensions ?? [])];
 	let forcedSystemPrompt: string | undefined;
 	if (options.transformSystemPrompt) {
 		const transform = options.transformSystemPrompt;

@@ -5,7 +5,6 @@ import type {
 	BeforeAgentStartEvent,
 	ExtensionAPI,
 	ExtensionContext,
-	ResourcesDiscoverEvent,
 	SessionStartEvent,
 	ToolCallEvent,
 	ToolResultEvent,
@@ -45,8 +44,8 @@ function setupExtensionTest(options: OnecAgentExtensionOptions = { initialMode: 
 			"1c_call_hierarchy",
 			"1c_impact_analysis",
 			"1c_ast_symbols",
-			"1c_subagent",
-			"1c_skill_execute",
+			"1c_md",
+			"1c_ib",
 		]),
 		setActiveTools: vi.fn(),
 	} as unknown as ExtensionAPI;
@@ -86,9 +85,11 @@ describe("1C Agent Extension Integration", () => {
 		expect(registeredTools.has("1c_impact_analysis")).toBe(true);
 		expect(registeredTools.has("1c_ast_symbols")).toBe(true);
 		expect(registeredTools.has("bsl_fix_standards")).toBe(true);
-		expect(registeredTools.has("1c_subagent")).toBe(true);
 		expect(registeredTools.has("1c_vanessa")).toBe(true);
-		expect(registeredTools.has("1c_skill_execute")).toBe(true);
+		expect(registeredTools.has("1c_md")).toBe(true);
+		expect(registeredTools.has("1c_ib")).toBe(true);
+		expect(registeredTools.has("1c_subagent")).toBe(false);
+		expect(registeredTools.has("1c_skill_execute")).toBe(false);
 		expect(registeredTools.has("1c_git_blame_context")).toBe(true);
 		expect(registeredTools.has("1c_git_docgen")).toBe(true);
 
@@ -105,27 +106,8 @@ describe("1C Agent Extension Integration", () => {
 		expect(eventHandlers.has("before_agent_start")).toBe(true);
 		expect(eventHandlers.has("tool_call")).toBe(true);
 		expect(eventHandlers.has("tool_result")).toBe(true);
-		expect(eventHandlers.has("resources_discover")).toBe(true);
-
-		// Check resources_discover provides skills
-		const resourcesDiscoverHandler = eventHandlers.get("resources_discover")?.[0];
-		expect(resourcesDiscoverHandler).toBeDefined();
-		const discoverEvent: ResourcesDiscoverEvent = {
-			type: "resources_discover",
-			cwd: process.cwd(),
-			reason: "startup",
-		};
-		const discoverResult = resourcesDiscoverHandler!(discoverEvent, ctx);
-		expect(discoverResult?.skillPaths?.length).toBeGreaterThan(0);
-
-		// Verify skills directory contains 81 valid 1C skills with SKILL.md
-		const skillsDir = discoverResult!.skillPaths![0];
-		expect(fs.existsSync(skillsDir)).toBe(true);
-		const skillDirs = fs.readdirSync(skillsDir).filter((name) => {
-			const skillMd = path.join(skillsDir, name, "SKILL.md");
-			return fs.existsSync(skillMd);
-		});
-		expect(skillDirs.length).toBe(81);
+		expect(eventHandlers.has("resources_discover")).toBe(false);
+		expect(ctx).toBeDefined();
 	});
 
 	it("integrates mode switching with tool_call blocking", async () => {
@@ -153,7 +135,7 @@ describe("1C Agent Extension Integration", () => {
 		});
 	});
 
-	it("injects mode instructions and security/language rules on before_agent_start", async () => {
+	it("injects the compact 1C section and mode instruction on before_agent_start", async () => {
 		const { instance, eventHandlers } = setupExtensionTest();
 		const beforeStartHandler = eventHandlers.get("before_agent_start")?.[0];
 		expect(beforeStartHandler).toBeDefined();
@@ -172,15 +154,14 @@ describe("1C Agent Extension Integration", () => {
 		};
 
 		await beforeStartHandler!(event);
-		expect(event.systemPromptOptions.promptGuidelines[0]).toContain("[РЕЖИМ: ОБЪЯСНИТЬ (DOCUMENT & EXPLAIN)]");
-		expect(event.systemPromptOptions.sections.onec_environment).toContain("ПИН ЯЗЫКА ОТВЕТА");
-		expect(event.systemPromptOptions.sections.onec_environment).toContain("ГРАНИЦЫ ЗАДАЧИ И АРТЕФАКТА");
-		expect(event.systemPromptOptions.sections.onec_environment).toContain(
-			"СТРОГИЙ ЗАПРЕТ СКАНИРОВАНИЯ ДИСКА И РЕВЕРС-ИНЖИНИРИНГА",
-		);
-		expect(event.systemPromptOptions.sections.onec_environment).toContain("find /");
-		expect(event.systemPromptOptions.sections.onec_environment).toContain("strings");
-		expect(event.systemPromptOptions.sections.onec_environment).toContain("otool");
+		expect(event.systemPromptOptions.promptGuidelines[0]).toContain("Режим ОБЪЯСНИТЬ");
+		const section = event.systemPromptOptions.sections.onec_environment;
+		expect(section).toContain("Раскладка EDT");
+		expect(section).toContain("1c_md");
+		expect(section).toContain("1c_ib build");
+		expect(section).toContain("Отвечай на языке пользователя");
+		expect(section).not.toMatch(/1c_skill_execute|1c_subagent|CC-1C-SKILLS|КАТЕГОРИЧЕСКИ|Ext\/ObjectModule/);
+		expect(section.length).toBeLessThan(7000);
 	});
 
 	it("initializes UI status on session_start", async () => {

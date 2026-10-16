@@ -82,7 +82,7 @@ try {
 		const assetsDestDir = join(binDir, "assets");
 		cpSync(assetsSrcDir, assetsDestDir, { recursive: true });
 
-		// Copy tools and skills directories into bin
+		// Copy tools directory into bin
 		const toolsSrcDir = join(onecAgentDir, "tools");
 		const toolsDestDir = join(binDir, "tools");
 		if (existsSync(toolsSrcDir)) {
@@ -93,12 +93,6 @@ try {
 					chmodSync(bslBinary, 0o755);
 				} catch {}
 			}
-		}
-
-		const skillsSrcDir = join(onecAgentDir, "skills");
-		const skillsDestDir = join(binDir, "skills");
-		if (existsSync(skillsSrcDir)) {
-			cpSync(skillsSrcDir, skillsDestDir, { recursive: true });
 		}
 
 		// Copy package.json next to the binary for runtime metadata

@@ -153,24 +153,13 @@ export function buildSystemPromptSections(input: BuildSystemPromptOptions): Syst
 		promptSections.preamble = customPrompt;
 	} else if (APP_NAME === "perun") {
 		promptSections.preamble =
-			"Ты — ПерУН (Персональный Умный Напарник для 1С), экспертный AI-ассистент разработчика 1С:Предприятие (BSL, OneScript, 1C:EDT, метаданные конфигурации .mdo). Ты помогаешь пользователю читать файлы, выполнять команды, редактировать код и писать новые модули 1С в соответствии со стандартами разработки ИТС.\n\n" +
-			"Встроенные инструменты и архитектура ПерУН:\n" +
-			"- Фоновый LSP-сервер bsl-analyzer уже интегрирован в ядро агента. При каждом создании или изменении файлов .bsl и .os через write или edit результаты статической проверки синтаксиса и стандартов ИТС возвращаются автоматически прямо в ответе инструмента (inline LSP feedback). Не пытайся искать или запускать bsl-analyzer через bash (which, find, whereis).\n" +
-			"- Специализированные инструменты 1С: 1c_vanessa (управление ИБ, загрузка/выгрузка исходников XML/EDT, обновление конфигурации БД и BDD-тестирование через Vanessa Automation / vrunner), bsl_fix_standards (автоматическое исправление нарушений стандартов ИТС), 1c_call_hierarchy (анализ графа вызовов), 1c_impact_analysis (анализ влияния изменений на метаданные и регистры), 1c_ast_symbols (извлечение процедур, функций, директив &НаСервере/&НаКлиенте), 1c_subagent (делегирование задач субагентам).\n" +
-			"- Формат проекта: исходные коды 1C:EDT (Configuration.mdo, метаданные .mdo, модули .bsl, файл .project). Разработка ведется прямо в исходных кодах EDT без необходимости внешнего GUI Конфигуратора.";
+			"Ты — ПерУН (Персональный Умный Напарник), ассистент разработчика 1С:Предприятие 8.3. Ты читаешь и меняешь конфигурации в формате 1C:EDT, пишешь код на BSL и проверяешь его в информационной базе с помощью инструментов ниже.";
 		const visibleTools = declaredTools.filter((name) => !!toolSnippets[name]);
 		const tools =
 			visibleTools.length > 0 ? visibleTools.map((name) => `- ${name}: ${toolSnippets[name]}`).join("\n") : "(none)";
-		promptSections.tools = `${tools}\n\nIn addition to the tools above, you may have access to other custom tools depending on the project.`;
+		promptSections.tools = tools;
 		promptSections.rules = buildRules(declaredTools, toolGuidelines, promptGuidelines);
-		promptSections.docs = `Документация и стандарты разработки (обращаться при вопросах по архитектуре, стандартам ИТС и инструментам ПерУН):
-- Main documentation: ${getReadmePath()}
-- Additional docs: ${getDocsPath()}
-- Examples: ${getExamplesPath()} (extensions, custom tools, SDK)
-- When reading docs or examples, resolve docs/... under Additional docs and examples/... under Examples, not the current working directory
-- When asked about: extensions (docs/extensions.md, examples/extensions/), themes (docs/themes.md), skills (docs/skills.md), prompt templates (docs/prompt-templates.md), TUI components (docs/tui.md), keybindings (docs/keybindings.md), SDK integrations (docs/sdk.md), custom providers (docs/custom-provider.md), adding models (docs/models.md), packages (docs/packages.md), environment variables (docs/environment-variables.md), MCP servers (docs/mcp.md), codemode scripts and non-LLM models such as classifiers and image models (docs/codemode.md)
-- When working on ПерУН topics, read the docs and examples, and follow .md cross-references before implementing
-- Always read .md files completely and follow links to related docs (e.g., tui.md for TUI API details)`;
+		promptSections.docs = `Документация ПерУН: ${getReadmePath()} — читай её, только если пользователь спрашивает о самом ПерУН.`;
 	} else {
 		promptSections.preamble =
 			"You are an expert coding assistant operating inside pi, a coding agent harness. You help users by reading files, executing commands, editing code, and writing new files.";

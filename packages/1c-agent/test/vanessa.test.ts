@@ -564,10 +564,7 @@ describe("Vanessa Tools (vrunner) Integration", () => {
 				};
 			};
 			const actions = paramsSchema.properties.action.anyOf.map((literal) => literal.const);
-			expect(actions).toContain("xunit");
-			expect(actions).toContain("test-xunit");
-			expect(actions).toContain("run");
-			expect(actions).toContain("run-epf");
+			expect(actions).toEqual(["test", "xunit"]);
 			expect(paramsSchema.properties.epf).toBeDefined();
 
 			const mockCtx = { cwd: "/test/custom-cwd" } as ExtensionToolContext;
@@ -590,7 +587,12 @@ describe("Vanessa Tools (vrunner) Integration", () => {
 			expect(text0.text).toContain("xUnit тесты пройдены");
 			expect(mockExecutor).toHaveBeenCalledWith(
 				expect.any(String),
-				expect.arrayContaining(["xunit", "./build/ТестыMiniCRM.epf"]),
+				expect.arrayContaining([
+					"xunit",
+					"./build/ТестыMiniCRM.epf",
+					"--ibconnection",
+					"/F/test/custom-cwd/build/ib",
+				]),
 				"/test/custom-cwd",
 				undefined,
 				expect.any(Object),

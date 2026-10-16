@@ -42,12 +42,8 @@ describe("1C Agent Modes", () => {
 	});
 
 	it("MUTATING_TOOLS contains all required mutating tools", () => {
-		expect(MUTATING_TOOLS).toContain("edit");
-		expect(MUTATING_TOOLS).toContain("write");
-		expect(MUTATING_TOOLS).toContain("bash");
-		expect(MUTATING_TOOLS).toContain("bsl_fix_standards");
-		expect(MUTATING_TOOLS).toContain("1c_vanessa");
-		expect(MUTATING_TOOLS).toContain("1c_skill_execute");
+		expect(MUTATING_TOOLS).toEqual(["edit", "write", "bash", "bsl_fix_standards", "1c_vanessa", "1c_git_docgen"]);
+		expect(MUTATING_TOOLS).not.toContain("1c_skill_execute");
 	});
 
 	it("cycles through all modes in correct order", () => {
@@ -68,54 +64,39 @@ describe("1C Agent Modes", () => {
 		const api = createMockExtensionAPI();
 		const manager = new ModeManager(api, "find");
 
-		// find mode
-		expect(manager.isToolAllowed("read")).toBe(true);
-		expect(manager.isToolAllowed("find")).toBe(true);
-		expect(manager.isToolAllowed("1c_call_hierarchy")).toBe(true);
-		expect(manager.isToolAllowed("edit")).toBe(false);
-		expect(manager.isToolAllowed("write")).toBe(false);
-		expect(manager.isToolAllowed("bash")).toBe(false);
-		expect(manager.isToolAllowed("bsl_fix_standards")).toBe(false);
-		expect(manager.isToolAllowed("1c_vanessa")).toBe(false);
-		expect(manager.isToolAllowed("1c_skill_execute")).toBe(false);
+		for (const mode of ["find", "explain", "plan"] as const) {
+			manager.setMode(mode);
+			for (const tool of MUTATING_TOOLS) {
+				expect(manager.checkToolCall(tool).block).toBe(true);
+			}
+			expect(manager.checkToolCall("read").block).toBe(false);
+			expect(manager.checkToolCall("1c_ast_symbols").block).toBe(false);
+		}
+		manager.setMode("find");
+		expect(manager.checkToolCall("edit").reason).toContain("заблокирован в режиме [НАЙТИ]");
+	});
 
-		const blockCheck = manager.checkToolCall("edit");
-		expect(blockCheck.block).toBe(true);
-		expect(blockCheck.reason).toContain("заблокирован в режиме [НАЙТИ]");
+	it("lets read-only actions of 1c_md and 1c_ib through in read-only modes", () => {
+		const api = createMockExtensionAPI();
+		const manager = new ModeManager(api, "plan");
 
-		// explain mode
-		manager.setMode("explain");
-		expect(manager.checkToolCall("write").block).toBe(true);
-		expect(manager.checkToolCall("bash").block).toBe(true);
-		expect(manager.checkToolCall("1c_skill_execute").block).toBe(true);
-		expect(manager.checkToolCall("bsl_fix_standards").block).toBe(true);
-		expect(manager.checkToolCall("1c_vanessa").block).toBe(true);
-		expect(manager.checkToolCall("edit").block).toBe(true);
-		expect(manager.checkToolCall("read").block).toBe(false);
-		expect(manager.checkToolCall("1c_ast_symbols").block).toBe(false);
-
-		// plan mode
-		manager.setMode("plan");
-		expect(manager.checkToolCall("edit").block).toBe(true);
-		expect(manager.checkToolCall("bash").block).toBe(true);
-		expect(manager.checkToolCall("1c_skill_execute").block).toBe(true);
-		expect(manager.checkToolCall("read").block).toBe(false);
+		expect(manager.checkToolCall("1c_md", { action: "info" }).block).toBe(false);
+		expect(manager.checkToolCall("1c_md", { action: "validate" }).block).toBe(false);
+		expect(manager.checkToolCall("1c_md", { action: "create", object: "Справочник.Товары" }).block).toBe(true);
+		expect(manager.checkToolCall("1c_md", { action: "add" }).block).toBe(true);
+		expect(manager.checkToolCall("1c_md").block).toBe(true);
+		expect(manager.checkToolCall("1c_ib", { action: "status" }).block).toBe(false);
+		expect(manager.checkToolCall("1c_ib", { action: "build" }).block).toBe(true);
+		expect(manager.checkToolCall("1c_ib", { action: "run" }).block).toBe(true);
 	});
 
 	it("allows all tools in НАПИСАТЬ mode", () => {
 		const api = createMockExtensionAPI();
 		const manager = new ModeManager(api, "write");
 
-		expect(manager.isToolAllowed("read")).toBe(true);
-		expect(manager.isToolAllowed("edit")).toBe(true);
-		expect(manager.isToolAllowed("write")).toBe(true);
-		expect(manager.isToolAllowed("bash")).toBe(true);
-		expect(manager.isToolAllowed("1c_skill_execute")).toBe(true);
-		expect(manager.isToolAllowed("bsl_fix_standards")).toBe(true);
-		expect(manager.isToolAllowed("1c_vanessa")).toBe(true);
-		expect(manager.checkToolCall("write").block).toBe(false);
-		expect(manager.checkToolCall("bash").block).toBe(false);
-		expect(manager.checkToolCall("1c_skill_execute").block).toBe(false);
+		for (const tool of [...MUTATING_TOOLS, "read", "1c_md", "1c_ib"]) {
+			expect(manager.checkToolCall(tool, { action: "create" }).block).toBe(false);
+		}
 	});
 
 	it("keeps toolset stable without deleting tools from registry, blocking via checkToolCall", () => {
@@ -124,20 +105,8 @@ describe("1C Agent Modes", () => {
 		const manager = new ModeManager(api, "write");
 
 		manager.setMode("find", ctx);
-		// Does not delete tools from registry via setActiveTools to prevent "Tool bash not found"
 		expect(api.setActiveTools).not.toHaveBeenCalled();
-
-		// Mutating tools are blocked via checkToolCall
 		expect(manager.checkToolCall("bash").block).toBe(true);
-		expect(manager.checkToolCall("1c_skill_execute").block).toBe(true);
-		expect(manager.checkToolCall("edit").block).toBe(true);
-		expect(manager.checkToolCall("write").block).toBe(true);
-		expect(manager.checkToolCall("bsl_fix_standards").block).toBe(true);
-		expect(manager.checkToolCall("1c_vanessa").block).toBe(true);
-
-		// Read-only tools are allowed
-		expect(manager.checkToolCall("read").block).toBe(false);
-		expect(manager.checkToolCall("find").block).toBe(false);
 		expect(manager.checkToolCall("grep").block).toBe(false);
 	});
 
@@ -153,117 +122,31 @@ describe("1C Agent Modes", () => {
 		expect(ctx.ui.setStatus).toHaveBeenCalledWith("1c-mode", "[1C: НАПИСАТЬ]");
 	});
 
-	it("provides tailored system prompt injection per mode", () => {
+	it("provides a short instruction per mode", () => {
 		const api = createMockExtensionAPI();
 		const manager = new ModeManager(api, "find");
-
-		expect(manager.getSystemPromptInjection()).toContain("[РЕЖИМ: НАЙТИ (EXPLORE)]");
-
-		manager.setMode("explain");
-		expect(manager.getSystemPromptInjection()).toContain("[РЕЖИМ: ОБЪЯСНИТЬ (DOCUMENT & EXPLAIN)]");
-
-		manager.setMode("write");
-		expect(manager.getSystemPromptInjection()).toContain("[РЕЖИМ: НАПИСАТЬ (CODE & REFACTOR)]");
-
-		manager.setMode("plan");
-		expect(manager.getSystemPromptInjection()).toContain("[РЕЖИМ: ПЛАНИРОВАТЬ (ARCHITECT & PLAN)]");
-	});
-
-	it("all mode system prompts specify toolchain-resolver, cc-1c-skills, and 1c_vanessa actions", () => {
-		const api = createMockExtensionAPI();
-		const manager = new ModeManager(api, "find");
-
-		for (const mode of ["find", "explain", "write", "plan"] as const) {
+		const expected: Record<AgentMode, string> = {
+			find: "Режим НАЙТИ",
+			explain: "Режим ОБЪЯСНИТЬ",
+			write: "Режим НАПИСАТЬ",
+			plan: "Режим ПЛАНИРОВАТЬ",
+		};
+		for (const mode of MODE_CYCLE_ORDER) {
 			manager.setMode(mode);
 			const prompt = manager.getSystemPromptInjection();
-			expect(prompt).toContain("TOOLCHAIN-RESOLVER");
-			expect(prompt).toContain("CC-1C-SKILLS");
-			expect(prompt).toContain("1c_vanessa");
-			expect(prompt).toContain("init-dev");
-			expect(prompt).toContain("load");
-			expect(prompt).toContain("dump");
-			expect(prompt).toContain("updatedb");
-			expect(prompt).toContain("test");
+			expect(prompt).toContain(expected[mode]);
+			expect(prompt.length).toBeLessThan(600);
+			expect(prompt).not.toMatch(/КАТЕГОРИЧЕСКИ|1c_skill_execute|1c_subagent|CC-1C-SKILLS/);
 		}
 	});
 
-	it("explain mode prompt enforces 5-part response contract and write mode transition for fixes", () => {
+	it("read-only mode prompts state the restriction and explain mode points to НАПИСАТЬ for fixes", () => {
 		const api = createMockExtensionAPI();
 		const manager = new ModeManager(api, "explain");
-		const prompt = manager.getSystemPromptInjection();
-
-		expect(prompt).toContain("ЖЕСТКИЙ 5-ЧАСТНЫЙ КОНТРАКТ ОТВЕТА");
-		expect(prompt).toContain("1. Симптом");
-		expect(prompt).toContain("2. Трасса");
-		expect(prompt).toContain("3. Причина");
-		expect(prompt).toContain("4. Следствия");
-		expect(prompt).toContain("5. Верификация");
-		expect(prompt).toContain("СТРОГОЕ ПРАВИЛО ДЛЯ БЛОКА «КАК ИСПРАВИТЬ»");
-		expect(prompt).toContain("НАПИСАТЬ");
-	});
-
-	it("all mode system prompts include language pin, artifact boundary, and disk search ban rules", () => {
-		const api = createMockExtensionAPI();
-		const manager = new ModeManager(api, "find");
-
-		for (const mode of ["find", "explain", "write", "plan"] as const) {
+		expect(manager.getSystemPromptInjection()).toContain("/mode write");
+		for (const mode of ["find", "explain", "plan"] as const) {
 			manager.setMode(mode);
-			const prompt = manager.getSystemPromptInjection();
-			expect(prompt).toContain("ПИН ЯЗЫКА ОТВЕТА");
-			expect(prompt).toContain("ГРАНИЦЫ ЗАДАЧИ И АРТЕФАКТА");
-			expect(prompt).toContain("СТРОГИЙ ЗАПРЕТ СКАНИРОВАНИЯ ДИСКА И РЕВЕРС-ИНЖИНИРИНГА");
-			expect(prompt).toContain("find /");
-			expect(prompt).toContain("strings");
-			expect(prompt).toContain("otool");
+			expect(manager.getSystemPromptInjection()).toContain("только чтение");
 		}
-	});
-
-	it("write mode prompt includes artifact routing table, prohibition rule, 1c_skill_execute docs, and external binary policy", () => {
-		const api = createMockExtensionAPI();
-		const manager = new ModeManager(api, "write");
-		const prompt = manager.getSystemPromptInjection();
-
-		// Routing table
-		expect(prompt).toContain("Metadata .mdo / *.xml -> 1c_skill_execute(skill: 'meta-info')");
-		expect(prompt).toContain("Managed forms Form.xml -> 1c_skill_execute(skill: 'form-info')");
-		expect(prompt).toContain("Data composition schema templates Template.xml -> 1c_skill_execute(skill: 'skd-info')");
-		expect(prompt).toContain("Spreadsheet documents *.mxl -> 1c_skill_execute(skill: 'mxl-info')");
-		expect(prompt).toContain("Roles and permissions Role.xml -> 1c_skill_execute(skill: 'role-validate')");
-		expect(prompt).toContain("Configuration validation Configuration.xml -> 1c_skill_execute(skill: 'cf-validate')");
-
-		// Negative prohibition rule
-		expect(prompt).toContain(
-			"КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО писать ad-hoc скрипты (python, bash heredoc, grep/awk) для разбора XML метаданных и СКД при наличии готового навыка. Используйте 1c_skill_execute.",
-		);
-
-		// 1c_skill_execute documentation
-		expect(prompt).toContain("1c_skill_execute");
-		expect(prompt).toContain("skill (string, обязательно)");
-		expect(prompt).toContain("args (Record<string, unknown> | string[], опционально)");
-		expect(prompt).toContain("cwd (string, опционально)");
-		expect(prompt).toContain("Python 3");
-		expect(prompt).toContain("OneScript");
-
-		// External binary policy & bash scoping
-		expect(prompt).toContain("ПОЛИТИКА ВНЕШНИХ БИНАРНИКОВ И СКРИПТОВ");
-		expect(prompt).toContain("1c_vanessa, bsl_fix_standards, 1c_skill_execute");
-		expect(prompt).toContain("Bash предназначен строго для операций внутри каталога проекта");
-
-		// Structure inspection via meta-info
-		expect(prompt).toContain("изучайте структуру через 1c_skill_execute с навыком meta-info");
-		expect(prompt).not.toContain("предварительно изучите существующие элементы файла через grep или read");
-
-		// Tool vs skill routing table
-		expect(prompt).toContain("Таблица маршрутизации инструментов (НЕ подменять инструмент навыком)");
-		expect(prompt).toContain(
-			"КАТЕГОРИЧЕСКИ ЗАПРЕЩЕНО вызывать bsl_fix_standards или 1c_vanessa через 1c_skill_execute",
-		);
-
-		// Runner failure policy
-		expect(prompt).toContain("ДИАГНОСТИЧЕСКАЯ РЕАКЦИЯ НА СБОИ РАННЕРА");
-		expect(prompt).toContain("НЕ предлагать пользователю интерактивный запуск 1С");
-
-		// LSP scope
-		expect(prompt).toContain("src/**/*.bsl");
 	});
 });

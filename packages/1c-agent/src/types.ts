@@ -140,29 +140,6 @@ export interface StandardFixResult {
 	readonly diff?: string;
 }
 
-export type SubagentRole = "1c-architect" | "1c-coder" | "1c-tester" | "1c-reviewer";
-
-export interface SubagentRoleConfig {
-	readonly role: SubagentRole;
-	readonly title: string;
-	readonly description: string;
-	readonly allowedTools: readonly string[];
-	readonly systemPrompt: string;
-}
-
-export interface SubagentRunOptions {
-	readonly role: SubagentRole;
-	readonly task: string;
-	readonly contextFiles?: readonly string[];
-}
-
-export interface SubagentRunResult {
-	readonly role: SubagentRole;
-	readonly task: string;
-	readonly output: string;
-	readonly warnings?: readonly string[];
-}
-
 export type PermissionLevel = "strict" | "auto-approve" | "yolo";
 
 export interface PermissionCheckResult {

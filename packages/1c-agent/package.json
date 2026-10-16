@@ -1,7 +1,7 @@
 {
 	"name": "@earendil-works/pi-1c-agent",
 	"version": "0.1.10",
-	"description": "1C AI agent extension with BSL LSP feedback, Deep Code Navigator, ITS Auto-Fixer, Subagents, and Modes",
+	"description": "1C AI agent extension: EDT metadata tools, infobase build, BSL LSP feedback, Deep Code Navigator, ITS Auto-Fixer and Modes",
 	"type": "module",
 	"private": true,
 	"main": "./src/index.ts",
@@ -11,7 +11,7 @@
 		"1c",
 		"bsl",
 		"v8std",
-		"subagents",
+		"edt",
 		"lsp"
 	],
 	"pi": {
@@ -33,6 +33,8 @@
 		"@earendil-works/pi-ai": "^1.1.0",
 		"@earendil-works/pi-coding-agent": "^1.1.0",
 		"@earendil-works/pi-tui": "^1.1.0",
+		"fast-xml-parser": "5.11.2",
+		"fast-xml-validator": "1.4.2",
 		"typebox": "1.3.27"
 	},
 	"devDependencies": {

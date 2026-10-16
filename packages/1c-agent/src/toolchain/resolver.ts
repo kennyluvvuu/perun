@@ -319,24 +319,6 @@ export function resolveToolsDir(): string {
 	return defaultToolchainResolver.getToolsDir();
 }
 
-export function resolveSkillsDir(): string {
-	if (process.env.PERUN_SKILLS_DIR) {
-		return process.env.PERUN_SKILLS_DIR;
-	}
-	const execDir = path.dirname(process.execPath);
-	const localSkills = path.join(execDir, "skills");
-	if (fs.existsSync(localSkills)) return localSkills;
-
-	const pkgDir = getPerunPackageDir();
-	const pkgSkills = path.join(pkgDir, "skills");
-	if (fs.existsSync(pkgSkills)) return pkgSkills;
-
-	const binSkills = path.join(pkgDir, "bin", "skills");
-	if (fs.existsSync(binSkills)) return binSkills;
-
-	return pkgSkills;
-}
-
 export function resolveBslAnalyzerPath(customPath?: string): string | undefined {
 	if (customPath) return customPath;
 	if (process.env.BSL_ANALYZER_PATH) return process.env.BSL_ANALYZER_PATH;
@@ -401,7 +383,7 @@ export function compareVersionStrings(a: string, b: string): number {
 	return a.localeCompare(b);
 }
 
-export function getAllToolchainPaths(): ToolchainPaths & { skillsDir: string } {
+export function getAllToolchainPaths(): ToolchainPaths {
 	const resolver = new ToolchainResolver();
 	return {
 		bslAnalyzer: resolver.resolveBslAnalyzer(),
@@ -411,6 +393,5 @@ export function getAllToolchainPaths(): ToolchainPaths & { skillsDir: string } {
 		onecEnterprise: resolver.resolveOnecEnterprise(),
 		ibcmd: resolver.resolveIbcmd(),
 		toolsDir: resolver.getToolsDir(),
-		skillsDir: resolveSkillsDir(),
 	};
 }

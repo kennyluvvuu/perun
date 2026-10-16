@@ -89,9 +89,20 @@ describe("1C Permission System", () => {
 		expect(bashCheck.allowed).toBe(false);
 		expect(bashCheck.requiresUserConfirmation).toBe(true);
 
-		// Vanessa and Subagent tools are allowed in auto-approve
-		expect(policy.checkToolCall("1c_vanessa", { action: "init-dev" }).allowed).toBe(true);
-		expect(policy.checkToolCall("1c_subagent", { role: "1c-coder" }).allowed).toBe(true);
+		// Metadata, infobase and test tools are allowed in auto-approve
+		expect(policy.checkToolCall("1c_vanessa", { action: "test" }).allowed).toBe(true);
+		expect(policy.checkToolCall("1c_md", { action: "create", object: "Справочник.Товары" }).allowed).toBe(true);
+		expect(policy.checkToolCall("1c_ib", { action: "build" }).allowed).toBe(true);
+	});
+
+	it("treats read-only actions of 1c_md and 1c_ib as safe reads even in STRICT mode", () => {
+		const policy = new PermissionPolicy("strict", "/project");
+
+		expect(policy.checkToolCall("1c_md", { action: "info", object: "Документ.Заказ" }).allowed).toBe(true);
+		expect(policy.checkToolCall("1c_md", { action: "validate" }).allowed).toBe(true);
+		expect(policy.checkToolCall("1c_ib", { action: "status" }).allowed).toBe(true);
+		expect(policy.checkToolCall("1c_md", { action: "create" }).requiresUserConfirmation).toBe(true);
+		expect(policy.checkToolCall("1c_ib", { action: "run" }).requiresUserConfirmation).toBe(true);
 	});
 
 	it("requires confirmation for all mutating operations in STRICT mode", () => {

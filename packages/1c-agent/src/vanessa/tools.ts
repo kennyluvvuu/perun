@@ -1,6 +1,7 @@
 import type { AgentToolResult } from "@earendil-works/pi-agent-core";
 import type { ExtensionAPI, ExtensionToolContext } from "@earendil-works/pi-coding-agent";
 import { Type } from "typebox";
+import { connectionString, resolveInfobase } from "../infobase/project-config.ts";
 import { runVanessaCommand } from "./runner.ts";
 import type { VanessaCommandExecutor, VanessaToolOptions } from "./types.ts";
 
@@ -9,46 +10,16 @@ export function registerVanessaTools(pi: ExtensionAPI, projectRoot?: string, exe
 		name: "1c_vanessa",
 		label: "1C Vanessa Tools",
 		description:
-			"Управление информационной базой 1С, BDD/xUnit-тестированием и запуском внешних обработок через Vanessa Tools (vrunner 3.x + Vanessa Automation / xUnitFor1C). " +
-			"Операции: 'init-dev'/'infobase-init' (создание dev-базы), 'load'/'cf-load' (загрузка исходников XML/EDT), " +
-			"'dump'/'cf-decompile' (выгрузка в файлы), 'updatedb'/'infobase-update' (применение изменений в БД), " +
-			"'test'/'test-vanessa' (запуск BDD feature-сценариев через Vanessa Automation), " +
-			"'xunit'/'test-xunit' (запуск xUnit-тестов через внешнюю обработку .epf), " +
-			"'run'/'run-epf' (запуск внешней обработки .epf в 1С).",
-		promptSnippet:
-			"1c_vanessa: пакетное управление ИБ, BDD/xUnit тесты и запуск epf через Vanessa Tools (init-dev, load, dump, updatedb, test, xunit, run)",
+			"Тесты через Vanessa Tools (vrunner): 'test' — BDD-сценарии .feature в Vanessa Automation, 'xunit' — модульные тесты (xUnitFor1C / YAxUnit) через внешнюю обработку .epf. " +
+			"База по умолчанию — та же, что у 1c_ib (из .v8-project.json или build/ib); собирать базу перед тестами нужно через 1c_ib build.",
+		promptSnippet: "1c_vanessa: запуск BDD (test) и модульных (xunit) тестов в базе проекта",
 		parameters: Type.Object({
-			action: Type.Union(
-				[
-					Type.Literal("init-dev"),
-					Type.Literal("infobase-init"),
-					Type.Literal("load"),
-					Type.Literal("cf-load"),
-					Type.Literal("dump"),
-					Type.Literal("cf-dump"),
-					Type.Literal("cf-decompile"),
-					Type.Literal("updatedb"),
-					Type.Literal("infobase-update"),
-					Type.Literal("test"),
-					Type.Literal("test-vanessa"),
-					Type.Literal("xunit"),
-					Type.Literal("test-xunit"),
-					Type.Literal("run"),
-					Type.Literal("run-epf"),
-				],
-				{
-					description:
-						"Действие: 'init-dev'/'infobase-init' (создать ИБ), 'load'/'cf-load' (загрузить исходники), 'dump'/'cf-decompile' (выгрузить в файлы), 'updatedb'/'infobase-update' (обновить конфигурацию БД), 'test'/'test-vanessa' (запустить BDD-тесты), 'xunit'/'test-xunit' (запустить xUnit-тесты), 'run'/'run-epf' (запустить внешнюю обработку .epf).",
-				},
-			),
-			src: Type.Optional(
-				Type.String({
-					description: "Путь к каталогу исходников конфигурации XML/EDT (для init-dev, load, dump).",
-				}),
-			),
+			action: Type.Union([Type.Literal("test"), Type.Literal("xunit")], {
+				description: "'test' — BDD-сценарии Vanessa Automation, 'xunit' — модульные тесты через .epf",
+			}),
 			epf: Type.Optional(
 				Type.String({
-					description: "Путь к внешней обработке .epf (для action xunit или run)",
+					description: "Путь к внешней обработке .epf с тестами (для action xunit)",
 				}),
 			),
 			ibconnection: Type.Optional(
@@ -116,7 +87,17 @@ export function registerVanessaTools(pi: ExtensionAPI, projectRoot?: string, exe
 			ctx: ExtensionToolContext,
 		): Promise<AgentToolResult<unknown>> => {
 			const effectiveRoot = ctx?.cwd || projectRoot || process.cwd();
-			const result = await runVanessaCommand(params, {
+			const infobase = params.ibconnection ? undefined : resolveInfobase(effectiveRoot);
+			const target = infobase && typeof infobase !== "string" ? infobase.target : undefined;
+			const options: VanessaToolOptions = target
+				? {
+						...params,
+						ibconnection: connectionString(target),
+						dbUser: params.dbUser ?? target.user,
+						dbPassword: params.dbPassword ?? target.password,
+					}
+				: params;
+			const result = await runVanessaCommand(options, {
 				projectRoot: effectiveRoot,
 				signal,
 				executor,

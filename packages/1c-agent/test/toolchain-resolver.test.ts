@@ -11,7 +11,6 @@ import {
 	resolveBslAnalyzerPath,
 	resolveIbcmdPath,
 	resolveOscriptPath,
-	resolveSkillsDir,
 	resolveToolsDir,
 	resolveVanessaAutomationPath,
 	resolveVrunnerPath,
@@ -49,14 +48,6 @@ describe("Toolchain Resolver", () => {
 			process.env.PERUN_TOOLS_DIR = customTools;
 
 			expect(resolveToolsDir()).toBe(customTools);
-		});
-
-		it("respects PERUN_SKILLS_DIR environment variable", () => {
-			const customSkills = path.join(tempDir, "custom-skills");
-			fs.mkdirSync(customSkills, { recursive: true });
-			process.env.PERUN_SKILLS_DIR = customSkills;
-
-			expect(resolveSkillsDir()).toBe(customSkills);
 		});
 	});
 
@@ -170,7 +161,6 @@ describe("Toolchain Resolver", () => {
 
 			expect(all.bslAnalyzer).toBeDefined();
 			expect(all.toolsDir).toBeDefined();
-			expect(all.skillsDir).toBeDefined();
 		});
 	});
 });
